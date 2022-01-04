@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+}
+
+apply plugin : 'eclipse'
+
+dependencies {
+   implementation 'io.github.lambdaprime:id.xfunction:15.0-SNAPSHOT'
+   implementation 'io.github.lambdaprime:kineticstreamer:3.0-SNAPSHOT'
+
+   // transitively export following dependency to tests project
+   apiElements 'io.github.lambdaprime:id.xfunction:15.0-SNAPSHOT'
+   apiElements 'io.github.lambdaprime:kineticstreamer:3.0-SNAPSHOT'
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+java {
+    modularity.inferModulePath = true
+}
+
+javadoc {
+    options.noTimestamp = true;
+    options.noQualifiers = ["all"];
+    options.noTree = true;
+    options.noIndex = true;
+    options.noNavBar = true;
+    options.overview = "src/overview.html";
+}
+
+def packageDir = "$buildDir/package/${projectName}"
+
+task createRelease(type: Zip) {
+    archiveFileName = "$releaseFileName"
+    destinationDirectory = file("$projectDir/release")
+    from file("$packageDir/..")
+}
+
+task copyLibs(type: Copy) {
+    from configurations.runtimeClasspath
+    from jar.archiveFile
+    into "${packageDir}/libs"
+}
+
+task createPackage(type: Copy, dependsOn: copyLibs) {
+    from "${project.rootDir}/README.md"
+    from "${project.rootDir}/LICENSE-2.0.txt"
+    into packageDir
+}
+
+task cleanRelease(type: Delete) {
+    delete "$packageDir"
+    delete "$projectDir/release"
+}
+
+createRelease.dependsOn createPackage
+assemble.dependsOn createRelease
+clean.dependsOn cleanRelease
+
+task updateVersion() {
+    if (version.contains("SNAPSHOT")) return;
+    println "Updating version to " + version
+    new id.xfunction.text.Substitutor()
+        .withRegexpSupport()
+        .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
+            "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
+        ));
+}
+
+createPackage.dependsOn updateVersion

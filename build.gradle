@@ -1,0 +1,27 @@
+/*************************************************
+Requires gradle 7.2
+
+gradle clean build
+
+**************************************************/
+
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+ext {
+    releaseFileName = "${projectName}-${version}.zip"
+}
+
+// include xfunction for updateVersion
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.github.lambdaprime:id.xfunction:14.0"
+    }
+}
