@@ -1,5 +1,7 @@
 package pinorobotics.rtpstalk.entities;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import id.kineticstreamer.annotations.Streamed;
@@ -7,7 +9,24 @@ import id.xfunction.XJsonStringBuilder;
 
 public class ProtocolVersion {
 
-	public static final ProtocolVersion Version_2_3 = new ProtocolVersion(2, 3);
+	public static enum Predefined {
+		Version_2_3(new ProtocolVersion(2, 3));
+		
+		private ProtocolVersion value;
+
+		Predefined(ProtocolVersion value) {
+			this.value = value;
+		}
+		
+		public ProtocolVersion getValue() {
+			return value;
+		}
+	}
+	
+	static Map<ProtocolVersion, Predefined> map = new HashMap<>();
+	static {
+		for (var t: Predefined.values()) map.put(t.value, t);
+	}
 
 	@Streamed
 	public byte major;
@@ -43,6 +62,10 @@ public class ProtocolVersion {
 
 	@Override
 	public String toString() {
+		var predefined = map.get(this);
+		if (predefined != null) {
+			return predefined.name();
+		}
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
 		builder.append("major", major);
 		builder.append("minor", minor);

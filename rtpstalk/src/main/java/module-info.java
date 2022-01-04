@@ -24,6 +24,7 @@
  * @see <a href="https://github.com/pinorobotics/rtpstalk">Github</a>
  */
 module rtpstalk {
+	exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.spdp;
     exports pinorobotics.rtpstalk.entities;
     requires id.xfunction;

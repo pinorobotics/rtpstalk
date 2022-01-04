@@ -26,7 +26,7 @@ public record Submessage(
 		return builder.toString();
 	}
 
-	public static Predicate<Submessage> filterBySubmessageKind(SubmessageKind.Value kind) {
-		return submessage -> submessage.submessageHeader().submessageKind.getValue() == kind;
+	public static Predicate<Submessage> filterBySubmessageKind(SubmessageKind kind) {
+		return submessage -> submessage.submessageHeader().submessageKind().equals(kind);
 	}
 }

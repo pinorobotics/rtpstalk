@@ -1,10 +1,5 @@
 package pinorobotics.rtpstalk.spdp;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.StandardProtocolFamily;
-import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
@@ -18,38 +13,28 @@ import java.util.stream.Stream;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.entities.Data;
 import pinorobotics.rtpstalk.entities.Guid;
-import pinorobotics.rtpstalk.entities.Locator;
 import pinorobotics.rtpstalk.entities.Parameter;
 import pinorobotics.rtpstalk.entities.ParameterId;
 import pinorobotics.rtpstalk.entities.ParameterList;
 import pinorobotics.rtpstalk.entities.RtpsMessage;
 import pinorobotics.rtpstalk.entities.SerializedPayload;
 import pinorobotics.rtpstalk.entities.Submessage;
-import pinorobotics.rtpstalk.entities.SubmessageKind.Value;
+import pinorobotics.rtpstalk.entities.SubmessageKind.Predefined;
 import pinorobotics.rtpstalk.io.RtpsMessageReader;
 
-public class SPDPbuiltinParticipantReader {
+public class SpdpBuiltinParticipantReader {
 
-	private static final XLogger LOGGER = XLogger.getLogger(SPDPbuiltinParticipantReader.class);
-	private String iface = "lo";
+	private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantReader.class);
 	private ExecutorService executor = ForkJoinPool.commonPool();
 	private Map<Guid, RtpsMessage> historyCache = new HashMap<>();
 	private RtpsMessageReader reader = new RtpsMessageReader();
+	private DatagramChannel dc;
 	
-	public SPDPbuiltinParticipantReader withNetworkIface(String iface) {
-		this.iface  = iface;
-		return this;
+	public SpdpBuiltinParticipantReader(DatagramChannel dc) {
+		this.dc = dc;
 	}
-	
+
 	public void start() throws Exception {
-	     var ni = NetworkInterface.getByName(iface);
-	     Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(0);
-	     var dc = DatagramChannel.open(StandardProtocolFamily.INET)
-	         .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-	         .bind(new InetSocketAddress(defaultMulticastLocator.port()))
-	         .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-	     var group = InetAddress.getByName(defaultMulticastLocator.address());
-	     dc.join(group, ni);
 	     executor.execute(() -> {
 	    	 var thread = Thread.currentThread();
 	    	 LOGGER.fine("Running SPDPbuiltinParticipantReader on thread {0} with id {1}", thread.getName(),
@@ -91,7 +76,7 @@ public class SPDPbuiltinParticipantReader {
 
 	public static Stream<Data> findDataElements(RtpsMessage message) {
 		return message.submessages().stream()
-				.filter(Submessage.filterBySubmessageKind(Value.DATA))
+				.filter(Submessage.filterBySubmessageKind(Predefined.DATA.getValue()))
 				.map(Submessage::submessageElements)
 				.flatMap(List::stream)
 				.map(e -> (Data)e);
@@ -99,7 +84,7 @@ public class SPDPbuiltinParticipantReader {
 
 	public static Stream<Object> findParameterValues(RtpsMessage message, ParameterId paramId) {
 		return findDataElements(message)
-			.map(SPDPbuiltinParticipantReader::findParameterList)
+			.map(SpdpBuiltinParticipantReader::findParameterList)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.map(ParameterList::params)

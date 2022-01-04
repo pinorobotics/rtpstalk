@@ -33,6 +33,17 @@ public class Header {
 	@Streamed
 	public GuidPrefix guidPrefix;
 	
+	public Header() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public Header(ProtocolId protocolId, ProtocolVersion protocolVersion, VendorId vendorId, GuidPrefix guidPrefix) {
+		this.protocolId = protocolId;
+		this.protocolVersion = protocolVersion;
+		this.vendorId = vendorId;
+		this.guidPrefix = guidPrefix;
+	}
+	
 	@Override
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);

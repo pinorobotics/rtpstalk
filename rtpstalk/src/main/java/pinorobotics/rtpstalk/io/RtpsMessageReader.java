@@ -18,11 +18,11 @@ import pinorobotics.rtpstalk.entities.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.entities.Submessage;
 import pinorobotics.rtpstalk.entities.SubmessageElement;
 import pinorobotics.rtpstalk.entities.SubmessageHeader;
-import pinorobotics.rtpstalk.spdp.SPDPbuiltinParticipantReader;
+import pinorobotics.rtpstalk.spdp.SpdpBuiltinParticipantReader;
 
 public class RtpsMessageReader {
 
-	private static final XLogger LOGGER = XLogger.getLogger(SPDPbuiltinParticipantReader.class);
+	private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantReader.class);
 	
 	/**
 	 * Returns empty when there is no RTPS message in the buffer
@@ -32,11 +32,11 @@ public class RtpsMessageReader {
 	     var ksr = new KineticStreamReader(in)
 	    		 .withController(new RtpcKineticStreamReaderController(in));
 	     var header = ksr.read(Header.class);
-	     if (!header.protocolId.equals(ProtocolId.RTPS)) {
+	     if (!header.protocolId.equals(ProtocolId.Predefined.RTPS)) {
 	    	 LOGGER.fine("Not RTPS packet, ignoring...");
 	    	 return Optional.empty();
 	     }
-	     if (!header.protocolVersion.equals(ProtocolVersion.Version_2_3)) {
+	     if (!header.protocolVersion.equals(ProtocolVersion.Predefined.Version_2_3)) {
 	    	 throw new XRuntimeException("RTPS protocol version %s not supported", header.protocolVersion);
 	     }
 	     // TODO check little endian only
@@ -47,9 +47,9 @@ public class RtpsMessageReader {
 		     var submessageElements = new ArrayList<SubmessageElement>();
 		     LOGGER.fine("submessageHeader: {0}", submessageHeader);
 		     var submessageStart = buf.position();
-		     while (buf.position() < submessageStart + submessageHeader.submessageLength) {
-			     var submessageElement = ksr.read(submessageHeader.submessageKind.getSubmessageClass());
-			     submessageElement.setFlags(submessageHeader.submessageFlag);
+		     while (buf.position() < submessageStart + submessageHeader.submessageLength()) {
+			     var submessageElement = ksr.read(submessageHeader.submessageKind().getSubmessageClass());
+			     submessageElement.setFlags(submessageHeader.submessageFlag());
 			     switch (submessageElement) {
 			     case InfoTimestamp m: {
 			    	 LOGGER.fine("submessageElement: {0}", m);
@@ -68,7 +68,7 @@ public class RtpsMessageReader {
 			    	 break;
 			     }
 			     default: {
-			    	 LOGGER.warning("Submessage kind {} is not supported", submessageHeader.submessageKind.getValue());
+			    	 LOGGER.warning("Submessage kind {} is not supported", submessageHeader.submessageKind());
 			     }
 			     }
 			     System.out.println(buf.remaining());

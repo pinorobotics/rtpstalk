@@ -10,6 +10,14 @@ public class InfoTimestamp extends SubmessageElement {
 	@Streamed
 	public Timestamp timestamp;
 	
+	public InfoTimestamp() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public InfoTimestamp(Timestamp timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	public List<String> getFlags() {
 		var flags = super.getFlags();
 		if (isInvalidate()) flags.add("InvalidateFlag");
@@ -31,4 +39,7 @@ public class InfoTimestamp extends SubmessageElement {
 		return builder.toString();
 	}
 	
+	public static InfoTimestamp now() {
+		return new InfoTimestamp(Timestamp.now());
+	}
 }

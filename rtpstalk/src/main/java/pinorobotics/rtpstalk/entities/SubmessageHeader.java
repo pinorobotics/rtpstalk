@@ -3,23 +3,27 @@ package pinorobotics.rtpstalk.entities;
 import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
-public class SubmessageHeader {
+public record SubmessageHeader(
 
 	/**
 	 * Identifies the kind of Submessage.
 	 */
 	@Streamed
-	public SubmessageKind submessageKind;
+	SubmessageKind submessageKind,
 	
 	@Streamed
-	public byte submessageFlag;
+	byte submessageFlag,
 
 	/**
 	 * octetsToNextHeader
 	 */
 	@Streamed
-	public short submessageLength;
+	short submessageLength) {
 	
+	public SubmessageHeader(SubmessageKind kind, int submessageFlag, int submessageLength) {
+		this(kind, (byte)submessageFlag, (short)submessageLength);
+	}
+
 	@Override
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
