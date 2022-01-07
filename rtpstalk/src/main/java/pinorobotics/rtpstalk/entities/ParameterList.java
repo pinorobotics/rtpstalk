@@ -5,7 +5,22 @@ import java.util.Optional;
 
 import id.xfunction.XJsonStringBuilder;
 
-public record ParameterList(List<Parameter> params) implements Payload {
+public class ParameterList implements SubmessageElement, Payload {
+	
+	public List<Parameter> params;
+	
+	public ParameterList() {
+
+	}
+	
+	public ParameterList(List<Parameter> params) {
+		this.params = params;
+	}
+
+	public List<Parameter> getParameters() {
+		return params;
+	}
+
 	@Override
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
@@ -14,7 +29,7 @@ public record ParameterList(List<Parameter> params) implements Payload {
 	}
 
 	public Optional<Object> findParameter(ParameterId param) {
-		return params().stream()
+		return params.stream()
 				.filter(p -> p.parameterId() == param)
 				.map(Parameter::value)
 				.findFirst();

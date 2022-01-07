@@ -1,10 +1,10 @@
 package pinorobotics.rtpstalk.entities;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class Duration {
@@ -13,6 +13,8 @@ public class Duration {
 		ZERO(new Duration(0, 0)),
 		INFINITE(new Duration(0x7fffffff, 0xffffffff));
 
+		static final Map<Duration, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private Duration value;
 
 		Predefined(Duration value) {
@@ -20,29 +22,22 @@ public class Duration {
 		}
 	}
 	
-	@Streamed
 	public int seconds;
 	
 	/**
 	 * Time in sec/2^32
 	 */
-	@Streamed
 	public int fraction;
 
 	public Duration() {
-		// TODO Auto-generated constructor stub
+
 	}
-	
+
 	public Duration(int seconds, int fraction) {
 		this.seconds = seconds;
 		this.fraction = fraction;
 	}
-	
-	static Map<Duration, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(fraction, seconds);
@@ -62,7 +57,7 @@ public class Duration {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

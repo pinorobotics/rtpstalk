@@ -1,6 +1,5 @@
 package pinorobotics.rtpstalk.entities;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 /**
@@ -10,40 +9,36 @@ import id.xfunction.XJsonStringBuilder;
  */
 public class Header {
 
-	@Streamed
-	public ProtocolId protocolId = new ProtocolId(new byte[0]);
-	
+	public ProtocolId protocolId;
+
 	/**
 	 * Identifies the RTPS protocol version used by the Participant.
 	 */
-	@Streamed
 	public ProtocolVersion protocolVersion;
-	
+
 	/**
 	 * Identifies the vendor of the DDS middleware that contains
 	 * the Participant.
 	 */
-	@Streamed
 	public VendorId vendorId;
-	
+
 	/**
 	 * The common GuidPrefix_t of the Participant and all the
 	 * Endpoints contained within the Participant.
 	 */
-	@Streamed
 	public GuidPrefix guidPrefix;
-	
+
 	public Header() {
-		// TODO Auto-generated constructor stub
+
 	}
-	
+
 	public Header(ProtocolId protocolId, ProtocolVersion protocolVersion, VendorId vendorId, GuidPrefix guidPrefix) {
 		this.protocolId = protocolId;
 		this.protocolVersion = protocolVersion;
 		this.vendorId = vendorId;
 		this.guidPrefix = guidPrefix;
 	}
-	
+
 	@Override
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);

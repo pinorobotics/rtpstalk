@@ -1,10 +1,10 @@
 package pinorobotics.rtpstalk.entities;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class ProtocolVersion {
@@ -12,6 +12,8 @@ public class ProtocolVersion {
 	public static enum Predefined {
 		Version_2_3(new ProtocolVersion(2, 3));
 		
+		static final Map<ProtocolVersion, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private ProtocolVersion value;
 
 		Predefined(ProtocolVersion value) {
@@ -23,19 +25,12 @@ public class ProtocolVersion {
 		}
 	}
 	
-	static Map<ProtocolVersion, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
-
-	@Streamed
 	public byte major;
 	
-	@Streamed
 	public byte minor;
-
+	
 	public ProtocolVersion() {
-		// TODO Auto-generated constructor stub
+
 	}
 	
 	public ProtocolVersion(int major, int minor) {
@@ -62,7 +57,7 @@ public class ProtocolVersion {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

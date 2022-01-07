@@ -77,8 +77,6 @@ public class SpdpBuiltinParticipantReader {
 	public static Stream<Data> findDataElements(RtpsMessage message) {
 		return message.submessages().stream()
 				.filter(Submessage.filterBySubmessageKind(Predefined.DATA.getValue()))
-				.map(Submessage::submessageElements)
-				.flatMap(List::stream)
 				.map(e -> (Data)e);
 	}
 
@@ -87,7 +85,7 @@ public class SpdpBuiltinParticipantReader {
 			.map(SpdpBuiltinParticipantReader::findParameterList)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
-			.map(ParameterList::params)
+			.map(ParameterList::getParameters)
 			.flatMap(List::stream)
 			.filter(p -> p.parameterId() == paramId)
 			.map(Parameter::value);
@@ -98,7 +96,7 @@ public class SpdpBuiltinParticipantReader {
 	}
 	
 	public static Optional<ParameterList> getParameterList(SerializedPayload payload) {
-		if (payload.payload() instanceof ParameterList pl) {
+		if (payload.payload instanceof ParameterList pl) {
 			return Optional.of(pl);
 		}
 		return Optional.empty();

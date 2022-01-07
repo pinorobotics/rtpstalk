@@ -1,11 +1,9 @@
 package pinorobotics.rtpstalk.entities;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class SequenceNumber {
 
-	@Streamed
 	public int value;
 
 	@Override

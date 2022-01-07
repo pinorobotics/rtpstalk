@@ -13,6 +13,9 @@ import pinorobotics.rtpstalk.entities.GuidPrefix;
 import pinorobotics.rtpstalk.entities.Header;
 import pinorobotics.rtpstalk.entities.InfoTimestamp;
 import pinorobotics.rtpstalk.entities.Locator;
+import pinorobotics.rtpstalk.entities.Parameter;
+import pinorobotics.rtpstalk.entities.ParameterId;
+import pinorobotics.rtpstalk.entities.ParameterList;
 import pinorobotics.rtpstalk.entities.ProtocolId;
 import pinorobotics.rtpstalk.entities.ProtocolVersion;
 import pinorobotics.rtpstalk.entities.RtpsMessage;
@@ -42,9 +45,10 @@ public class SpdpService implements AutoCloseable {
 		var group = InetAddress.getByName(defaultMulticastLocator.address());
 		dc.join(group, ni);
 		reader = new SpdpBuiltinParticipantReader(dc);
-		writer =new SpdpBuiltinParticipantWriter(dc);
+		writer = new SpdpBuiltinParticipantWriter(dc);
+//		writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
 		reader.start();
-		writer.start();
+//		writer.start();
 	}
 
 	@Override
@@ -52,19 +56,26 @@ public class SpdpService implements AutoCloseable {
 		writer.close();
 	}
 	
-	private RtpsMessage createSpdpDiscoveredParticipantData() {
-		List<Submessage> submessages;
-		Header header = new Header(
-				ProtocolId.Predefined.RTPS.getValue(),
-				ProtocolVersion.Predefined.Version_2_3.getValue(),
-				VendorId.Predefined.RTPSTALK.getValue(),
-				GuidPrefix.generate());
-		
-		return new RtpsMessage(header, List.of(newInfoTimestampSubmessage()));
-	}
-	
-	private Submessage newInfoTimestampSubmessage() {
-		var header = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(), 0, 123);
-		return new Submessage(header, List.of(InfoTimestamp.now()));
-	}
+//	private RtpsMessage createSpdpDiscoveredParticipantData() {
+//		List<Submessage> submessages;
+//		var guidPrefix = GuidPrefix.generate();
+//		Header header = new Header(
+//				ProtocolId.Predefined.RTPS.getValue(),
+//				ProtocolVersion.Predefined.Version_2_3.getValue(),
+//				VendorId.Predefined.RTPSTALK.getValue(),
+//				guidPrefix);
+//		var params = List.of(new Parameter(ParameterId.PID_PARTICIPANT_GUID, guidPrefix));
+//		return new RtpsMessage(header, List.of(newInfoTimestampSubmessage(),
+//				newDataSubmessage(new ParameterList(params))));
+//	}
+//	
+//	private Submessage newDataSubmessage(ParameterList parameterList) {
+//		var header = new SubmessageHeader(SubmessageKind.Predefined.DATA.getValue(), 0, 123);
+//		return new Submessage(header, List.of(InfoTimestamp.now()));
+//	}
+//
+//	private Submessage newInfoTimestampSubmessage() {
+//		var header = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(), 0, 123);
+//		return new Submessage(header, List.of(InfoTimestamp.now()));
+//	}
 }

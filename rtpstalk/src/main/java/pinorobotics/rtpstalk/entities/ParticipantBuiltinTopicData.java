@@ -1,17 +1,21 @@
 package pinorobotics.rtpstalk.entities;
 
-import java.util.Arrays;
-
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class ParticipantBuiltinTopicData {
 
-	@Streamed
 	public BuiltinTopicKey key;
 	
-	@Streamed
 	public UserDataQosPolicy user_data;
+	
+	public ParticipantBuiltinTopicData() {
+
+	}
+	
+	public ParticipantBuiltinTopicData(BuiltinTopicKey key, UserDataQosPolicy user_data) {
+		this.key = key;
+		this.user_data = user_data;
+	}
 
 	@Override
 	public String toString() {

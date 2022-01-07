@@ -1,11 +1,10 @@
 package pinorobotics.rtpstalk.entities;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class EntityId {
@@ -24,6 +23,8 @@ public class EntityId {
 		ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER(new EntityId(new byte[]{00,02,00}, 0xc7)),
 		ENTITYID_UNKNOWN(new EntityId());
 		
+		static final Map<EntityId, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private EntityId value;
 
 		Predefined(EntityId value) {
@@ -35,24 +36,16 @@ public class EntityId {
 		}
 	}
 	
-	@Streamed
 	public byte[] entityKey = new byte[3];
 
-	@Streamed
 	public byte entityKind;
 
 	public EntityId() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public EntityId(byte[] entityKey, int entityKind) {
 		this.entityKey = entityKey;
 		this.entityKind = (byte) entityKind;
-	}
-	
-	static Map<EntityId, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
 	}
 	
 	@Override
@@ -78,7 +71,7 @@ public class EntityId {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

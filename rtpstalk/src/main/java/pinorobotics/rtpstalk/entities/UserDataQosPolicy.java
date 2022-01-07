@@ -2,13 +2,11 @@ package pinorobotics.rtpstalk.entities;
 
 import java.util.List;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class UserDataQosPolicy {
 
-	@Streamed
-	public List<Byte> value;
+	public List<Byte> value = List.of();
 
 	@Override
 	public String toString() {

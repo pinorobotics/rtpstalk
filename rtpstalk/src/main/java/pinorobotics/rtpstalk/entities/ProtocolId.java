@@ -1,10 +1,9 @@
 package pinorobotics.rtpstalk.entities;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class ProtocolId {
@@ -12,6 +11,8 @@ public class ProtocolId {
 	public static enum Predefined {
 		RTPS(new ProtocolId(new byte[] {'R', 'T', 'P', 'S'}));
 		
+		static final Map<ProtocolId, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private ProtocolId value;
 
 		Predefined(ProtocolId value) {
@@ -23,15 +24,10 @@ public class ProtocolId {
 		}
 	}
 	
-	static Map<ProtocolId, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
-	
-	@Streamed
 	public byte[] value = new byte[4];
-
+	
 	public ProtocolId() {
+
 	}
 	
 	public ProtocolId(byte[] value) {
@@ -60,7 +56,7 @@ public class ProtocolId {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

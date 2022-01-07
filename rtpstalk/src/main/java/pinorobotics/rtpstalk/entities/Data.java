@@ -1,26 +1,19 @@
 package pinorobotics.rtpstalk.entities;
 
-import java.util.Arrays;
 import java.util.List;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
-public class Data extends SubmessageElement {
+public class Data extends Submessage<SerializedPayload> {
 	
-	@Streamed
 	public short extraFlags;
 	
-	@Streamed
 	public short octetsToInlineQos;
 	
-	@Streamed
 	public EntityId readerId;
 	
-	@Streamed
 	public EntityId writerId;
 	
-	@Streamed
 	public SequenceNumber writerSN;
 
 	public SerializedPayload serializedPayload;
@@ -35,19 +28,19 @@ public class Data extends SubmessageElement {
 	}
 
 	public boolean isInlineQos() {
-		return (flags & 2) != 0;
+		return (getFlagsInternal() & 2) != 0;
 	}
 
 	public boolean isData() {
-		return (flags & 4) != 0;
+		return (getFlagsInternal() & 4) != 0;
 	}
 
 	public boolean isKey() {
-		return (flags & 8) != 0;
+		return (getFlagsInternal() & 8) != 0;
 	}
 
 	public boolean isNonStandardPayloadFlag() {
-		return (flags & 10) != 0;
+		return (getFlagsInternal() & 10) != 0;
 	}
 	
 	/**
@@ -73,6 +66,16 @@ public class Data extends SubmessageElement {
 		builder.append("writerSN", writerSN);
 		builder.append("serializedPayload", serializedPayload);
 		return builder.toString();
+	}
+
+	@Override
+	public List<SerializedPayload> getSubmessageElements() {
+		return List.of(serializedPayload);
+	}
+
+	@Override
+	public int getLength() {
+		return 0;
 	}
 	
 }

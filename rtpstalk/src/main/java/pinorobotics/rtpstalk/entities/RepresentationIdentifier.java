@@ -1,18 +1,19 @@
 package pinorobotics.rtpstalk.entities;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class RepresentationIdentifier {
-
+	
 	public static enum Predefined {
 		PL_CDR_BE(new RepresentationIdentifier(new byte[]{0x00, 0x02})),
 		PL_CDR_LE(new RepresentationIdentifier(new byte[]{0x00, 0x03}));
-		
+
+		static final Map<RepresentationIdentifier, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private RepresentationIdentifier value;
 
 		Predefined(RepresentationIdentifier value) {
@@ -24,22 +25,16 @@ public class RepresentationIdentifier {
 		}
 	}
 	
-	static Map<RepresentationIdentifier, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
-	
-	@Streamed
 	public byte[] value = new byte[2];
+	
+	public RepresentationIdentifier() {
+		
+	}
 	
 	public RepresentationIdentifier(byte[] value) {
 		this.value = value;
 	}
-	
-	public RepresentationIdentifier() {
-		// TODO Auto-generated constructor stub
-	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -62,7 +57,7 @@ public class RepresentationIdentifier {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

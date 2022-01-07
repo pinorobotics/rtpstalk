@@ -1,11 +1,10 @@
 package pinorobotics.rtpstalk.entities;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 /**
@@ -18,6 +17,8 @@ public class GuidPrefix {
 	public static enum Predefined {
 		GUIDPREFIX_UNKNOWN(new GuidPrefix());
 		
+		static final Map<GuidPrefix, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private GuidPrefix value;
 
 		Predefined(GuidPrefix value) {
@@ -29,13 +30,9 @@ public class GuidPrefix {
 		}
 	}
 	
-	static Map<GuidPrefix, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
+	public byte[] value = new byte[SIZE];
 	
 	public GuidPrefix() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public GuidPrefix(byte[] value) {
@@ -62,12 +59,9 @@ public class GuidPrefix {
 		return Arrays.equals(value, other.value);
 	}
 
-	@Streamed
-	public byte[] value = new byte[SIZE];
-
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}

@@ -2,20 +2,22 @@ package pinorobotics.rtpstalk.entities;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
-public class Timestamp {
+public class Timestamp implements SubmessageElement {
 
 	public static enum Predefined {
 		TIME_ZERO(new Timestamp(0, 0)),
 		TIME_INVALID(new Timestamp(0xffffffff, 0xffffffff)),
 		TIME_INFINITE(new Timestamp(0xffffffff, 0xfffffffe));
 		
+		static final Map<Timestamp, Predefined> MAP = Arrays.stream(Predefined.values())
+				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private Timestamp value;
 
 		Predefined(Timestamp value) {
@@ -27,20 +29,13 @@ public class Timestamp {
 		}
 	}
 	
-	static Map<Timestamp, Predefined> map = new HashMap<>();
-	static {
-		for (var t: Predefined.values()) map.put(t.value, t);
-	}
-	
 	private static final Instant epoc = Instant.now();
 
-	@Streamed
 	public int seconds;
 	
 	/**
 	 * Time in sec/2^32
 	 */
-	@Streamed
 	public int fraction;
 
 	public Timestamp() {
@@ -71,7 +66,7 @@ public class Timestamp {
 
 	@Override
 	public String toString() {
-		var predefined = map.get(this);
+		var predefined = Predefined.MAP.get(this);
 		if (predefined != null) {
 			return predefined.name();
 		}
@@ -83,5 +78,9 @@ public class Timestamp {
 	
 	public static Timestamp now() {
 		return new Timestamp((int) Duration.between(Instant.now(), epoc).toSeconds(), 0);
+	}
+	
+	public static int getLength() {
+		return Integer.BYTES * 2;
 	}
 }

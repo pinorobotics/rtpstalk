@@ -2,16 +2,22 @@ package pinorobotics.rtpstalk.entities;
 
 import java.util.Arrays;
 
-import id.kineticstreamer.annotations.Streamed;
 import id.xfunction.XJsonStringBuilder;
 
 public class SerializedPayloadHeader {
 	
-	@Streamed
 	public RepresentationIdentifier representation_identifier;
 	
-	@Streamed
 	public byte[] representation_options = new byte[2];
+	
+	public SerializedPayloadHeader() {
+
+	}
+	
+	public SerializedPayloadHeader(RepresentationIdentifier representation_identifier, byte[] representation_options) {
+		this.representation_identifier = representation_identifier;
+		this.representation_options = representation_options;
+	}
 
 	@Override
 	public String toString() {

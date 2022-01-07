@@ -2,16 +2,12 @@ package pinorobotics.rtpstalk.entities;
 
 import java.util.List;
 
-import id.kineticstreamer.annotations.Streamed;
-import id.xfunction.XJsonStringBuilder;
-
-public class InfoTimestamp extends SubmessageElement {
+public class InfoTimestamp extends Submessage<Timestamp> {
 	
-	@Streamed
 	public Timestamp timestamp;
 	
 	public InfoTimestamp() {
-		// TODO Auto-generated constructor stub
+
 	}
 	
 	public InfoTimestamp(Timestamp timestamp) {
@@ -28,18 +24,20 @@ public class InfoTimestamp extends SubmessageElement {
 	 * Subsequent Submessages should not be considered to have a valid timestamp.
 	 */
 	private boolean isInvalidate() {
-		return (flags & 2) != 0;
+		return (getFlagsInternal() & 2) != 0;
 	}
 
 	@Override
-	public String toString() {
-		XJsonStringBuilder builder = new XJsonStringBuilder(this);
-		builder.append("super", super.toString());
-		builder.append("timestamp", timestamp);
-		return builder.toString();
+	public int getLength() {
+		return Timestamp.getLength();
 	}
-	
+
 	public static InfoTimestamp now() {
 		return new InfoTimestamp(Timestamp.now());
+	}
+
+	@Override
+	public List<Timestamp> getSubmessageElements() {
+		return List.of(timestamp);
 	}
 }
