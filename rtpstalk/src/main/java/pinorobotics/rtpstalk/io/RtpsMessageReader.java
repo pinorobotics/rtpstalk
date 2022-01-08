@@ -9,16 +9,16 @@ import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.entities.Data;
-import pinorobotics.rtpstalk.entities.Header;
-import pinorobotics.rtpstalk.entities.InfoTimestamp;
-import pinorobotics.rtpstalk.entities.ProtocolId;
-import pinorobotics.rtpstalk.entities.ProtocolVersion;
-import pinorobotics.rtpstalk.entities.RtpsMessage;
-import pinorobotics.rtpstalk.entities.SerializedPayload;
-import pinorobotics.rtpstalk.entities.SerializedPayloadHeader;
-import pinorobotics.rtpstalk.entities.Submessage;
-import pinorobotics.rtpstalk.entities.SubmessageHeader;
+import pinorobotics.rtpstalk.dto.submessages.Data;
+import pinorobotics.rtpstalk.dto.submessages.Header;
+import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
+import pinorobotics.rtpstalk.dto.submessages.RtpsMessage;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.dto.submessages.Submessage;
+import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
+import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
 
 public class RtpsMessageReader {
 

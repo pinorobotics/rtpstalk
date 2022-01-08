@@ -2,7 +2,7 @@ package pinorobotics.rtpstalk.io;
 
 import java.nio.ByteBuffer;
 
-import pinorobotics.rtpstalk.entities.RtpsMessage;
+import pinorobotics.rtpstalk.dto.submessages.RtpsMessage;
 
 public class RtpsMessageWriter {
 

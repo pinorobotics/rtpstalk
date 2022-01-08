@@ -15,18 +15,18 @@ import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.entities.BuiltinEndpointSet;
-import pinorobotics.rtpstalk.entities.Duration;
-import pinorobotics.rtpstalk.entities.Guid;
-import pinorobotics.rtpstalk.entities.GuidPrefix;
-import pinorobotics.rtpstalk.entities.Locator;
-import pinorobotics.rtpstalk.entities.LocatorKind;
-import pinorobotics.rtpstalk.entities.Parameter;
-import pinorobotics.rtpstalk.entities.ParameterId;
-import pinorobotics.rtpstalk.entities.ParameterList;
-import pinorobotics.rtpstalk.entities.ProtocolVersion;
-import pinorobotics.rtpstalk.entities.UserDataQosPolicy;
-import pinorobotics.rtpstalk.entities.VendorId;
+import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.submessages.Duration;
+import pinorobotics.rtpstalk.dto.submessages.Guid;
+import pinorobotics.rtpstalk.dto.submessages.Locator;
+import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
+import pinorobotics.rtpstalk.dto.submessages.UserDataQosPolicy;
+import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
+import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
 
 public class RtpcInputKineticStream implements InputKineticStream {
 

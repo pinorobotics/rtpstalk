@@ -1,8 +1,8 @@
 package pinorobotics.rtpstalk.spdp;
 
-import static pinorobotics.rtpstalk.entities.TrafficType.*;
+import static pinorobotics.rtpstalk.dto.submessages.TrafficType.*;
 
-import pinorobotics.rtpstalk.entities.TrafficType;
+import pinorobotics.rtpstalk.dto.submessages.TrafficType;
 
 public record PortNumberParameters(int DomainIdGain, int ParticipantIdGain, int PortBase,
 		int d0, int d1, int d2, int d3, TrafficType trafficType) 

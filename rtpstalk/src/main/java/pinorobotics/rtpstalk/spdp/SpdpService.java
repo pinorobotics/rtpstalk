@@ -9,20 +9,20 @@ import java.nio.channels.DatagramChannel;
 import java.util.List;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.entities.GuidPrefix;
-import pinorobotics.rtpstalk.entities.Header;
-import pinorobotics.rtpstalk.entities.InfoTimestamp;
-import pinorobotics.rtpstalk.entities.Locator;
-import pinorobotics.rtpstalk.entities.Parameter;
-import pinorobotics.rtpstalk.entities.ParameterId;
-import pinorobotics.rtpstalk.entities.ParameterList;
-import pinorobotics.rtpstalk.entities.ProtocolId;
-import pinorobotics.rtpstalk.entities.ProtocolVersion;
-import pinorobotics.rtpstalk.entities.RtpsMessage;
-import pinorobotics.rtpstalk.entities.Submessage;
-import pinorobotics.rtpstalk.entities.SubmessageHeader;
-import pinorobotics.rtpstalk.entities.SubmessageKind;
-import pinorobotics.rtpstalk.entities.VendorId;
+import pinorobotics.rtpstalk.dto.submessages.Header;
+import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.dto.submessages.Locator;
+import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
+import pinorobotics.rtpstalk.dto.submessages.RtpsMessage;
+import pinorobotics.rtpstalk.dto.submessages.Submessage;
+import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
+import pinorobotics.rtpstalk.dto.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
+import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
 
 public class SpdpService implements AutoCloseable {
 

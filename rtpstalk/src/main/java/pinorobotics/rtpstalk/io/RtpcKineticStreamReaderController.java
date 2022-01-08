@@ -1,7 +1,7 @@
 package pinorobotics.rtpstalk.io;
 
 import id.kineticstreamer.KineticStreamReaderController;
-import pinorobotics.rtpstalk.entities.Locator;
+import pinorobotics.rtpstalk.dto.submessages.Locator;
 
 public class RtpcKineticStreamReaderController extends KineticStreamReaderController {
 
