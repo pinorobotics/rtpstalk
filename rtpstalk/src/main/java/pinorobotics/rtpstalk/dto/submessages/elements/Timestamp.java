@@ -1,6 +1,5 @@
 package pinorobotics.rtpstalk.dto.submessages.elements;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
@@ -29,8 +28,6 @@ public class Timestamp implements SubmessageElement {
 		}
 	}
 	
-	private static final Instant epoc = Instant.now();
-
 	public int seconds;
 	
 	/**
@@ -42,9 +39,9 @@ public class Timestamp implements SubmessageElement {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Timestamp(int seconds, int fraction) {
-		this.seconds = seconds;
-		this.fraction = fraction;
+	public Timestamp(long seconds, long fraction) {
+		this.seconds = (int) seconds;
+		this.fraction = (int) fraction;
 	}
 	
 	@Override
@@ -77,10 +74,9 @@ public class Timestamp implements SubmessageElement {
 	}
 	
 	public static Timestamp now() {
-		return new Timestamp((int) Duration.between(Instant.now(), epoc).toSeconds(), 0);
+		var secs = Instant.now().getEpochSecond();
+		var fraction = secs / (1<<31);
+		return new Timestamp(secs, fraction);
 	}
-	
-	public static int getLength() {
-		return Integer.BYTES * 2;
-	}
+
 }

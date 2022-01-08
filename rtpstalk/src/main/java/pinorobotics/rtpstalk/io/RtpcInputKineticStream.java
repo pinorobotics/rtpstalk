@@ -1,14 +1,9 @@
 package pinorobotics.rtpstalk.io;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import id.kineticstreamer.InputKineticStream;
@@ -21,7 +16,6 @@ import pinorobotics.rtpstalk.dto.submessages.Guid;
 import pinorobotics.rtpstalk.dto.submessages.Locator;
 import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
 import pinorobotics.rtpstalk.dto.submessages.UserDataQosPolicy;
-import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
@@ -30,6 +24,7 @@ import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
 
 public class RtpcInputKineticStream implements InputKineticStream {
 
+	public static final int ADDRESS_SIZE = 16;
 	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
 	private static final short PID_SENTINEL = 0x1;
 	private ByteBuffer buf;
@@ -223,7 +218,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	public Locator readLocator() throws Exception {
 		var kind = LocatorKind.VALUES.getOrDefault(readInt(), LocatorKind.LOCATOR_KIND_INVALID);
 		var port = readInt();
-		var buf = new byte[16];
+		var buf = new byte[ADDRESS_SIZE];
 		readByteArray(buf);
 		var address = "";
 		switch (kind) {

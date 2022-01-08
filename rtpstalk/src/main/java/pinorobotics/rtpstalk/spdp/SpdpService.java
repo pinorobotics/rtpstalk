@@ -8,24 +8,34 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
 import java.util.List;
 
+import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.dto.RtpsMessage;
+import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.submessages.Data;
+import pinorobotics.rtpstalk.dto.submessages.Duration;
+import pinorobotics.rtpstalk.dto.submessages.EntityId;
+import pinorobotics.rtpstalk.dto.submessages.Guid;
 import pinorobotics.rtpstalk.dto.submessages.Header;
 import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.dto.submessages.Locator;
+import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
 import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
-import pinorobotics.rtpstalk.dto.submessages.RtpsMessage;
-import pinorobotics.rtpstalk.dto.submessages.Submessage;
-import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
-import pinorobotics.rtpstalk.dto.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.dto.submessages.RepresentationIdentifier;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.io.RtpcInputKineticStream;
 
 public class SpdpService implements AutoCloseable {
 
+	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
 	private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
 	private SpdpBuiltinParticipantReader reader;
 	private SpdpBuiltinParticipantWriter writer;
@@ -36,6 +46,8 @@ public class SpdpService implements AutoCloseable {
 	}
 
 	public void start() throws Exception {
+		LOGGER.entering("start");
+		LOGGER.fine("Using following configuration: {0}", config);
 		var ni = NetworkInterface.getByName(config.networkIface());
 		Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(0);
 		var dc = DatagramChannel.open(StandardProtocolFamily.INET)
@@ -46,9 +58,10 @@ public class SpdpService implements AutoCloseable {
 		dc.join(group, ni);
 		reader = new SpdpBuiltinParticipantReader(dc);
 		writer = new SpdpBuiltinParticipantWriter(dc);
-//		writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
+		System.out.println(createSpdpDiscoveredParticipantData());
+		//writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
 		reader.start();
-//		writer.start();
+		//writer.start();
 	}
 
 	@Override
@@ -56,26 +69,31 @@ public class SpdpService implements AutoCloseable {
 		writer.close();
 	}
 	
-//	private RtpsMessage createSpdpDiscoveredParticipantData() {
-//		List<Submessage> submessages;
-//		var guidPrefix = GuidPrefix.generate();
-//		Header header = new Header(
-//				ProtocolId.Predefined.RTPS.getValue(),
-//				ProtocolVersion.Predefined.Version_2_3.getValue(),
-//				VendorId.Predefined.RTPSTALK.getValue(),
-//				guidPrefix);
-//		var params = List.of(new Parameter(ParameterId.PID_PARTICIPANT_GUID, guidPrefix));
-//		return new RtpsMessage(header, List.of(newInfoTimestampSubmessage(),
-//				newDataSubmessage(new ParameterList(params))));
-//	}
-//	
-//	private Submessage newDataSubmessage(ParameterList parameterList) {
-//		var header = new SubmessageHeader(SubmessageKind.Predefined.DATA.getValue(), 0, 123);
-//		return new Submessage(header, List.of(InfoTimestamp.now()));
-//	}
-//
-//	private Submessage newInfoTimestampSubmessage() {
-//		var header = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(), 0, 123);
-//		return new Submessage(header, List.of(InfoTimestamp.now()));
-//	}
+	private RtpsMessage createSpdpDiscoveredParticipantData() {
+		var guidPrefix = GuidPrefix.generate();
+		var params = List.of(
+				new Parameter(ParameterId.PID_PARTICIPANT_GUID, new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+				new Parameter(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, new Locator(
+						LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress().getHostAddress())),
+				new Parameter(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, new Locator(
+						LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress().getHostAddress())),
+				new Parameter(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
+				new Parameter(ParameterId.PID_BUILTIN_ENDPOINT_SET, BuiltinEndpointSet.ALL),
+				new Parameter(ParameterId.PID_ENTITY_NAME, "SpdpDiscoveredParticipantData"));
+		var submessages = List.of(InfoTimestamp.now(),
+				new Data(0b101, 0, 16, 
+					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
+					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
+					new SequenceNumber(),
+					new SerializedPayload(new SerializedPayloadHeader(
+							RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
+							new ParameterList(params))));
+		Header header = new Header(
+				ProtocolId.Predefined.RTPS.getValue(),
+				ProtocolVersion.Predefined.Version_2_3.getValue(),
+				VendorId.Predefined.RTPSTALK.getValue(),
+				guidPrefix);
+		return new RtpsMessage(header, submessages);
+	}
+	
 }

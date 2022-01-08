@@ -12,7 +12,7 @@ import id.xfunction.XJsonStringBuilder;
  */
 public class GuidPrefix {
 
-	private static final int SIZE = 12;
+	public static final int SIZE = 12;
 
 	public static enum Predefined {
 		GUIDPREFIX_UNKNOWN(new GuidPrefix());

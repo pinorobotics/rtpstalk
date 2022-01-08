@@ -19,7 +19,6 @@ public abstract class Submessage<T extends SubmessageElement> {
 	public transient SubmessageHeader submessageHeader;
 	
 	public abstract List<T> getSubmessageElements();
-	public abstract int getLength();
 
 	public boolean isLittleEndian() {
 		return (getFlagsInternal() & 1) == 1;
@@ -38,15 +37,21 @@ public abstract class Submessage<T extends SubmessageElement> {
 		return flags;
 	}
 	
+	protected Object[] getAdditionalHeaderFields() {
+		return new Object[0];
+	}
+
 	@Override
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
 		builder.append("submessageHeader", submessageHeader);
+		builder.append(getAdditionalHeaderFields());
+		builder.append("flags", getFlags());
 		builder.append("submessageElements", getSubmessageElements());
 		return builder.toString();
 	}
 
-	public static Predicate<Submessage> filterBySubmessageKind(SubmessageKind kind) {
+	public static Predicate<Submessage<?>> filterBySubmessageKind(SubmessageKind kind) {
 		return submessage -> submessage.submessageHeader.submessageKind.equals(kind);
 	}
 	

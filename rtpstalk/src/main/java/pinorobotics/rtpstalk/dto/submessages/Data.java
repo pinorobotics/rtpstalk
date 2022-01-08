@@ -2,8 +2,8 @@ package pinorobotics.rtpstalk.dto.submessages;
 
 import java.util.List;
 
-import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.io.LengthCalculator;
 
 public class Data extends Submessage<SerializedPayload> {
 	
@@ -19,6 +19,22 @@ public class Data extends Submessage<SerializedPayload> {
 
 	public SerializedPayload serializedPayload;
 	
+	public Data() {
+
+	}
+
+	public Data(int flags, int extraFlags, int octetsToInlineQos, EntityId readerId, EntityId writerId,
+			SequenceNumber writerSN, SerializedPayload serializedPayload) {
+		this.extraFlags = (short) extraFlags;
+		this.octetsToInlineQos = (short) octetsToInlineQos;
+		this.readerId = readerId;
+		this.writerId = writerId;
+		this.writerSN = writerSN;
+		this.serializedPayload = serializedPayload;
+		submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.DATA.getValue(), flags,
+				LengthCalculator.getInstance().calculateLength(this));
+	}
+
 	public List<String> getFlags() {
 		var flags = super.getFlags();
 		if (isInlineQos()) flags.add("InlineQos");
@@ -55,28 +71,19 @@ public class Data extends Submessage<SerializedPayload> {
 	public SerializedPayload getSerializedPayload() {
 		return serializedPayload;
 	}
-	
+
 	@Override
-	public String toString() {
-		XJsonStringBuilder builder = new XJsonStringBuilder(this);
-		builder.append("super", super.toString());
-		builder.append("extraFlags", extraFlags);
-		builder.append("octetsToInlineQos", octetsToInlineQos);
-		builder.append("readerId", readerId);
-		builder.append("writerId", writerId);
-		builder.append("writerSN", writerSN);
-		builder.append("serializedPayload", serializedPayload);
-		return builder.toString();
+	protected Object[] getAdditionalHeaderFields() {
+		return new Object[]{
+				"extraFlags", extraFlags,
+				"octetsToInlineQos", octetsToInlineQos,
+				"readerId", readerId,
+				"writerId", writerId,
+				"writerSN", writerSN};
 	}
 
 	@Override
 	public List<SerializedPayload> getSubmessageElements() {
 		return List.of(serializedPayload);
 	}
-
-	@Override
-	public int getLength() {
-		return 0;
-	}
-	
 }

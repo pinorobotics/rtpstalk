@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.dto.submessages;
 import java.util.List;
 
 import pinorobotics.rtpstalk.dto.submessages.elements.Timestamp;
+import pinorobotics.rtpstalk.io.LengthCalculator;
 
 public class InfoTimestamp extends Submessage<Timestamp> {
 	
@@ -13,6 +14,8 @@ public class InfoTimestamp extends Submessage<Timestamp> {
 	}
 	
 	public InfoTimestamp(Timestamp timestamp) {
+		submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(), 1,
+				LengthCalculator.getInstance().getFixedLength(getClass()));
 		this.timestamp = timestamp;
 	}
 
@@ -27,11 +30,6 @@ public class InfoTimestamp extends Submessage<Timestamp> {
 	 */
 	private boolean isInvalidate() {
 		return (getFlagsInternal() & 2) != 0;
-	}
-
-	@Override
-	public int getLength() {
-		return Timestamp.getLength();
 	}
 
 	public static InfoTimestamp now() {

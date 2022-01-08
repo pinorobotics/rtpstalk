@@ -6,12 +6,18 @@ import id.xfunction.XJsonStringBuilder;
 
 public class SerializedPayloadHeader {
 	
+	public static final int SIZE = 2;
+
 	public RepresentationIdentifier representation_identifier;
 	
-	public byte[] representation_options = new byte[2];
-	
+	public byte[] representation_options = new byte[SIZE];
+
 	public SerializedPayloadHeader() {
 
+	}
+	
+	public SerializedPayloadHeader(RepresentationIdentifier representation_identifier) {
+		this.representation_identifier = representation_identifier;
 	}
 	
 	public SerializedPayloadHeader(RepresentationIdentifier representation_identifier, byte[] representation_options) {

@@ -9,11 +9,11 @@ import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import pinorobotics.rtpstalk.dto.RtpsMessage;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Header;
 import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
-import pinorobotics.rtpstalk.dto.submessages.RtpsMessage;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
@@ -41,7 +41,7 @@ public class RtpsMessageReader {
 	     }
 	     // TODO check little endian only
 	     LOGGER.fine("header: {0}", header);
-	     var submessages = new ArrayList<Submessage>();
+	     var submessages = new ArrayList<Submessage<?>>();
 	     while (buf.hasRemaining()) {
 		     var submessageHeader = ksr.read(SubmessageHeader.class);
 		     LOGGER.fine("submessageHeader: {0}", submessageHeader);

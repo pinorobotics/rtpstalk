@@ -8,6 +8,8 @@ import id.xfunction.XJsonStringBuilder;
 
 public class RepresentationIdentifier {
 	
+	public static final int SIZE = 2;
+
 	public static enum Predefined {
 		PL_CDR_BE(new RepresentationIdentifier(new byte[]{0x00, 0x02})),
 		PL_CDR_LE(new RepresentationIdentifier(new byte[]{0x00, 0x03}));
@@ -25,7 +27,7 @@ public class RepresentationIdentifier {
 		}
 	}
 	
-	public byte[] value = new byte[2];
+	public byte[] value = new byte[SIZE];
 	
 	public RepresentationIdentifier() {
 		

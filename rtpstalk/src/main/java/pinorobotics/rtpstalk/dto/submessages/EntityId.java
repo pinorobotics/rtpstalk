@@ -9,6 +9,8 @@ import id.xfunction.XJsonStringBuilder;
 
 public class EntityId {
 
+	public static final int SIZE = 3;
+
 	public static enum Predefined {
 		ENTITYID_PARTICIPANT(new EntityId(new byte[]{00,00,01}, 0xc1)),
 		ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(new byte[]{00,00,02}, 0xc2)),
@@ -36,7 +38,7 @@ public class EntityId {
 		}
 	}
 	
-	public byte[] entityKey = new byte[3];
+	public byte[] entityKey = new byte[SIZE];
 
 	public byte entityKind;
 

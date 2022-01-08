@@ -1,10 +1,12 @@
-package pinorobotics.rtpstalk.dto.submessages;
+package pinorobotics.rtpstalk.dto;
 
 import java.util.List;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.dto.submessages.Header;
+import pinorobotics.rtpstalk.dto.submessages.Submessage;
 
-public record RtpsMessage(Header header, List<Submessage> submessages) {
+public record RtpsMessage(Header header, List<Submessage<?>> submessages) {
 
 	@Override
 	public String toString() {

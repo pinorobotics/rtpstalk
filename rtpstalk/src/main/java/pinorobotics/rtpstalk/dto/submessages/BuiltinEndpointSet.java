@@ -2,12 +2,14 @@ package pinorobotics.rtpstalk.dto.submessages;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BuiltinEndpointSet {
 
-	static enum Flags {
+	public static enum Flags {
 		DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER(0),
 		DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR(1),
 		DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER(2),
@@ -45,12 +47,25 @@ public class BuiltinEndpointSet {
 		}
 	}
 	
+	public static final BuiltinEndpointSet ALL = new BuiltinEndpointSet(EnumSet.allOf(Flags.class));
+
 	public int value;
+	
+	public BuiltinEndpointSet() {
+	
+	}	
+
+	public BuiltinEndpointSet(EnumSet<Flags> set) {
+		var bset = new BitSet();
+		set.stream()
+			.filter(Predicate.isEqual(Flags.UNKNOWN).negate())
+			.forEach(p -> bset.set(p.position));
+		value = (int) bset.toLongArray()[0];
+	}
 
 	@Override
 	public String toString() {
 		var set = BitSet.valueOf(new long[]{value});
-		var buf = new StringBuilder();
 		var str = set.stream()
 			.mapToObj(pos -> Flags.MAP.getOrDefault(pos, Flags.UNKNOWN))
 			.map(Flags::name)

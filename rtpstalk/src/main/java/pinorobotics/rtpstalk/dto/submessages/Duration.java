@@ -38,6 +38,10 @@ public class Duration {
 		this.fraction = fraction;
 	}
 
+	public Duration(int seconds) {
+		this(seconds, 0);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(fraction, seconds);
