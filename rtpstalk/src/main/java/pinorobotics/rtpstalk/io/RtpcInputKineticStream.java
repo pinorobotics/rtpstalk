@@ -3,24 +3,34 @@ package pinorobotics.rtpstalk.io;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
+import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Duration;
 import pinorobotics.rtpstalk.dto.submessages.Guid;
+import pinorobotics.rtpstalk.dto.submessages.Header;
 import pinorobotics.rtpstalk.dto.submessages.Locator;
 import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
+import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.dto.submessages.Submessage;
+import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.dto.submessages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 
 public class RtpcInputKineticStream implements InputKineticStream {
 
@@ -28,7 +38,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
 	private static final short PID_SENTINEL = 0x1;
 	private ByteBuffer buf;
-	private KineticStreamReader reader = new KineticStreamReader(this);
+	private KineticStreamReader reader;
 
 	public RtpcInputKineticStream(ByteBuffer buf) {
 		this.buf = buf;
@@ -36,22 +46,13 @@ public class RtpcInputKineticStream implements InputKineticStream {
 
 	@Override
 	public void close() throws Exception {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Object[] readArray(Object[] a, Class<?> type) throws Exception {
-//        LOGGER.entering("readArray");
-//        if (a.length == 0) {
-//        	a = (Object[])Array.newInstance(type, (int) readLong());
-//        }
-//        for (int i = 0; i < a.length; i++) {
-//            a[i] = new KineticStreamReader(this).read(type);
-//        }
-//        LOGGER.exiting("readArray");
-//        return a;
-		throw new UnsupportedOperationException();        
+		if (type == Submessage.class) return readSubmessages();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -137,12 +138,6 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	@Override
 	public long[] readLongArray(long[] a) throws Exception {
 		throw new UnsupportedOperationException();
-//		LOGGER.entering("readLongArray");
-//        for (int i = 0; i < a.length; i++) {
-//            a[i] = readLong();
-//        }
-//        LOGGER.exiting("readLongArray");
-//        return a;
 	}
 
 	@Override
@@ -206,16 +201,72 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	}
 
 	@Override
-	public List readList(List list, Class<?> genericType)  throws Exception {
-		var out = new ArrayList<>();
-		var len = readInt();
-		for (int i = 0; i < len; i++) {
-			out.add(reader.read(genericType));
-		}
-		return out;
+	public List<?> readList(List<?> list, Class<?> genericType)  throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	public Data readData() throws Exception {
+		LOGGER.entering("readData");
+		var data = reader.read(Data.class);
+	   	 LOGGER.fine("submessageElement: {0}", data);
+	   	 if (data.isInlineQos()) throw new UnsupportedOperationException();
+	   	 buf.position(buf.position() + data.getBytesToSkip());
+	   	 var payloadHeader = reader.read(SerializedPayloadHeader.class);
+	   	 LOGGER.fine("payloadHeader: {0}", payloadHeader);
+	   	 // if PL_CDR_LE
+	   	 var payload = readParameterList();
+	   	 LOGGER.fine("payload: {0}", payload);
+	   	data.serializedPayload = new SerializedPayload(payloadHeader, payload);
+	   	LOGGER.exiting("readData");
+	   	return data;
+	}
+
+	private Submessage<?>[] readSubmessages() throws Exception {
+		LOGGER.entering("readSubmessages");
+	     var submessages = new ArrayList<Submessage<?>>();
+	     while (buf.hasRemaining()) {
+	    	 
+	    	 // peek submessage type
+	    	 buf.mark();
+		     var submessageHeader = reader.read(SubmessageHeader.class);
+		     LOGGER.fine("submessageHeader: {0}", submessageHeader);
+		     // save position where submessage itself (NOT its header) starts
+		     var submessageStart = buf.position();
+		     LOGGER.fine("submessageStart: {0}", submessageStart);
+		     buf.reset();
+		     LOGGER.fine("submessageStart: {0}", buf.position());
+		     
+		     var messageClassOpt = submessageHeader.submessageKind.getSubmessageClass();
+		     if (messageClassOpt.isEmpty()) {
+		    	 LOGGER.warning("Submessage kind {} is not supported", submessageHeader.submessageKind);
+		    	 skip(submessageHeader.submessageLength);
+		    	 continue;
+		     }
+
+		     // knowing submessage type now we can read it fully
+		     Submessage<?> submessage = readSubmessage(messageClassOpt.get());
+		     submessages.add(submessage);
+		     var submessageEnd = buf.position();
+		     LOGGER.fine("submessageEnd: {0}", submessageEnd);
+		     LOGGER.fine("submessage: {0}", submessage);
+		     XAsserts.assertEquals(submessageHeader.submessageLength, submessageEnd - submessageStart,
+		    		 "Read message size does not match expected");
+	     }
+	     LOGGER.exiting("readSubmessages");
+	     return submessages.toArray(Submessage<?>[]::new);
+	}
+
+	private Submessage<?> readSubmessage(Class<? extends Submessage<?>> type) throws Exception {
+	     // submessages with polymorphic types we read manually
+	     if (type == Data.class) {
+	    	 return readData();
+	     }
+	     // rest we leave for kineticstreamer
+	     return reader.read(type);
 	}
 
 	public Locator readLocator() throws Exception {
+		LOGGER.entering("readLocator");
 		var kind = LocatorKind.VALUES.getOrDefault(readInt(), LocatorKind.LOCATOR_KIND_INVALID);
 		var port = readInt();
 		var buf = new byte[ADDRESS_SIZE];
@@ -227,7 +278,27 @@ public class RtpcInputKineticStream implements InputKineticStream {
 				.map(Object::toString)
 				.collect(Collectors.joining("."));
 		}
+		LOGGER.exiting("readLocator");
 		return new Locator(kind, port, address);
+	}
+
+	public void setKineticStreamReader(KineticStreamReader ksr) {
+		reader = ksr;
+	}
+
+	public Object readHeader() throws Exception {
+		LOGGER.entering("readHeader");
+		var header = reader.read(Header.class);
+		if (!Objects.equals(header.protocolId, ProtocolId.Predefined.RTPS.getValue())) {
+			throw new NotRtpsPacketException();
+		}
+		if (!Objects.equals(header.protocolVersion, ProtocolVersion.Predefined.Version_2_3.getValue())) {
+			throw new XRuntimeException("RTPS protocol version %s not supported", header.protocolVersion);
+		}
+		// TODO check little endian only
+		LOGGER.fine("header: {0}", header);
+		LOGGER.exiting("readHeader");
+		return header;
 	}
 	
 }

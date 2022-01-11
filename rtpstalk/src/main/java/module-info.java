@@ -26,8 +26,9 @@
 module rtpstalk {
 	exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.spdp;
-    exports pinorobotics.rtpstalk.dto.submessages;
-    exports pinorobotics.rtpstalk.dto.submessages.elements;
+    exports pinorobotics.rtpstalk.dto to id.kineticstreamer;
+    exports pinorobotics.rtpstalk.dto.submessages to id.kineticstreamer;
+    exports pinorobotics.rtpstalk.dto.submessages.elements to id.kineticstreamer;
     requires id.xfunction;
     requires id.kineticstreamer;
 }

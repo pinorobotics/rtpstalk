@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
 import pinorobotics.rtpstalk.dto.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.dto.submessages.Submessage;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
@@ -80,14 +81,14 @@ public class SpdpService implements AutoCloseable {
 				new Parameter(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
 				new Parameter(ParameterId.PID_BUILTIN_ENDPOINT_SET, BuiltinEndpointSet.ALL),
 				new Parameter(ParameterId.PID_ENTITY_NAME, "SpdpDiscoveredParticipantData"));
-		var submessages = List.of(InfoTimestamp.now(),
+		var submessages = new Submessage<?>[] {InfoTimestamp.now(),
 				new Data(0b101, 0, 16, 
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
 					new SequenceNumber(),
 					new SerializedPayload(new SerializedPayloadHeader(
 							RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
-							new ParameterList(params))));
+							new ParameterList(params)))};
 		Header header = new Header(
 				ProtocolId.Predefined.RTPS.getValue(),
 				ProtocolVersion.Predefined.Version_2_3.getValue(),

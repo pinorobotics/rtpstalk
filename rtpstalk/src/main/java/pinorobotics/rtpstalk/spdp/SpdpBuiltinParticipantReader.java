@@ -2,6 +2,7 @@ package pinorobotics.rtpstalk.spdp;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class SpdpBuiltinParticipantReader {
 	}
 
 	public static Stream<Data> findDataElements(RtpsMessage message) {
-		return message.submessages().stream()
+		return Arrays.stream(message.getSubmessages())
 				.filter(Submessage.filterBySubmessageKind(Predefined.DATA.getValue()))
 				.map(e -> (Data)e);
 	}

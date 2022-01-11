@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.dto.submessages;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import id.xfunction.XJsonStringBuilder;
@@ -49,8 +50,9 @@ public class SubmessageKind {
 		this.value = (byte) value;
 	}
 
-	public Class<? extends Submessage<?>> getSubmessageClass() {
-		return Predefined.MAP.get(this).messageClass;
+	public Optional<Class<? extends Submessage<?>>> getSubmessageClass() {
+		return Optional.ofNullable(Predefined.MAP.get(this))
+				.map(val -> val.messageClass);
 	}
 	
 	@Override

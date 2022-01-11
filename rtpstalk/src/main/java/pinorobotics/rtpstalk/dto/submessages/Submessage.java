@@ -16,8 +16,8 @@ public abstract class Submessage<T extends SubmessageElement> {
 	 * The SubmessageHeader identifies the kind of Submessage and the
 	 * optional elements within that Submessage.
 	 */
-	public transient SubmessageHeader submessageHeader;
-	
+	public SubmessageHeader submessageHeader;
+
 	public abstract List<T> getSubmessageElements();
 
 	public boolean isLittleEndian() {
