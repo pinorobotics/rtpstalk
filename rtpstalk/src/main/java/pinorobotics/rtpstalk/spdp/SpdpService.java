@@ -1,6 +1,5 @@
 package pinorobotics.rtpstalk.spdp;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
@@ -55,14 +54,13 @@ public class SpdpService implements AutoCloseable {
 				.setOption(StandardSocketOptions.SO_REUSEADDR, true)
 				.bind(new InetSocketAddress(defaultMulticastLocator.port()))
 				.setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-		var group = InetAddress.getByName(defaultMulticastLocator.address());
+		var group = defaultMulticastLocator.address();
 		dc.join(group, ni);
-		reader = new SpdpBuiltinParticipantReader(dc);
-		writer = new SpdpBuiltinParticipantWriter(dc);
-		System.out.println(createSpdpDiscoveredParticipantData());
-		//writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
+		reader = new SpdpBuiltinParticipantReader(dc, config.packetBufferSize());
+		writer = new SpdpBuiltinParticipantWriter(dc, config.packetBufferSize(), group);
+		writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
 		reader.start();
-		//writer.start();
+		writer.start();
 	}
 
 	@Override
@@ -75,14 +73,14 @@ public class SpdpService implements AutoCloseable {
 		var params = List.of(
 				new Parameter(ParameterId.PID_PARTICIPANT_GUID, new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
 				new Parameter(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, new Locator(
-						LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress().getHostAddress())),
+						LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress())),
 				new Parameter(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, new Locator(
-						LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress().getHostAddress())),
+						LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress())),
 				new Parameter(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
 				new Parameter(ParameterId.PID_BUILTIN_ENDPOINT_SET, BuiltinEndpointSet.ALL),
 				new Parameter(ParameterId.PID_ENTITY_NAME, "SpdpDiscoveredParticipantData"));
 		var submessages = new Submessage<?>[] {InfoTimestamp.now(),
-				new Data(0b101, 0, 16, 
+				new Data(0b101, 0,
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
 					new SequenceNumber(),

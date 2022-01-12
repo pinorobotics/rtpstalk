@@ -5,9 +5,15 @@ import java.net.NetworkInterface;
 
 import id.xfunction.lang.XRE;
 
-public record RtpsTalkConfiguration(String networkIface, int userEndpointsPort, int builtInEnpointsPort, InetAddress ipAddress) {
+public record RtpsTalkConfiguration(
+		String networkIface,
+		int userEndpointsPort,
+		int builtInEnpointsPort,
+		int packetBufferSize,
+		InetAddress ipAddress) {
 
-	public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration("lo", 3912, 3913, getNetworkIfaceIp("lo"));
+	public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
+			"lo", 3912, 3913, 1024, getNetworkIfaceIp("lo"));
 
 	private static InetAddress getNetworkIfaceIp(String networkIface) {
 		try {

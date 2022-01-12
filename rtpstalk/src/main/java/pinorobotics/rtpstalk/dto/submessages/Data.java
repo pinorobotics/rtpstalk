@@ -7,6 +7,9 @@ import pinorobotics.rtpstalk.io.LengthCalculator;
 
 public class Data extends Submessage<SerializedPayload> {
 	
+	private static final short PAYLOAD_OFFSET = (short)(LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
+				+ LengthCalculator.getInstance().getFixedLength(SequenceNumber.class));
+
 	public short extraFlags;
 	
 	public short octetsToInlineQos;
@@ -17,16 +20,16 @@ public class Data extends Submessage<SerializedPayload> {
 	
 	public SequenceNumber writerSN;
 
-	public SerializedPayload serializedPayload;
+	public transient SerializedPayload serializedPayload;
 	
 	public Data() {
 
 	}
 
-	public Data(int flags, int extraFlags, int octetsToInlineQos, EntityId readerId, EntityId writerId,
+	public Data(int flags, int extraFlags, EntityId readerId, EntityId writerId,
 			SequenceNumber writerSN, SerializedPayload serializedPayload) {
 		this.extraFlags = (short) extraFlags;
-		this.octetsToInlineQos = (short) octetsToInlineQos;
+		this.octetsToInlineQos = PAYLOAD_OFFSET;
 		this.readerId = readerId;
 		this.writerId = writerId;
 		this.writerSN = writerSN;
@@ -65,7 +68,7 @@ public class Data extends Submessage<SerializedPayload> {
 	 */
 	public int getBytesToSkip() {
 		// sizeof(readerId + writerId + writerSN) == 8
-		return octetsToInlineQos - 12;
+		return octetsToInlineQos - PAYLOAD_OFFSET;
 	}
 	
 	public SerializedPayload getSerializedPayload() {

@@ -1,11 +1,9 @@
 package pinorobotics.rtpstalk.io;
 
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
@@ -34,9 +32,7 @@ import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 
 public class RtpcInputKineticStream implements InputKineticStream {
 
-	public static final int ADDRESS_SIZE = 16;
 	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
-	private static final short PID_SENTINEL = 0x1;
 	private ByteBuffer buf;
 	private KineticStreamReader reader;
 
@@ -51,8 +47,15 @@ public class RtpcInputKineticStream implements InputKineticStream {
 
 	@Override
 	public Object[] readArray(Object[] a, Class<?> type) throws Exception {
-		if (type == Submessage.class) return readSubmessages();
-		throw new UnsupportedOperationException();
+		LOGGER.entering("readArray");
+		Object[] ret = null;
+		if (type == Submessage.class) {
+			ret = readSubmessages();
+		} else {
+			//throw new UnsupportedOperationException();
+		}
+        LOGGER.exiting("readArray");
+        return ret;
 	}
 
 	@Override
@@ -123,7 +126,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	public String readString() throws Exception {
 		var strBuf = new StringBuilder();
 		byte b = 0;
-		while ((b = buf.get()) != 0) strBuf.append(b); 
+		while ((b = buf.get()) != 0) strBuf.append((char)b); 
 		return strBuf.toString();
 	}
 
@@ -162,7 +165,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 		LOGGER.entering("readParameterList");
 		var params = new ArrayList<Parameter>();
 		short id;
-		while ((id = readShort()) != PID_SENTINEL) {
+		while ((id = readShort()) != ParameterId.PID_SENTINEL.getValue()) {
 			var parameterId = ParameterId.map.get(id);
 			var len = readShort();
 			var startPos = buf.position();
@@ -200,15 +203,9 @@ public class RtpcInputKineticStream implements InputKineticStream {
 		buf.position(buf.position() + offset);
 	}
 
-	@Override
-	public List<?> readList(List<?> list, Class<?> genericType)  throws Exception {
-		throw new UnsupportedOperationException();
-	}
-
-	public Data readData() throws Exception {
+	private Data readData() throws Exception {
 		LOGGER.entering("readData");
 		var data = reader.read(Data.class);
-	   	 LOGGER.fine("submessageElement: {0}", data);
 	   	 if (data.isInlineQos()) throw new UnsupportedOperationException();
 	   	 buf.position(buf.position() + data.getBytesToSkip());
 	   	 var payloadHeader = reader.read(SerializedPayloadHeader.class);
@@ -234,7 +231,6 @@ public class RtpcInputKineticStream implements InputKineticStream {
 		     var submessageStart = buf.position();
 		     LOGGER.fine("submessageStart: {0}", submessageStart);
 		     buf.reset();
-		     LOGGER.fine("submessageStart: {0}", buf.position());
 		     
 		     var messageClassOpt = submessageHeader.submessageKind.getSubmessageClass();
 		     if (messageClassOpt.isEmpty()) {
@@ -257,7 +253,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	}
 
 	private Submessage<?> readSubmessage(Class<? extends Submessage<?>> type) throws Exception {
-	     // submessages with polymorphic types we read manually
+	     // submessages with polymorphic types inside we read manually
 	     if (type == Data.class) {
 	    	 return readData();
 	     }
@@ -265,18 +261,15 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	     return reader.read(type);
 	}
 
-	public Locator readLocator() throws Exception {
+	private Locator readLocator() throws Exception {
 		LOGGER.entering("readLocator");
 		var kind = LocatorKind.VALUES.getOrDefault(readInt(), LocatorKind.LOCATOR_KIND_INVALID);
 		var port = readInt();
-		var buf = new byte[ADDRESS_SIZE];
+		var buf = new byte[LengthCalculator.ADDRESS_SIZE];
 		readByteArray(buf);
-		var address = "";
+		InetAddress address = null;
 		switch (kind) {
-		case LOCATOR_KIND_UDPv4: address = Stream.of(buf[12], buf[13], buf[14], buf[15])
-				.map(Byte::toUnsignedInt)
-				.map(Object::toString)
-				.collect(Collectors.joining("."));
+		case LOCATOR_KIND_UDPv4: address = InetAddress.getByAddress(new byte[] {buf[12], buf[13], buf[14], buf[15]});
 		}
 		LOGGER.exiting("readLocator");
 		return new Locator(kind, port, address);
@@ -300,5 +293,5 @@ public class RtpcInputKineticStream implements InputKineticStream {
 		LOGGER.exiting("readHeader");
 		return header;
 	}
-	
+
 }

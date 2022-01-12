@@ -30,8 +30,10 @@ public class SpdpBuiltinParticipantReader {
 	private Map<Guid, RtpsMessage> historyCache = new HashMap<>();
 	private RtpsMessageReader reader = new RtpsMessageReader();
 	private DatagramChannel dc;
+	private int packetBufferSize;
 	
-	public SpdpBuiltinParticipantReader(DatagramChannel dc) {
+	public SpdpBuiltinParticipantReader(DatagramChannel dc, int packetBufferSize) {
+		this.packetBufferSize = packetBufferSize;
 		this.dc = dc;
 	}
 
@@ -42,7 +44,7 @@ public class SpdpBuiltinParticipantReader {
 	    			 thread.getId());
 		     while (!executor.isShutdown()) {
 			     try {
-			    	 var buf = ByteBuffer.allocate(1024);
+			    	 var buf = ByteBuffer.allocate(packetBufferSize);
 			    	 dc.receive(buf);
 			    	 var len = buf.position();
 			    	 buf.rewind();
@@ -61,7 +63,7 @@ public class SpdpBuiltinParticipantReader {
 	}
 
 	private void process(RtpsMessage message) {
-		LOGGER.fine("Processing RTPS message");
+		LOGGER.fine("Processing RTPS message {0}", message);
 		findParameterValues(message, ParameterId.PID_PARTICIPANT_GUID)
 			.findFirst()
 			.ifPresent(value -> {

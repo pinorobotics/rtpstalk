@@ -14,7 +14,8 @@ public enum ParameterId {
 	PID_VENDORID(0x0016),
 	PID_PROTOCOL_VERSION(0x0015),
 	PID_USER_DATA(0x002c),
-	PID_TOPIC_NAME(0x0005);
+	PID_TOPIC_NAME(0x0005),
+	PID_SENTINEL(0x0001);
 
 	public static Map<Short, ParameterId> map = new HashMap<>();
 	static {

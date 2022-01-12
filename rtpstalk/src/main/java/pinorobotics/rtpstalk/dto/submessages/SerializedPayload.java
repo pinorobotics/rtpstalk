@@ -7,7 +7,7 @@ public class SerializedPayload implements SubmessageElement {
 
 	public SerializedPayloadHeader serializedPayloadHeader;
 	
-	public transient Payload payload;
+	public Payload payload;
 	
 	public SerializedPayload() {
 		

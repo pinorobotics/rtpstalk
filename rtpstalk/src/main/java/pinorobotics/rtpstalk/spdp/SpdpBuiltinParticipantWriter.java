@@ -1,6 +1,8 @@
 package pinorobotics.rtpstalk.spdp;
 
-import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,9 +21,13 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 	private RtpsMessageWriter writer = new RtpsMessageWriter();
 	private DatagramChannel dc;
 	private RtpsMessage data;
+	private InetAddress group;
+	private int packetBufferSize;
 	
-	public SpdpBuiltinParticipantWriter(DatagramChannel dc) {
+	public SpdpBuiltinParticipantWriter(DatagramChannel dc, int packetBufferSize, InetAddress group) {
 		this.dc = dc;
+		this.packetBufferSize = packetBufferSize;
+		this.group = group;
 	}
 
 	public void start() throws Exception {
@@ -29,6 +35,7 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 	}
 
 	public void setSpdpDiscoveredParticipantData(RtpsMessage data) {
+		LOGGER.fine("Setting SpdpDiscoveredParticipantData {0}", data);
 		this.data = data;
 	}
 	
@@ -42,10 +49,13 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 			LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
 			return;
 		}
-		var buf = writer.writeRtpsMessage(data);
+		var buf = ByteBuffer.allocate(packetBufferSize);
 		try {
-			dc.write(buf);
-		} catch (IOException e) {
+			writer.writeRtpsMessage(data, buf);
+			buf.limit(buf.position());
+			buf.rewind();
+			dc.send(buf, new InetSocketAddress(group, 7400));
+		} catch (Exception e) {
 			LOGGER.severe(e);
 			return;
 		}

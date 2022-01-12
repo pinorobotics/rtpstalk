@@ -19,7 +19,7 @@ public class RtpsMessageReader {
 	public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
 	     var in = new RtpcInputKineticStream(buf);
 	     var ksr = new KineticStreamReader(in)
-	    		 .withController(new RtpcKineticStreamReaderController(in));
+	    		 .withController(new RtpcKineticStreamReaderController());
 	     in.setKineticStreamReader(ksr);
 	     try {
 	    	 return Optional.of(ksr.read(RtpsMessage.class));

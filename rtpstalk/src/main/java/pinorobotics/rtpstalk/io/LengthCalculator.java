@@ -1,7 +1,5 @@
 package pinorobotics.rtpstalk.io;
 
-import java.security.Timestamp;
-
 import id.xfunction.lang.XRE;
 import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.dto.submessages.Data;
@@ -22,17 +20,27 @@ import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.dto.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
 
 public class LengthCalculator {
 
 	private static LengthCalculator calculator = new LengthCalculator();
+	public static final int ADDRESS_SIZE = 16;
 	
 	public static LengthCalculator getInstance() {
 		return calculator;
 	}
 
 	public int getFixedLength(Class<?> clazz) {
+		var len = getFixedLengthInternal(clazz);
+		if (len == -1)
+			throw new XRE("Fixed length is unknown for type %s", clazz);
+		return len;
+	}
+
+	// TODO add all to HashMap to avoid recalculations
+	public int getFixedLengthInternal(Class<?> clazz) {
 		if (clazz == EntityId.class) return EntityId.SIZE + 1;
 		if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
 		if (clazz == SequenceNumber.class) return Integer.BYTES;
@@ -51,32 +59,33 @@ public class LengthCalculator {
 		if (clazz == SubmessageHeader.class)
 			return getFixedLength(SubmessageKind.class) + 1 + Short.BYTES;
 		if (clazz == Locator.class)
-			return getFixedLength(LocatorKind.class) + Integer.BYTES + RtpcInputKineticStream.ADDRESS_SIZE;
+			return getFixedLength(LocatorKind.class) + Integer.BYTES + ADDRESS_SIZE;
 		if (clazz == Guid.class)
 			return getFixedLength(GuidPrefix.class) + getFixedLength(EntityId.class);
-		throw new XRE("Fixed length is unknown for type %s", clazz);
+		return -1;
 	}
 
 	public int calculateLength(Object obj) {
+		var len = getFixedLengthInternal(obj.getClass());
+		if (len != -1) return len;
 		if (obj instanceof Data d)
-			return getFixedLength(SubmessageHeader.class) + Short.BYTES * 2 + getFixedLength(EntityId.class) * 2
+			return Short.BYTES * 2 + getFixedLength(EntityId.class) * 2
 				+ getFixedLength(SequenceNumber.class)
 				+ calculateLength(d.serializedPayload);
 		if (obj instanceof SerializedPayload p)
 			return getFixedLength(SerializedPayloadHeader.class)
 				+ calculateLength(p.payload);
 		if (obj instanceof ParameterList pl)
-			return pl.getParameters().stream()
-					.mapToInt(this::calculateLength)
+			return calculateParameterLength(Parameter.SENTINEL) + pl.getParameters().stream()
+					.mapToInt(this::calculateParameterLength)
 					.sum();
-		if (obj instanceof Parameter p)
-			return calculateLength(p);
+		if (obj instanceof String s) return s.length() + 1;
 		throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
 	}
 	
-	public int calculateLength(Parameter param) {
+	public int calculateParameterLength(Parameter param) {
 		ParameterId id = param.parameterId();
-		return getFixedLength(ParameterId.class) + switch (id) {
+		return getFixedLength(ParameterId.class) + Short.BYTES /*length*/ + switch (id) {
 			case PID_ENTITY_NAME -> ((String)param.value()).length() + 1 /* NULL byte */;
 			case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
 			case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
@@ -84,6 +93,7 @@ public class LengthCalculator {
 			case PID_PARTICIPANT_GUID -> getFixedLength(Guid.class);
 			case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
 			case PID_VENDORID -> getFixedLength(VendorId.class);
+			case PID_SENTINEL -> 0;
 			default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
 		};
 	}
