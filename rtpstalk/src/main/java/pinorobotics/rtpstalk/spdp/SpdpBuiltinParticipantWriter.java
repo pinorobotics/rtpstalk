@@ -55,7 +55,7 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 			buf.limit(buf.position());
 			buf.rewind();
 			dc.send(buf, new InetSocketAddress(group, 7400));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LOGGER.severe(e);
 			return;
 		}

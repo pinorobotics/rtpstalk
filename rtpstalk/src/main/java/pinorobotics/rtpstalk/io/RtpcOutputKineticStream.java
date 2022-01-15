@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Locator;
@@ -42,6 +43,7 @@ public class RtpcOutputKineticStream implements OutputKineticStream {
 
 	private void writeSubmessages(Submessage<?>[] a) throws Exception {
 		for (int i = 0; i < a.length; i++) {
+			XAsserts.assertTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 			if (a[i] instanceof Data data) writeData(data);
 			else writer.write(a[i]);
 		}
@@ -101,8 +103,10 @@ public class RtpcOutputKineticStream implements OutputKineticStream {
 	}
 
 	@Override
-	public void writeLong(Long arg0) throws Exception {
-		throw new UnsupportedOperationException();
+	public void writeLong(Long l) throws Exception {
+		LOGGER.entering("writeLong");
+		buf.putLong(Long.reverseBytes(l));
+		LOGGER.exiting("writeLong");
 	}
 
 	@Override
@@ -120,6 +124,7 @@ public class RtpcOutputKineticStream implements OutputKineticStream {
 	@Override
 	public void writeString(String str) throws Exception {
 		LOGGER.entering("writeString");
+		writeInt(str.length());
 		writeByteArray(str.getBytes());
 		writeByte((byte) 0);
 		LOGGER.exiting("writeString");
@@ -138,16 +143,22 @@ public class RtpcOutputKineticStream implements OutputKineticStream {
 
 	public void writeParameterList(ParameterList pl) throws Exception {
 		LOGGER.entering("writeParameterList");
+		var paramListStart = buf.position();
 		for (var param: pl.getParameters()) {
+			XAsserts.assertTrue((buf.position() - paramListStart) % 4 == 0, "Invalid param alignment: " + param.parameterId());
 			writeShort(param.parameterId().getValue());
-			writeShort((short) LengthCalculator.getInstance().calculateLength(param.value()));
+			var len = LengthCalculator.getInstance().calculateParameterValueLength(param);
+			writeShort((short)len);
+			var endPos = buf.position() + len;
 			if (param.value() instanceof Locator locator)
 				writeLocator(locator);
 			else
 				writer.write(param.value());
+			while (buf.position() < endPos) writeByte((byte)0);
 		}
 		writeShort(ParameterId.PID_SENTINEL.getValue());
 		writeShort((short) 0);
+		XAsserts.assertTrue((buf.position() - paramListStart) % 4 == 0, "Invalid param alignment: PID_SENTINEL");
 		LOGGER.exiting("writeParameterList");
 	}
 
@@ -159,6 +170,12 @@ public class RtpcOutputKineticStream implements OutputKineticStream {
 		case LOCATOR_KIND_UDPv4: {
 			var buf = new byte[LengthCalculator.ADDRESS_SIZE];
 			System.arraycopy(locator.address().getAddress(), 0, buf, 12, 4);
+			writeByteArray(buf);
+			break;
+		}
+		case LOCATOR_KIND_UDPv6: {
+			LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, writing empty address");
+			var buf = new byte[LengthCalculator.ADDRESS_SIZE];
 			writeByteArray(buf);
 			break;
 		}}

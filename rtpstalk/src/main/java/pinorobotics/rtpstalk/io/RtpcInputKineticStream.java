@@ -10,6 +10,7 @@ import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import pinorobotics.rtpstalk.dto.Sequence;
 import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Duration;
@@ -126,7 +127,9 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	public String readString() throws Exception {
 		var strBuf = new StringBuilder();
 		byte b = 0;
-		while ((b = buf.get()) != 0) strBuf.append((char)b); 
+		// TODO assert length after reading
+		readInt();
+		while ((b = buf.get()) != 0) strBuf.append((char)b);
 		return strBuf.toString();
 	}
 
@@ -184,7 +187,7 @@ public class RtpcInputKineticStream implements InputKineticStream {
 			case PID_PARTICIPANT_GUID: value = reader.read(Guid.class); break;
 			case PID_PROTOCOL_VERSION: value = reader.read(ProtocolVersion.class); break;
 			case PID_VENDORID: value = reader.read(VendorId.class); break;
-			case PID_USER_DATA: value = reader.read(UserDataQosPolicy.class); break;
+			case PID_USER_DATA: value = new UserDataQosPolicy(readSequence()); break;
 			default: throw new UnsupportedOperationException("Parameter id " + id);
 			}
 			skip(len - (buf.position() - startPos));
@@ -261,6 +264,12 @@ public class RtpcInputKineticStream implements InputKineticStream {
 	     return reader.read(type);
 	}
 
+	private Sequence readSequence() throws Exception {
+		var value = new byte[readInt()];
+		readByteArray(value);
+		return new Sequence(value);
+	}
+	
 	private Locator readLocator() throws Exception {
 		LOGGER.entering("readLocator");
 		var kind = LocatorKind.VALUES.getOrDefault(readInt(), LocatorKind.LOCATOR_KIND_INVALID);
@@ -269,7 +278,13 @@ public class RtpcInputKineticStream implements InputKineticStream {
 		readByteArray(buf);
 		InetAddress address = null;
 		switch (kind) {
-		case LOCATOR_KIND_UDPv4: address = InetAddress.getByAddress(new byte[] {buf[12], buf[13], buf[14], buf[15]});
+		case LOCATOR_KIND_UDPv4: address = InetAddress.getByAddress(new byte[] {buf[12], buf[13], buf[14], buf[15]}); break;
+		case LOCATOR_KIND_UDPv6: {
+			LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, reading empty address");
+			address = InetAddress.getByAddress(new byte[4]); break;
+		}
+		case LOCATOR_KIND_INVALID: return Locator.INVALID;
+		default: throw new XRuntimeException("Unknown locator kind %s", kind);
 		}
 		LOGGER.exiting("readLocator");
 		return new Locator(kind, port, address);

@@ -9,7 +9,8 @@ import id.xfunction.XJsonStringBuilder;
 public class VendorId {
 
 	public static enum Predefined {
-		RTPSTALK(new VendorId(0xca, 0xfe));
+		RTPSTALK(new VendorId(0xca, 0xfe)),
+		FASTRTPS(new VendorId(0x01, 0x0f));
 		
 		static final Map<VendorId, Predefined> MAP = Arrays.stream(Predefined.values())
 				.collect(Collectors.toMap(k -> k.value, v -> v));

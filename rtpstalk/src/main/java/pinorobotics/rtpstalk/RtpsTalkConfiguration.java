@@ -7,13 +7,15 @@ import id.xfunction.lang.XRE;
 
 public record RtpsTalkConfiguration(
 		String networkIface,
-		int userEndpointsPort,
 		int builtInEnpointsPort,
+		int userEndpointsPort,
 		int packetBufferSize,
 		InetAddress ipAddress) {
 
+	private static final String DEFAULT_NETWORK_IFACE = "eth0";
+	
 	public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
-			"lo", 3912, 3913, 1024, getNetworkIfaceIp("lo"));
+			DEFAULT_NETWORK_IFACE, 7412, 7413, 1024, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE));
 
 	private static InetAddress getNetworkIfaceIp(String networkIface) {
 		try {

@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.dto.submessages.elements;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -39,6 +40,14 @@ public class GuidPrefix {
 		this.value = value;
 	}
 
+	public GuidPrefix(int hostId, int appId, int instanceId) {
+		var buf = ByteBuffer.allocate(SIZE);
+		buf.putInt(hostId);
+		buf.putInt(appId);
+		buf.putInt(instanceId);
+		value = buf.array();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -66,13 +75,17 @@ public class GuidPrefix {
 			return predefined.name();
 		}
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
-		builder.append("value", Arrays.toString(value));
+		builder.append("value", value);
 		return builder.toString();
 	}
 	
 	public static GuidPrefix generate() {
 		var a = new byte[SIZE];
 		new Random().nextBytes(a);
+		var rtpsTalkId = VendorId.Predefined.RTPSTALK.getValue().value;
+		a[0] = rtpsTalkId[0];
+		a[1] = rtpsTalkId[1];
 		return new GuidPrefix(a);
 	}
+	
 }

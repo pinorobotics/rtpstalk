@@ -1,6 +1,7 @@
 package pinorobotics.rtpstalk.io;
 
 import id.xfunction.lang.XRE;
+import pinorobotics.rtpstalk.dto.Sequence;
 import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Duration;
@@ -14,6 +15,7 @@ import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.dto.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.dto.submessages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
@@ -43,7 +45,7 @@ public class LengthCalculator {
 	public int getFixedLengthInternal(Class<?> clazz) {
 		if (clazz == EntityId.class) return EntityId.SIZE + 1;
 		if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
-		if (clazz == SequenceNumber.class) return Integer.BYTES;
+		if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
 		if (clazz == Timestamp.class) return Integer.BYTES * 2;
 		if (clazz == ParameterId.class) return Short.BYTES;
 		if (clazz == Duration.class) return Integer.BYTES * 2;
@@ -79,14 +81,22 @@ public class LengthCalculator {
 			return calculateParameterLength(Parameter.SENTINEL) + pl.getParameters().stream()
 					.mapToInt(this::calculateParameterLength)
 					.sum();
-		if (obj instanceof String s) return s.length() + 1;
+		if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
+		if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);
+		if (obj instanceof Sequence seq) return Integer.BYTES + seq.length;
 		throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
 	}
 	
 	public int calculateParameterLength(Parameter param) {
+		return getFixedLength(ParameterId.class)
+				+ Short.BYTES /*length*/
+				+ calculateParameterValueLength(param);
+	}
+	
+	public int calculateParameterValueLength(Parameter param) {
 		ParameterId id = param.parameterId();
-		return getFixedLength(ParameterId.class) + Short.BYTES /*length*/ + switch (id) {
-			case PID_ENTITY_NAME -> ((String)param.value()).length() + 1 /* NULL byte */;
+		var len = switch (id) {
+			case PID_ENTITY_NAME -> calculateLength((String)param.value());
 			case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
 			case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
 			case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR -> getFixedLength(Locator.class);
@@ -94,7 +104,19 @@ public class LengthCalculator {
 			case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
 			case PID_VENDORID -> getFixedLength(VendorId.class);
 			case PID_SENTINEL -> 0;
+			case PID_USER_DATA -> calculateLength((UserDataQosPolicy)param.value());
 			default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
 		};
+		
+		/*
+		 * 9.4.2.11 ParameterList
+		 * A ParameterList contains a list of Parameters, terminated with a sentinel. Each Parameter within the
+		 * ParameterList starts aligned on a 4-byte boundary with respect to the start of the ParameterList.
+		 */
+		var padding = 0;
+		if (len % 4 != 0) {
+			padding = 4 - (len % 4);
+		}
+		return len + padding;
 	}
 }

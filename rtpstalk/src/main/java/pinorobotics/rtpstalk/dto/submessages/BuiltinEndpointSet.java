@@ -16,11 +16,14 @@ public class BuiltinEndpointSet {
 		DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR(3),
 		DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER(4),
 		DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR(5),
-		/* The following have been deprecated in version 2.4 of the
-		specification. These bits should not be used by versions of the
-		protocol equal to or newer than the deprecated version unless
-		they are used with the same meaning as in versions prior to the
-		deprecated version.*/
+		
+		/**
+		 * The following have been deprecated in version 2.4 of the
+		 * specification. These bits should not be used by versions of the
+		 * protocol equal to or newer than the deprecated version unless
+		 * they are used with the same meaning as in versions prior to the
+		 * deprecated version.
+		 */
 		DISC_BUILTIN_ENDPOINT_PARTICIPANT_PROXY_ANNOUNCER(6),
 		DISC_BUILTIN_ENDPOINT_PARTICIPANT_PROXY_DETECTOR(7),
 		DISC_BUILTIN_ENDPOINT_PARTICIPANT_STATE_ANNOUNCER(8),
@@ -28,11 +31,29 @@ public class BuiltinEndpointSet {
 
 		BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER(10),
 		BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER(11),
-		/* Bits 12-15 have been reserved by the DDS-Xtypes 1.2 Specification
-		and future revisions thereof.
-		Bits 16-27 have been reserved by the DDS-Security 1.1 Specification
-		and future revisions thereof.
-		*/
+		
+		/**
+		 * Bits 12-15 have been reserved by the DDS-Xtypes 1.2 Specification
+		 * and future revisions thereof.
+		 */
+		
+		/**
+		 * Bits 16-27 have been reserved by the DDS-Security 1.1 Specification
+		 * and future revisions thereof.
+		 */
+		SECURE_PUBLICATION_WRITER(16),
+		SECURE_PUBLICATION_READER(17),
+		PARTICIPANT_SECURE_READER(18),
+		SECURE_SUBSCRIPTION_WRITER(19),
+		SECURE_SUBSCRIPTION_READER(20),
+		SECURE_PARTICIPANT_MESSAGE_WRITER(21),
+		SECURE_PARTICIPANT_MESSAGE_READER(22),
+		PARTICIPANT_STATELESS_MESSAGE_WRITER(23),
+		PARTICIPANT_STATELESS_MESSAGE_READER(24),
+		SECURE_PARTICIPANT_VOLATILE_MESSAGE_WRITER(25),
+		SECURE_PARTICIPANT_VOLATILE_MESSAGE_READER(26),
+		PARTICIPANT_SECURE_WRITER(27),
+		
 		DISC_BUILTIN_ENDPOINT_TOPICS_ANNOUNCER(28),
 		DISC_BUILTIN_ENDPOINT_TOPICS_DETECTOR(29),
 

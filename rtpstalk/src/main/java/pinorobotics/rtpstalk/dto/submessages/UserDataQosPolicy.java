@@ -1,10 +1,19 @@
 package pinorobotics.rtpstalk.dto.submessages;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.dto.Sequence;
 
 public class UserDataQosPolicy {
 
-	public byte[] value;
+	public Sequence value;
+
+	public UserDataQosPolicy() {
+		
+	}
+	
+	public UserDataQosPolicy(Sequence value) {
+		this.value = value;
+	}
 
 	@Override
 	public String toString() {
