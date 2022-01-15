@@ -221,9 +221,9 @@ public class RtpsInputKineticStream implements InputKineticStream {
 	   	return data;
 	}
 
-	private Submessage<?>[] readSubmessages() throws Exception {
+	private Submessage[] readSubmessages() throws Exception {
 		LOGGER.entering("readSubmessages");
-	     var submessages = new ArrayList<Submessage<?>>();
+	     var submessages = new ArrayList<Submessage>();
 	     while (buf.hasRemaining()) {
 	    	 
 	    	 // peek submessage type
@@ -243,7 +243,7 @@ public class RtpsInputKineticStream implements InputKineticStream {
 		     }
 
 		     // knowing submessage type now we can read it fully
-		     Submessage<?> submessage = readSubmessage(messageClassOpt.get());
+		     var submessage = readSubmessage(messageClassOpt.get());
 		     submessages.add(submessage);
 		     var submessageEnd = buf.position();
 		     LOGGER.fine("submessageEnd: {0}", submessageEnd);
@@ -252,10 +252,10 @@ public class RtpsInputKineticStream implements InputKineticStream {
 		    		 "Read message size does not match expected");
 	     }
 	     LOGGER.exiting("readSubmessages");
-	     return submessages.toArray(Submessage<?>[]::new);
+	     return submessages.toArray(Submessage[]::new);
 	}
 
-	private Submessage<?> readSubmessage(Class<? extends Submessage<?>> type) throws Exception {
+	private Submessage readSubmessage(Class<? extends Submessage> type) throws Exception {
 	     // submessages with polymorphic types inside we read manually
 	     if (type == Data.class) {
 	    	 return readData();

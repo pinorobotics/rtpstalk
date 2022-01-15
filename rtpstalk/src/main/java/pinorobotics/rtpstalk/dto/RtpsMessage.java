@@ -9,18 +9,18 @@ import pinorobotics.rtpstalk.dto.submessages.Submessage;
 public class RtpsMessage {
 	
 	public Header header;
-	public Submessage<?>[] submessages;
+	public Submessage[] submessages;
 
 	public RtpsMessage() {
 		
 	}
 	
-	public RtpsMessage(Header header, Submessage<?>[] submessages) {
+	public RtpsMessage(Header header, Submessage[] submessages) {
 		this.header = header;
 		this.submessages = submessages;
 	}
 
-	public Submessage<?>[] getSubmessages() {
+	public Submessage[] getSubmessages() {
 		return submessages;
 	}
 

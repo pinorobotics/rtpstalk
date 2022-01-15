@@ -5,7 +5,7 @@ import java.util.List;
 import pinorobotics.rtpstalk.dto.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.io.LengthCalculator;
 
-public class InfoTimestamp extends Submessage<Timestamp> {
+public class InfoTimestamp extends Submessage {
 	
 	public Timestamp timestamp;
 	
@@ -25,6 +25,11 @@ public class InfoTimestamp extends Submessage<Timestamp> {
 		return flags;
 	}
 
+	@Override
+	protected Object[] getAdditionalFields() {
+		return new Object[] {"timestamp", timestamp};
+	}
+
 	/**
 	 * Subsequent Submessages should not be considered to have a valid timestamp.
 	 */
@@ -36,8 +41,4 @@ public class InfoTimestamp extends Submessage<Timestamp> {
 		return new InfoTimestamp(Timestamp.now());
 	}
 
-	@Override
-	public List<Timestamp> getSubmessageElements() {
-		return List.of(timestamp);
-	}
 }

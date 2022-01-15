@@ -6,7 +6,7 @@ import pinorobotics.rtpstalk.dto.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.io.LengthCalculator;
 
-public class Data extends Submessage<SerializedPayload> {
+public class Data extends Submessage {
 	
 	private static final short PAYLOAD_OFFSET = (short)(LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
 				+ LengthCalculator.getInstance().getFixedLength(SequenceNumber.class));
@@ -77,17 +77,13 @@ public class Data extends Submessage<SerializedPayload> {
 	}
 
 	@Override
-	protected Object[] getAdditionalHeaderFields() {
+	protected Object[] getAdditionalFields() {
 		return new Object[]{
 				"extraFlags", extraFlags,
 				"octetsToInlineQos", octetsToInlineQos,
 				"readerId", readerId,
 				"writerId", writerId,
-				"writerSN", writerSN};
-	}
-
-	@Override
-	public List<SerializedPayload> getSubmessageElements() {
-		return List.of(serializedPayload);
+				"writerSN", writerSN,
+				"serializedPayload", serializedPayload};
 	}
 }

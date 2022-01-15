@@ -5,20 +5,17 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import id.xfunction.XJsonStringBuilder;
-import pinorobotics.rtpstalk.dto.submessages.elements.SubmessageElement;
 
 /**
  * Each RTPS Message consists of a variable number of RTPS Submessage parts.
  */
-public abstract class Submessage<T extends SubmessageElement> {
+public abstract class Submessage {
 	
 	/**
 	 * The SubmessageHeader identifies the kind of Submessage and the
 	 * optional elements within that Submessage.
 	 */
 	public SubmessageHeader submessageHeader;
-
-	public abstract List<T> getSubmessageElements();
 
 	public boolean isLittleEndian() {
 		return (getFlagsInternal() & 1) == 1;
@@ -37,7 +34,7 @@ public abstract class Submessage<T extends SubmessageElement> {
 		return flags;
 	}
 	
-	protected Object[] getAdditionalHeaderFields() {
+	protected Object[] getAdditionalFields() {
 		return new Object[0];
 	}
 
@@ -45,13 +42,12 @@ public abstract class Submessage<T extends SubmessageElement> {
 	public String toString() {
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
 		builder.append("submessageHeader", submessageHeader);
-		builder.append(getAdditionalHeaderFields());
 		builder.append("flags", getFlags());
-		builder.append("submessageElements", getSubmessageElements());
+		builder.append(getAdditionalFields());
 		return builder.toString();
 	}
 
-	public static Predicate<Submessage<?>> filterBySubmessageKind(SubmessageKind kind) {
+	public static Predicate<Submessage> filterBySubmessageKind(SubmessageKind kind) {
 		return submessage -> submessage.submessageHeader.submessageKind.equals(kind);
 	}
 	

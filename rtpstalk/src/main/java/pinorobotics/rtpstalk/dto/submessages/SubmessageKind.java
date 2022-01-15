@@ -54,9 +54,9 @@ public class SubmessageKind {
 		static final Map<SubmessageKind, Predefined> MAP = Arrays.stream(Predefined.values())
 				.collect(Collectors.toMap(k -> k.value, v -> v));
 		private SubmessageKind value;
-		private Class<? extends Submessage<?>> messageClass;
+		private Class<? extends Submessage> messageClass;
 
-		Predefined(SubmessageKind value, Class<? extends Submessage<?>> messageClass) {
+		Predefined(SubmessageKind value, Class<? extends Submessage> messageClass) {
 			this.value = value;
 			this.messageClass = messageClass;
 		}
@@ -76,7 +76,7 @@ public class SubmessageKind {
 		this.value = (byte) value;
 	}
 
-	public Optional<Class<? extends Submessage<?>>> getSubmessageClass() {
+	public Optional<Class<? extends Submessage>> getSubmessageClass() {
 		return Optional.ofNullable(Predefined.MAP.get(this))
 				.map(val -> val.messageClass);
 	}

@@ -1,10 +1,8 @@
 package pinorobotics.rtpstalk.dto.submessages;
 
-import java.util.List;
-
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 
-public class InfoDestination extends Submessage<GuidPrefix> {
+public class InfoDestination extends Submessage {
 	
 	/**
 	 * Provides the GuidPrefix that should be used to reconstruct the
@@ -18,8 +16,7 @@ public class InfoDestination extends Submessage<GuidPrefix> {
 	}
 
 	@Override
-	public List<GuidPrefix> getSubmessageElements() {
-		return List.of(guidPrefix);
+	protected Object[] getAdditionalFields() {
+		return new Object[] {"guidPrefix", guidPrefix};
 	}
-
 }

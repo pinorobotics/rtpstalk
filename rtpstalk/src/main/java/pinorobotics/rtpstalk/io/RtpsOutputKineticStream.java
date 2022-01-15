@@ -32,7 +32,7 @@ public class RtpsOutputKineticStream implements OutputKineticStream {
 		LOGGER.entering("writeArray");
 		if (a.getClass().componentType() == Submessage.class) {
 			// writing it manually since it has polymorphic types inside
-			writeSubmessages((Submessage<?>[]) a);
+			writeSubmessages((Submessage[]) a);
 		} else {
 			for (int i = 0; i < a.length; i++) {
 				writer.write(a[i]);
@@ -41,7 +41,7 @@ public class RtpsOutputKineticStream implements OutputKineticStream {
 		LOGGER.exiting("writeArray");
 	}
 
-	private void writeSubmessages(Submessage<?>[] a) throws Exception {
+	private void writeSubmessages(Submessage[] a) throws Exception {
 		for (int i = 0; i < a.length; i++) {
 			XAsserts.assertTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 			if (a[i] instanceof Data data) writeData(data);

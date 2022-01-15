@@ -103,7 +103,7 @@ public class SpdpService implements AutoCloseable {
 						Flags.PARTICIPANT_SECURE_WRITER))),
 				new Parameter(ParameterId.PID_ENTITY_NAME, "/")
 		);
-		var submessages = new Submessage<?>[] {InfoTimestamp.now(),
+		var submessages = new Submessage[] {InfoTimestamp.now(),
 				new Data(0b101, 0,
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
 					EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
