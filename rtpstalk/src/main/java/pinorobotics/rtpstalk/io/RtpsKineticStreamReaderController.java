@@ -2,13 +2,13 @@ package pinorobotics.rtpstalk.io;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReaderController;
-import pinorobotics.rtpstalk.dto.submessages.Header;
+import pinorobotics.rtpstalk.dto.Header;
 
-public class RtpcKineticStreamReaderController extends KineticStreamReaderController {
+public class RtpsKineticStreamReaderController extends KineticStreamReaderController {
 
 	@Override
 	public Result onNextObject(InputKineticStream in, Object obj, Class<?> fieldType) throws Exception {
-		var rtpsStream = (RtpcInputKineticStream)in;
+		var rtpsStream = (RtpsInputKineticStream)in;
 		if (fieldType == Header.class) {
 			// reading it manually to perform validation
 			return new Result(true, rtpsStream.readHeader());

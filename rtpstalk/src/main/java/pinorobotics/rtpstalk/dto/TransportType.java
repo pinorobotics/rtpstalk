@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.dto.submessages;
+package pinorobotics.rtpstalk.dto;
 
 /**
  * identifying the kind of transport

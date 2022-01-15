@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.dto.submessages;
+package pinorobotics.rtpstalk.dto.submessages.elements;
 
 import java.util.Arrays;
 import java.util.Map;

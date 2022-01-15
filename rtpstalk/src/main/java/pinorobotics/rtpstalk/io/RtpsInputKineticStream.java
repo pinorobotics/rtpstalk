@@ -10,20 +10,20 @@ import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import pinorobotics.rtpstalk.dto.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.Duration;
+import pinorobotics.rtpstalk.dto.Guid;
+import pinorobotics.rtpstalk.dto.Header;
+import pinorobotics.rtpstalk.dto.Locator;
+import pinorobotics.rtpstalk.dto.LocatorKind;
+import pinorobotics.rtpstalk.dto.ProtocolId;
 import pinorobotics.rtpstalk.dto.Sequence;
-import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.Duration;
-import pinorobotics.rtpstalk.dto.submessages.Guid;
-import pinorobotics.rtpstalk.dto.submessages.Header;
-import pinorobotics.rtpstalk.dto.submessages.Locator;
-import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
-import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
 import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
-import pinorobotics.rtpstalk.dto.submessages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
@@ -31,13 +31,13 @@ import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 
-public class RtpcInputKineticStream implements InputKineticStream {
+public class RtpsInputKineticStream implements InputKineticStream {
 
-	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
+	private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
 	private ByteBuffer buf;
 	private KineticStreamReader reader;
 
-	public RtpcInputKineticStream(ByteBuffer buf) {
+	public RtpsInputKineticStream(ByteBuffer buf) {
 		this.buf = buf;
 	}
 

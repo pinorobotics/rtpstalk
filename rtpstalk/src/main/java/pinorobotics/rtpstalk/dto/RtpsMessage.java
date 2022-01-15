@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import id.xfunction.XJsonStringBuilder;
-import pinorobotics.rtpstalk.dto.submessages.Header;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
 
 public class RtpsMessage {

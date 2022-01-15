@@ -6,19 +6,19 @@ import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
+import pinorobotics.rtpstalk.dto.Locator;
 import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.Locator;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 
-public class RtpcOutputKineticStream implements OutputKineticStream {
+public class RtpsOutputKineticStream implements OutputKineticStream {
 
-	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
+	private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
 	private ByteBuffer buf;
 	private KineticStreamWriter writer;
 
-	public RtpcOutputKineticStream(ByteBuffer buf) {
+	public RtpsOutputKineticStream(ByteBuffer buf) {
 		this.buf = buf;
 	}
 

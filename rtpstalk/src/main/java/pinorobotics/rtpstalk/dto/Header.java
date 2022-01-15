@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.dto.submessages;
+package pinorobotics.rtpstalk.dto;
 
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;

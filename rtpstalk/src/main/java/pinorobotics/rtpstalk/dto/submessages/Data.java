@@ -2,6 +2,7 @@ package pinorobotics.rtpstalk.dto.submessages;
 
 import java.util.List;
 
+import pinorobotics.rtpstalk.dto.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.io.LengthCalculator;
 

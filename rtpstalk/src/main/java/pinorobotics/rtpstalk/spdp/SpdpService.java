@@ -10,22 +10,22 @@ import java.util.List;
 
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.dto.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.dto.Duration;
+import pinorobotics.rtpstalk.dto.Guid;
+import pinorobotics.rtpstalk.dto.Header;
+import pinorobotics.rtpstalk.dto.Locator;
+import pinorobotics.rtpstalk.dto.LocatorKind;
+import pinorobotics.rtpstalk.dto.ProtocolId;
 import pinorobotics.rtpstalk.dto.RtpsMessage;
-import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet;
-import pinorobotics.rtpstalk.dto.submessages.BuiltinEndpointSet.Flags;
+import pinorobotics.rtpstalk.dto.BuiltinEndpointSet.Flags;
 import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.Duration;
-import pinorobotics.rtpstalk.dto.submessages.EntityId;
-import pinorobotics.rtpstalk.dto.submessages.Guid;
-import pinorobotics.rtpstalk.dto.submessages.Header;
 import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.dto.submessages.Locator;
-import pinorobotics.rtpstalk.dto.submessages.LocatorKind;
-import pinorobotics.rtpstalk.dto.submessages.ProtocolId;
 import pinorobotics.rtpstalk.dto.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
+import pinorobotics.rtpstalk.dto.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
@@ -33,11 +33,11 @@ import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.io.RtpcInputKineticStream;
+import pinorobotics.rtpstalk.io.RtpsInputKineticStream;
 
 public class SpdpService implements AutoCloseable {
 
-	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
+	private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
 	private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
 	private SpdpBuiltinParticipantReader reader;
 	private SpdpBuiltinParticipantWriter writer;

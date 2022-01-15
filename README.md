@@ -1,5 +1,7 @@
 **rtpstalk** - Java module to 
 
+Supports RTPS 2.3
+
 # Requirements
 
 Java 17+

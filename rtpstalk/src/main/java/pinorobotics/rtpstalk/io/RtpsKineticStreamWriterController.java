@@ -4,11 +4,11 @@ import id.kineticstreamer.KineticStreamWriterController;
 import id.kineticstreamer.OutputKineticStream;
 import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 
-public class RtpcKineticStreamWriterController extends KineticStreamWriterController {
+public class RtpsKineticStreamWriterController extends KineticStreamWriterController {
 
 	@Override
 	public Result onNextObject(OutputKineticStream in, Object obj) throws Exception {
-		var rtpsStream = (RtpcOutputKineticStream)in;
+		var rtpsStream = (RtpsOutputKineticStream)in;
 		if (obj instanceof ParameterList pl) {
 			// writing it manually since we convert it to custom type
 			rtpsStream.writeParameterList(pl);

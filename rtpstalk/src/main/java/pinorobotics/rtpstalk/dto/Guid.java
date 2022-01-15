@@ -1,8 +1,9 @@
-package pinorobotics.rtpstalk.dto.submessages;
+package pinorobotics.rtpstalk.dto;
 
 import java.util.Objects;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.dto.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
 
 public class Guid {

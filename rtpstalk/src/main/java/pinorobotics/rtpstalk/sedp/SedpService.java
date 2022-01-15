@@ -9,12 +9,12 @@ import java.util.concurrent.ForkJoinPool;
 
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.io.RtpcInputKineticStream;
+import pinorobotics.rtpstalk.io.RtpsInputKineticStream;
 import pinorobotics.rtpstalk.io.RtpsMessageReader;
 
 public class SedpService implements AutoCloseable {
 
-	private static final XLogger LOGGER = XLogger.getLogger(RtpcInputKineticStream.class);
+	private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
 	private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
 	private ExecutorService executor = ForkJoinPool.commonPool();
 	private RtpsMessageReader reader = new RtpsMessageReader();

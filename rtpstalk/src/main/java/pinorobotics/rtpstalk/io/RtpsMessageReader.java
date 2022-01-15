@@ -17,9 +17,9 @@ public class RtpsMessageReader {
 	 * Returns empty when there is no RTPS message in the buffer
 	 */
 	public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
-	     var in = new RtpcInputKineticStream(buf);
+	     var in = new RtpsInputKineticStream(buf);
 	     var ksr = new KineticStreamReader(in)
-	    		 .withController(new RtpcKineticStreamReaderController());
+	    		 .withController(new RtpsKineticStreamReaderController());
 	     in.setKineticStreamReader(ksr);
 	     try {
 	    	 return Optional.of(ksr.read(RtpsMessage.class));
