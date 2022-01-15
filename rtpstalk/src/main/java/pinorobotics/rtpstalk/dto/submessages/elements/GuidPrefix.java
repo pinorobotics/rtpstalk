@@ -11,7 +11,7 @@ import id.xfunction.XJsonStringBuilder;
 /**
  * Uniquely identifies the Participant within the Domain
  */
-public class GuidPrefix {
+public class GuidPrefix implements SubmessageElement {
 
 	public static final int SIZE = 12;
 

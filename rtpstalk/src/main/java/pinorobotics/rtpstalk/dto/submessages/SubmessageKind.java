@@ -34,7 +34,7 @@ public class SubmessageKind {
 		INFO_REPLY_IP4(new SubmessageKind(0x0d), InfoTimestamp.class),
 		
 		/** InfoDestination */
-		INFO_DST(new SubmessageKind(0x0e), InfoTimestamp.class),
+		INFO_DST(new SubmessageKind(0x0e), InfoDestination.class),
 		
 		/** InfoReply */
 		INFO_REPLY(new SubmessageKind(0x0f), InfoTimestamp.class),
