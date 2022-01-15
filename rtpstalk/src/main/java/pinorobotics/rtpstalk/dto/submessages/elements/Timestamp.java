@@ -69,7 +69,7 @@ public class Timestamp implements SubmessageElement {
 		}
 		XJsonStringBuilder builder = new XJsonStringBuilder(this);
 		builder.append("seconds", seconds);
-		builder.append("fraction", fraction);
+		builder.append("fraction", Integer.toUnsignedLong(fraction));
 		return builder.toString();
 	}
 	

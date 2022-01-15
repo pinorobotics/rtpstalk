@@ -20,6 +20,7 @@ import pinorobotics.rtpstalk.dto.ProtocolId;
 import pinorobotics.rtpstalk.dto.Sequence;
 import pinorobotics.rtpstalk.dto.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.Data;
+import pinorobotics.rtpstalk.dto.submessages.Heartbeat;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.dto.submessages.Submessage;
@@ -257,11 +258,14 @@ public class RtpsInputKineticStream implements InputKineticStream {
 
 	private Submessage readSubmessage(Class<? extends Submessage> type) throws Exception {
 	     // submessages with polymorphic types inside we read manually
-	     if (type == Data.class) {
-	    	 return readData();
-	     }
-	     // rest we leave for kineticstreamer
-	     return reader.read(type);
+	     if (type == Data.class) return readData();
+	     else if (type == Heartbeat.class) return readHeartbeat();
+	     else /*rest we leave for kineticstreamer*/ return reader.read(type);
+	}
+
+	private Heartbeat readHeartbeat() throws Exception {
+		// TODO support HeartbeatWithGroupInfo
+		return reader.read(Heartbeat.class);
 	}
 
 	private Sequence readSequence() throws Exception {

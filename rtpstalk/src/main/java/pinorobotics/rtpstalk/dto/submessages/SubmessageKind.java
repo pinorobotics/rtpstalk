@@ -19,7 +19,7 @@ public class SubmessageKind {
 		ACKNACK(new SubmessageKind(0x06), InfoTimestamp.class),
 		
 		/** Heartbeat */
-		HEARTBEAT(new SubmessageKind(0x07), InfoTimestamp.class),
+		HEARTBEAT(new SubmessageKind(0x07), Heartbeat.class),
 		
 		/** Gap */
 		GAP(new SubmessageKind(0x08), InfoTimestamp.class),
