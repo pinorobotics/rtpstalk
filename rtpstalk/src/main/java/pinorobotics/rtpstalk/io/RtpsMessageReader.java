@@ -5,16 +5,17 @@ import java.util.Optional;
 
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.dto.RtpsMessage;
 import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.io.exceptions.UnsupportedProtocolVersion;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 public class RtpsMessageReader {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsMessageReader.class);
 
     /**
-     * Returns empty when there is no RTPS message in the buffer
+     * Returns empty when there is no RTPS message in the buffer or in case it is
+     * invalid.
      */
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
         var in = new RtpsInputKineticStream(buf);

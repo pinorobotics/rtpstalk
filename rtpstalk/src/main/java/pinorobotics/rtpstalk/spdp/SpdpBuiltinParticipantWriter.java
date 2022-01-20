@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.dto.RtpsMessage;
 import pinorobotics.rtpstalk.io.RtpsMessageWriter;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 

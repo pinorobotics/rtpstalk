@@ -1,6 +1,6 @@
 package pinorobotics.rtpstalk.io.exceptions;
 
-import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 
 public class UnsupportedProtocolVersion extends Exception {
 

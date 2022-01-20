@@ -2,7 +2,7 @@ package pinorobotics.rtpstalk.io;
 
 import id.kineticstreamer.KineticStreamWriterController;
 import id.kineticstreamer.OutputKineticStream;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
 public class RtpsKineticStreamWriterController extends KineticStreamWriterController {
 

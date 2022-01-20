@@ -2,7 +2,7 @@ package pinorobotics.rtpstalk.io;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReaderController;
-import pinorobotics.rtpstalk.dto.Header;
+import pinorobotics.rtpstalk.messages.Header;
 
 public class RtpsKineticStreamReaderController extends KineticStreamReaderController {
 

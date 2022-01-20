@@ -1,29 +1,29 @@
 package pinorobotics.rtpstalk.io;
 
 import id.xfunction.lang.XRE;
-import pinorobotics.rtpstalk.dto.BuiltinEndpointSet;
-import pinorobotics.rtpstalk.dto.Duration;
-import pinorobotics.rtpstalk.dto.Guid;
-import pinorobotics.rtpstalk.dto.Locator;
-import pinorobotics.rtpstalk.dto.LocatorKind;
-import pinorobotics.rtpstalk.dto.ByteSequence;
-import pinorobotics.rtpstalk.dto.UserDataQosPolicy;
-import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.dto.submessages.RepresentationIdentifier;
-import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.dto.submessages.SerializedPayloadHeader;
-import pinorobotics.rtpstalk.dto.submessages.SubmessageHeader;
-import pinorobotics.rtpstalk.dto.submessages.SubmessageKind;
-import pinorobotics.rtpstalk.dto.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.dto.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.dto.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.dto.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.dto.submessages.elements.Timestamp;
-import pinorobotics.rtpstalk.dto.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.messages.ByteSequence;
+import pinorobotics.rtpstalk.messages.Duration;
+import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.LocatorKind;
+import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
+import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
+import pinorobotics.rtpstalk.messages.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.messages.submessages.elements.Parameter;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
+import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 public class LengthCalculator {
 

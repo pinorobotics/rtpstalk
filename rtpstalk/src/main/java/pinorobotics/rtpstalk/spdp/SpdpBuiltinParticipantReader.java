@@ -12,16 +12,16 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Stream;
 
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.dto.Guid;
-import pinorobotics.rtpstalk.dto.RtpsMessage;
-import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.dto.submessages.Submessage;
-import pinorobotics.rtpstalk.dto.submessages.SubmessageKind.Predefined;
-import pinorobotics.rtpstalk.dto.submessages.elements.Parameter;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.io.RtpsMessageReader;
+import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.messages.submessages.SubmessageKind.Predefined;
+import pinorobotics.rtpstalk.messages.submessages.elements.Parameter;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
 public class SpdpBuiltinParticipantReader {
 

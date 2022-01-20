@@ -1,16 +1,15 @@
 package pinorobotics.rtpstalk.io;
 
 import java.nio.ByteBuffer;
-
+import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.dto.Locator;
-import pinorobotics.rtpstalk.dto.submessages.Data;
-import pinorobotics.rtpstalk.dto.submessages.Submessage;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.dto.submessages.elements.ParameterList;
 
 public class RtpsOutputKineticStream implements OutputKineticStream {
 

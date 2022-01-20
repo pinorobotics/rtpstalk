@@ -1,9 +1,8 @@
 package pinorobotics.rtpstalk.io;
 
 import java.nio.ByteBuffer;
-
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 import id.kineticstreamer.KineticStreamWriter;
-import pinorobotics.rtpstalk.dto.RtpsMessage;
 
 public class RtpsMessageWriter {
 

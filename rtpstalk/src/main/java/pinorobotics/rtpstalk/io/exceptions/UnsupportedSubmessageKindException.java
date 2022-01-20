@@ -1,6 +1,6 @@
 package pinorobotics.rtpstalk.io.exceptions;
 
-import pinorobotics.rtpstalk.dto.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.messages.submessages.SubmessageKind;
 
 public class UnsupportedSubmessageKindException extends Exception {
 
