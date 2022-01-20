@@ -2,9 +2,8 @@ package pinorobotics.rtpstalk.messages;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 import id.xfunction.XJsonStringBuilder;
-import pinorobotics.rtpstalk.spdp.PortNumberParameters;
 
 public record Locator(LocatorKind kind, int port, InetAddress address) {
 

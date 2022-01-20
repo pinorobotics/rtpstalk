@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.spdp;
+package pinorobotics.rtpstalk.discovery.spdp;
 
 import static pinorobotics.rtpstalk.messages.TrafficType.*;
 

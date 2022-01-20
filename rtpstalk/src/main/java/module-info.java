@@ -24,7 +24,7 @@
  */
 module rtpstalk {
     exports pinorobotics.rtpstalk;
-    exports pinorobotics.rtpstalk.spdp;
+    exports pinorobotics.rtpstalk.discovery.spdp;
     exports pinorobotics.rtpstalk.messages to id.kineticstreamer;
     exports pinorobotics.rtpstalk.messages.submessages to id.kineticstreamer;
     exports pinorobotics.rtpstalk.messages.submessages.elements to id.kineticstreamer;

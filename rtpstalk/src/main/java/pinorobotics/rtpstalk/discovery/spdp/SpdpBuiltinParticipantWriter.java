@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.spdp;
+package pinorobotics.rtpstalk.discovery.spdp;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

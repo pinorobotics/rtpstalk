@@ -1,8 +1,8 @@
 package pinorobotics.rtpstalk;
 
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.sedp.SedpService;
-import pinorobotics.rtpstalk.spdp.SpdpService;
+import pinorobotics.rtpstalk.discovery.sedp.SedpService;
+import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 
 public class Test {
 

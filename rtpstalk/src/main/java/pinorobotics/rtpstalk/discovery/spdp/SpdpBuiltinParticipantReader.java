@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.spdp;
+package pinorobotics.rtpstalk.discovery.spdp;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
