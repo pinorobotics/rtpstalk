@@ -17,7 +17,7 @@ import pinorobotics.rtpstalk.dto.Header;
 import pinorobotics.rtpstalk.dto.Locator;
 import pinorobotics.rtpstalk.dto.LocatorKind;
 import pinorobotics.rtpstalk.dto.ProtocolId;
-import pinorobotics.rtpstalk.dto.Sequence;
+import pinorobotics.rtpstalk.dto.ByteSequence;
 import pinorobotics.rtpstalk.dto.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.Heartbeat;
@@ -290,10 +290,10 @@ public class RtpsInputKineticStream implements InputKineticStream {
         return reader.read(Heartbeat.class);
     }
 
-    private Sequence readSequence() throws Exception {
+    private ByteSequence readSequence() throws Exception {
         var value = new byte[readInt()];
         readByteArray(value);
-        return new Sequence(value);
+        return new ByteSequence(value);
     }
 
     private Locator readLocator() throws Exception {

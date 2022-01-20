@@ -6,7 +6,7 @@ import pinorobotics.rtpstalk.dto.Duration;
 import pinorobotics.rtpstalk.dto.Guid;
 import pinorobotics.rtpstalk.dto.Locator;
 import pinorobotics.rtpstalk.dto.LocatorKind;
-import pinorobotics.rtpstalk.dto.Sequence;
+import pinorobotics.rtpstalk.dto.ByteSequence;
 import pinorobotics.rtpstalk.dto.UserDataQosPolicy;
 import pinorobotics.rtpstalk.dto.submessages.Data;
 import pinorobotics.rtpstalk.dto.submessages.InfoTimestamp;
@@ -99,7 +99,7 @@ public class LengthCalculator {
             return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy)
             return calculateLength(policy.value);
-        if (obj instanceof Sequence seq)
+        if (obj instanceof ByteSequence seq)
             return Integer.BYTES + seq.length;
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }

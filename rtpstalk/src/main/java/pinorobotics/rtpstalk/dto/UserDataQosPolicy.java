@@ -4,13 +4,13 @@ import id.xfunction.XJsonStringBuilder;
 
 public class UserDataQosPolicy {
 
-    public Sequence value;
+    public ByteSequence value;
 
     public UserDataQosPolicy() {
 
     }
 
-    public UserDataQosPolicy(Sequence value) {
+    public UserDataQosPolicy(ByteSequence value) {
         this.value = value;
     }
 

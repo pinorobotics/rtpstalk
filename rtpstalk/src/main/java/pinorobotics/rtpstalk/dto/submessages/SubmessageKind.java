@@ -16,7 +16,7 @@ public class SubmessageKind {
         PAD(new SubmessageKind(0x01), InfoTimestamp.class),
 
         /** AckNack */
-        ACKNACK(new SubmessageKind(0x06), InfoTimestamp.class),
+        ACKNACK(new SubmessageKind(0x06), AckNack.class),
 
         /** Heartbeat */
         HEARTBEAT(new SubmessageKind(0x07), Heartbeat.class),
