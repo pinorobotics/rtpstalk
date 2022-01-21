@@ -1,27 +1,21 @@
 package pinorobotics.rtpstalk.discovery.spdp;
 
+import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Stream;
-
-import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.Submessage;
-import pinorobotics.rtpstalk.messages.submessages.SubmessageKind.Predefined;
-import pinorobotics.rtpstalk.messages.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.walk.Result;
+import pinorobotics.rtpstalk.messages.walk.RtpsMessageVisitor;
+import pinorobotics.rtpstalk.messages.walk.RtpsMessageWalker;
 
 public class SpdpBuiltinParticipantReader {
 
@@ -29,6 +23,7 @@ public class SpdpBuiltinParticipantReader {
     private ExecutorService executor = ForkJoinPool.commonPool();
     private Map<Guid, RtpsMessage> historyCache = new HashMap<>();
     private RtpsMessageReader reader = new RtpsMessageReader();
+    private RtpsMessageWalker walker = new RtpsMessageWalker();
     private DatagramChannel dc;
     private int packetBufferSize;
 
@@ -64,45 +59,23 @@ public class SpdpBuiltinParticipantReader {
 
     private void process(RtpsMessage message) {
         LOGGER.fine("Processing RTPS message {0}", message);
-        findParameterValues(message, ParameterId.PID_PARTICIPANT_GUID)
-                .findFirst()
-                .ifPresent(value -> {
-                    var guid = (Guid) value;
-                    if (historyCache.containsKey(guid)) {
-                        LOGGER.fine("Message with GUID {0} already exist", guid);
-                        return;
-                    }
-                    LOGGER.fine("Message with GUID {0} is new, adding it into the cache", guid);
-                    historyCache.put(guid, message);
-                });
-    }
-
-    public static Stream<Data> findDataElements(RtpsMessage message) {
-        return Arrays.stream(message.getSubmessages())
-                .filter(Submessage.filterBySubmessageKind(Predefined.DATA.getValue()))
-                .map(e -> (Data) e);
-    }
-
-    public static Stream<Object> findParameterValues(RtpsMessage message, ParameterId paramId) {
-        return findDataElements(message)
-                .map(SpdpBuiltinParticipantReader::findParameterList)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(ParameterList::getParameters)
-                .flatMap(List::stream)
-                .filter(p -> p.parameterId() == paramId)
-                .map(Parameter::value);
-    }
-
-    public static Optional<ParameterList> findParameterList(Data data) {
-        return getParameterList(data.getSerializedPayload());
-    }
-
-    public static Optional<ParameterList> getParameterList(SerializedPayload payload) {
-        if (payload.payload instanceof ParameterList pl) {
-            return Optional.of(pl);
-        }
-        return Optional.empty();
+        walker.walk(message, new RtpsMessageVisitor() {
+            @Override
+            public Result onData(Data d) {
+                if (d.serializedPayload.payload instanceof ParameterList pl) {
+                    pl.findParameter(ParameterId.PID_PARTICIPANT_GUID).ifPresent(value -> {
+                        var guid = (Guid) value;
+                        if (historyCache.containsKey(guid)) {
+                            LOGGER.fine("Message with GUID {0} already exist", guid);
+                            return;
+                        }
+                        LOGGER.fine("Message with GUID {0} is new, adding it into the cache", guid);
+                        historyCache.put(guid, message);
+                    });
+                }
+                return Result.CONTINUE;
+            }
+        });
     }
 
 }

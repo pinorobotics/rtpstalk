@@ -11,6 +11,7 @@ import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.io.RtpsInputKineticStream;
 import pinorobotics.rtpstalk.io.RtpsMessageReader;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 public class SedpService implements AutoCloseable {
 
@@ -40,7 +41,7 @@ public class SedpService implements AutoCloseable {
                     var addr = dataChannel.receive(buf);
                     buf.limit(buf.position());
                     buf.rewind();
-                    System.out.println(reader.readRtpsMessage(buf));
+                    reader.readRtpsMessage(buf).ifPresent(this::process);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -53,5 +54,9 @@ public class SedpService implements AutoCloseable {
     public void close() throws Exception {
         dataChannel.close();
         executor.shutdown();
+    }
+
+    private void process(RtpsMessage rtpsMessage) {
+        System.out.println(rtpsMessage);
     }
 }
