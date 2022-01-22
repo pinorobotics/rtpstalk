@@ -15,10 +15,22 @@ public class Data extends Submessage {
 
     public short octetsToInlineQos;
 
+    /**
+     * Identifies the RTPS Reader entity that is being informed of the change to the
+     * data-object
+     */
     public EntityId readerId;
 
+    /**
+     * Identifies the RTPS Writer entity that made the change to the data-object
+     */
     public EntityId writerId;
 
+    /**
+     * Uniquely identifies the change and the relative order for all changes made by
+     * the RTPS Writer identified by the writerGuid. Each change gets a consecutive
+     * sequence number. Each RTPS Writer maintains is own sequence number
+     */
     public SequenceNumber writerSN;
 
     public transient SerializedPayload serializedPayload;
@@ -39,6 +51,7 @@ public class Data extends Submessage {
                 LengthCalculator.getInstance().calculateLength(this));
     }
 
+    @Override
     public List<String> getFlags() {
         var flags = super.getFlags();
         if (isInlineQos())

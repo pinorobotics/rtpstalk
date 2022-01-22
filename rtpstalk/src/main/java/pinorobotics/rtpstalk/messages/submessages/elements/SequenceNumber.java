@@ -2,7 +2,7 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 
 import id.xfunction.XJsonStringBuilder;
 
-public class SequenceNumber {
+public class SequenceNumber implements Comparable<SequenceNumber> {
 
     public int high;
 
@@ -23,5 +23,14 @@ public class SequenceNumber {
         builder.append("high", high);
         builder.append("low", low);
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(SequenceNumber o) {
+        if (high < o.high)
+            return -1;
+        if (high == o.high)
+            return Integer.compare(low, o.low);
+        return 1;
     }
 }
