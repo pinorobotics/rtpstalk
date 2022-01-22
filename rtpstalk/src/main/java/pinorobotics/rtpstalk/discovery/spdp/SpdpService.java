@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.io.RtpsInputKineticStream;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
-import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Flags;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -85,22 +85,22 @@ public class SpdpService implements AutoCloseable {
                         LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress())),
                 Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
                 Map.entry(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(EnumSet.of(
-                        Flags.DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER,
-                        Flags.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
-                        Flags.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
-                        Flags.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
-                        Flags.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
-                        Flags.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
-                        Flags.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER,
-                        Flags.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER,
-                        Flags.SECURE_PUBLICATION_WRITER,
-                        Flags.SECURE_PUBLICATION_READER,
-                        Flags.PARTICIPANT_SECURE_READER,
-                        Flags.SECURE_SUBSCRIPTION_WRITER,
-                        Flags.SECURE_SUBSCRIPTION_READER,
-                        Flags.SECURE_PARTICIPANT_MESSAGE_WRITER,
-                        Flags.SECURE_PARTICIPANT_MESSAGE_READER,
-                        Flags.PARTICIPANT_SECURE_WRITER))),
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
+                        Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER,
+                        Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER,
+                        Endpoint.SECURE_PUBLICATION_WRITER,
+                        Endpoint.SECURE_PUBLICATION_READER,
+                        Endpoint.PARTICIPANT_SECURE_READER,
+                        Endpoint.SECURE_SUBSCRIPTION_WRITER,
+                        Endpoint.SECURE_SUBSCRIPTION_READER,
+                        Endpoint.SECURE_PARTICIPANT_MESSAGE_WRITER,
+                        Endpoint.SECURE_PARTICIPANT_MESSAGE_READER,
+                        Endpoint.PARTICIPANT_SECURE_WRITER))),
                 Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
         var submessages = new Submessage[] { InfoTimestamp.now(),
                 new Data(0b101, 0,

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class BuiltinEndpointSet {
 
-    public static enum Flags {
+    public static enum Endpoint {
         DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER(0),
         DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR(1),
         DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER(2),
@@ -58,16 +58,16 @@ public class BuiltinEndpointSet {
 
         UNKNOWN(-1);
 
-        static final Map<Integer, Flags> MAP = Arrays.stream(Flags.values())
+        static final Map<Integer, Endpoint> MAP = Arrays.stream(Endpoint.values())
                 .collect(Collectors.toMap(k -> k.position, v -> v));
         private int position;
 
-        Flags(int position) {
+        Endpoint(int position) {
             this.position = position;
         }
     }
 
-    public static final BuiltinEndpointSet ALL = new BuiltinEndpointSet(EnumSet.allOf(Flags.class));
+    public static final BuiltinEndpointSet ALL = new BuiltinEndpointSet(EnumSet.allOf(Endpoint.class));
 
     public int value;
 
@@ -75,20 +75,24 @@ public class BuiltinEndpointSet {
 
     }
 
-    public BuiltinEndpointSet(EnumSet<Flags> set) {
+    public BuiltinEndpointSet(EnumSet<Endpoint> set) {
         var bset = new BitSet();
         set.stream()
-                .filter(Predicate.isEqual(Flags.UNKNOWN).negate())
+                .filter(Predicate.isEqual(Endpoint.UNKNOWN).negate())
                 .forEach(p -> bset.set(p.position));
         value = (int) bset.toLongArray()[0];
+    }
+
+    public boolean hasEndpoint(Endpoint endpoint) {
+        return new BitSet(value).get(endpoint.position);
     }
 
     @Override
     public String toString() {
         var set = BitSet.valueOf(new long[] { value });
         var str = set.stream()
-                .mapToObj(pos -> Flags.MAP.getOrDefault(pos, Flags.UNKNOWN))
-                .map(Flags::name)
+                .mapToObj(pos -> Endpoint.MAP.getOrDefault(pos, Endpoint.UNKNOWN))
+                .map(Endpoint::name)
                 .collect(Collectors.joining(" | "));
         return str;
     }
