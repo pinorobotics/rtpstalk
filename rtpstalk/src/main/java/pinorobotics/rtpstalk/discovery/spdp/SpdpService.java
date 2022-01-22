@@ -52,7 +52,7 @@ public class SpdpService implements AutoCloseable {
         LOGGER.entering("start");
         LOGGER.fine("Using following configuration: {0}", config);
         var ni = NetworkInterface.getByName(config.networkIface());
-        Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(0);
+        Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(config.domainId());
         dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                 .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                 .bind(new InetSocketAddress(defaultMulticastLocator.port()))

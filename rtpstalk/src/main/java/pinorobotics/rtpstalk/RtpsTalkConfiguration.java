@@ -10,12 +10,13 @@ public record RtpsTalkConfiguration(
         int builtInEnpointsPort,
         int userEndpointsPort,
         int packetBufferSize,
+        int domainId,
         InetAddress ipAddress) {
 
     private static final String DEFAULT_NETWORK_IFACE = "eth0";
 
     public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
-            DEFAULT_NETWORK_IFACE, 7412, 7413, 1024, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE));
+            DEFAULT_NETWORK_IFACE, 7412, 7413, 1024, 0, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE));
 
     private static InetAddress getNetworkIfaceIp(String networkIface) {
         try {
