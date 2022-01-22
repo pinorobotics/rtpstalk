@@ -1,23 +1,29 @@
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
-import java.util.List;
-import java.util.Optional;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
 import id.xfunction.XJsonStringBuilder;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 
 public class ParameterList implements SubmessageElement, Payload {
 
-    public List<Parameter> params;
+    public Map<ParameterId, Object> params = new LinkedHashMap<>();
 
     public ParameterList() {
 
     }
 
-    public ParameterList(List<Parameter> params) {
+    public ParameterList(LinkedHashMap<ParameterId, Object> params) {
         this.params = params;
     }
 
-    public List<Parameter> getParameters() {
+    public ParameterList(List<Entry<ParameterId, Object>> entries) {
+        entries.stream().forEach(e -> params.put(e.getKey(), e.getValue()));
+    }
+
+    public Map<ParameterId, ?> getParameters() {
         return params;
     }
 
@@ -28,10 +34,4 @@ public class ParameterList implements SubmessageElement, Payload {
         return builder.toString();
     }
 
-    public Optional<Object> findParameter(ParameterId param) {
-        return params.stream()
-                .filter(p -> p.parameterId() == param)
-                .map(Parameter::value)
-                .findFirst();
-    }
 }

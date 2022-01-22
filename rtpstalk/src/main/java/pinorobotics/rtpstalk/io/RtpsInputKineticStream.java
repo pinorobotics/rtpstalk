@@ -1,15 +1,15 @@
 package pinorobotics.rtpstalk.io;
 
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Objects;
-
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
@@ -26,7 +26,6 @@ import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
-import pinorobotics.rtpstalk.messages.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -168,7 +167,7 @@ public class RtpsInputKineticStream implements InputKineticStream {
 
     public ParameterList readParameterList() throws Exception {
         LOGGER.entering("readParameterList");
-        var params = new ArrayList<Parameter>();
+        var params = new LinkedHashMap<ParameterId, Object>();
         short id;
         while ((id = readShort()) != ParameterId.PID_SENTINEL.getValue()) {
             var parameterId = ParameterId.map.get(id);
@@ -211,7 +210,7 @@ public class RtpsInputKineticStream implements InputKineticStream {
             }
             skip(len - (buf.position() - startPos));
             LOGGER.fine(parameterId + ": " + value);
-            params.add(new Parameter(parameterId, value));
+            params.put(parameterId, value);
         }
         // ignoring
         readShort();

@@ -145,17 +145,17 @@ public class RtpsOutputKineticStream implements OutputKineticStream {
     public void writeParameterList(ParameterList pl) throws Exception {
         LOGGER.entering("writeParameterList");
         var paramListStart = buf.position();
-        for (var param : pl.getParameters()) {
+        for (var param : pl.getParameters().entrySet()) {
             XAsserts.assertTrue((buf.position() - paramListStart) % 4 == 0,
-                    "Invalid param alignment: " + param.parameterId());
-            writeShort(param.parameterId().getValue());
+                    "Invalid param alignment: " + param.getKey());
+            writeShort(param.getKey().getValue());
             var len = LengthCalculator.getInstance().calculateParameterValueLength(param);
             writeShort((short) len);
             var endPos = buf.position() + len;
-            if (param.value() instanceof Locator locator)
+            if (param.getValue() instanceof Locator locator)
                 writeLocator(locator);
             else
-                writer.write(param.value());
+                writer.write(param.getValue());
             while (buf.position() < endPos)
                 writeByte((byte) 0);
         }

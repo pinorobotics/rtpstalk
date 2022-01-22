@@ -1,6 +1,8 @@
 package pinorobotics.rtpstalk.io;
 
 import id.xfunction.lang.XRE;
+import java.util.Map;
+import java.util.Map.Entry;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -17,7 +19,6 @@ import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.messages.submessages.SubmessageKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.messages.submessages.elements.Parameter;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -92,9 +93,10 @@ public class LengthCalculator {
             return getFixedLength(SerializedPayloadHeader.class)
                     + calculateLength(p.payload);
         if (obj instanceof ParameterList pl)
-            return calculateParameterLength(Parameter.SENTINEL) + pl.getParameters().stream()
-                    .mapToInt(this::calculateParameterLength)
-                    .sum();
+            return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
+                    + pl.getParameters().entrySet().stream()
+                            .mapToInt(this::calculateParameterLength)
+                            .sum();
         if (obj instanceof String s)
             return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy)
@@ -104,16 +106,16 @@ public class LengthCalculator {
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 
-    public int calculateParameterLength(Parameter param) {
+    public int calculateParameterLength(Entry<ParameterId, ?> param) {
         return getFixedLength(ParameterId.class)
                 + Short.BYTES /* length */
                 + calculateParameterValueLength(param);
     }
 
-    public int calculateParameterValueLength(Parameter param) {
-        ParameterId id = param.parameterId();
+    public int calculateParameterValueLength(Entry<ParameterId, ?> param) {
+        ParameterId id = param.getKey();
         var len = switch (id) {
-        case PID_ENTITY_NAME -> calculateLength((String) param.value());
+        case PID_ENTITY_NAME -> calculateLength(param.getValue());
         case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
         case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
         case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR -> getFixedLength(Locator.class);
@@ -121,7 +123,7 @@ public class LengthCalculator {
         case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
         case PID_VENDORID -> getFixedLength(VendorId.class);
         case PID_SENTINEL -> 0;
-        case PID_USER_DATA -> calculateLength((UserDataQosPolicy) param.value());
+        case PID_USER_DATA -> calculateLength(param.getValue());
         default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
         };
 

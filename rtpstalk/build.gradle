@@ -5,12 +5,12 @@ plugins {
 apply plugin : 'eclipse'
 
 dependencies {
-   implementation 'io.github.lambdaprime:id.xfunction:15.0-SNAPSHOT'
-   implementation 'io.github.lambdaprime:kineticstreamer:3.0-SNAPSHOT'
+   implementation 'io.github.lambdaprime:id.xfunction:16.0-SNAPSHOT'
+   implementation 'io.github.lambdaprime:kineticstreamer:4.0-SNAPSHOT'
 
    // transitively export following dependency to tests project
-   apiElements 'io.github.lambdaprime:id.xfunction:15.0-SNAPSHOT'
-   apiElements 'io.github.lambdaprime:kineticstreamer:3.0-SNAPSHOT'
+   apiElements 'io.github.lambdaprime:id.xfunction:16.0-SNAPSHOT'
+   apiElements 'io.github.lambdaprime:kineticstreamer:4.0-SNAPSHOT'
 }
 
 sourceCompatibility = '17'
