@@ -60,7 +60,7 @@ public class StatelessRtpsReader {
         LOGGER.fine("Incoming RTPS message {0}", message);
         walker.walk(message, new RtpsMessageVisitor() {
             @Override
-            public Result onData(Data d) {
+            public Result onData(RtpsMessage message, Data d) {
                 cache.addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
                 return Result.CONTINUE;
             }

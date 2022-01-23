@@ -11,10 +11,10 @@ public class RtpsMessageWalker {
     public void walk(RtpsMessage message, RtpsMessageVisitor visitor) {
         for (var submessage : message.getSubmessages()) {
             var res = switch (submessage) {
-            case Data data -> visitor.onData(data);
-            case AckNack ackNack -> visitor.onAckNack(ackNack);
-            case Heartbeat heartbeat -> visitor.onHeartbeat(heartbeat);
-            case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(infoTimestamp);
+            case Data data -> visitor.onData(message, data);
+            case AckNack ackNack -> visitor.onAckNack(message, ackNack);
+            case Heartbeat heartbeat -> visitor.onHeartbeat(message, heartbeat);
+            case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(message, infoTimestamp);
             default -> Result.CONTINUE;
             };
             if (res == Result.STOP)
