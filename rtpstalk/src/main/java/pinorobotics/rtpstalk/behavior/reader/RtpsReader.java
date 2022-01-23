@@ -15,9 +15,9 @@ import pinorobotics.rtpstalk.messages.walk.RtpsMessageWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 
-public class StatelessRtpsReader {
+public class RtpsReader implements RtpsMessageVisitor {
 
-    private static final XLogger LOGGER = XLogger.getLogger(StatelessRtpsReader.class);
+    private static final XLogger LOGGER = XLogger.getLogger(RtpsReader.class);
 
     /**
      * Contains the history of CacheChange changes for this RTPS Reader.
@@ -30,12 +30,12 @@ public class StatelessRtpsReader {
     private DatagramChannel dc;
     private int packetBufferSize;
 
-    public StatelessRtpsReader(DatagramChannel dc, int packetBufferSize) {
+    public RtpsReader(DatagramChannel dc, int packetBufferSize) {
         this.packetBufferSize = packetBufferSize;
         this.dc = dc;
     }
 
-    public void start() throws Exception {
+    public void start() {
         executor.execute(() -> {
             var thread = Thread.currentThread();
             LOGGER.fine("Running {0} on thread {1} with id {2}", getClass().getSimpleName(), thread.getName(),
@@ -58,16 +58,16 @@ public class StatelessRtpsReader {
 
     private void process(RtpsMessage message) {
         LOGGER.fine("Incoming RTPS message {0}", message);
-        walker.walk(message, new RtpsMessageVisitor() {
-            @Override
-            public Result onData(RtpsMessage message, Data d) {
-                cache.addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
-                return Result.CONTINUE;
-            }
-        });
+        walker.walk(message, this);
     }
 
-    protected HistoryCache getCache() {
+    @Override
+    public Result onData(RtpsMessage message, Data d) {
+        cache.addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
+        return Result.CONTINUE;
+    }
+
+    public HistoryCache getCache() {
         return cache;
     }
 }
