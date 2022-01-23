@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.messages.Guid;
 
-public class HistoryCache {
+public class HistoryCache extends SubmissionPublisher<CacheChange> {
 
     /**
      * The list of CacheChanges contained in the HistoryCache.
@@ -25,5 +26,6 @@ public class HistoryCache {
             return;
         }
         writerChanges.add(change);
+        submit(change);
     }
 }

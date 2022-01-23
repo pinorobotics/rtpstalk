@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.discovery.spdp;
 
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -64,6 +65,11 @@ public class SpdpService implements AutoCloseable {
         writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
         reader.start();
         writer.start();
+    }
+
+    public SpdpBuiltinParticipantReader getReader() {
+        XAsserts.assertNotNull(reader, "Reader is not ready, service is not started");
+        return reader;
     }
 
     @Override

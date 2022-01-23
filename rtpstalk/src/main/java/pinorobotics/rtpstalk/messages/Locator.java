@@ -1,6 +1,8 @@
 package pinorobotics.rtpstalk.messages;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 import id.xfunction.XJsonStringBuilder;
@@ -9,6 +11,10 @@ public record Locator(LocatorKind kind, int port, InetAddress address) {
 
     public static final Locator EMPTY_IPV6 = createEmpty(LocatorKind.LOCATOR_KIND_UDPv6);
     public static final Locator INVALID = createEmpty(LocatorKind.LOCATOR_KIND_INVALID);
+
+    public SocketAddress getSocketAddress() {
+        return new InetSocketAddress(address, port);
+    }
 
     @Override
     public String toString() {
