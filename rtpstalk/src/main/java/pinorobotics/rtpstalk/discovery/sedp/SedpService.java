@@ -64,8 +64,8 @@ public class SedpService implements Subscriber<CacheChange> {
     @Override
     public void onNext(CacheChange change) {
         LOGGER.entering("onNext");
-        if (change.dataValue().serializedPayload.payload instanceof ParameterList pl) {
-            configureEndpoints(change.writerGuid().guidPrefix, pl);
+        if (change.getDataValue().serializedPayload.payload instanceof ParameterList pl) {
+            configureEndpoints(change.getWriterGuid().guidPrefix, pl);
         }
         subscription.request(1);
         LOGGER.exiting("onNext");

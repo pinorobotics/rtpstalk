@@ -1,31 +1,45 @@
 package pinorobotics.rtpstalk.structure;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import id.xfunction.logging.XLogger;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.SubmissionPublisher;
-import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 public class HistoryCache extends SubmissionPublisher<CacheChange> {
+
+    private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
+    private SequenceNumber seqNumMin = SequenceNumber.MIN;
+    private SequenceNumber seqNumMax = SequenceNumber.MAX;
 
     /**
      * The list of CacheChanges contained in the HistoryCache.
      */
-    private Map<Guid, List<CacheChange>> changes = new HashMap<>();
+    private Set<CacheChange> changes = new LinkedHashSet<>();
 
     public void addChange(CacheChange change) {
-        List<CacheChange> writerChanges = changes.putIfAbsent(change.writerGuid(), new ArrayList<>());
-        if (writerChanges == null)
-            writerChanges = changes.get(change.writerGuid());
-        if (writerChanges.isEmpty()) {
-            writerChanges.add(change);
+        if (!changes.add(change)) {
+            LOGGER.fine("Change already present in the cache, ignoring...");
             return;
         }
-        if (writerChanges.get(writerChanges.size() - 1).sequenceNumber().compareTo(change.sequenceNumber()) == 0) {
-            return;
+        LOGGER.fine("New change added into the cache");
+        var seqNum = change.getSequenceNumber();
+        if (seqNumMin.compareTo(seqNum) > 0) {
+            LOGGER.fine("Updating minimum sequence number");
+            seqNumMin = seqNum;
         }
-        writerChanges.add(change);
+        if (seqNum.compareTo(seqNumMax) > 0) {
+            LOGGER.fine("Updating maximum sequence number");
+            seqNumMax = seqNum;
+        }
         submit(change);
+    }
+
+    public SequenceNumber getSeqNumMin() {
+        return seqNumMin;
+    }
+
+    public SequenceNumber getSeqNumMax() {
+        return seqNumMax;
     }
 }
