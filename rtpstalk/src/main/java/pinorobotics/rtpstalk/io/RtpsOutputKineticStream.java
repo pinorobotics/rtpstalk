@@ -6,6 +6,7 @@ import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.XAsserts;
@@ -184,5 +185,10 @@ public class RtpsOutputKineticStream implements OutputKineticStream {
         }
         }
         LOGGER.exiting("writeLocator");
+    }
+
+    public void writeSequenceNumber(SequenceNumber num) throws Exception {
+        writeInt((int) (num.value >> 31));
+        writeInt((int) ((-1L >> 31) & num.value));
     }
 }

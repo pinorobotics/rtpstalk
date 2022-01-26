@@ -5,42 +5,34 @@ import java.util.Objects;
 
 public class SequenceNumber implements Comparable<SequenceNumber> {
 
-    public static final SequenceNumber MIN = new SequenceNumber(Integer.MIN_VALUE, -Integer.MIN_VALUE);
-    public static final SequenceNumber MAX = new SequenceNumber(Integer.MAX_VALUE, -Integer.MAX_VALUE);
+    public static final SequenceNumber MIN = new SequenceNumber(Long.MIN_VALUE);
+    public static final SequenceNumber MAX = new SequenceNumber(Long.MAX_VALUE);
 
-    public int high;
-
-    public int low;
+    public long value;
 
     public SequenceNumber() {
 
     }
 
-    public SequenceNumber(int high, int low) {
-        this.high = high;
-        this.low = low;
+    public SequenceNumber(long value) {
+        this.value = value;
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("high", high);
-        builder.append("low", low);
+        builder.append("value", value);
         return builder.toString();
     }
 
     @Override
     public int compareTo(SequenceNumber o) {
-        if (high < o.high)
-            return -1;
-        if (high == o.high)
-            return Integer.compare(low, o.low);
-        return 1;
+        return Long.compare(value, o.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(high, low);
+        return Objects.hashCode(value);
     }
 
     @Override
@@ -52,7 +44,7 @@ public class SequenceNumber implements Comparable<SequenceNumber> {
         if (getClass() != obj.getClass())
             return false;
         SequenceNumber other = (SequenceNumber) obj;
-        return high == other.high && low == other.low;
+        return value == other.value;
     }
 
 }

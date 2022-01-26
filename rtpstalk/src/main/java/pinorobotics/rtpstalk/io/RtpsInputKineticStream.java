@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 public class RtpsInputKineticStream implements InputKineticStream {
@@ -337,6 +338,12 @@ public class RtpsInputKineticStream implements InputKineticStream {
         LOGGER.fine("header: {0}", header);
         LOGGER.exiting("readHeader");
         return header;
+    }
+
+    public SequenceNumber readSequenceNumber() throws Exception {
+        int high = readInt();
+        int low = readInt();
+        return new SequenceNumber((high << 31) | low);
     }
 
 }

@@ -2,7 +2,9 @@ package pinorobotics.rtpstalk.io;
 
 import id.kineticstreamer.KineticStreamWriterController;
 import id.kineticstreamer.OutputKineticStream;
+import id.kineticstreamer.KineticStreamReaderController.Result;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 public class RtpsKineticStreamWriterController extends KineticStreamWriterController {
 
@@ -12,6 +14,11 @@ public class RtpsKineticStreamWriterController extends KineticStreamWriterContro
         if (obj instanceof ParameterList pl) {
             // writing it manually since we convert it to custom type
             rtpsStream.writeParameterList(pl);
+            return new Result(true);
+        }
+        if (obj instanceof SequenceNumber num) {
+            // writing it manually in custom format
+            rtpsStream.writeSequenceNumber(num);
             return new Result(true);
         }
         return Result.CONTINUE;

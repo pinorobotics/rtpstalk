@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.io;
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReaderController;
 import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 public class RtpsKineticStreamReaderController extends KineticStreamReaderController {
 
@@ -12,6 +13,10 @@ public class RtpsKineticStreamReaderController extends KineticStreamReaderContro
         if (fieldType == Header.class) {
             // reading it manually to perform validation
             return new Result(true, rtpsStream.readHeader());
+        }
+        if (fieldType == SequenceNumber.class) {
+            // reading it manually in custom format
+            return new Result(true, rtpsStream.readSequenceNumber());
         }
         return Result.CONTINUE;
     }

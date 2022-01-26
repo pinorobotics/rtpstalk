@@ -112,7 +112,7 @@ public class SpdpService implements AutoCloseable {
                 new Data(0b101, 0,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
-                        new SequenceNumber(0, 1),
+                        new SequenceNumber(1),
                         new SerializedPayload(new SerializedPayloadHeader(
                                 RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
                                 new ParameterList(params))) };
