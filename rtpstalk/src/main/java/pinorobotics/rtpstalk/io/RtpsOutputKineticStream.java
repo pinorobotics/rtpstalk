@@ -100,8 +100,12 @@ public class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeIntArray(int[] arg0) throws Exception {
-        throw new UnsupportedOperationException();
+    public void writeIntArray(int[] a) throws Exception {
+        LOGGER.entering("writeIntArray");
+        for (int i = 0; i < a.length; i++) {
+            writeInt(a[i]);
+        }
+        LOGGER.exiting("writeIntArray");
     }
 
     @Override
