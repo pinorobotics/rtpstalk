@@ -6,7 +6,7 @@ public class IntSequence implements Sequence {
 
     public int length;
 
-    public int[] data;
+    public int[] data = new int[0];
 
     public IntSequence() {
 

@@ -16,10 +16,14 @@ public class SequenceNumberSet {
     public SequenceNumber bitmapBase;
 
     /** Bitmap of up to 256 bits */
-    public IntSequence bitmap;
+    public IntSequence bitmap = new IntSequence();
 
     public SequenceNumberSet() {
 
+    }
+
+    public SequenceNumberSet(SequenceNumber bitmapBase) {
+        this.bitmapBase = bitmapBase;
     }
 
     @Override
