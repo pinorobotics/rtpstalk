@@ -84,7 +84,7 @@ public class BuiltinEndpointSet {
     }
 
     public boolean hasEndpoint(Endpoint endpoint) {
-        return new BitSet(value).get(endpoint.position);
+        return BitSet.valueOf(new long[] { value }).get(endpoint.position);
     }
 
     @Override
