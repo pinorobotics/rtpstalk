@@ -7,7 +7,12 @@ import pinorobotics.rtpstalk.messages.Locator;
 public record WriterProxy(
 
         /**
-         * Identifies the matched Writer. N/A. Configured by discovery
+         * Identifies the reader to which this Writer belongs
+         */
+        Guid readerGuid,
+
+        /**
+         * Identifies the matched Writer. Configured by discovery
          */
         Guid remoteWriterGuid,
 

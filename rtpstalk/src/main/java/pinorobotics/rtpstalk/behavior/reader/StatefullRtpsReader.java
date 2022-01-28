@@ -20,8 +20,8 @@ public class StatefullRtpsReader extends RtpsReader {
      */
     private Map<Guid, WriterProxy> matchedWriters = new HashMap<>();
 
-    public StatefullRtpsReader(DatagramChannel dc, int packetBufferSize) {
-        super(dc, packetBufferSize);
+    public StatefullRtpsReader(Guid guid, DatagramChannel dc, int packetBufferSize) {
+        super(guid, dc, packetBufferSize);
     }
 
     public void matchedWriterAdd(WriterProxy proxy) {

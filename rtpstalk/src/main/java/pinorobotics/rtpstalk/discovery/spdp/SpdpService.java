@@ -29,7 +29,6 @@ import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -39,14 +38,13 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 public class SpdpService implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
-    private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
+    private RtpsTalkConfiguration config;
     private SpdpBuiltinParticipantReader reader;
     private SpdpBuiltinParticipantWriter writer;
     private DatagramChannel dataChannel;
 
-    public SpdpService withRtpsTalkConfiguration(RtpsTalkConfiguration config) {
+    public SpdpService(RtpsTalkConfiguration config) {
         this.config = config;
-        return this;
     }
 
     public void start() throws Exception {
@@ -60,7 +58,7 @@ public class SpdpService implements AutoCloseable {
                 .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
         var group = defaultMulticastLocator.address();
         dataChannel.join(group, ni);
-        reader = new SpdpBuiltinParticipantReader(dataChannel, config.packetBufferSize());
+        reader = new SpdpBuiltinParticipantReader(config.guidPrefix(), dataChannel, config.packetBufferSize());
         writer = new SpdpBuiltinParticipantWriter(dataChannel, config.packetBufferSize(), group);
         writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
         reader.start();
@@ -79,12 +77,11 @@ public class SpdpService implements AutoCloseable {
     }
 
     private RtpsMessage createSpdpDiscoveredParticipantData() {
-        var guidPrefix = GuidPrefix.generate();
         var params = List.<Entry<ParameterId, Object>>of(
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
                 Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
-                        guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                        config.guidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                 Map.entry(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, new Locator(
                         LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress())),
                 Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, new Locator(
@@ -120,7 +117,7 @@ public class SpdpService implements AutoCloseable {
                 ProtocolId.Predefined.RTPS.getValue(),
                 ProtocolVersion.Predefined.Version_2_3.getValue(),
                 VendorId.Predefined.RTPSTALK.getValue(),
-                guidPrefix);
+                config.guidPrefix());
         return new RtpsMessage(header, submessages);
     }
 

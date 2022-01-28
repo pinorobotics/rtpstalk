@@ -30,14 +30,13 @@ import pinorobotics.rtpstalk.structure.CacheChange;
 public class SedpService implements Subscriber<CacheChange> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
-    private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
-    private SedpBuiltinPublicationsReader sedpReader;
+    private RtpsTalkConfiguration config;
+    private SedpBuiltinSubscriptionsReader sedpReader;
     private Subscription subscription;
     private boolean isStarted;
 
-    public SedpService withRtpsTalkConfiguration(RtpsTalkConfiguration config) {
+    public SedpService(RtpsTalkConfiguration config) {
         this.config = config;
-        return this;
     }
 
     public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
@@ -47,7 +46,7 @@ public class SedpService implements Subscriber<CacheChange> {
         LOGGER.fine("Using following configuration: {0}", config);
         var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                 .bind(new InetSocketAddress(config.ipAddress(), config.builtInEnpointsPort()));
-        sedpReader = new SedpBuiltinPublicationsReader(
+        sedpReader = new SedpBuiltinSubscriptionsReader(config.guidPrefix(),
                 dataChannel,
                 config.packetBufferSize());
         sedpReader.start();
@@ -82,11 +81,11 @@ public class SedpService implements Subscriber<CacheChange> {
     }
 
     private void configureEndpoints(GuidPrefix guidPrefix, ParameterList participantData) {
-        LOGGER.fine("Configuring builtin endpoints");
+        LOGGER.fine("Configuring builtin endpoints for guidprefix {0}", guidPrefix);
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
-            if (!availableEndpoints.hasEndpoint(Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER)) {
+            if (!availableEndpoints.hasEndpoint(Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER)) {
                 LOGGER.fine(
                         "Participant does not support BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER endpoint, ignoring...");
                 return;
@@ -95,8 +94,8 @@ public class SedpService implements Subscriber<CacheChange> {
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
                 unicast = List.of(locator);
             }
-            sedpReader.matchedWriterAdd(new WriterProxy(
-                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue()),
+            sedpReader.matchedWriterAdd(new WriterProxy(sedpReader.getGuid(),
+                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue()),
                     unicast));
         } else {
             LOGGER.fine("No supported builtin endpoints, ignoring...");

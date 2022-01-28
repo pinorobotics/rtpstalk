@@ -8,9 +8,10 @@ public class Test {
 
     public static void main(String[] args) throws Exception {
         XLogger.load("rtpstalk-debug.properties");
-        var spdp = new SpdpService();
+        var config = RtpsTalkConfiguration.DEFAULT;
+        var spdp = new SpdpService(config);
         spdp.start();
-        new SedpService().start(spdp.getReader().getCache());
+        new SedpService(config).start(spdp.getReader().getCache());
         System.in.read();
     }
 }

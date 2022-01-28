@@ -14,8 +14,9 @@ import pinorobotics.rtpstalk.messages.walk.RtpsMessageVisitor;
 import pinorobotics.rtpstalk.messages.walk.RtpsMessageWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
+import pinorobotics.rtpstalk.structure.RtpsEntity;
 
-public class RtpsReader implements RtpsMessageVisitor {
+public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsReader.class);
 
@@ -28,9 +29,11 @@ public class RtpsReader implements RtpsMessageVisitor {
     private RtpsMessageReader reader = new RtpsMessageReader();
     private RtpsMessageWalker walker = new RtpsMessageWalker();
     private DatagramChannel dc;
-    private int packetBufferSize;
+    protected int packetBufferSize;
+    private Guid guid;
 
-    public RtpsReader(DatagramChannel dc, int packetBufferSize) {
+    public RtpsReader(Guid guid, DatagramChannel dc, int packetBufferSize) {
+        this.guid = guid;
         this.packetBufferSize = packetBufferSize;
         this.dc = dc;
     }
@@ -58,6 +61,10 @@ public class RtpsReader implements RtpsMessageVisitor {
 
     private void process(RtpsMessage message) {
         LOGGER.fine("Incoming RTPS message {0}", message);
+        if (message.header.guidPrefix.equals(guid.guidPrefix)) {
+            LOGGER.fine("Received its own message, ignoring...");
+            return;
+        }
         walker.walk(message, this);
     }
 
@@ -69,5 +76,10 @@ public class RtpsReader implements RtpsMessageVisitor {
 
     public HistoryCache getCache() {
         return cache;
+    }
+
+    @Override
+    public Guid getGuid() {
+        return guid;
     }
 }
