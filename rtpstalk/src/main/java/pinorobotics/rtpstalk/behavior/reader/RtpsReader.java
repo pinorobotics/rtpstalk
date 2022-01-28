@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import pinorobotics.rtpstalk.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -15,6 +14,7 @@ import pinorobotics.rtpstalk.messages.walk.RtpsMessageWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
+import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 
 public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
 

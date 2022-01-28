@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.io.exceptions;
+package pinorobotics.rtpstalk.transport.io.exceptions;
 
 public class NotRtpsPacketException extends Exception {
 

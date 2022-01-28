@@ -2,10 +2,10 @@ package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.io.LengthCalculator;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
+import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
 public class AckNack extends Submessage {
 

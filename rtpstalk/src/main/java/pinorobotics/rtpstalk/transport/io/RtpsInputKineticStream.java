@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.io;
+package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -31,6 +30,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
 
 public class RtpsInputKineticStream implements InputKineticStream {
 

@@ -8,7 +8,6 @@ import java.nio.channels.DatagramChannel;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import pinorobotics.rtpstalk.io.RtpsMessageWriter;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -23,6 +22,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.structure.CacheChange;
+import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 public class WriterProxy {
 

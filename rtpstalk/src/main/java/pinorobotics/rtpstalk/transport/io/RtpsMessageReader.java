@@ -1,13 +1,13 @@
-package pinorobotics.rtpstalk.io;
+package pinorobotics.rtpstalk.transport.io;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.io.exceptions.NotRtpsPacketException;
-import pinorobotics.rtpstalk.io.exceptions.UnsupportedProtocolVersion;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
+import pinorobotics.rtpstalk.transport.io.exceptions.UnsupportedProtocolVersion;
 
 public class RtpsMessageReader {
 

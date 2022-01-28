@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.io;
+package pinorobotics.rtpstalk.transport.io;
 
 import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.messages.Locator;

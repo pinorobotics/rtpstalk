@@ -1,4 +1,4 @@
-package pinorobotics.rtpstalk.io;
+package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReaderController;
