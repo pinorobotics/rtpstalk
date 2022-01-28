@@ -106,7 +106,7 @@ public class SpdpService implements AutoCloseable {
                         Endpoint.PARTICIPANT_SECURE_WRITER))),
                 Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
         var submessages = new Submessage[] { InfoTimestamp.now(),
-                new Data(0b101, 0,
+                new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                         new SequenceNumber(1),

@@ -7,9 +7,11 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.IntSequence;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
+import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
@@ -17,12 +19,14 @@ import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.messages.submessages.SubmessageKind;
+import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
@@ -78,6 +82,8 @@ public class LengthCalculator {
             return getFixedLength(LocatorKind.class) + Integer.BYTES + ADDRESS_SIZE;
         if (clazz == Guid.class)
             return getFixedLength(GuidPrefix.class) + getFixedLength(EntityId.class);
+        if (clazz == Count.class)
+            return Integer.BYTES;
         return -1;
     }
 
@@ -103,6 +109,14 @@ public class LengthCalculator {
             return calculateLength(policy.value);
         if (obj instanceof ByteSequence seq)
             return Integer.BYTES + seq.length;
+        if (obj instanceof AckNack ackNack) {
+            return getFixedLength(EntityId.class) * 2 + calculateLength(ackNack.readerSNState)
+                    + getFixedLength(Count.class);
+        }
+        if (obj instanceof SequenceNumberSet set)
+            return getFixedLength(SequenceNumber.class) + calculateLength(set.bitmap);
+        if (obj instanceof IntSequence intSeq)
+            return Integer.BYTES + Integer.BYTES * intSeq.data.length;
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 

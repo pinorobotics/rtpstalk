@@ -1,6 +1,8 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.io.LengthCalculator;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
@@ -38,6 +40,16 @@ public class AckNack extends Submessage {
 
     public AckNack() {
 
+    }
+
+    public AckNack(EntityId readerId, EntityId writerId, SequenceNumberSet readerSNState, Count count) {
+        this.readerId = readerId;
+        this.writerId = writerId;
+        this.readerSNState = readerSNState;
+        this.count = count;
+        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.ACKNACK.getValue(),
+                RtpsTalkConfiguration.ENDIANESS_BIT,
+                LengthCalculator.getInstance().calculateLength(this));
     }
 
     @Override

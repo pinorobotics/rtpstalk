@@ -70,8 +70,12 @@ public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
 
     @Override
     public Result onData(RtpsMessage message, Data d) {
-        cache.addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
+        addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
         return Result.CONTINUE;
+    }
+
+    protected void addChange(CacheChange cacheChange) {
+        cache.addChange(cacheChange);
     }
 
     public HistoryCache getCache() {

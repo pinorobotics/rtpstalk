@@ -96,6 +96,7 @@ public class SedpService implements Subscriber<CacheChange> {
             }
             sedpReader.matchedWriterAdd(new WriterProxy(sedpReader.getGuid(),
                     new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue()),
+                    config.packetBufferSize(),
                     unicast));
         } else {
             LOGGER.fine("No supported builtin endpoints, ignoring...");

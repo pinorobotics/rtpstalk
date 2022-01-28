@@ -211,7 +211,7 @@ public class RtpsInputKineticStream implements InputKineticStream {
             }
             skip(len - (buf.position() - startPos));
             LOGGER.fine(parameterId + ": " + value);
-            params.put(parameterId, value);
+            params.putIfAbsent(parameterId, value);
         }
         // ignoring
         readShort();
