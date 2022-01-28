@@ -10,7 +10,7 @@ public class Test {
         XLogger.load("rtpstalk-debug.properties");
         var spdp = new SpdpService();
         spdp.start();
-        new SedpService(spdp.getReader()).start();
+        new SedpService().start(spdp.getReader().getCache());
         System.in.read();
     }
 }

@@ -6,11 +6,11 @@ import java.net.InetSocketAddress;
 import java.net.StandardProtocolFamily;
 import java.nio.channels.DatagramChannel;
 import java.util.List;
+import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
-import pinorobotics.rtpstalk.discovery.spdp.SpdpBuiltinParticipantReader;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -31,28 +31,28 @@ public class SedpService implements Subscriber<CacheChange> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config = RtpsTalkConfiguration.DEFAULT;
-    private SpdpBuiltinParticipantReader spdpReader;
     private SedpBuiltinPublicationsReader sedpReader;
     private Subscription subscription;
-
-    public SedpService(SpdpBuiltinParticipantReader reader) {
-        this.spdpReader = reader;
-    }
+    private boolean isStarted;
 
     public SedpService withRtpsTalkConfiguration(RtpsTalkConfiguration config) {
         this.config = config;
         return this;
     }
 
-    public void start() throws IOException {
+    public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
         LOGGER.entering("start");
+        if (isStarted)
+            throw new IllegalStateException("Already started");
         LOGGER.fine("Using following configuration: {0}", config);
         var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                 .bind(new InetSocketAddress(config.ipAddress(), config.builtInEnpointsPort()));
-        new SedpBuiltinPublicationsReader(
+        sedpReader = new SedpBuiltinPublicationsReader(
                 dataChannel,
-                config.packetBufferSize()).start();
-        spdpReader.getCache().subscribe(this);
+                config.packetBufferSize());
+        sedpReader.start();
+        participantsPublisher.subscribe(this);
+        isStarted = true;
     }
 
     @Override
