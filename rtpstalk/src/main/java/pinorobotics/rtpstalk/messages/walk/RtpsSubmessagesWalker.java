@@ -6,15 +6,16 @@ import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 
-public class RtpsMessageWalker {
+public class RtpsSubmessagesWalker {
 
-    public void walk(RtpsMessage message, RtpsMessageVisitor visitor) {
+    public void walk(RtpsMessage message, RtpsSubmessageVisitor visitor) {
+        var guidPrefix = message.header.guidPrefix;
         for (var submessage : message.getSubmessages()) {
             var res = switch (submessage) {
-            case Data data -> visitor.onData(message, data);
-            case AckNack ackNack -> visitor.onAckNack(message, ackNack);
-            case Heartbeat heartbeat -> visitor.onHeartbeat(message, heartbeat);
-            case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(message, infoTimestamp);
+            case Data data -> visitor.onData(guidPrefix, data);
+            case AckNack ackNack -> visitor.onAckNack(guidPrefix, ackNack);
+            case Heartbeat heartbeat -> visitor.onHeartbeat(guidPrefix, heartbeat);
+            case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(guidPrefix, infoTimestamp);
             default -> Result.CONTINUE;
             };
             if (res == Result.STOP)

@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.structure.CacheChange;
 
@@ -39,16 +39,16 @@ public class StatefullRtpsReader extends RtpsReader {
     }
 
     @Override
-    public Result onData(RtpsMessage message, Data d) {
-        return super.onData(message, d);
+    public Result onData(GuidPrefix guidPrefix, Data d) {
+        return super.onData(guidPrefix, d);
     }
 
     @Override
-    public Result onHeartbeat(RtpsMessage message, Heartbeat heartbeat) {
+    public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
         // However, if the FinalFlag is not set, then the Reader must send an AckNack
         // message (8.3.7.5.5)
         if (!heartbeat.isFinal()) {
-            var writerGuid = new Guid(message.header.guidPrefix, heartbeat.writerId);
+            var writerGuid = new Guid(guidPrefix, heartbeat.writerId);
             var writerProxy = matchedWriters.get(writerGuid);
             if (writerProxy != null) {
                 writerProxy.onHeartbeat(heartbeat);
@@ -56,7 +56,7 @@ public class StatefullRtpsReader extends RtpsReader {
                 LOGGER.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);
             }
         }
-        return super.onHeartbeat(message, heartbeat);
+        return super.onHeartbeat(guidPrefix, heartbeat);
     }
 
     @Override

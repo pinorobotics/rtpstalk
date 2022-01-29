@@ -1,26 +1,26 @@
 package pinorobotics.rtpstalk.messages.walk;
 
-import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
-public interface RtpsMessageVisitor {
+public interface RtpsSubmessageVisitor {
 
-    default Result onAckNack(RtpsMessage message, AckNack ackNack) {
+    default Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
         return Result.CONTINUE;
     }
 
-    default Result onData(RtpsMessage message, Data data) {
+    default Result onData(GuidPrefix guidPrefix, Data data) {
         return Result.CONTINUE;
     }
 
-    default Result onHeartbeat(RtpsMessage message, Heartbeat heartbeat) {
+    default Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
         return Result.CONTINUE;
     }
 
-    default Result onInfoTimestamp(RtpsMessage message, InfoTimestamp infoTimestamp) {
+    default Result onInfoTimestamp(GuidPrefix guidPrefix, InfoTimestamp infoTimestamp) {
         return Result.CONTINUE;
     }
 }

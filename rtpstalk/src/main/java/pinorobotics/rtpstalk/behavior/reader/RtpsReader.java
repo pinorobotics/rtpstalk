@@ -8,15 +8,16 @@ import java.util.concurrent.ForkJoinPool;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
-import pinorobotics.rtpstalk.messages.walk.RtpsMessageVisitor;
-import pinorobotics.rtpstalk.messages.walk.RtpsMessageWalker;
+import pinorobotics.rtpstalk.messages.walk.RtpsSubmessageVisitor;
+import pinorobotics.rtpstalk.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 
-public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
+public class RtpsReader implements RtpsEntity, RtpsSubmessageVisitor {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsReader.class);
 
@@ -27,7 +28,7 @@ public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
 
     private ExecutorService executor = ForkJoinPool.commonPool();
     private RtpsMessageReader reader = new RtpsMessageReader();
-    private RtpsMessageWalker walker = new RtpsMessageWalker();
+    private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private DatagramChannel dc;
     protected int packetBufferSize;
     private Guid guid;
@@ -69,8 +70,8 @@ public class RtpsReader implements RtpsEntity, RtpsMessageVisitor {
     }
 
     @Override
-    public Result onData(RtpsMessage message, Data d) {
-        addChange(new CacheChange(new Guid(message.header.guidPrefix, d.writerId), d.writerSN, d));
+    public Result onData(GuidPrefix guidPrefix, Data d) {
+        addChange(new CacheChange(new Guid(guidPrefix, d.writerId), d.writerSN, d));
         return Result.CONTINUE;
     }
 
