@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.messages.walk;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
@@ -21,6 +22,10 @@ public interface RtpsSubmessageVisitor {
     }
 
     default Result onInfoTimestamp(GuidPrefix guidPrefix, InfoTimestamp infoTimestamp) {
+        return Result.CONTINUE;
+    }
+
+    default Result onInfoDestination(GuidPrefix guidPrefix, InfoDestination infoDestination) {
         return Result.CONTINUE;
     }
 }

@@ -1,6 +1,7 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
 public class InfoDestination extends Submessage {
 
@@ -13,6 +14,12 @@ public class InfoDestination extends Submessage {
 
     public InfoDestination() {
 
+    }
+
+    public InfoDestination(GuidPrefix guidPrefix) {
+        this.guidPrefix = guidPrefix;
+        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.INFO_DST.getValue(),
+                LengthCalculator.getInstance().getFixedLength(InfoDestination.class));
     }
 
     @Override

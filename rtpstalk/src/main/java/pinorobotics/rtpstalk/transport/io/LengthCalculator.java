@@ -13,6 +13,7 @@ import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
@@ -70,6 +71,8 @@ public class LengthCalculator {
             return 2;
         if (clazz == InfoTimestamp.class)
             return getFixedLength(Timestamp.class);
+        if (clazz == InfoDestination.class)
+            return getFixedLength(GuidPrefix.class);
         if (clazz == RepresentationIdentifier.class)
             return RepresentationIdentifier.SIZE;
         if (clazz == SerializedPayloadHeader.class)

@@ -4,6 +4,7 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 
 public class RtpsSubmessagesWalker {
@@ -16,6 +17,7 @@ public class RtpsSubmessagesWalker {
             case AckNack ackNack -> visitor.onAckNack(guidPrefix, ackNack);
             case Heartbeat heartbeat -> visitor.onHeartbeat(guidPrefix, heartbeat);
             case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(guidPrefix, infoTimestamp);
+            case InfoDestination infoDestination -> visitor.onInfoDestination(guidPrefix, infoDestination);
             default -> Result.CONTINUE;
             };
             if (res == Result.STOP)
