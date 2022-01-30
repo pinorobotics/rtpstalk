@@ -48,7 +48,6 @@ public class AckNack extends Submessage {
         this.readerSNState = readerSNState;
         this.count = count;
         submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.ACKNACK.getValue(),
-                RtpsTalkConfiguration.ENDIANESS_BIT,
                 LengthCalculator.getInstance().calculateLength(this));
     }
 

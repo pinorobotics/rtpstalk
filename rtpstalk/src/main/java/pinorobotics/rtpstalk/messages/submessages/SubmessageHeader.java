@@ -1,6 +1,7 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 
 public class SubmessageHeader {
 
@@ -18,6 +19,10 @@ public class SubmessageHeader {
 
     public SubmessageHeader() {
 
+    }
+
+    public SubmessageHeader(SubmessageKind kind, int submessageLength) {
+        this(kind, RtpsTalkConfiguration.ENDIANESS_BIT, submessageLength);
     }
 
     public SubmessageHeader(SubmessageKind kind, int submessageFlag, int submessageLength) {

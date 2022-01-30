@@ -13,11 +13,12 @@ public class InfoTimestamp extends Submessage {
     }
 
     public InfoTimestamp(Timestamp timestamp) {
-        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(), 1,
-                LengthCalculator.getInstance().getFixedLength(getClass()));
+        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.INFO_TS.getValue(),
+                LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class));
         this.timestamp = timestamp;
     }
 
+    @Override
     public List<String> getFlags() {
         var flags = super.getFlags();
         if (isInvalidate())
