@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
+import id.xfunction.XAsserts;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.messages.IntSequence;
 
@@ -12,8 +13,10 @@ import pinorobotics.rtpstalk.messages.IntSequence;
  */
 public class SequenceNumberSet {
 
-    /** First sequence number in the set */
-    public SequenceNumber bitmapBase;
+    /**
+     * First sequence number in the set, must be >= 1 (9.4.2.6 SequenceNumberSet)
+     */
+    public SequenceNumber bitmapBase = new SequenceNumber(1);
 
     /** Bitmap of up to 256 bits */
     public IntSequence bitmap = new IntSequence();
@@ -22,8 +25,12 @@ public class SequenceNumberSet {
 
     }
 
-    public SequenceNumberSet(SequenceNumber bitmapBase) {
+    public SequenceNumberSet(SequenceNumber bitmapBase, int... bitmap) {
         this.bitmapBase = bitmapBase;
+        if (bitmap.length == 0)
+            return;
+        XAsserts.assertTrue(bitmap.length <= 8, "Bitmap size should not exceed 8");
+        this.bitmap = new IntSequence(bitmap);
     }
 
     @Override

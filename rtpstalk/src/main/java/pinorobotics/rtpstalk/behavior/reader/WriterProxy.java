@@ -15,6 +15,7 @@ import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -52,7 +53,7 @@ public class WriterProxy {
     private DatagramChannel dataChannel;
     private RtpsMessageWriter writer = new RtpsMessageWriter();
     private ByteBuffer buf;
-    private SequenceNumber seqNumMax = SequenceNumber.MIN;
+    private SequenceNumber seqNumMax = new SequenceNumber(0);
     private int count;
     private int writerCount;
 
@@ -91,16 +92,14 @@ public class WriterProxy {
     public void onHeartbeat(Heartbeat heartbeat) {
         if (writerCount < heartbeat.count.value) {
             writerCount = heartbeat.count.value;
-            var ack = new AckNack(readerGuid.entityId, remoteWriterGuid.entityId,
-                    new SequenceNumberSet(availableChangesMax()), new Count(count++));
-            LOGGER.fine("Sending heartbeat ack for writer {0}", remoteWriterGuid);
-            send(ack);
+            // LOGGER.fine("Sending heartbeat ack for writer {0}", remoteWriterGuid);
+            ack();
         } else {
             LOGGER.fine("Received duplicate heartbeat, ignoring...");
         }
     }
 
-    private void send(AckNack ack) {
+    private void ack() {
         if (dataChannel == null) {
             var addr = unicastLocatorList.get(0).getSocketAddress();
             try {
@@ -111,16 +110,19 @@ public class WriterProxy {
                 return;
             }
         }
+        var infoDst = new InfoDestination(remoteWriterGuid.guidPrefix);
+        var ack = new AckNack(readerGuid.entityId, remoteWriterGuid.entityId,
+                new SequenceNumberSet(new SequenceNumber(availableChangesMax().value + 1)), new Count(count++));
+        var submessages = new Submessage[] { infoDst, ack };
+        Header header = new Header(
+                ProtocolId.Predefined.RTPS.getValue(),
+                ProtocolVersion.Predefined.Version_2_3.getValue(),
+                VendorId.Predefined.RTPSTALK.getValue(),
+                readerGuid.guidPrefix);
+        var message = new RtpsMessage(header, submessages);
+        buf.rewind();
+        buf.limit(buf.capacity());
         try {
-            var submessages = new Submessage[] { ack };
-            Header header = new Header(
-                    ProtocolId.Predefined.RTPS.getValue(),
-                    ProtocolVersion.Predefined.Version_2_3.getValue(),
-                    VendorId.Predefined.RTPSTALK.getValue(),
-                    readerGuid.guidPrefix);
-            var message = new RtpsMessage(header, submessages);
-            buf.rewind();
-            buf.limit(buf.capacity());
             writer.writeRtpsMessage(message, buf);
             buf.limit(buf.position());
             buf.rewind();
@@ -129,7 +131,6 @@ public class WriterProxy {
             LOGGER.severe(e);
             return;
         }
-
     }
 
 }
