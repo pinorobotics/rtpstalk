@@ -6,16 +6,20 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
 public class BuiltinEndpointSet {
 
     public static enum Endpoint {
-        DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER(0),
-        DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR(1),
-        DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER(2),
-        DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR(3),
-        DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER(4),
-        DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR(5),
+        DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER(0, EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER),
+        DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR(1, EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR),
+        DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER(2,
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER),
+        DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR(3, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR),
+        DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER(4,
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER),
+        DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR(5,
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR),
 
         /**
          * The following have been deprecated in version 2.4 of the specification. These
@@ -28,8 +32,10 @@ public class BuiltinEndpointSet {
         DISC_BUILTIN_ENDPOINT_PARTICIPANT_STATE_ANNOUNCER(8),
         DISC_BUILTIN_ENDPOINT_PARTICIPANT_STATE_DETECTOR(9),
 
-        BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER(10),
-        BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER(11),
+        BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER(10,
+                EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER),
+        BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER(11,
+                EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER),
 
         /**
          * Bits 12-15 have been reserved by the DDS-Xtypes 1.2 Specification and future
@@ -53,17 +59,27 @@ public class BuiltinEndpointSet {
         SECURE_PARTICIPANT_VOLATILE_MESSAGE_READER(26),
         PARTICIPANT_SECURE_WRITER(27),
 
-        DISC_BUILTIN_ENDPOINT_TOPICS_ANNOUNCER(28),
-        DISC_BUILTIN_ENDPOINT_TOPICS_DETECTOR(29),
+        DISC_BUILTIN_ENDPOINT_TOPICS_ANNOUNCER(28, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER),
+        DISC_BUILTIN_ENDPOINT_TOPICS_DETECTOR(29, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_TOPICS_DETECTOR),
 
         UNKNOWN(-1);
 
         static final Map<Integer, Endpoint> MAP = Arrays.stream(Endpoint.values())
                 .collect(Collectors.toMap(k -> k.position, v -> v));
         private int position;
+        private EntityId.Predefined entityId;
 
         Endpoint(int position) {
             this.position = position;
+        }
+
+        Endpoint(int position, EntityId.Predefined entityId) {
+            this.position = position;
+            this.entityId = entityId;
+        }
+
+        public EntityId.Predefined getEntityId() {
+            return entityId;
         }
     }
 
