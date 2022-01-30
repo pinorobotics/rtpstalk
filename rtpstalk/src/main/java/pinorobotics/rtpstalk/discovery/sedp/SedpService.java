@@ -2,9 +2,6 @@ package pinorobotics.rtpstalk.discovery.sedp;
 
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.StandardProtocolFamily;
-import java.nio.channels.DatagramChannel;
 import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
@@ -15,11 +12,13 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.structure.CacheChange;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
  * Using the SPDPbuiltinParticipantReader, a local Participant
@@ -31,12 +30,14 @@ public class SedpService implements Subscriber<CacheChange> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
-    private SedpBuiltinSubscriptionsReader sedpReader;
+    private SedpBuiltinSubscriptionsReader subscriptionsReader;
     private Subscription subscription;
+    private RtpsMessageReceiver receiver;
     private boolean isStarted;
 
     public SedpService(RtpsTalkConfiguration config) {
         this.config = config;
+        receiver = new RtpsMessageReceiver(config, "SedpServiceReceiver");
     }
 
     public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
@@ -44,12 +45,10 @@ public class SedpService implements Subscriber<CacheChange> {
         if (isStarted)
             throw new IllegalStateException("Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                .bind(new InetSocketAddress(config.ipAddress(), config.builtInEnpointsPort()));
-        sedpReader = new SedpBuiltinSubscriptionsReader(config.guidPrefix(),
-                dataChannel,
-                config.packetBufferSize());
-        sedpReader.start();
+        receiver.start(new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress()),
+                false);
+        subscriptionsReader = new SedpBuiltinSubscriptionsReader(config.guidPrefix());
+        receiver.subscribe(subscriptionsReader);
         participantsPublisher.subscribe(this);
         isStarted = true;
     }
@@ -94,7 +93,7 @@ public class SedpService implements Subscriber<CacheChange> {
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
                 unicast = List.of(locator);
             }
-            sedpReader.matchedWriterAdd(new WriterProxy(sedpReader.getGuid(),
+            subscriptionsReader.matchedWriterAdd(new WriterProxy(subscriptionsReader.getGuid(),
                     new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue()),
                     config.packetBufferSize(),
                     unicast));

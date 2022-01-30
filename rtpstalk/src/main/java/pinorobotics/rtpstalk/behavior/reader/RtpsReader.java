@@ -1,10 +1,8 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.logging.XLogger;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -15,58 +13,26 @@ import pinorobotics.rtpstalk.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
-import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 
-public class RtpsReader implements RtpsEntity, RtpsSubmessageVisitor {
+public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubmessageVisitor {
 
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsReader.class);
+    private final XLogger LOGGER = XLogger.getLogger(getClass());
 
     /**
      * Contains the history of CacheChange changes for this RTPS Reader.
      */
     private HistoryCache cache = new HistoryCache();
 
-    private ExecutorService executor = ForkJoinPool.commonPool();
-    private RtpsMessageReader reader = new RtpsMessageReader();
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
-    private DatagramChannel dc;
-    protected int packetBufferSize;
     private Guid guid;
 
-    public RtpsReader(Guid guid, DatagramChannel dc, int packetBufferSize) {
+    private Subscription subscription;
+
+    private RtpsSubmessageVisitor filterVisitor;
+
+    public RtpsReader(Guid guid) {
         this.guid = guid;
-        this.packetBufferSize = packetBufferSize;
-        this.dc = dc;
-    }
-
-    public void start() {
-        executor.execute(() -> {
-            var thread = Thread.currentThread();
-            LOGGER.fine("Running {0} on thread {1} with id {2}", getClass().getSimpleName(), thread.getName(),
-                    thread.getId());
-            while (!executor.isShutdown()) {
-                try {
-                    var buf = ByteBuffer.allocate(packetBufferSize);
-                    dc.receive(buf);
-                    var len = buf.position();
-                    buf.rewind();
-                    buf.limit(len);
-                    reader.readRtpsMessage(buf).ifPresent(this::process);
-                } catch (Exception e) {
-                    LOGGER.severe(e);
-                }
-            }
-            LOGGER.fine("Shutdown received, stopping...");
-        });
-    }
-
-    private void process(RtpsMessage message) {
-        LOGGER.fine("Incoming RTPS message {0}", message);
-        if (message.header.guidPrefix.equals(guid.guidPrefix)) {
-            LOGGER.fine("Received its own message, ignoring...");
-            return;
-        }
-        walker.walk(message, this);
+        filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(guid.entityId, this);
     }
 
     @Override
@@ -86,5 +52,33 @@ public class RtpsReader implements RtpsEntity, RtpsSubmessageVisitor {
     @Override
     public Guid getGuid() {
         return guid;
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        this.subscription = subscription;
+        subscription.request(1);
+    }
+
+    @Override
+    public void onNext(RtpsMessage message) {
+        LOGGER.fine("Incoming RTPS message {0}", message);
+        if (!message.header.guidPrefix.equals(guid.guidPrefix)) {
+            walker.walk(message, filterVisitor);
+        } else {
+            LOGGER.fine("Received its own message, ignoring...");
+        }
+        subscription.request(1);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        LOGGER.severe(throwable);
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void onComplete() {
+        LOGGER.severe(new UnsupportedOperationException());
     }
 }

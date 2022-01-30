@@ -2,11 +2,6 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.StandardProtocolFamily;
-import java.net.StandardSocketOptions;
-import java.nio.channels.DatagramChannel;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -33,34 +28,31 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 public class SpdpService implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpService.class);
     private RtpsTalkConfiguration config;
+    private RtpsMessageReceiver receiver;
     private SpdpBuiltinParticipantReader reader;
     private SpdpBuiltinParticipantWriter writer;
-    private DatagramChannel dataChannel;
 
     public SpdpService(RtpsTalkConfiguration config) {
         this.config = config;
+        receiver = new RtpsMessageReceiver(config, "SpdpServiceReceiver");
     }
 
     public void start() throws Exception {
         LOGGER.entering("start");
         LOGGER.fine("Using following configuration: {0}", config);
-        var ni = NetworkInterface.getByName(config.networkIface());
         Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(config.domainId());
-        dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                .bind(new InetSocketAddress(defaultMulticastLocator.port()))
-                .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-        var group = defaultMulticastLocator.address();
-        dataChannel.join(group, ni);
-        reader = new SpdpBuiltinParticipantReader(config.guidPrefix(), dataChannel, config.packetBufferSize());
-        writer = new SpdpBuiltinParticipantWriter(dataChannel, config.packetBufferSize(), group);
+        reader = new SpdpBuiltinParticipantReader(config.guidPrefix());
+        receiver.start(defaultMulticastLocator, true);
+        receiver.subscribe(reader);
+        writer = new SpdpBuiltinParticipantWriter(receiver.getDataChannel(), config.packetBufferSize(),
+                defaultMulticastLocator.address());
         writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
-        reader.start();
         writer.start();
     }
 
@@ -71,7 +63,7 @@ public class SpdpService implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        dataChannel.close();
+        receiver.close();
         writer.close();
     }
 
