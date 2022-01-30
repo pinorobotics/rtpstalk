@@ -5,7 +5,7 @@ import id.kineticstreamer.KineticStreamReaderController;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
-public class RtpsKineticStreamReaderController extends KineticStreamReaderController {
+class RtpsKineticStreamReaderController extends KineticStreamReaderController {
 
     @Override
     public Result onNextObject(InputKineticStream in, Object obj, Class<?> fieldType) throws Exception {

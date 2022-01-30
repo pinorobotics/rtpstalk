@@ -32,7 +32,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
 
-public class RtpsInputKineticStream implements InputKineticStream {
+class RtpsInputKineticStream implements InputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
     private ByteBuffer buf;

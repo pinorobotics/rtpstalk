@@ -12,7 +12,7 @@ import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 
-public class RtpsOutputKineticStream implements OutputKineticStream {
+class RtpsOutputKineticStream implements OutputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
     private ByteBuffer buf;

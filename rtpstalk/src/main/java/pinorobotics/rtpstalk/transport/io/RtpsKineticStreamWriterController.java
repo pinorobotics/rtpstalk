@@ -6,7 +6,7 @@ import id.kineticstreamer.KineticStreamReaderController.Result;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
-public class RtpsKineticStreamWriterController extends KineticStreamWriterController {
+class RtpsKineticStreamWriterController extends KineticStreamWriterController {
 
     @Override
     public Result onNextObject(OutputKineticStream in, Object obj) throws Exception {

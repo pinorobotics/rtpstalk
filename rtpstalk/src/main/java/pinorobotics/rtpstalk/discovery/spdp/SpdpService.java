@@ -33,11 +33,10 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.transport.io.RtpsInputKineticStream;
 
 public class SpdpService implements AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
+    private static final XLogger LOGGER = XLogger.getLogger(SpdpService.class);
     private RtpsTalkConfiguration config;
     private SpdpBuiltinParticipantReader reader;
     private SpdpBuiltinParticipantWriter writer;
