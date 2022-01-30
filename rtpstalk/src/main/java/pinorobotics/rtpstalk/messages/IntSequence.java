@@ -12,6 +12,10 @@ public class IntSequence implements Sequence {
 
     }
 
+    public IntSequence(int len) {
+        this(new int[len]);
+    }
+
     public IntSequence(int[] data) {
         this.length = data.length;
         this.data = data;

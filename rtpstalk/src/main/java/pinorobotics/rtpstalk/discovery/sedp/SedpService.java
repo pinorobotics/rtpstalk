@@ -7,13 +7,13 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -31,6 +31,7 @@ public class SedpService implements Subscriber<CacheChange> {
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
+    private SedpBuiltinPublicationsReader publicationsReader;
     private Subscription subscription;
     private RtpsMessageReceiver receiver;
     private boolean isStarted;
@@ -49,6 +50,8 @@ public class SedpService implements Subscriber<CacheChange> {
                 false);
         subscriptionsReader = new SedpBuiltinSubscriptionsReader(config.guidPrefix());
         receiver.subscribe(subscriptionsReader);
+        publicationsReader = new SedpBuiltinPublicationsReader(config.guidPrefix());
+        receiver.subscribe(publicationsReader);
         participantsPublisher.subscribe(this);
         isStarted = true;
     }
@@ -84,21 +87,30 @@ public class SedpService implements Subscriber<CacheChange> {
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
-            if (!availableEndpoints.hasEndpoint(Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER)) {
-                LOGGER.fine(
-                        "Participant does not support BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER endpoint, ignoring...");
-                return;
-            }
             var unicast = List.<Locator>of();
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
                 unicast = List.of(locator);
             }
-            subscriptionsReader.matchedWriterAdd(new WriterProxy(subscriptionsReader.getGuid(),
-                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue()),
-                    config.packetBufferSize(),
-                    unicast));
+            configure(availableEndpoints, guidPrefix, subscriptionsReader,
+                    Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
+            configure(availableEndpoints, guidPrefix, publicationsReader,
+                    Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
         } else {
             LOGGER.fine("No supported builtin endpoints, ignoring...");
         }
+    }
+
+    private void configure(BuiltinEndpointSet availableEndpoints, GuidPrefix guidPrefix,
+            StatefullRtpsReader reader,
+            Endpoint endpoint, List<Locator> unicast) {
+        if (!availableEndpoints.hasEndpoint(endpoint)) {
+            LOGGER.fine(
+                    "Participant does not support {0} endpoint, ignoring...", endpoint);
+            return;
+        }
+        reader.matchedWriterAdd(new WriterProxy(reader.getGuid(),
+                new Guid(guidPrefix, endpoint.getEntityId().getValue()),
+                config.packetBufferSize(),
+                unicast));
     }
 }
