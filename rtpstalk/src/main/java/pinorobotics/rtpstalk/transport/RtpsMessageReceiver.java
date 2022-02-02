@@ -17,8 +17,7 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 
 public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsMessageReceiver.class);
-
+    private final XLogger logger;
     private RtpsTalkConfiguration config;
     private RtpsMessageReader reader = new RtpsMessageReader();
     private ExecutorService executor;
@@ -30,17 +29,18 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
     public RtpsMessageReceiver(RtpsTalkConfiguration config, String name) {
         this.config = config;
         executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(name));
+        logger = XLogger.getLogger(name);
     }
 
     public void start(Locator locator, boolean multicast) throws IOException {
-        LOGGER.entering("start");
+        logger.entering("start");
         if (isStarted)
             throw new IllegalStateException("Already started");
-        LOGGER.fine("Using following configuration: {0}", config);
+        logger.fine("Using following configuration: {0}", config);
         dataChannel = createChannel(locator, multicast);
         executor.execute(() -> {
             var thread = Thread.currentThread();
-            LOGGER.fine("Running {0} on thread {1} with id {2}", getClass().getSimpleName(), thread.getName(),
+            logger.fine("Running {0} on thread {1} with id {2}", getClass().getSimpleName(), thread.getName(),
                     thread.getId());
             while (!executor.isShutdown()) {
                 try {
@@ -51,12 +51,18 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
                     buf.limit(len);
                     reader.readRtpsMessage(buf).ifPresent(this::submit);
                 } catch (Exception e) {
-                    LOGGER.severe(e);
+                    logger.severe(e);
                 }
             }
-            LOGGER.fine("Shutdown received, stopping...");
+            logger.fine("Shutdown received, stopping...");
         });
         isStarted = true;
+    }
+
+    @Override
+    public int submit(RtpsMessage message) {
+        logger.fine("Incoming RTPS message {0}", message);
+        return super.submit(message);
     }
 
     // TODO remove when writer ready

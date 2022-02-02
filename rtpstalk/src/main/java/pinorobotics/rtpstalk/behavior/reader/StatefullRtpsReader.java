@@ -44,6 +44,7 @@ public class StatefullRtpsReader extends RtpsReader {
             var writerGuid = new Guid(guidPrefix, heartbeat.writerId);
             var writerProxy = matchedWriters.get(writerGuid);
             if (writerProxy != null) {
+                LOGGER.fine("Received heartbeat from writer {0}", writerGuid);
                 writerProxy.onHeartbeat(heartbeat);
             } else {
                 LOGGER.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);

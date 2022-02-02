@@ -37,6 +37,7 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
 
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
+        LOGGER.fine("Received data {0}", d);
         addChange(new CacheChange(new Guid(guidPrefix, d.writerId), d.writerSN, d));
         return Result.CONTINUE;
     }
@@ -62,7 +63,6 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
 
     @Override
     public void onNext(RtpsMessage message) {
-        LOGGER.fine("Incoming RTPS message {0}", message);
         if (!message.header.guidPrefix.equals(guid.guidPrefix)) {
             walker.walk(message, filterVisitor);
         } else {
