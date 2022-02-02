@@ -1,5 +1,10 @@
 package pinorobotics.rtpstalk.transport.io;
 
+import id.kineticstreamer.KineticStreamWriter;
+import id.kineticstreamer.OutputKineticStream;
+import id.xfunction.XAsserts;
+import id.xfunction.XByte;
+import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -7,10 +12,7 @@ import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
-import id.kineticstreamer.KineticStreamWriter;
-import id.kineticstreamer.OutputKineticStream;
-import id.xfunction.XAsserts;
-import id.xfunction.logging.XLogger;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 
 class RtpsOutputKineticStream implements OutputKineticStream {
 
@@ -192,7 +194,19 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     public void writeSequenceNumber(SequenceNumber num) throws Exception {
+        LOGGER.entering("writeSequenceNumber");
         writeInt((int) (num.value >> 31));
         writeInt((int) ((-1L >> 31) & num.value));
+        LOGGER.exiting("writeSequenceNumber");
+    }
+
+    public void writeSequenceNumberSet(SequenceNumberSet set) throws Exception {
+        LOGGER.entering("writeSequenceNumberSet");
+        writeSequenceNumber(set.bitmapBase);
+        writeInt(set.numBits);
+        for (var i : set.bitmap) {
+            buf.putInt(XByte.reverseBytes(i));
+        }
+        LOGGER.exiting("writeSequenceNumberSet");
     }
 }

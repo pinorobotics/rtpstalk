@@ -117,7 +117,7 @@ public class LengthCalculator {
                     + getFixedLength(Count.class);
         }
         if (obj instanceof SequenceNumberSet set)
-            return getFixedLength(SequenceNumber.class) + calculateLength(set.bitmap);
+            return getFixedLength(SequenceNumber.class) + Integer.BYTES + Integer.BYTES * set.bitmap.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
