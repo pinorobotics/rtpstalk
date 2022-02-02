@@ -129,9 +129,10 @@ class RtpsInputKineticStream implements InputKineticStream {
         var strBuf = new StringBuilder();
         byte b = 0;
         // TODO assert length after reading
-        readInt();
+        var len = readInt();
         while ((b = buf.get()) != 0)
             strBuf.append((char) b);
+        XAsserts.assertEquals(len, strBuf.length() + 1 /*NULL byte*/, "String length does not match");
         return strBuf.toString();
     }
 
@@ -182,6 +183,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             Object value = null;
             switch (parameterId) {
             case PID_ENTITY_NAME:
+            case PID_TOPIC_NAME:
                 value = reader.read(String.class);
                 break;
             case PID_BUILTIN_ENDPOINT_SET:

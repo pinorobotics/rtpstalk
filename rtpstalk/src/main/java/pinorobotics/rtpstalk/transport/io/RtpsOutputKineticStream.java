@@ -132,7 +132,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     @Override
     public void writeString(String str) throws Exception {
         LOGGER.entering("writeString");
-        writeInt(str.length());
+        writeInt(str.length() + 1 /* NULL byte */);
         writeByteArray(str.getBytes());
         writeByte((byte) 0);
         LOGGER.exiting("writeString");
