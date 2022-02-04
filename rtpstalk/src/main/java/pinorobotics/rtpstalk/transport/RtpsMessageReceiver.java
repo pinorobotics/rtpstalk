@@ -49,7 +49,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
                     var len = buf.position();
                     buf.rewind();
                     buf.limit(len);
-                    reader.readRtpsMessage(buf).ifPresent(this::submit);
+                    reader.readRtpsMessage(buf).ifPresent(this::process);
                 } catch (Exception e) {
                     logger.severe(e);
                 }
@@ -59,10 +59,13 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
         isStarted = true;
     }
 
-    @Override
-    public int submit(RtpsMessage message) {
+    public void process(RtpsMessage message) {
+        if (message.header.guidPrefix.equals(config.guidPrefix())) {
+            logger.fine("Received its own message, ignoring...");
+            return;
+        }
         logger.fine("Incoming RTPS message {0}", message);
-        return super.submit(message);
+        submit(message);
     }
 
     // TODO remove when writer ready

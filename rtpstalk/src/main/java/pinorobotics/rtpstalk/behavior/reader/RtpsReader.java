@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
@@ -14,6 +15,15 @@ import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 
+/**
+ * Each reader can be subscribed to only one data channel. And to one data
+ * channel can be subscribed multiple of readers (many readers to one data
+ * channel). Data channel it is where multiple remote writers (Participants)
+ * send RTPS messages. When reader is subscribed to the data channel it is going
+ * to receive all RTPS messages from it. Since one RTPS message can contain
+ * submessages which belong to different readers it is reader responsibility to
+ * filter them out.
+ */
 public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
@@ -46,6 +56,10 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
         cache.addChange(cacheChange);
     }
 
+    protected void process(RtpsMessage message) {
+        walker.walk(message, filterVisitor);
+    }
+
     public HistoryCache getCache() {
         return cache;
     }
@@ -57,18 +71,20 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
 
     @Override
     public void onSubscribe(Subscription subscription) {
+        XAsserts.assertNull(this.subscription, "Already subscribed");
         this.subscription = subscription;
         subscription.request(1);
     }
 
     @Override
     public void onNext(RtpsMessage message) {
-        if (!message.header.guidPrefix.equals(guid.guidPrefix)) {
-            walker.walk(message, filterVisitor);
-        } else {
-            LOGGER.fine("Received its own message, ignoring...");
+        try {
+            process(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            subscription.request(1);
         }
-        subscription.request(1);
     }
 
     @Override
