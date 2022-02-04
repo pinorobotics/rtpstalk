@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.structure;
 
+import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -57,4 +58,11 @@ public class CacheChange {
                 && Objects.equals(writerGuid, other.writerGuid);
     }
 
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("sequenceNumber", sequenceNumber);
+        builder.append("hasData", dataValue != null);
+        return builder.toString();
+    }
 }
