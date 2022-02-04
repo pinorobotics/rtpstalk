@@ -132,7 +132,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         var len = readInt();
         while ((b = buf.get()) != 0)
             strBuf.append((char) b);
-        XAsserts.assertEquals(len, strBuf.length() + 1 /*NULL byte*/, "String length does not match");
+        XAsserts.assertEquals(len, strBuf.length() + 1 /* NULL byte */, "String length does not match");
         return strBuf.toString();
     }
 
@@ -183,8 +183,9 @@ class RtpsInputKineticStream implements InputKineticStream {
             Object value = null;
             switch (parameterId) {
             case PID_ENTITY_NAME:
+            case PID_TYPE_NAME:
             case PID_TOPIC_NAME:
-                value = reader.read(String.class);
+                value = readString();
                 break;
             case PID_BUILTIN_ENDPOINT_SET:
                 value = reader.read(BuiltinEndpointSet.class);
@@ -192,10 +193,12 @@ class RtpsInputKineticStream implements InputKineticStream {
             case PID_PARTICIPANT_LEASE_DURATION:
                 value = reader.read(Duration.class);
                 break;
+            case PID_UNICAST_LOCATOR:
             case PID_DEFAULT_UNICAST_LOCATOR:
             case PID_METATRAFFIC_UNICAST_LOCATOR:
                 value = readLocator();
                 break;
+            case PID_ENDPOINT_GUID:
             case PID_PARTICIPANT_GUID:
                 value = reader.read(Guid.class);
                 break;
@@ -207,6 +210,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                 break;
             case PID_USER_DATA:
                 value = new UserDataQosPolicy(readSequence());
+                break;
+            case PID_EXPECTS_INLINE_QOS:
+                value = readBool();
                 break;
             default:
                 throw new UnsupportedOperationException("Parameter id " + id);
