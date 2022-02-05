@@ -19,6 +19,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.structure.CacheChange;
+import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
@@ -36,23 +37,26 @@ public class SedpService implements Subscriber<CacheChange> {
     private Subscription subscription;
     private RtpsMessageReceiver receiver;
     private boolean isStarted;
+    private DataChannelFactory channelFactory;
 
-    public SedpService(RtpsTalkConfiguration config) {
+    public SedpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
-        receiver = new RtpsMessageReceiver(config, "SedpServiceReceiver");
+        this.channelFactory = channelFactory;
+        receiver = new RtpsMessageReceiver("SedpServiceReceiver");
     }
 
     public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        receiver.start(new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress()),
-                false);
+
+        var locator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress());
         subscriptionsReader = new SedpBuiltinSubscriptionsReader(config);
         receiver.subscribe(subscriptionsReader);
         publicationsReader = new SedpBuiltinPublicationsReader(config);
         receiver.subscribe(publicationsReader);
         participantsPublisher.subscribe(this);
+        receiver.start(channelFactory.bind(locator));
         isStarted = true;
     }
 

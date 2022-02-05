@@ -3,9 +3,7 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
 import java.io.IOException;
-import java.net.StandardProtocolFamily;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -18,7 +16,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
+import pinorobotics.rtpstalk.transport.DataChannel;
+import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /**
  * Combines multiple heartbeats into one AckNack
@@ -29,17 +28,16 @@ public class WriterHeartbeatProcessor {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterHeartbeatProcessor.class);
 
-    private DatagramChannel dataChannel;
-    private RtpsMessageWriter writer = new RtpsMessageWriter();
-    private ByteBuffer buf;
+    private DataChannel dataChannel;
+    private DataChannelFactory dataChannelFactory;
     private WriterProxy writerProxy;
     private int writerCount;
     private int count;
     private Heartbeat lastHeartbeat;
 
-    public WriterHeartbeatProcessor(WriterProxy writerProxy, int packetBufferSize) {
+    public WriterHeartbeatProcessor(RtpsTalkConfiguration config, WriterProxy writerProxy) {
         this.writerProxy = writerProxy;
-        buf = ByteBuffer.allocate(packetBufferSize);
+        dataChannelFactory = new DataChannelFactory(config);
     }
 
     /**
@@ -68,21 +66,22 @@ public class WriterHeartbeatProcessor {
             LOGGER.fine("No new heartbeats, nothing to acknowledge...");
             return;
         }
+
         var writerGuid = writerProxy.getRemoteWriterGuid();
         var readerGuid = writerProxy.getReaderGuid();
+
         LOGGER.fine("Sending heartbeat ack for writer {0}", writerGuid);
         if (dataChannel == null) {
-            var addr = writerProxy.getUnicastLocatorList().get(0).getSocketAddress();
+            var locator = writerProxy.getUnicastLocatorList().get(0);
             try {
-                dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                        .connect(addr);
+                dataChannel = dataChannelFactory.connect(locator);
             } catch (IOException e) {
-                LOGGER.warning("Cannot open connection to remote writer on {0}: {1}", addr, e.getMessage());
+                LOGGER.warning("Cannot open connection to remote writer on {0}: {1}", locator, e.getMessage());
                 return;
             }
         }
-        var infoDst = new InfoDestination(writerGuid.guidPrefix);
 
+        var infoDst = new InfoDestination(writerGuid.guidPrefix);
         var ack = new AckNack(readerGuid.entityId, writerGuid.entityId, createSequenceNumberSet(lastHeartbeat),
                 new Count(count++));
         var submessages = new Submessage[] { infoDst, ack };
@@ -92,17 +91,7 @@ public class WriterHeartbeatProcessor {
                 VendorId.Predefined.RTPSTALK.getValue(),
                 readerGuid.guidPrefix);
         var message = new RtpsMessage(header, submessages);
-        buf.rewind();
-        buf.limit(buf.capacity());
-        try {
-            writer.writeRtpsMessage(message, buf);
-            buf.limit(buf.position());
-            buf.rewind();
-            dataChannel.write(buf);
-        } catch (Throwable e) {
-            LOGGER.severe(e);
-            return;
-        }
+        dataChannel.send(message);
         lastHeartbeat = null;
     }
 

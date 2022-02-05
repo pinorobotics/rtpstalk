@@ -32,7 +32,7 @@ public class StatefullRtpsReader extends RtpsReader {
     public void matchedWriterAdd(WriterProxy proxy) {
         LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(proxy.getRemoteWriterGuid(),
-                new WriterInfo(proxy, new WriterHeartbeatProcessor(proxy, config.packetBufferSize())));
+                new WriterInfo(proxy, new WriterHeartbeatProcessor(config, proxy)));
     }
 
     public void matchedWriterRemove() {

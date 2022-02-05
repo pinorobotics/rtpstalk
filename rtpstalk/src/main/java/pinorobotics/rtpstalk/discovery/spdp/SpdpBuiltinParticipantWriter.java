@@ -1,5 +1,7 @@
 package pinorobotics.rtpstalk.discovery.spdp;
 
+import id.xfunction.concurrent.NamedThreadFactory;
+import id.xfunction.logging.XLogger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -7,9 +9,6 @@ import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import id.xfunction.concurrent.NamedThreadFactory;
-import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
@@ -17,7 +16,7 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
-            new NamedThreadFactory("SPDPbuiltinParticipantWriter"));
+            new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
     private RtpsMessageWriter writer = new RtpsMessageWriter();
     private DatagramChannel dc;
     private RtpsMessage data;
@@ -44,7 +43,7 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
         if (executor.isShutdown())
             return;
         var thread = Thread.currentThread();
-        LOGGER.fine("Running SPDPbuiltinParticipantWriter on thread {0} with id {1}", thread.getName(),
+        LOGGER.fine("Running SpdpBuiltinParticipantWriter on thread {0} with id {1}", thread.getName(),
                 thread.getId());
         if (data == null) {
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
