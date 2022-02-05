@@ -4,8 +4,11 @@ import id.xfunction.logging.XLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.structure.CacheChange;
@@ -17,15 +20,19 @@ public class StatefullRtpsReader extends RtpsReader {
     /**
      * Used to maintain state on the remote Writers matched up with the Reader
      */
-    private Map<Guid, WriterProxy> matchedWriters = new HashMap<>();
+    private Map<Guid, WriterInfo> matchedWriters = new HashMap<>();
 
-    public StatefullRtpsReader(Guid guid) {
-        super(guid);
+    private RtpsTalkConfiguration config;
+
+    public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
+        super(new Guid(config.guidPrefix(), entityId));
+        this.config = config;
     }
 
     public void matchedWriterAdd(WriterProxy proxy) {
         LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
-        matchedWriters.put(proxy.getRemoteWriterGuid(), proxy);
+        matchedWriters.put(proxy.getRemoteWriterGuid(),
+                new WriterInfo(proxy, new WriterHeartbeatProcessor(proxy, config.packetBufferSize())));
     }
 
     public void matchedWriterRemove() {
@@ -33,7 +40,8 @@ public class StatefullRtpsReader extends RtpsReader {
     }
 
     public Optional<WriterProxy> matchedWriterLookup(Guid guid) {
-        return Optional.ofNullable(matchedWriters.get(guid));
+        return Optional.ofNullable(matchedWriters.get(guid))
+                .map(WriterInfo::proxy);
     }
 
     @Override
@@ -42,10 +50,10 @@ public class StatefullRtpsReader extends RtpsReader {
         // message (8.3.7.5.5)
         if (!heartbeat.isFinal()) {
             var writerGuid = new Guid(guidPrefix, heartbeat.writerId);
-            var writerProxy = matchedWriters.get(writerGuid);
-            if (writerProxy != null) {
+            var writerInfo = matchedWriters.get(writerGuid);
+            if (writerInfo != null) {
                 LOGGER.fine("Received heartbeat from writer {0}", writerGuid);
-                writerProxy.onHeartbeat(heartbeat);
+                writerInfo.heartbeatProcessor().addHeartbeat(heartbeat);
             } else {
                 LOGGER.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);
             }
@@ -56,13 +64,21 @@ public class StatefullRtpsReader extends RtpsReader {
     @Override
     protected void addChange(CacheChange cacheChange) {
         super.addChange(cacheChange);
-        var matchedWriter = matchedWriters.get(cacheChange.getWriterGuid());
-        if (matchedWriter == null) {
+        var writerInfo = matchedWriters.get(cacheChange.getWriterGuid());
+        if (writerInfo == null) {
             LOGGER.fine("No matched writer with guid {0} found for a new change, ignoring...",
                     cacheChange.getWriterGuid());
             return;
         }
-        matchedWriter.addChange(cacheChange);
+        writerInfo.proxy().addChange(cacheChange);
         return;
+    }
+
+    @Override
+    protected void process(RtpsMessage message) {
+        super.process(message);
+        matchedWriters.values().stream()
+                .map(WriterInfo::heartbeatProcessor)
+                .forEach(WriterHeartbeatProcessor::ack);
     }
 }

@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.discovery.sedp;
 
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
@@ -43,14 +44,13 @@ public class SedpService implements Subscriber<CacheChange> {
 
     public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
         LOGGER.entering("start");
-        if (isStarted)
-            throw new IllegalStateException("Already started");
+        XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
         receiver.start(new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress()),
                 false);
-        subscriptionsReader = new SedpBuiltinSubscriptionsReader(config.guidPrefix());
+        subscriptionsReader = new SedpBuiltinSubscriptionsReader(config);
         receiver.subscribe(subscriptionsReader);
-        publicationsReader = new SedpBuiltinPublicationsReader(config.guidPrefix());
+        publicationsReader = new SedpBuiltinPublicationsReader(config);
         receiver.subscribe(publicationsReader);
         participantsPublisher.subscribe(this);
         isStarted = true;
@@ -58,6 +58,7 @@ public class SedpService implements Subscriber<CacheChange> {
 
     @Override
     public void onSubscribe(Subscription subscription) {
+        XAsserts.assertNull(this.subscription, "Already subscribed");
         this.subscription = subscription;
         subscription.request(1);
     }
@@ -110,7 +111,6 @@ public class SedpService implements Subscriber<CacheChange> {
         }
         reader.matchedWriterAdd(new WriterProxy(reader.getGuid(),
                 new Guid(guidPrefix, endpoint.getEntityId().getValue()),
-                config.packetBufferSize(),
                 unicast));
     }
 }
