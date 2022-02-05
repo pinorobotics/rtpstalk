@@ -87,6 +87,14 @@ public class SedpService implements Subscriber<CacheChange> {
 
     }
 
+    public SedpBuiltinPublicationsReader getPublicationsReader() {
+        return publicationsReader;
+    }
+
+    public SedpBuiltinSubscriptionsReader getSubscriptionsReader() {
+        return subscriptionsReader;
+    }
+
     private void configureEndpoints(GuidPrefix guidPrefix, ParameterList participantData) {
         LOGGER.fine("Configuring builtin endpoints for guidprefix {0}", guidPrefix);
         var params = participantData.getParameters();

@@ -1,10 +1,8 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
+import id.xfunction.XJsonStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-
-import id.xfunction.XJsonStringBuilder;
 
 /**
  * Each RTPS Message consists of a variable number of RTPS Submessage parts.
@@ -45,10 +43,6 @@ public abstract class Submessage {
         builder.append("flags", getFlags());
         builder.append(getAdditionalFields());
         return builder.toString();
-    }
-
-    public static Predicate<Submessage> filterBySubmessageKind(SubmessageKind kind) {
-        return submessage -> submessage.submessageHeader.submessageKind.equals(kind);
     }
 
 }
