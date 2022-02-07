@@ -1,9 +1,11 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.logging.XLogger;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -13,14 +15,19 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.structure.CacheChange;
 
+/**
+ * This should be thread safe since it is possible that one threads will be
+ * calling {@link #matchedWriterAdd(WriterProxy)} when another doing
+ * {@link #process(RtpsMessage)} and that happening at the same time.
+ */
 public class StatefullRtpsReader extends RtpsReader {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
     /**
-     * Used to maintain state on the remote Writers matched up with the Reader
+     * Used to maintain state on the remote Writers matched up with the Reader.
      */
-    private Map<Guid, WriterInfo> matchedWriters = new HashMap<>();
+    private Map<Guid, WriterInfo> matchedWriters = new ConcurrentHashMap<>();
 
     private RtpsTalkConfiguration config;
 
@@ -42,6 +49,12 @@ public class StatefullRtpsReader extends RtpsReader {
     public Optional<WriterProxy> matchedWriterLookup(Guid guid) {
         return Optional.ofNullable(matchedWriters.get(guid))
                 .map(WriterInfo::proxy);
+    }
+
+    public List<WriterProxy> matchedWriters() {
+        return matchedWriters.values().stream()
+                .map(WriterInfo::proxy)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
