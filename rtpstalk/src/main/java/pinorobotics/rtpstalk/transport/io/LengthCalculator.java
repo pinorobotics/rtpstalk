@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.transport.io;
 import id.xfunction.lang.XRE;
 import java.util.Map;
 import java.util.Map.Entry;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -87,6 +88,8 @@ public class LengthCalculator {
             return getFixedLength(GuidPrefix.class) + getFixedLength(EntityId.class);
         if (clazz == Count.class)
             return Integer.BYTES;
+        if (clazz == BuiltinEndpointQos.class)
+            return Integer.BYTES;
         return -1;
     }
 
@@ -141,6 +144,7 @@ public class LengthCalculator {
         case PID_VENDORID -> getFixedLength(VendorId.class);
         case PID_SENTINEL -> 0;
         case PID_USER_DATA -> calculateLength(param.getValue());
+        case PID_BUILTIN_ENDPOINT_QOS -> getFixedLength(BuiltinEndpointQos.class);
         default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
         };
 

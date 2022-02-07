@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -189,6 +190,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                 break;
             case PID_BUILTIN_ENDPOINT_SET:
                 value = reader.read(BuiltinEndpointSet.class);
+                break;
+            case PID_BUILTIN_ENDPOINT_QOS:
+                value = reader.read(BuiltinEndpointQos.class);
                 break;
             case PID_PARTICIPANT_LEASE_DURATION:
                 value = reader.read(Duration.class);
