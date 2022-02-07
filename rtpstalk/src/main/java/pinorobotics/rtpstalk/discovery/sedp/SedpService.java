@@ -1,12 +1,11 @@
 package pinorobotics.rtpstalk.discovery.sedp;
 
 import id.xfunction.XAsserts;
+import id.xfunction.concurrent.flow.XSubscriber;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Flow.Publisher;
-import java.util.concurrent.Flow.Subscriber;
-import java.util.concurrent.Flow.Subscription;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
@@ -28,13 +27,12 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * by the DiscoveredParticipantData participant_data. The discovered Participant
  * uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
-public class SedpService implements Subscriber<CacheChange> {
+public class SedpService extends XSubscriber<CacheChange> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
     private SedpBuiltinPublicationsReader publicationsReader;
-    private Subscription subscription;
     private RtpsMessageReceiver receiver;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
@@ -58,13 +56,6 @@ public class SedpService implements Subscriber<CacheChange> {
         participantsPublisher.subscribe(this);
         receiver.start(channelFactory.bind(locator));
         isStarted = true;
-    }
-
-    @Override
-    public void onSubscribe(Subscription subscription) {
-        XAsserts.assertNull(this.subscription, "Already subscribed");
-        this.subscription = subscription;
-        subscription.request(1);
     }
 
     @Override
@@ -96,20 +87,21 @@ public class SedpService implements Subscriber<CacheChange> {
     }
 
     private void configureEndpoints(GuidPrefix guidPrefix, ParameterList participantData) {
-        LOGGER.fine("Configuring builtin endpoints for guidprefix {0}", guidPrefix);
+        LOGGER.fine("Configuring builtin endpoints for Participant {0}", guidPrefix);
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
-            var unicast = List.<Locator>of();
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
-                unicast = List.of(locator);
+                var unicast = List.of(locator);
+                configure(availableEndpoints, guidPrefix, subscriptionsReader,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
+                configure(availableEndpoints, guidPrefix, publicationsReader,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
+            } else {
+                LOGGER.fine("Participant has no locator defined, ignoring...");
             }
-            configure(availableEndpoints, guidPrefix, subscriptionsReader,
-                    Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
-            configure(availableEndpoints, guidPrefix, publicationsReader,
-                    Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
         } else {
-            LOGGER.fine("No supported builtin endpoints, ignoring...");
+            LOGGER.fine("Participant has no supported builtin endpoints, ignoring...");
         }
     }
 

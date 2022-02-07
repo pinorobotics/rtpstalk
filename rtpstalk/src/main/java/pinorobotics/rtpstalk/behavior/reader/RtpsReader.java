@@ -1,9 +1,7 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
-import id.xfunction.XAsserts;
+import id.xfunction.concurrent.flow.XSubscriber;
 import id.xfunction.logging.XLogger;
-import java.util.concurrent.Flow.Subscriber;
-import java.util.concurrent.Flow.Subscription;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -24,7 +22,7 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  * submessages which belong to different readers it is reader responsibility to
  * filter them out.
  */
-public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubmessageVisitor {
+public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
@@ -35,9 +33,6 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
 
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private Guid guid;
-
-    private Subscription subscription;
-
     private RtpsSubmessageVisitor filterVisitor;
 
     public RtpsReader(Guid guid) {
@@ -67,13 +62,6 @@ public class RtpsReader implements Subscriber<RtpsMessage>, RtpsEntity, RtpsSubm
     @Override
     public Guid getGuid() {
         return guid;
-    }
-
-    @Override
-    public void onSubscribe(Subscription subscription) {
-        XAsserts.assertNull(this.subscription, "Already subscribed");
-        this.subscription = subscription;
-        subscription.request(1);
     }
 
     @Override
