@@ -245,8 +245,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         LOGGER.entering("readData");
         var data = reader.read(Data.class);
         if (data.isInlineQos())
-            throw new UnsupportedOperationException();
-        buf.position(buf.position() + data.getBytesToSkip());
+            throw new UnsupportedOperationException("InlineQos in Data submessage");
         var payloadHeader = reader.read(SerializedPayloadHeader.class);
         LOGGER.fine("payloadHeader: {0}", payloadHeader);
         // if PL_CDR_LE

@@ -7,12 +7,17 @@ import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
 public class Data extends Submessage {
 
-    private static final short PAYLOAD_OFFSET = (short) (LengthCalculator.getInstance().getFixedLength(EntityId.class)
-            * 2
-            + LengthCalculator.getInstance().getFixedLength(SequenceNumber.class));
-
     public short extraFlags;
 
+    /**
+     * Contains the number of octets starting from the first octet immediately
+     * following this field until the first octet of the inlineQos
+     * SubmessageElement. If the inlineQos SubmessageElement is not present (i.e.,
+     * the InlineQosFlag is not set), then octetsToInlineQos contains the offset to
+     * the next field after the inlineQos.
+     * 
+     * Currently inlineQos is no supported.
+     */
     public short octetsToInlineQos;
 
     /**
@@ -42,7 +47,9 @@ public class Data extends Submessage {
     public Data(int flags, int extraFlags, EntityId readerId, EntityId writerId,
             SequenceNumber writerSN, SerializedPayload serializedPayload) {
         this.extraFlags = (short) extraFlags;
-        this.octetsToInlineQos = PAYLOAD_OFFSET;
+        this.octetsToInlineQos = (short) (LengthCalculator.getInstance().getFixedLength(EntityId.class)
+                * 2
+                + LengthCalculator.getInstance().getFixedLength(SequenceNumber.class));
         this.readerId = readerId;
         this.writerId = writerId;
         this.writerSN = writerSN;
@@ -79,14 +86,6 @@ public class Data extends Submessage {
 
     public boolean isNonStandardPayloadFlag() {
         return (getFlagsInternal() & 10) != 0;
-    }
-
-    /**
-     * See "9.4.5.3 Data Submessage"
-     */
-    public int getBytesToSkip() {
-        // sizeof(readerId + writerId + writerSN) == 8
-        return octetsToInlineQos - PAYLOAD_OFFSET;
     }
 
     public SerializedPayload getSerializedPayload() {
