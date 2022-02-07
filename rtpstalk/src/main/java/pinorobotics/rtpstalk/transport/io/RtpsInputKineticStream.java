@@ -16,6 +16,7 @@ import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
@@ -217,6 +218,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                 break;
             case PID_EXPECTS_INLINE_QOS:
                 value = readBool();
+                break;
+            case PID_KEY_HASH:
+                value = reader.read(KeyHash.class);
                 break;
             default:
                 throw new UnsupportedOperationException("Parameter id " + id);

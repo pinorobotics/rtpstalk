@@ -9,6 +9,7 @@ import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.IntSequence;
+import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
@@ -90,6 +91,8 @@ public class LengthCalculator {
             return Integer.BYTES;
         if (clazz == BuiltinEndpointQos.class)
             return Integer.BYTES;
+        if (clazz == KeyHash.class)
+            return KeyHash.SIZE;
         return -1;
     }
 
@@ -136,6 +139,7 @@ public class LengthCalculator {
         ParameterId id = param.getKey();
         var len = switch (id) {
         case PID_ENTITY_NAME -> calculateLength(param.getValue());
+        case PID_KEY_HASH -> getFixedLength(KeyHash.class);
         case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
         case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
         case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR -> getFixedLength(Locator.class);
