@@ -139,11 +139,14 @@ public class LengthCalculator {
         ParameterId id = param.getKey();
         var len = switch (id) {
         case PID_ENTITY_NAME -> calculateLength(param.getValue());
+        case PID_TOPIC_NAME -> calculateLength(param.getValue());
+        case PID_TYPE_NAME -> calculateLength(param.getValue());
         case PID_KEY_HASH -> getFixedLength(KeyHash.class);
         case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
         case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
-        case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR -> getFixedLength(Locator.class);
-        case PID_PARTICIPANT_GUID -> getFixedLength(Guid.class);
+        case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR, PID_UNICAST_LOCATOR -> getFixedLength(
+                Locator.class);
+        case PID_PARTICIPANT_GUID, PID_ENDPOINT_GUID -> getFixedLength(Guid.class);
         case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
         case PID_VENDORID -> getFixedLength(VendorId.class);
         case PID_SENTINEL -> 0;
