@@ -14,7 +14,6 @@ import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -46,18 +45,18 @@ public class SpdpService implements AutoCloseable {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("SpdpServiceReceiver");
-        reader = new SpdpBuiltinParticipantReader(config.guidPrefix());
+        reader = new SpdpBuiltinParticipantReader(config.getGuidPrefix());
     }
 
     public void start() throws Exception {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(config.domainId());
+        Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(config.getDomainId());
         var dataChannel = channelFactory.bind(defaultMulticastLocator);
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(dataChannel.getDatagramChannel(), config.packetBufferSize(),
+        writer = new SpdpBuiltinParticipantWriter(dataChannel.getDatagramChannel(), config.getPacketBufferSize(),
                 defaultMulticastLocator.address());
         writer.setSpdpDiscoveredParticipantData(createSpdpDiscoveredParticipantData());
         writer.start();
@@ -85,17 +84,15 @@ public class SpdpService implements AutoCloseable {
                 Endpoint.SECURE_SUBSCRIPTION_READER,
                 Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
         // best-effort is not currently supported
-        if (config.builtinEndpointQos() == EndpointQos.NONE)
+        if (config.getBuiltinEndpointQos() == EndpointQos.NONE)
             endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
         var params = List.<Entry<ParameterId, Object>>of(
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
                 Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
-                        config.guidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                Map.entry(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, new Locator(
-                        LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress())),
-                Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, new Locator(
-                        LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress())),
+                        config.getGuidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                Map.entry(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, config.getMetatrafficUnicastLocator()),
+                Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
                 Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
                 Map.entry(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet)),
                 Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
@@ -111,7 +108,7 @@ public class SpdpService implements AutoCloseable {
                 ProtocolId.Predefined.RTPS.getValue(),
                 ProtocolVersion.Predefined.Version_2_3.getValue(),
                 VendorId.Predefined.RTPSTALK.getValue(),
-                config.guidPrefix());
+                config.getGuidPrefix());
         return new RtpsMessage(header, submessages);
     }
 

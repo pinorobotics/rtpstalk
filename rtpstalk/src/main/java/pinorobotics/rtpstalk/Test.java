@@ -11,8 +11,6 @@ import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.KeyHash;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -57,9 +55,7 @@ public class Test {
                                     .connect(sedp.getSubscriptionsReader().matchedWriters().get(0)
                                             .getUnicastLocatorList().get(0))
                                     .send(createSubscriptionMessage("rt/chatter", "std_msgs::msg::dds_::String_"));
-                            receiver.start(channelFactory.bind(
-                                    new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(),
-                                            config.ipAddress())));
+                            receiver.start(channelFactory.bind(config.getDefaultUnicastLocator()));
                             System.out.println("receiver is started");
                             receiver.subscribe(new XSubscriber<RtpsMessage>() {
                                 @Override
@@ -82,17 +78,16 @@ public class Test {
 
     private static RtpsMessage createSubscriptionMessage(String topicName, String typeName) {
         var params = List.<Entry<ParameterId, Object>>of(
-                Map.entry(ParameterId.PID_UNICAST_LOCATOR, new Locator(
-                        LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress())),
+                Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
                 Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
-                        config.guidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                        config.getGuidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                 Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
                 Map.entry(ParameterId.PID_TYPE_NAME, typeName),
                 Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(
                         0x01, 0x0f, 0xeb, 0x7d, 0x5f, 0xfa, 0x9f, 0xe4, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12,
                         0x04)),
                 Map.entry(ParameterId.PID_ENDPOINT_GUID,
-                        new Guid(config.guidPrefix(), new EntityId(new byte[] { 00, 00, 0x12 }, 04))),
+                        new Guid(config.getGuidPrefix(), new EntityId(new byte[] { 00, 00, 0x12 }, 04))),
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
         var submessages = new Submessage[] { InfoTimestamp.now(),
@@ -107,7 +102,7 @@ public class Test {
                 ProtocolId.Predefined.RTPS.getValue(),
                 ProtocolVersion.Predefined.Version_2_3.getValue(),
                 VendorId.Predefined.RTPSTALK.getValue(),
-                config.guidPrefix());
+                config.getGuidPrefix());
         return new RtpsMessage(header, submessages);
     }
 }

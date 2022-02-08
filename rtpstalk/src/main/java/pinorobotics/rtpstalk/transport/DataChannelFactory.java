@@ -21,17 +21,17 @@ public class DataChannelFactory {
      */
     public DataChannel bind(Locator locator) throws IOException {
         if (locator.address().isMulticastAddress()) {
-            var ni = NetworkInterface.getByName(config.networkIface());
+            var ni = NetworkInterface.getByName(config.getNetworkIface());
             var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                     .bind(locator.getSocketAddress())
                     .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
             dataChannel.join(locator.address(), ni);
-            return new DataChannel(dataChannel, config.guidPrefix(), config.packetBufferSize());
+            return new DataChannel(dataChannel, config.getGuidPrefix(), config.getPacketBufferSize());
         } else {
             var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                     .bind(locator.getSocketAddress());
-            return new DataChannel(dataChannel, config.guidPrefix(), config.packetBufferSize());
+            return new DataChannel(dataChannel, config.getGuidPrefix(), config.getPacketBufferSize());
         }
     }
 
@@ -40,6 +40,6 @@ public class DataChannelFactory {
      */
     public DataChannel connect(Locator locator) throws IOException {
         return new DataChannel(DatagramChannel.open(StandardProtocolFamily.INET)
-                .connect(locator.getSocketAddress()), config.guidPrefix(), config.packetBufferSize());
+                .connect(locator.getSocketAddress()), config.getGuidPrefix(), config.getPacketBufferSize());
     }
 }

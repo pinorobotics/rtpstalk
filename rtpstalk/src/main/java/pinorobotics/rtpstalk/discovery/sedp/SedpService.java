@@ -15,7 +15,6 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -50,15 +49,14 @@ public class SedpService extends XSubscriber<CacheChange> {
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
 
-        var locator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, config.builtInEnpointsPort(), config.ipAddress());
         subscriptionsReader = new SedpBuiltinSubscriptionsReader(config);
         receiver.subscribe(subscriptionsReader);
         publicationsReader = new SedpBuiltinPublicationsReader(config);
         receiver.subscribe(publicationsReader);
-        if (config.builtinEndpointQos() == EndpointQos.NONE)
+        if (config.getBuiltinEndpointQos() == EndpointQos.NONE)
             receiver.subscribe(new BuiltinParticipantMessageReader(config));
         participantsPublisher.subscribe(this);
-        receiver.start(channelFactory.bind(locator));
+        receiver.start(channelFactory.bind(config.getMetatrafficUnicastLocator()));
         isStarted = true;
     }
 

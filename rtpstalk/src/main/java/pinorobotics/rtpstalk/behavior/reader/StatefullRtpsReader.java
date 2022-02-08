@@ -32,7 +32,7 @@ public class StatefullRtpsReader extends RtpsReader {
     private RtpsTalkConfiguration config;
 
     public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
-        super(new Guid(config.guidPrefix(), entityId));
+        super(new Guid(config.getGuidPrefix(), entityId));
         this.config = config;
     }
 

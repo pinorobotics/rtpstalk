@@ -13,7 +13,7 @@ public class BuiltinParticipantMessageReader extends StatefullRtpsReader {
 
     public BuiltinParticipantMessageReader(RtpsTalkConfiguration config) {
         super(config, EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
-        XAsserts.assertTrue(config.builtinEndpointQos() != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,
+        XAsserts.assertTrue(config.getBuiltinEndpointQos() != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,
                 "Not supported with best effort builtin endpoint Qos");
     }
 
