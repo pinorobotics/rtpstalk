@@ -1,16 +1,17 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
+import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import id.xfunction.XJsonStringBuilder;
 
 public class RepresentationIdentifier {
 
     public static final int SIZE = 2;
 
     public static enum Predefined {
+        CDR_LE(new RepresentationIdentifier(new byte[] { 0x00, 0x01 })),
         PL_CDR_BE(new RepresentationIdentifier(new byte[] { 0x00, 0x02 })),
         PL_CDR_LE(new RepresentationIdentifier(new byte[] { 0x00, 0x03 }));
 
@@ -35,6 +36,10 @@ public class RepresentationIdentifier {
 
     public RepresentationIdentifier(byte[] value) {
         this.value = value;
+    }
+
+    public Optional<Predefined> findPredefined() {
+        return Optional.ofNullable(Predefined.MAP.get(this));
     }
 
     @Override

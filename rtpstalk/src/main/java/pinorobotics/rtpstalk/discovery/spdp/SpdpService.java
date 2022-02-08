@@ -79,6 +79,7 @@ public class SpdpService implements AutoCloseable {
                 Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
+                Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
                 Endpoint.SECURE_PUBLICATION_READER,
                 Endpoint.PARTICIPANT_SECURE_READER,
                 Endpoint.SECURE_SUBSCRIPTION_READER,

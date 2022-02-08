@@ -23,6 +23,8 @@ import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
+import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
@@ -56,7 +58,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         if (type == Submessage.class) {
             ret = readSubmessages();
         } else {
-            // throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
         LOGGER.exiting("readArray");
         return ret;
@@ -243,17 +245,29 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private Data readData() throws Exception {
         LOGGER.entering("readData");
+        var dataSubmessageStart = buf.position()
+                + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
         var data = reader.read(Data.class);
         if (data.isInlineQos())
             throw new UnsupportedOperationException("InlineQos in Data submessage");
         var payloadHeader = reader.read(SerializedPayloadHeader.class);
         LOGGER.fine("payloadHeader: {0}", payloadHeader);
-        // if PL_CDR_LE
-        var payload = readParameterList();
+        Payload payload = switch (payloadHeader.representation_identifier.findPredefined().get()) {
+        case PL_CDR_LE -> readParameterList();
+        case CDR_LE -> readRawData(data.submessageHeader.submessageLength - (buf.position() - dataSubmessageStart));
+        default -> throw new XRuntimeException("Unknown representation identifier %s",
+                payloadHeader.representation_identifier);
+        };
         LOGGER.fine("payload: {0}", payload);
         data.serializedPayload = new SerializedPayload(payloadHeader, payload);
         LOGGER.exiting("readData");
         return data;
+    }
+
+    private RawData readRawData(int len) throws Exception {
+        var a = new byte[len];
+        readByteArray(a);
+        return new RawData(a);
     }
 
     private Submessage[] readSubmessages() throws Exception {
@@ -265,6 +279,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             buf.mark();
             var submessageHeader = reader.read(SubmessageHeader.class);
             LOGGER.fine("submessageHeader: {0}", submessageHeader);
+            
             // save position where submessage itself (NOT its header) starts
             var submessageStart = buf.position();
             LOGGER.fine("submessageStart: {0}", submessageStart);
