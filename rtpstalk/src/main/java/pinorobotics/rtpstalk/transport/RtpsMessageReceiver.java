@@ -9,6 +9,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 
+/**
+ * * {@link RtpsMessageReceiver} Data channel it is where multiple remote
+ * writers (Participants) send RTPS messages. When reader is subscribed to the
+ * data channel it is going to receive all RTPS messages from it. Since one RTPS
+ * message can contain submessages which belong to different readers it is
+ * reader responsibility to filter them out.
+ *
+ */
 public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
     private final XLogger logger;
     private ExecutorService executor;

@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.concurrent.flow.XSubscriber;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -12,32 +13,51 @@ import pinorobotics.rtpstalk.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
- * Each reader can be subscribed to only one data channel. And to one data
- * channel can be subscribed multiple of readers (many readers to one data
- * channel). Data channel it is where multiple remote writers (Participants)
- * send RTPS messages. When reader is subscribed to the data channel it is going
- * to receive all RTPS messages from it. Since one RTPS message can contain
- * submessages which belong to different readers it is reader responsibility to
- * filter them out.
+ * Stateless RTPS reader (best-effort reliability) which can be subscribed to
+ * {@link RtpsMessageReceiver} to receive RTPS messages and process them.
+ * 
+ * <p>
+ * Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to
+ * one {@link RtpsMessageReceiver} can be subscribed multiple different readers
+ * (many readers to one receiver).
  */
 public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
-    /**
-     * Contains the history of CacheChange changes for this RTPS Reader.
-     */
     private HistoryCache cache = new HistoryCache();
-
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
+    private ReliabilityKind reliabilityKind;
 
     public RtpsReader(Guid guid) {
+        this(guid, ReliabilityKind.BEST_EFFORT);
+    }
+
+    public RtpsReader(Guid guid, ReliabilityKind reliabilityKind) {
         this.guid = guid;
+        this.reliabilityKind = reliabilityKind;
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(guid.entityId, this);
+    }
+
+    /**
+     * Contains the history of CacheChange changes for this RTPS Reader.
+     */
+    public HistoryCache getCache() {
+        return cache;
+    }
+
+    @Override
+    public Guid getGuid() {
+        return guid;
+    }
+
+    public ReliabilityKind getReliabilityKind() {
+        return reliabilityKind;
     }
 
     @Override
@@ -53,15 +73,6 @@ public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, 
 
     protected void process(RtpsMessage message) {
         walker.walk(message, filterVisitor);
-    }
-
-    public HistoryCache getCache() {
-        return cache;
-    }
-
-    @Override
-    public Guid getGuid() {
-        return guid;
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -16,7 +17,10 @@ import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.structure.CacheChange;
 
 /**
- * This should be thread safe since it is possible that one threads will be
+ * Reliable Statefull RTPS reader.
+ * 
+ * <p>
+ * This should be thread safe since it is possible that one thread will be
  * calling {@link #matchedWriterAdd(WriterProxy)} when another doing
  * {@link #process(RtpsMessage)} and that happening at the same time.
  */
@@ -32,7 +36,7 @@ public class StatefullRtpsReader extends RtpsReader {
     private RtpsTalkConfiguration config;
 
     public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
-        super(new Guid(config.getGuidPrefix(), entityId));
+        super(new Guid(config.getGuidPrefix(), entityId), ReliabilityKind.RELIABLE);
         this.config = config;
     }
 
