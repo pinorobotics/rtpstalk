@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -53,6 +55,8 @@ public class SedpService extends XSubscriber<CacheChange> {
         receiver.subscribe(subscriptionsReader);
         publicationsReader = new SedpBuiltinPublicationsReader(config);
         receiver.subscribe(publicationsReader);
+        if (config.builtinEndpointQos() == EndpointQos.NONE)
+            receiver.subscribe(new BuiltinParticipantMessageReader(config));
         participantsPublisher.subscribe(this);
         receiver.start(channelFactory.bind(locator));
         isStarted = true;

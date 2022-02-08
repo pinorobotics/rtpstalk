@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -74,6 +75,17 @@ public class SpdpService implements AutoCloseable {
     }
 
     private RtpsMessage createSpdpDiscoveredParticipantData() {
+        var endpointSet = EnumSet.of(
+                Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
+                Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
+                Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
+                Endpoint.SECURE_PUBLICATION_READER,
+                Endpoint.PARTICIPANT_SECURE_READER,
+                Endpoint.SECURE_SUBSCRIPTION_READER,
+                Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
+        // best-effort is not currently supported
+        if (config.builtinEndpointQos() == EndpointQos.NONE)
+            endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
         var params = List.<Entry<ParameterId, Object>>of(
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
@@ -84,15 +96,7 @@ public class SpdpService implements AutoCloseable {
                 Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, new Locator(
                         LocatorKind.LOCATOR_KIND_UDPv4, config.userEndpointsPort(), config.ipAddress())),
                 Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
-                Map.entry(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(EnumSet.of(
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
-                        Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER,
-                        Endpoint.SECURE_PUBLICATION_READER,
-                        Endpoint.PARTICIPANT_SECURE_READER,
-                        Endpoint.SECURE_SUBSCRIPTION_READER,
-                        Endpoint.SECURE_PARTICIPANT_MESSAGE_READER))),
+                Map.entry(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet)),
                 Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
         var submessages = new Submessage[] { InfoTimestamp.now(),
                 new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,

@@ -12,7 +12,7 @@ public class BuiltinEndpointQos {
 
     public static enum EndpointQos {
         BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER(0),
-        UNKNOWN(-1);
+        NONE(-1);
 
         static final Map<Integer, EndpointQos> MAP = Arrays.stream(EndpointQos.values())
                 .collect(Collectors.toMap(k -> k.position, v -> v));
@@ -31,7 +31,7 @@ public class BuiltinEndpointQos {
     public BuiltinEndpointQos(EnumSet<EndpointQos> set) {
         var bset = new BitSet();
         set.stream()
-                .filter(Predicate.isEqual(EndpointQos.UNKNOWN).negate())
+                .filter(Predicate.isEqual(EndpointQos.NONE).negate())
                 .forEach(p -> bset.set(p.position));
         value = (int) bset.toLongArray()[0];
     }
@@ -61,7 +61,7 @@ public class BuiltinEndpointQos {
     public String toString() {
         var set = BitSet.valueOf(new long[] { value });
         var str = set.stream()
-                .mapToObj(pos -> EndpointQos.MAP.getOrDefault(pos, EndpointQos.UNKNOWN))
+                .mapToObj(pos -> EndpointQos.MAP.getOrDefault(pos, EndpointQos.NONE))
                 .map(EndpointQos::name)
                 .collect(Collectors.joining(" | "));
         return str;

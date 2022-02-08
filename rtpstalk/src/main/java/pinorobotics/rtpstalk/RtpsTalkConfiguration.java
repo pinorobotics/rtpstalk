@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk;
 import id.xfunction.lang.XRE;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
 public record RtpsTalkConfiguration(
@@ -12,7 +13,8 @@ public record RtpsTalkConfiguration(
         int packetBufferSize,
         int domainId,
         InetAddress ipAddress,
-        GuidPrefix guidPrefix) {
+        GuidPrefix guidPrefix,
+        EndpointQos builtinEndpointQos) {
 
     private static final String DEFAULT_NETWORK_IFACE = "eth0";
 
@@ -30,7 +32,7 @@ public record RtpsTalkConfiguration(
 
     public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
             DEFAULT_NETWORK_IFACE, 7412, 7413, UDP_MAX_PACKET_SIZE, 0, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-            GuidPrefix.generate());
+            GuidPrefix.generate(), EndpointQos.NONE);
 
     private static InetAddress getNetworkIfaceIp(String networkIface) {
         try {
