@@ -31,10 +31,10 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
     private InetAddress group;
     private RtpsTalkConfiguration config;
 
-    public SpdpBuiltinParticipantWriter(RtpsTalkConfiguration config, DatagramChannel dc, InetAddress group) {
+    public SpdpBuiltinParticipantWriter(RtpsTalkConfiguration config, DatagramChannel dc) {
         this.config = config;
         this.dc = dc;
-        this.group = group;
+        this.group = config.getMetatrafficMulticastLocator().address();
         spdpParticipantMessage = createEmptySpdpParticipantMessage(config);
     }
 

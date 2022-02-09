@@ -3,7 +3,6 @@ package pinorobotics.rtpstalk.discovery.spdp;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
@@ -35,12 +34,10 @@ public class SpdpService implements AutoCloseable {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        Locator defaultMulticastLocator = Locator.createDefaultMulticastLocator(config.getDomainId());
-        var dataChannel = channelFactory.bind(defaultMulticastLocator);
+        var dataChannel = channelFactory.bind(config.getMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(config, dataChannel.getDatagramChannel(),
-                defaultMulticastLocator.address());
+        writer = new SpdpBuiltinParticipantWriter(config, dataChannel.getDatagramChannel());
         writer.setSpdpDiscoveredParticipantData(spdpDiscoveredDataFactory.createData(config));
         writer.start();
         isStarted = true;

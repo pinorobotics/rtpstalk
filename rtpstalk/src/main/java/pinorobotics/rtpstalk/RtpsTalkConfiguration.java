@@ -42,6 +42,7 @@ public class RtpsTalkConfiguration {
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
     private Duration leaseDuration;
+    private Locator metatrafficMulticastLocator;
 
     public RtpsTalkConfiguration(String networkIface,
             int builtInEnpointsPort,
@@ -64,6 +65,7 @@ public class RtpsTalkConfiguration {
         defaultUnicastLocator = new Locator(
                 LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
         metatrafficUnicastLocator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
+        metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId);
     }
 
     /**
@@ -148,6 +150,10 @@ public class RtpsTalkConfiguration {
         builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
         builder.append("leaseDuration", leaseDuration);
         return builder.toString();
+    }
+
+    public Locator getMetatrafficMulticastLocator() {
+        return metatrafficMulticastLocator;
     }
 
 }
