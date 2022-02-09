@@ -1,9 +1,11 @@
 package pinorobotics.rtpstalk;
 
+import id.xfunction.XJsonStringBuilder;
 import id.xfunction.lang.XRE;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
+import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -27,7 +29,7 @@ public class RtpsTalkConfiguration {
 
     public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
             DEFAULT_NETWORK_IFACE, 7412, 7413, UDP_MAX_PACKET_SIZE, 0, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-            GuidPrefix.generate(), EndpointQos.NONE);
+            GuidPrefix.generate(), EndpointQos.NONE, new Duration(20));
 
     private String networkIface;
     private int builtInEnpointsPort;
@@ -39,6 +41,7 @@ public class RtpsTalkConfiguration {
     private EndpointQos builtinEndpointQos;
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
+    private Duration leaseDuration;
 
     public RtpsTalkConfiguration(String networkIface,
             int builtInEnpointsPort,
@@ -47,7 +50,8 @@ public class RtpsTalkConfiguration {
             int domainId,
             InetAddress ipAddress,
             GuidPrefix guidPrefix,
-            EndpointQos builtinEndpointQos) {
+            EndpointQos builtinEndpointQos,
+            Duration leaseDuration) {
         this.networkIface = networkIface;
         this.builtInEnpointsPort = builtInEnpointsPort;
         this.userEndpointsPort = userEndpointsPort;
@@ -56,6 +60,7 @@ public class RtpsTalkConfiguration {
         this.ipAddress = ipAddress;
         this.guidPrefix = guidPrefix;
         this.builtinEndpointQos = builtinEndpointQos;
+        this.leaseDuration = leaseDuration;
         defaultUnicastLocator = new Locator(
                 LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
         metatrafficUnicastLocator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
@@ -116,6 +121,10 @@ public class RtpsTalkConfiguration {
         return builtinEndpointQos;
     }
 
+    public Duration getLeaseDuration() {
+        return leaseDuration;
+    }
+
     private static InetAddress getNetworkIfaceIp(String networkIface) {
         try {
             return NetworkInterface.getByName(networkIface).getInterfaceAddresses().get(0).getAddress();
@@ -123,4 +132,22 @@ public class RtpsTalkConfiguration {
             throw new XRE("Error obtaining IP address for network interface %s", networkIface);
         }
     }
+
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("networkIface", networkIface);
+        builder.append("builtInEnpointsPort", builtInEnpointsPort);
+        builder.append("userEndpointsPort", userEndpointsPort);
+        builder.append("packetBufferSize", packetBufferSize);
+        builder.append("domainId", domainId);
+        builder.append("ipAddress", ipAddress);
+        builder.append("guidPrefix", guidPrefix);
+        builder.append("builtinEndpointQos", builtinEndpointQos);
+        builder.append("defaultUnicastLocator", defaultUnicastLocator);
+        builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
+        builder.append("leaseDuration", leaseDuration);
+        return builder.toString();
+    }
+
 }

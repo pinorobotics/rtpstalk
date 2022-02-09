@@ -9,7 +9,15 @@ import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
@@ -19,23 +27,34 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
             new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
     private RtpsMessageWriter writer = new RtpsMessageWriter();
     private DatagramChannel dc;
-    private RtpsMessage data;
+    private RtpsMessage spdpParticipantMessage;
     private InetAddress group;
-    private int packetBufferSize;
+    private RtpsTalkConfiguration config;
 
-    public SpdpBuiltinParticipantWriter(DatagramChannel dc, int packetBufferSize, InetAddress group) {
+    public SpdpBuiltinParticipantWriter(RtpsTalkConfiguration config, DatagramChannel dc, InetAddress group) {
+        this.config = config;
         this.dc = dc;
-        this.packetBufferSize = packetBufferSize;
         this.group = group;
+        spdpParticipantMessage = createEmptySpdpParticipantMessage(config);
     }
 
     public void start() throws Exception {
         executor.scheduleWithFixedDelay(this, 0, 5, TimeUnit.SECONDS);
     }
 
-    public void setSpdpDiscoveredParticipantData(RtpsMessage data) {
+    private RtpsMessage createEmptySpdpParticipantMessage(RtpsTalkConfiguration config) {
+        var submessages = new Submessage[2];
+        var header = new Header(
+                ProtocolId.Predefined.RTPS.getValue(),
+                ProtocolVersion.Predefined.Version_2_3.getValue(),
+                VendorId.Predefined.RTPSTALK.getValue(),
+                config.getGuidPrefix());
+        return new RtpsMessage(header, submessages);
+    }
+
+    public void setSpdpDiscoveredParticipantData(Data data) {
         LOGGER.fine("Setting SpdpDiscoveredParticipantData {0}", data);
-        this.data = data;
+        spdpParticipantMessage.submessages[1] = data;
     }
 
     @Override
@@ -45,13 +64,14 @@ public class SpdpBuiltinParticipantWriter implements Runnable, AutoCloseable {
         var thread = Thread.currentThread();
         LOGGER.fine("Running SpdpBuiltinParticipantWriter on thread {0} with id {1}", thread.getName(),
                 thread.getId());
-        if (data == null) {
+        if (spdpParticipantMessage.submessages[1] == null) {
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
             return;
         }
-        var buf = ByteBuffer.allocate(packetBufferSize);
+        spdpParticipantMessage.submessages[0] = InfoTimestamp.now();
+        var buf = ByteBuffer.allocate(config.getPacketBufferSize());
         try {
-            writer.writeRtpsMessage(data, buf);
+            writer.writeRtpsMessage(spdpParticipantMessage, buf);
             buf.limit(buf.position());
             buf.rewind();
             dc.send(buf, new InetSocketAddress(group, 7400));
