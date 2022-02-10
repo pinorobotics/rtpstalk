@@ -39,7 +39,7 @@ public class Test {
         var channelFactory = new DataChannelFactory(config);
         var spdp = new SpdpService(config, channelFactory);
         var sedp = new SedpService(config, channelFactory);
-        sedp.start(spdp.getReader().getCache());
+        sedp.start(spdp.getReader());
         spdp.start();
         var printer = new XSubscriber<CacheChange>() {
             @Override
@@ -72,7 +72,7 @@ public class Test {
                 subscription.request(1);
             }
         };
-        sedp.getPublicationsReader().getCache().subscribe(printer);
+        sedp.getPublicationsReader().subscribe(printer);
         System.in.read();
     }
 

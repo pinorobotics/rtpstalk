@@ -1,7 +1,10 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
+import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -23,8 +26,22 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to
  * one {@link RtpsMessageReceiver} can be subscribed multiple different readers
  * (many readers to one receiver).
+ * 
+ * <pre>
+ * {@code
+ * 
+ * USER subscribes to:
+ * - {@link RtpsReader} subscribes to:
+ *  - {@link RtpsMessageReceiver} connects to:
+ *   - remote RTPS writer1
+ *   - remote RTPS writer2
+ *   - ...
+ * 
+ * }
+ * </pre>
  */
-public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, RtpsSubmessageVisitor {
+public class RtpsReader extends SubmissionPublisher<CacheChange>
+        implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
@@ -33,6 +50,7 @@ public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, 
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
     private ReliabilityKind reliabilityKind;
+    private Subscription subscription;
 
     public RtpsReader(Guid guid) {
         this(guid, ReliabilityKind.BEST_EFFORT);
@@ -68,11 +86,21 @@ public class RtpsReader extends XSubscriber<RtpsMessage> implements RtpsEntity, 
     }
 
     protected void addChange(CacheChange cacheChange) {
+        LOGGER.entering("addChange");
         cache.addChange(cacheChange);
+        submit(cacheChange);
+        LOGGER.exiting("addChange");
     }
 
     protected void process(RtpsMessage message) {
         walker.walk(message, filterVisitor);
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        XAsserts.assertNotNull(subscription, "Already subscribed");
+        this.subscription = subscription;
+        subscription.request(1);
     }
 
     @Override

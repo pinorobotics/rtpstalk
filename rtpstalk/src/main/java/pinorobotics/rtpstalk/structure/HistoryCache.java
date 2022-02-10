@@ -3,10 +3,9 @@ package pinorobotics.rtpstalk.structure;
 import id.xfunction.logging.XLogger;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
-public class HistoryCache extends SubmissionPublisher<CacheChange> {
+public class HistoryCache {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
     private SequenceNumber seqNumMin = SequenceNumber.MIN;
@@ -32,7 +31,6 @@ public class HistoryCache extends SubmissionPublisher<CacheChange> {
             LOGGER.fine("Updating maximum sequence number");
             seqNumMax = seqNum;
         }
-        submit(change);
     }
 
     public SequenceNumber getSeqNumMin() {
