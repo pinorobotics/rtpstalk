@@ -44,7 +44,7 @@ public class Test {
         var printer = new XSubscriber<CacheChange>() {
             @Override
             public void onNext(CacheChange item) {
-                if (item.getDataValue().getSerializedPayload().payload instanceof ParameterList pl) {
+                if (item.getDataValue() instanceof ParameterList pl) {
                     var topic = "rt/chatter";
                     if (Objects.equals(pl.params.get(ParameterId.PID_TOPIC_NAME), topic)) {
                         System.out.println(pl);

@@ -3,16 +3,16 @@ package pinorobotics.rtpstalk.structure;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 public class CacheChange {
 
     private Guid writerGuid;
     private SequenceNumber sequenceNumber;
-    private Data dataValue;
+    private Payload dataValue;
 
-    public CacheChange(Guid writerGuid, SequenceNumber sequenceNumber, Data dataValue) {
+    public CacheChange(Guid writerGuid, SequenceNumber sequenceNumber, Payload dataValue) {
         this.writerGuid = writerGuid;
         this.sequenceNumber = sequenceNumber;
         this.dataValue = dataValue;
@@ -36,7 +36,7 @@ public class CacheChange {
      * The data value associated with the change. Depending on the kind of
      * CacheChange, there may be no associated data.
      */
-    public Data getDataValue() {
+    public Payload getDataValue() {
         return dataValue;
     }
 

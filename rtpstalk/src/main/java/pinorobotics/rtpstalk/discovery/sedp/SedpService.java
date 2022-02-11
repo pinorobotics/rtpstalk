@@ -63,7 +63,7 @@ public class SedpService extends XSubscriber<CacheChange> {
     @Override
     public void onNext(CacheChange change) {
         LOGGER.entering("onNext");
-        if (change.getDataValue().serializedPayload.payload instanceof ParameterList pl) {
+        if (change.getDataValue() instanceof ParameterList pl) {
             configureEndpoints(change.getWriterGuid().guidPrefix, pl);
         }
         subscription.request(1);
