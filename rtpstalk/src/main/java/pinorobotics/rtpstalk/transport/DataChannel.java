@@ -1,6 +1,7 @@
 package pinorobotics.rtpstalk.transport;
 
 import id.xfunction.logging.XLogger;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -17,8 +18,11 @@ public class DataChannel {
     private int packetBufferSize;
     private GuidPrefix guidPrefix;
 
-    public DataChannel(DatagramChannel dataChannel, GuidPrefix guidPrefix, int packetBufferSize) {
+    private SocketAddress target;
+
+    public DataChannel(DatagramChannel dataChannel, SocketAddress target, GuidPrefix guidPrefix, int packetBufferSize) {
         this.dataChannel = dataChannel;
+        this.target = target;
         this.guidPrefix = guidPrefix;
         this.packetBufferSize = packetBufferSize;
     }
@@ -50,15 +54,11 @@ public class DataChannel {
             writer.writeRtpsMessage(message, buf);
             buf.limit(buf.position());
             buf.rewind();
-            dataChannel.write(buf);
+            dataChannel.send(buf, target);
         } catch (Throwable e) {
             LOGGER.severe(e);
             return;
         }
     }
 
-    // TODO remove once writer is ready
-    public DatagramChannel getDatagramChannel() {
-        return dataChannel;
-    }
 }

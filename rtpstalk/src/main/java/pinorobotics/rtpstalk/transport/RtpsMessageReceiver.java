@@ -10,21 +10,23 @@ import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 /**
- * * {@link RtpsMessageReceiver} Data channel it is where multiple remote
- * writers (Participants) send RTPS messages. When reader is subscribed to the
- * data channel it is going to receive all RTPS messages from it. Since one RTPS
+ * Receives messages from single data channel (for different endpoints) and
+ * sends them to multiple subscribers (endpoint readers).
+ * 
+ * {@link RtpsMessageReceiver} Data channel it is where multiple remote writers
+ * (Participants) send RTPS messages. When reader is subscribed to the data
+ * channel it is going to receive all RTPS messages from it. Since one RTPS
  * message can contain submessages which belong to different readers it is
  * reader responsibility to filter them out.
- *
  */
 public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
     private final XLogger logger;
     private ExecutorService executor;
     private boolean isStarted;
 
-    public RtpsMessageReceiver(String name) {
-        executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(name));
-        logger = XLogger.getLogger(getClass().getName() + "#" + name);
+    public RtpsMessageReceiver(String readerName) {
+        executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(readerName));
+        logger = XLogger.getLogger(getClass().getName() + "#" + readerName);
     }
 
     public void start(DataChannel dataChannel) throws IOException {

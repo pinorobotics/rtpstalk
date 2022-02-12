@@ -27,11 +27,13 @@ public class DataChannelFactory {
                     .bind(locator.getSocketAddress())
                     .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
             dataChannel.join(locator.address(), ni);
-            return new DataChannel(dataChannel, config.getGuidPrefix(), config.getPacketBufferSize());
+            return new DataChannel(dataChannel, locator.getSocketAddress(), config.getGuidPrefix(),
+                    config.getPacketBufferSize());
         } else {
             var dataChannel = DatagramChannel.open(StandardProtocolFamily.INET)
                     .bind(locator.getSocketAddress());
-            return new DataChannel(dataChannel, config.getGuidPrefix(), config.getPacketBufferSize());
+            return new DataChannel(dataChannel, locator.getSocketAddress(), config.getGuidPrefix(),
+                    config.getPacketBufferSize());
         }
     }
 
@@ -40,6 +42,7 @@ public class DataChannelFactory {
      */
     public DataChannel connect(Locator locator) throws IOException {
         return new DataChannel(DatagramChannel.open(StandardProtocolFamily.INET)
-                .connect(locator.getSocketAddress()), config.getGuidPrefix(), config.getPacketBufferSize());
+                .connect(locator.getSocketAddress()), locator.getSocketAddress(), config.getGuidPrefix(),
+                config.getPacketBufferSize());
     }
 }

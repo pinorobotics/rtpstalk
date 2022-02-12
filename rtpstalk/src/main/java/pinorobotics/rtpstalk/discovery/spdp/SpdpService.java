@@ -5,6 +5,7 @@ import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 public class SpdpService implements AutoCloseable {
 
@@ -26,7 +27,7 @@ public class SpdpService implements AutoCloseable {
         this.config = config;
         this.channelFactory = channelFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
-        receiver = new RtpsMessageReceiver("SpdpServiceReceiver");
+        receiver = new RtpsMessageReceiver(getClass().getSimpleName());
         reader = new SpdpBuiltinParticipantReader(config.getGuidPrefix());
     }
 
@@ -37,7 +38,9 @@ public class SpdpService implements AutoCloseable {
         var dataChannel = channelFactory.bind(config.getMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(config, dataChannel.getDatagramChannel());
+        var sender = new RtpsMessageSender(dataChannel, getClass().getSimpleName());
+        writer = new SpdpBuiltinParticipantWriter(config.getGuidPrefix());
+        writer.subscribe(sender);
         writer.setSpdpDiscoveredParticipantData(spdpDiscoveredDataFactory.createData(config));
         writer.start();
         isStarted = true;

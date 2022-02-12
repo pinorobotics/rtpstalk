@@ -19,20 +19,21 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
- * Stateless RTPS reader (best-effort reliability) which can be subscribed to
- * {@link RtpsMessageReceiver} to receive RTPS messages and process them.
+ * Stateless RTPS endpoint reader (best-effort reliability) which can be
+ * subscribed to {@link RtpsMessageReceiver} to receive RTPS messages and
+ * process them.
  * 
  * <p>
  * Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to
  * one {@link RtpsMessageReceiver} can be subscribed multiple different readers
- * (many readers to one receiver).
+ * (many endpoints to one receiver).
  * 
  * <pre>
  * {@code
  * 
  * USER subscribes to:
  * - {@link RtpsReader} subscribes to:
- *  - {@link RtpsMessageReceiver} connects to:
+ *  - {@link RtpsMessageReceiver} receives messages from:
  *   - remote RTPS writer1
  *   - remote RTPS writer2
  *   - ...
@@ -65,7 +66,7 @@ public class RtpsReader extends SubmissionPublisher<CacheChange>
     /**
      * Contains the history of CacheChange changes for this RTPS Reader.
      */
-    public HistoryCache getCache() {
+    public HistoryCache getReaderCache() {
         return cache;
     }
 

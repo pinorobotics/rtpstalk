@@ -10,20 +10,16 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 public class SpdpDiscoveredParticipantDataFactory {
 
-    public Data createData(RtpsTalkConfiguration config) {
+    public Payload createData(RtpsTalkConfiguration config) {
         var endpointSet = EnumSet.of(
                 Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
@@ -46,13 +42,7 @@ public class SpdpDiscoveredParticipantDataFactory {
                 Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
                 Map.entry(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet)),
                 Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
-        return new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
-                EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
-                EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
-                new SequenceNumber(1),
-                new SerializedPayload(new SerializedPayloadHeader(
-                        RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
-                        new ParameterList(params)));
+        return new ParameterList(params);
     }
 
 }
