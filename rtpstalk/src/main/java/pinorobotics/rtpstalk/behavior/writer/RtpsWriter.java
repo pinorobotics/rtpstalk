@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.behavior.writer;
 
+import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -40,11 +41,10 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsWriter.class);
 
-    private static final int FIRST_SEQUENCE_NUMBER = 1;
-
-    private int lastChangeNumber = FIRST_SEQUENCE_NUMBER;
+    private int lastChangeNumber;
     private Guid writerGuid;
     private EntityId readerEntiyId;
+    private RtpsMessage lastMessage;
 
     public RtpsWriter(Guid writerGuid, EntityId readerEntiyId) {
         this(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT);
@@ -63,11 +63,11 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
         return lastChangeNumber;
     }
 
-    /**
-     * Resets the number to initial value
-     */
-    public void resetLastChangeNumber() {
-        lastChangeNumber = FIRST_SEQUENCE_NUMBER;
+    public void repeatLastChange() {
+        XAsserts.assertNotNull(lastMessage);
+        LOGGER.entering("repeatLastChange");
+        submit(lastMessage);
+        LOGGER.exiting("repeatLastChange");
     }
 
     /**
@@ -77,10 +77,11 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
      */
     public void newChange(Payload data) {
         LOGGER.entering("newChange");
+        lastChangeNumber++;
         var dataSubmessage = new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
                 readerEntiyId,
                 writerGuid.entityId,
-                new SequenceNumber(lastChangeNumber++),
+                new SequenceNumber(lastChangeNumber),
                 new SerializedPayload(new SerializedPayloadHeader(
                         RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
                         data));
@@ -90,8 +91,8 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
                 ProtocolVersion.Predefined.Version_2_3.getValue(),
                 VendorId.Predefined.RTPSTALK.getValue(),
                 writerGuid.guidPrefix);
-        var message = new RtpsMessage(header, submessages);
-        submit(message);
+        lastMessage = new RtpsMessage(header, submessages);
+        submit(lastMessage);
         LOGGER.exiting("newChange");
     }
 

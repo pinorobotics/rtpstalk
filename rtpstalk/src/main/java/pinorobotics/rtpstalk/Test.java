@@ -9,25 +9,18 @@ import java.util.Objects;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.KeyHash;
-import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
-import pinorobotics.rtpstalk.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 public class Test {
 
@@ -49,12 +42,14 @@ public class Test {
                     if (Objects.equals(pl.params.get(ParameterId.PID_TOPIC_NAME), topic)) {
                         System.out.println(pl);
                         try {
-                            var receiver = new RtpsMessageReceiver(topic);
-                            // announce to writer about new subscription
-                            channelFactory
+                            var sender = new RtpsMessageSender(channelFactory
                                     .connect(sedp.getSubscriptionsReader().matchedWriters().get(0)
-                                            .getUnicastLocatorList().get(0))
-                                    .send(createSubscriptionMessage("rt/chatter", "std_msgs::msg::dds_::String_"));
+                                            .getUnicastLocatorList().get(0)),
+                                    "sender");
+                            sedp.getSubscriptionsWriter().subscribe(sender);
+                            sedp.getSubscriptionsWriter().newChange(
+                                    createSubscriptionData("rt/chatter", "std_msgs::msg::dds_::String_"));
+                            var receiver = new RtpsMessageReceiver(topic);
                             receiver.start(channelFactory.bind(config.getDefaultUnicastLocator()));
                             System.out.println("receiver is started");
                             receiver.subscribe(new XSubscriber<RtpsMessage>() {
@@ -76,7 +71,7 @@ public class Test {
         System.in.read();
     }
 
-    private static RtpsMessage createSubscriptionMessage(String topicName, String typeName) {
+    private static Payload createSubscriptionData(String topicName, String typeName) {
         var params = List.<Entry<ParameterId, Object>>of(
                 Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
                 Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
@@ -90,19 +85,6 @@ public class Test {
                         new Guid(config.getGuidPrefix(), new EntityId(new byte[] { 00, 00, 0x12 }, 04))),
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
-        var submessages = new Submessage[] { InfoTimestamp.now(),
-                new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
-                        EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue(),
-                        EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue(),
-                        new SequenceNumber(1),
-                        new SerializedPayload(new SerializedPayloadHeader(
-                                RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
-                                new ParameterList(params))) };
-        Header header = new Header(
-                ProtocolId.Predefined.RTPS.getValue(),
-                ProtocolVersion.Predefined.Version_2_3.getValue(),
-                VendorId.Predefined.RTPSTALK.getValue(),
-                config.getGuidPrefix());
-        return new RtpsMessage(header, submessages);
+        return new ParameterList(params);
     }
 }

@@ -15,10 +15,23 @@ public class EntityId {
         ENTITYID_PARTICIPANT(new EntityId(new byte[] { 00, 00, 01 }, 0xc1)),
         ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 02 }, 0xc2)),
         ENTITYID_SEDP_BUILTIN_TOPICS_DETECTOR(new EntityId(new byte[] { 00, 00, 02 }, 0xc7)),
+
+        /**
+         * Publication endpoints allow topic publisher to announce what topics it has
+         * and subscribers to detect those announcements.
+         */
         ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 03 }, 0xc2)),
         ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR(new EntityId(new byte[] { 00, 00, 03 }, 0xc7)),
+
+        /**
+         * Once subscriber detected that there is a new topic available (through
+         * publication endpoints) it can subscribe to it. To do that subscriber needs to
+         * announce publisher about its intention to subscribe to the topic using
+         * subscription endpoints.
+         */
         ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 04 }, 0xc2)),
         ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR(new EntityId(new byte[] { 00, 00, 04 }, 0xc7)),
+
         ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER(new EntityId(new byte[] { 00, 01, 00 }, 0xc2)),
         ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR(new EntityId(new byte[] { 00, 01, 00 }, 0xc7)),
         ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER(new EntityId(new byte[] { 00, 02, 00 }, 0xc2)),

@@ -15,7 +15,7 @@ public class RtpsTalkConfiguration {
     private static final String DEFAULT_NETWORK_IFACE = "eth0";
 
     /**
-     * "A UDP datagram is carried in a single IP packet and is hence limited to a
+     * A UDP datagram is carried in a single IP packet and is hence limited to a
      * maximum payload of 65,507 bytes for IPv4"
      * 
      * https://datatracker.ietf.org/doc/html/rfc8085

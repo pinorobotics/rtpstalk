@@ -40,8 +40,16 @@ public class SpdpBuiltinParticipantWriter extends RtpsWriter implements Runnable
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
             return;
         }
-        resetLastChangeNumber();
-        newChange(data);
+        switch (getLastChangeNumber()) {
+        case 0:
+            newChange(data);
+            break;
+        case 1:
+            repeatLastChange();
+            break;
+        default:
+            throw new RuntimeException("Unexpected last change value " + getLastChangeNumber());
+        }
         LOGGER.fine("Sent SpdpDiscoveredParticipantData");
     }
 

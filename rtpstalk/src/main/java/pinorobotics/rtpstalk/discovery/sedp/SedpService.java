@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
+import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
+import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
@@ -33,6 +35,7 @@ public class SedpService extends XSubscriber<CacheChange> {
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
+    private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
     private SedpBuiltinPublicationsReader publicationsReader;
     private RtpsMessageReceiver receiver;
     private boolean isStarted;
@@ -42,6 +45,7 @@ public class SedpService extends XSubscriber<CacheChange> {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("SedpServiceReceiver");
+        subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(config);
     }
 
     public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
@@ -80,11 +84,11 @@ public class SedpService extends XSubscriber<CacheChange> {
 
     }
 
-    public SedpBuiltinPublicationsReader getPublicationsReader() {
+    public RtpsReader getPublicationsReader() {
         return publicationsReader;
     }
 
-    public SedpBuiltinSubscriptionsReader getSubscriptionsReader() {
+    public StatefullRtpsReader getSubscriptionsReader() {
         return subscriptionsReader;
     }
 
@@ -118,5 +122,9 @@ public class SedpService extends XSubscriber<CacheChange> {
         reader.matchedWriterAdd(new WriterProxy(reader.getGuid(),
                 new Guid(guidPrefix, endpoint.getEntityId().getValue()),
                 unicast));
+    }
+
+    public RtpsWriter getSubscriptionsWriter() {
+        return subscriptionsWriter;
     }
 }
