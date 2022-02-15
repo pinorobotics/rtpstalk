@@ -105,7 +105,7 @@ public class WriterHeartbeatProcessor {
         bset.flip(0, numBits);
         var missing = numBits;
         for (var change : writerProxy.getChangesFromWriter()) {
-            var n = change.getSequenceNumber().value;
+            var n = change.getSequenceNumber();
             if (n < first || last < n)
                 continue;
             n -= first;

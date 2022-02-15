@@ -4,15 +4,14 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 public class CacheChange {
 
     private Guid writerGuid;
-    private SequenceNumber sequenceNumber;
+    private long sequenceNumber;
     private Payload dataValue;
 
-    public CacheChange(Guid writerGuid, SequenceNumber sequenceNumber, Payload dataValue) {
+    public CacheChange(Guid writerGuid, long sequenceNumber, Payload dataValue) {
         this.writerGuid = writerGuid;
         this.sequenceNumber = sequenceNumber;
         this.dataValue = dataValue;
@@ -28,7 +27,7 @@ public class CacheChange {
     /**
      * Sequence number assigned by the RTPS Writer to uniquely identify the change
      */
-    public SequenceNumber getSequenceNumber() {
+    public long getSequenceNumber() {
         return sequenceNumber;
     }
 

@@ -40,7 +40,7 @@ public class SpdpBuiltinParticipantWriter extends RtpsWriter implements Runnable
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
             return;
         }
-        switch (getLastChangeNumber()) {
+        switch ((int) getLastChangeNumber()) {
         case 0:
             newChange(data);
             break;

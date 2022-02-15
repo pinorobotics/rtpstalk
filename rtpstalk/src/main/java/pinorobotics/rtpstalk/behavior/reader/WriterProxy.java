@@ -30,9 +30,9 @@ public class WriterProxy {
             return;
         }
         LOGGER.fine("New change added into the cache");
-        if (seqNumMax < change.getSequenceNumber().value) {
+        if (seqNumMax < change.getSequenceNumber()) {
             LOGGER.fine("Updating maximum sequence number");
-            seqNumMax = change.getSequenceNumber().value;
+            seqNumMax = change.getSequenceNumber();
         }
     }
 

@@ -3,7 +3,6 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.logging.XLogger;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -47,12 +46,7 @@ public class StatefullRtpsReader extends RtpsReader {
     }
 
     public void matchedWriterRemove() {
-
-    }
-
-    public Optional<WriterProxy> matchedWriterLookup(Guid guid) {
-        return Optional.ofNullable(matchedWriters.get(guid))
-                .map(WriterInfo::proxy);
+        throw new UnsupportedOperationException();
     }
 
     public List<WriterProxy> matchedWriters() {
@@ -88,7 +82,6 @@ public class StatefullRtpsReader extends RtpsReader {
             return;
         }
         writerInfo.proxy().addChange(cacheChange);
-        return;
     }
 
     @Override

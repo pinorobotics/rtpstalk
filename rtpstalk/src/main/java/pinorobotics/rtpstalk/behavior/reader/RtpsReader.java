@@ -67,7 +67,8 @@ public class RtpsReader extends SubmissionPublisher<CacheChange>
      * Contains the history of CacheChange changes for this RTPS Reader.
      */
     public HistoryCache getReaderCache() {
-        return cache;
+        throw new UnsupportedOperationException(
+                "Currently all messages are sent to this reader subscribers directly in order as they received.");
     }
 
     @Override
@@ -82,7 +83,7 @@ public class RtpsReader extends SubmissionPublisher<CacheChange>
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
         LOGGER.fine("Received data {0}", d);
-        addChange(new CacheChange(new Guid(guidPrefix, d.writerId), d.writerSN, d.serializedPayload.payload));
+        addChange(new CacheChange(new Guid(guidPrefix, d.writerId), d.writerSN.value, d.serializedPayload.payload));
         return Result.CONTINUE;
     }
 

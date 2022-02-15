@@ -8,8 +8,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 public class HistoryCache {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
-    private SequenceNumber seqNumMin = SequenceNumber.MIN;
-    private SequenceNumber seqNumMax = SequenceNumber.MAX;
+    private long seqNumMin = SequenceNumber.MIN.value;
+    private long seqNumMax = SequenceNumber.MAX.value;
 
     /**
      * The list of CacheChanges contained in the HistoryCache.
@@ -23,21 +23,21 @@ public class HistoryCache {
         }
         LOGGER.fine("New change added into the cache");
         var seqNum = change.getSequenceNumber();
-        if (seqNumMin.compareTo(seqNum) > 0) {
+        if (seqNumMin > seqNum) {
             LOGGER.fine("Updating minimum sequence number");
             seqNumMin = seqNum;
         }
-        if (seqNum.compareTo(seqNumMax) > 0) {
+        if (seqNum < seqNumMax) {
             LOGGER.fine("Updating maximum sequence number");
             seqNumMax = seqNum;
         }
     }
 
-    public SequenceNumber getSeqNumMin() {
+    public long getSeqNumMin() {
         return seqNumMin;
     }
 
-    public SequenceNumber getSeqNumMax() {
+    public long getSeqNumMax() {
         return seqNumMax;
     }
 }

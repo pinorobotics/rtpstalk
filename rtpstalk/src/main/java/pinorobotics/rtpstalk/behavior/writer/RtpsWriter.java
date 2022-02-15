@@ -20,17 +20,22 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 
 /**
- * Stateless RTPS writer (best-effort reliability).
+ * <p>
+ * This writer does not cache changes in {@link HistoryCache} and sends them to
+ * readers directly (although it is used in {@link StatefullRtpsWriter}).
+ * 
+ * <p>
+ * Data flow:
  * 
  * <pre>
  * {@code
  * 
  * USER calls {@link RtpsWriter#newChange}:
- * - {@link RtpsWriter} publishes change to all its connected subscribers (in accordance with
- * RTPS these will be endpoint readers or reader locators):
+ * - {@link RtpsWriter} publishes change to all its connected subscribers (endpoint readers):
  *  - {@link RtpsMessageSender} sends message to remote reader1
  *  - {@link RtpsMessageSender} sends message to remote reader2
  *  - ...
@@ -41,16 +46,23 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsWriter.class);
 
-    private int lastChangeNumber;
+    private long lastChangeNumber;
     private Guid writerGuid;
     private EntityId readerEntiyId;
     private RtpsMessage lastMessage;
 
     public RtpsWriter(Guid writerGuid, EntityId readerEntiyId) {
-        this(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT);
+        this(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
     }
 
-    public RtpsWriter(Guid writerGuid, EntityId readerEntiyId, ReliabilityKind reliabilityKind) {
+    /**
+     * @param pushMode Note that for a {@link ReliabilityKind.BEST_EFFORT} Writer,
+     *                 pushMode is true, as there are no acknowledgments. Therefore,
+     *                 the Writer always pushes out data as it becomes available
+     *                 (8.4.9.1.1)
+     */
+    public RtpsWriter(Guid writerGuid, EntityId readerEntiyId,
+            ReliabilityKind reliabilityKind, boolean pushMode) {
         this.writerGuid = writerGuid;
         this.readerEntiyId = readerEntiyId;
     }
@@ -59,7 +71,7 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
      * Internal counter used to assign increasing sequence number to each change
      * made by the Writer.
      */
-    public int getLastChangeNumber() {
+    public long getLastChangeNumber() {
         return lastChangeNumber;
     }
 
@@ -70,11 +82,6 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
         LOGGER.exiting("repeatLastChange");
     }
 
-    /**
-     * This operation creates a new CacheChange to be appended to the RTPS Writer`s
-     * HistoryCache. The sequence number of the CacheChange is automatically set to
-     * be the sequenceNumber of the previous change plus one.
-     */
     public void newChange(Payload data) {
         LOGGER.entering("newChange");
         lastChangeNumber++;
@@ -99,5 +106,9 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
     @Override
     public Guid getGuid() {
         return writerGuid;
+    }
+
+    public EntityId getReaderEntiyId() {
+        return readerEntiyId;
     }
 }
