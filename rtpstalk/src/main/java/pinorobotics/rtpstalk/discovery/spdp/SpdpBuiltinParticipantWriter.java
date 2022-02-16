@@ -7,16 +7,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
-public class SpdpBuiltinParticipantWriter extends RtpsWriter implements Runnable, AutoCloseable {
+public class SpdpBuiltinParticipantWriter extends RtpsWriter<ParameterList> implements Runnable, AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
             new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
-    private Payload data;
+    private ParameterList data;
 
     public SpdpBuiltinParticipantWriter(GuidPrefix guidPrefix) {
         super(new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue()),
@@ -27,7 +27,7 @@ public class SpdpBuiltinParticipantWriter extends RtpsWriter implements Runnable
         executor.scheduleWithFixedDelay(this, 0, 5, TimeUnit.SECONDS);
     }
 
-    public void setSpdpDiscoveredParticipantData(Payload data) {
+    public void setSpdpDiscoveredParticipantData(ParameterList data) {
         LOGGER.fine("Setting SpdpDiscoveredParticipantData {0}", data);
         this.data = data;
     }

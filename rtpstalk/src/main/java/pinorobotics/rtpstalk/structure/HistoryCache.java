@@ -3,9 +3,10 @@ package pinorobotics.rtpstalk.structure;
 import id.xfunction.logging.XLogger;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
-public class HistoryCache {
+public class HistoryCache<D extends Payload> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
     private long seqNumMin = SequenceNumber.MIN.value;
@@ -14,9 +15,9 @@ public class HistoryCache {
     /**
      * The list of CacheChanges contained in the HistoryCache.
      */
-    private Set<CacheChange> changes = new LinkedHashSet<>();
+    private Set<CacheChange<D>> changes = new LinkedHashSet<>();
 
-    public void addChange(CacheChange change) {
+    public void addChange(CacheChange<D> change) {
         if (!changes.add(change)) {
             LOGGER.fine("Change already present in the cache, ignoring...");
             return;

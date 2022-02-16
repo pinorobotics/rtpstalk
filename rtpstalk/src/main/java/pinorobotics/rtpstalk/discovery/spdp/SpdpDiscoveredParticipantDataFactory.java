@@ -10,7 +10,6 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -19,7 +18,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 public class SpdpDiscoveredParticipantDataFactory {
 
-    public Payload createData(RtpsTalkConfiguration config) {
+    public ParameterList createData(RtpsTalkConfiguration config) {
         var endpointSet = EnumSet.of(
                 Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,

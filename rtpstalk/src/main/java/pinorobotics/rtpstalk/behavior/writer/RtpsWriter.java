@@ -42,7 +42,7 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  * }
  * </pre>
  */
-public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements RtpsEntity {
+public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessage> implements RtpsEntity {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsWriter.class);
 
@@ -82,7 +82,7 @@ public class RtpsWriter extends SubmissionPublisher<RtpsMessage> implements Rtps
         LOGGER.exiting("repeatLastChange");
     }
 
-    public void newChange(Payload data) {
+    public void newChange(D data) {
         LOGGER.entering("newChange");
         lastChangeNumber++;
         var dataSubmessage = new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,

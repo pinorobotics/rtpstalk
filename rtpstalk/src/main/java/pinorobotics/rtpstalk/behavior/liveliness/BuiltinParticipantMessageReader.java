@@ -5,11 +5,12 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
 /**
  * Reliable liveliness reader
  */
-public class BuiltinParticipantMessageReader extends StatefullRtpsReader {
+public class BuiltinParticipantMessageReader extends StatefullRtpsReader<ParameterList> {
 
     public BuiltinParticipantMessageReader(RtpsTalkConfiguration config) {
         super(config, EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());

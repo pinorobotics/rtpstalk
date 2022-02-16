@@ -9,6 +9,7 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.messages.walk.RtpsSubmessageVisitor;
@@ -41,12 +42,12 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * }
  * </pre>
  */
-public class RtpsReader extends SubmissionPublisher<CacheChange>
+public class RtpsReader<D extends Payload> extends SubmissionPublisher<CacheChange<D>>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
-    private HistoryCache cache = new HistoryCache();
+    private HistoryCache<D> cache = new HistoryCache<>();
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
@@ -66,9 +67,8 @@ public class RtpsReader extends SubmissionPublisher<CacheChange>
     /**
      * Contains the history of CacheChange changes for this RTPS Reader.
      */
-    public HistoryCache getReaderCache() {
-        throw new UnsupportedOperationException(
-                "Currently all messages are sent to this reader subscribers directly in order as they received.");
+    public HistoryCache<D> getReaderCache() {
+        return cache;
     }
 
     @Override
@@ -83,11 +83,12 @@ public class RtpsReader extends SubmissionPublisher<CacheChange>
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
         LOGGER.fine("Received data {0}", d);
-        addChange(new CacheChange(new Guid(guidPrefix, d.writerId), d.writerSN.value, d.serializedPayload.payload));
+        addChange(
+                new CacheChange<>(new Guid(guidPrefix, d.writerId), d.writerSN.value, (D) d.serializedPayload.payload));
         return Result.CONTINUE;
     }
 
-    protected void addChange(CacheChange cacheChange) {
+    protected void addChange(CacheChange<D> cacheChange) {
         LOGGER.entering("addChange");
         cache.addChange(cacheChange);
         submit(cacheChange);

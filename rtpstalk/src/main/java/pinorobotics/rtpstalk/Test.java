@@ -11,7 +11,6 @@ import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -34,34 +33,33 @@ public class Test {
         var sedp = new SedpService(config, channelFactory);
         sedp.start(spdp.getReader());
         spdp.start();
-        var printer = new XSubscriber<CacheChange>() {
+        var printer = new XSubscriber<CacheChange<ParameterList>>() {
             @Override
-            public void onNext(CacheChange item) {
-                if (item.getDataValue() instanceof ParameterList pl) {
-                    var topic = "rt/chatter";
-                    if (Objects.equals(pl.params.get(ParameterId.PID_TOPIC_NAME), topic)) {
-                        System.out.println(pl);
-                        try {
-                            var sender = new RtpsMessageSender(channelFactory
-                                    .connect(sedp.getSubscriptionsReader().matchedWriters().get(0)
-                                            .getUnicastLocatorList().get(0)),
-                                    "sender");
-                            sedp.getSubscriptionsWriter().subscribe(sender);
-                            sedp.getSubscriptionsWriter().newChange(
-                                    createSubscriptionData("rt/chatter", "std_msgs::msg::dds_::String_"));
-                            var receiver = new RtpsMessageReceiver(topic);
-                            receiver.start(channelFactory.bind(config.getDefaultUnicastLocator()));
-                            System.out.println("receiver is started");
-                            receiver.subscribe(new XSubscriber<RtpsMessage>() {
-                                @Override
-                                public void onNext(RtpsMessage item) {
-                                    System.out.println(item);
-                                    subscription.request(1);
-                                }
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+            public void onNext(CacheChange<ParameterList> item) {
+                var topic = "rt/chatter";
+                var pl = item.getDataValue();
+                if (Objects.equals(pl.params.get(ParameterId.PID_TOPIC_NAME), topic)) {
+                    System.out.println(pl);
+                    try {
+                        var sender = new RtpsMessageSender(channelFactory
+                                .connect(sedp.getSubscriptionsReader().matchedWriters().get(0)
+                                        .getUnicastLocatorList().get(0)),
+                                "sender");
+                        sedp.getSubscriptionsWriter().subscribe(sender);
+                        sedp.getSubscriptionsWriter().newChange(
+                                createSubscriptionData("rt/chatter", "std_msgs::msg::dds_::String_"));
+                        var receiver = new RtpsMessageReceiver(topic);
+                        receiver.start(channelFactory.bind(config.getDefaultUnicastLocator()));
+                        System.out.println("receiver is started");
+                        receiver.subscribe(new XSubscriber<RtpsMessage>() {
+                            @Override
+                            public void onNext(RtpsMessage item) {
+                                System.out.println(item);
+                                subscription.request(1);
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 subscription.request(1);
@@ -71,7 +69,7 @@ public class Test {
         System.in.read();
     }
 
-    private static Payload createSubscriptionData(String topicName, String typeName) {
+    private static ParameterList createSubscriptionData(String topicName, String typeName) {
         var params = List.<Entry<ParameterId, Object>>of(
                 Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
                 Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(

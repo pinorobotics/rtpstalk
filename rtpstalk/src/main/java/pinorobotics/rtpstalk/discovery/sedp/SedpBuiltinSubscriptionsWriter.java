@@ -4,8 +4,9 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
-public class SedpBuiltinSubscriptionsWriter extends RtpsWriter {
+public class SedpBuiltinSubscriptionsWriter extends RtpsWriter<ParameterList> {
 
     public SedpBuiltinSubscriptionsWriter(RtpsTalkConfiguration config) {
         super(new Guid(config.getGuidPrefix(),

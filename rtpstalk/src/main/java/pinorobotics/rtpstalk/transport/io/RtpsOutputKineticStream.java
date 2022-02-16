@@ -189,6 +189,9 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             writeByteArray(buf);
             break;
         }
+        default:
+            // ignore
+            break;
         }
         LOGGER.exiting("writeLocator");
     }

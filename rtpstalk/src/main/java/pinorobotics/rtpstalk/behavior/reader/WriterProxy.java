@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.structure.CacheChange;
 
 public class WriterProxy {
@@ -15,7 +16,7 @@ public class WriterProxy {
     private Guid readerGuid;
     private Guid remoteWriterGuid;
     private List<Locator> unicastLocatorList;
-    private Set<CacheChange> changesFromWriter = new LinkedHashSet<>();
+    private Set<CacheChange<?>> changesFromWriter = new LinkedHashSet<>();
     private long seqNumMax = 1;
 
     public WriterProxy(Guid readerGuid, Guid remoteWriterGuid, List<Locator> unicastLocatorList) {
@@ -24,7 +25,7 @@ public class WriterProxy {
         this.unicastLocatorList = unicastLocatorList;
     }
 
-    public void addChange(CacheChange change) {
+    public <D extends Payload> void addChange(CacheChange<D> change) {
         if (!changesFromWriter.add(change)) {
             LOGGER.fine("Change already present in the cache, ignoring...");
             return;
@@ -62,7 +63,7 @@ public class WriterProxy {
     /**
      * List of CacheChange changes received or expected from the matched RTPS Writer
      */
-    public Set<CacheChange> getChangesFromWriter() {
+    public Set<CacheChange<?>> getChangesFromWriter() {
         return changesFromWriter;
     }
 

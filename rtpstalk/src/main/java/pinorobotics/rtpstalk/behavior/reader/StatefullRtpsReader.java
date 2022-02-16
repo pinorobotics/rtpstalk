@@ -10,6 +10,7 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
@@ -23,7 +24,7 @@ import pinorobotics.rtpstalk.structure.CacheChange;
  * calling {@link #matchedWriterAdd(WriterProxy)} when another doing
  * {@link #process(RtpsMessage)} and that happening at the same time.
  */
-public class StatefullRtpsReader extends RtpsReader {
+public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
 
@@ -73,7 +74,7 @@ public class StatefullRtpsReader extends RtpsReader {
     }
 
     @Override
-    protected void addChange(CacheChange cacheChange) {
+    protected void addChange(CacheChange<D> cacheChange) {
         super.addChange(cacheChange);
         var writerInfo = matchedWriters.get(cacheChange.getWriterGuid());
         if (writerInfo == null) {

@@ -5,13 +5,13 @@ import java.util.Objects;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 
-public class CacheChange {
+public class CacheChange<D extends Payload> {
 
     private Guid writerGuid;
     private long sequenceNumber;
-    private Payload dataValue;
+    private D dataValue;
 
-    public CacheChange(Guid writerGuid, long sequenceNumber, Payload dataValue) {
+    public CacheChange(Guid writerGuid, long sequenceNumber, D dataValue) {
         this.writerGuid = writerGuid;
         this.sequenceNumber = sequenceNumber;
         this.dataValue = dataValue;
@@ -35,7 +35,7 @@ public class CacheChange {
      * The data value associated with the change. Depending on the kind of
      * CacheChange, there may be no associated data.
      */
-    public Payload getDataValue() {
+    public D getDataValue() {
         return dataValue;
     }
 

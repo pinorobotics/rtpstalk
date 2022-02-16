@@ -30,7 +30,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * by the DiscoveredParticipantData participant_data. The discovered Participant
  * uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
-public class SedpService extends XSubscriber<CacheChange> {
+public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
@@ -48,7 +48,7 @@ public class SedpService extends XSubscriber<CacheChange> {
         subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(config);
     }
 
-    public void start(Publisher<CacheChange> participantsPublisher) throws IOException {
+    public void start(Publisher<CacheChange<ParameterList>> participantsPublisher) throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
@@ -65,11 +65,9 @@ public class SedpService extends XSubscriber<CacheChange> {
     }
 
     @Override
-    public void onNext(CacheChange change) {
+    public void onNext(CacheChange<ParameterList> change) {
         LOGGER.entering("onNext");
-        if (change.getDataValue() instanceof ParameterList pl) {
-            configureEndpoints(change.getWriterGuid().guidPrefix, pl);
-        }
+        configureEndpoints(change.getWriterGuid().guidPrefix, change.getDataValue());
         subscription.request(1);
         LOGGER.exiting("onNext");
     }
@@ -84,11 +82,11 @@ public class SedpService extends XSubscriber<CacheChange> {
 
     }
 
-    public RtpsReader getPublicationsReader() {
+    public RtpsReader<ParameterList> getPublicationsReader() {
         return publicationsReader;
     }
 
-    public StatefullRtpsReader getSubscriptionsReader() {
+    public StatefullRtpsReader<ParameterList> getSubscriptionsReader() {
         return subscriptionsReader;
     }
 
@@ -112,7 +110,7 @@ public class SedpService extends XSubscriber<CacheChange> {
     }
 
     private void configure(BuiltinEndpointSet availableEndpoints, GuidPrefix guidPrefix,
-            StatefullRtpsReader reader,
+            StatefullRtpsReader<ParameterList> reader,
             Endpoint endpoint, List<Locator> unicast) {
         if (!availableEndpoints.hasEndpoint(endpoint)) {
             LOGGER.fine(
@@ -124,7 +122,7 @@ public class SedpService extends XSubscriber<CacheChange> {
                 unicast));
     }
 
-    public RtpsWriter getSubscriptionsWriter() {
+    public RtpsWriter<ParameterList> getSubscriptionsWriter() {
         return subscriptionsWriter;
     }
 }
