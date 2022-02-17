@@ -88,13 +88,15 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<CacheChan
         return Result.CONTINUE;
     }
 
-    protected void addChange(CacheChange<D> cacheChange) {
+    protected boolean addChange(CacheChange<D> cacheChange) {
         LOGGER.entering("addChange");
-        if (cache.addChange(cacheChange)) {
+        var isAdded = cache.addChange(cacheChange);
+        if (isAdded) {
             LOGGER.fine("Submitting new change to subscribers");
             submit(cacheChange);
         }
         LOGGER.exiting("addChange");
+        return isAdded;
     }
 
     protected void process(RtpsMessage message) {

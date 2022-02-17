@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
@@ -40,7 +41,8 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
         this.config = config;
     }
 
-    public void matchedWriterAdd(WriterProxy proxy) {
+    public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
+        var proxy = new WriterProxy(getGuid(), remoteGuid, unicast);
         LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(proxy.getRemoteWriterGuid(),
                 new WriterInfo(proxy, new WriterHeartbeatProcessor(config, proxy)));
@@ -74,15 +76,17 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     }
 
     @Override
-    protected void addChange(CacheChange<D> cacheChange) {
-        super.addChange(cacheChange);
+    protected boolean addChange(CacheChange<D> cacheChange) {
+        var isAdded = super.addChange(cacheChange);
+        if (!isAdded) return false;
         var writerInfo = matchedWriters.get(cacheChange.getWriterGuid());
-        if (writerInfo == null) {
+        if (writerInfo != null) {
+            writerInfo.proxy().addChange(cacheChange);
+        } else {
             LOGGER.fine("No matched writer with guid {0} found for a new change, ignoring...",
                     cacheChange.getWriterGuid());
-            return;
         }
-        writerInfo.proxy().addChange(cacheChange);
+        return true;
     }
 
     @Override

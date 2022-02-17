@@ -1,12 +1,13 @@
 package pinorobotics.rtpstalk.structure;
 
 import id.xfunction.logging.XLogger;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
-public class HistoryCache<D extends Payload> {
+public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
     private long seqNumMin = SequenceNumber.MIN.value;
@@ -41,5 +42,10 @@ public class HistoryCache<D extends Payload> {
 
     public long getSeqNumMax() {
         return seqNumMax;
+    }
+
+    @Override
+    public Iterator<CacheChange<D>> iterator() {
+        return changes.iterator();
     }
 }

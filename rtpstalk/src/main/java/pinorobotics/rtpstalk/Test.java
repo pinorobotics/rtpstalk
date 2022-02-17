@@ -65,6 +65,8 @@ public class Test {
                 subscription.request(1);
             }
         };
+
+//        sedp.getPublicationsWriter().newChange(createNew);
         sedp.getPublicationsReader().subscribe(printer);
         System.in.read();
     }

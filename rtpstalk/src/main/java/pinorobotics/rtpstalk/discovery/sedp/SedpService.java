@@ -10,7 +10,6 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
-import pinorobotics.rtpstalk.behavior.reader.WriterProxy;
 import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
@@ -117,9 +116,9 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
                     "Participant does not support {0} endpoint, ignoring...", endpoint);
             return;
         }
-        reader.matchedWriterAdd(new WriterProxy(reader.getGuid(),
+        reader.matchedWriterAdd(
                 new Guid(guidPrefix, endpoint.getEntityId().getValue()),
-                unicast));
+                unicast);
     }
 
     public RtpsWriter<ParameterList> getSubscriptionsWriter() {
