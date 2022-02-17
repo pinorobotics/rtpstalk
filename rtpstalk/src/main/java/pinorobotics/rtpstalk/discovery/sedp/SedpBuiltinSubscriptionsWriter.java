@@ -12,7 +12,8 @@ public class SedpBuiltinSubscriptionsWriter extends StatefullRtpsWriter<Paramete
     public SedpBuiltinSubscriptionsWriter(DataChannelFactory channelFactory, RtpsTalkConfiguration config) {
         super(channelFactory, new Guid(config.getGuidPrefix(),
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue()),
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue(),
+                config.getHeartbeatPeriod());
     }
 
 }

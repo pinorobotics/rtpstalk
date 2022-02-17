@@ -29,7 +29,7 @@ public class RtpsTalkConfiguration {
 
     public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
             DEFAULT_NETWORK_IFACE, 7412, 7413, UDP_MAX_PACKET_SIZE, 0, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-            GuidPrefix.generate(), EndpointQos.NONE, new Duration(20));
+            GuidPrefix.generate(), EndpointQos.NONE, new Duration(20), new Duration(1));
 
     private String networkIface;
     private int builtInEnpointsPort;
@@ -43,6 +43,7 @@ public class RtpsTalkConfiguration {
     private Locator metatrafficUnicastLocator;
     private Duration leaseDuration;
     private Locator metatrafficMulticastLocator;
+    private Duration heartbeatPeriod;
 
     public RtpsTalkConfiguration(String networkIface,
             int builtInEnpointsPort,
@@ -52,7 +53,8 @@ public class RtpsTalkConfiguration {
             InetAddress ipAddress,
             GuidPrefix guidPrefix,
             EndpointQos builtinEndpointQos,
-            Duration leaseDuration) {
+            Duration leaseDuration,
+            Duration heartbeatPeriod) {
         this.networkIface = networkIface;
         this.builtInEnpointsPort = builtInEnpointsPort;
         this.userEndpointsPort = userEndpointsPort;
@@ -62,6 +64,7 @@ public class RtpsTalkConfiguration {
         this.guidPrefix = guidPrefix;
         this.builtinEndpointQos = builtinEndpointQos;
         this.leaseDuration = leaseDuration;
+        this.heartbeatPeriod = heartbeatPeriod;
         defaultUnicastLocator = new Locator(
                 LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
         metatrafficUnicastLocator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
@@ -154,6 +157,10 @@ public class RtpsTalkConfiguration {
 
     public Locator getMetatrafficMulticastLocator() {
         return metatrafficMulticastLocator;
+    }
+
+    public Duration getHeartbeatPeriod() {
+        return heartbeatPeriod;
     }
 
 }

@@ -1,9 +1,11 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
 public class Heartbeat extends Submessage {
 
@@ -44,6 +46,18 @@ public class Heartbeat extends Submessage {
 
     }
 
+    public Heartbeat(EntityId readerId, EntityId writerId, SequenceNumber firstSN, SequenceNumber lastSN, Count count) {
+        this.readerId = readerId;
+        this.writerId = writerId;
+        this.firstSN = firstSN;
+        this.lastSN = lastSN;
+        this.count = count;
+        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.HEARTBEAT.getValue(),
+                RtpsTalkConfiguration.ENDIANESS_BIT,
+                LengthCalculator.getInstance().calculateLength(this));
+    }
+
+    @Override
     public List<String> getFlags() {
         var flags = super.getFlags();
         if (isFinal())

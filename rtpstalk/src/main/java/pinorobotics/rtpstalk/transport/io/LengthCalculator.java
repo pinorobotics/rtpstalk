@@ -15,6 +15,7 @@ import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
@@ -93,6 +94,9 @@ public class LengthCalculator {
             return Integer.BYTES;
         if (clazz == KeyHash.class)
             return KeyHash.SIZE;
+        if (clazz == Heartbeat.class)
+            return getFixedLength(EntityId.class) * 2 + getFixedLength(SequenceNumber.class) * 2
+                    + getFixedLength(Count.class);
         return -1;
     }
 

@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class SequenceNumber implements Comparable<SequenceNumber> {
 
-    public static final SequenceNumber MIN = new SequenceNumber(Long.MIN_VALUE);
+    public static final SequenceNumber MIN = new SequenceNumber(0);
     public static final SequenceNumber MAX = new SequenceNumber(Long.MAX_VALUE);
 
     public long value;
