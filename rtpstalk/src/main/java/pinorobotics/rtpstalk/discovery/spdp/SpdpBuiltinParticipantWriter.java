@@ -5,21 +5,24 @@ import id.xfunction.logging.XLogger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
-public class SpdpBuiltinParticipantWriter extends RtpsWriter<ParameterList> implements Runnable, AutoCloseable {
+public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterList>
+        implements Runnable, AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
             new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
     private ParameterList data;
 
-    public SpdpBuiltinParticipantWriter(GuidPrefix guidPrefix) {
-        super(new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue()),
+    public SpdpBuiltinParticipantWriter(DataChannelFactory channelFactory, GuidPrefix guidPrefix) {
+        super(channelFactory,
+                new Guid(guidPrefix, EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue()),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
     }
 

@@ -19,7 +19,6 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
-import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 public class Test {
 
@@ -41,11 +40,6 @@ public class Test {
                 if (Objects.equals(pl.params.get(ParameterId.PID_TOPIC_NAME), topic)) {
                     System.out.println(pl);
                     try {
-                        var sender = new RtpsMessageSender(channelFactory
-                                .connect(sedp.getSubscriptionsReader().matchedWriters().get(0)
-                                        .getUnicastLocatorList().get(0)),
-                                "sender");
-                        sedp.getSubscriptionsWriter().subscribe(sender);
                         sedp.getSubscriptionsWriter().newChange(
                                 createSubscriptionData("rt/chatter", "std_msgs::msg::dds_::String_"));
                         var receiver = new RtpsMessageReceiver(topic);

@@ -41,6 +41,9 @@ public class DataChannelFactory {
      * Remote channel
      */
     public DataChannel connect(Locator locator) throws IOException {
+        if (locator.address().isMulticastAddress()) {
+            return bind(locator);
+        }
         return new DataChannel(DatagramChannel.open(StandardProtocolFamily.INET)
                 .connect(locator.getSocketAddress()), locator.getSocketAddress(), config.getGuidPrefix(),
                 config.getPacketBufferSize());

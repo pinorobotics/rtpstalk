@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
-import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
-import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
+import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.EndpointType;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -44,7 +44,7 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("SedpServiceReceiver");
-        subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(config);
+        subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(channelFactory, config);
     }
 
     public void start(Publisher<CacheChange<ParameterList>> participantsPublisher) throws IOException {
@@ -81,7 +81,7 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
 
     }
 
-    public RtpsReader<ParameterList> getPublicationsReader() {
+    public StatefullRtpsReader<ParameterList> getPublicationsReader() {
         return publicationsReader;
     }
 
@@ -96,10 +96,12 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
                 var unicast = List.of(locator);
-                configure(availableEndpoints, guidPrefix, subscriptionsReader,
+                configure(availableEndpoints, guidPrefix, subscriptionsReader, null,
                         Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guidPrefix, publicationsReader,
+                configure(availableEndpoints, guidPrefix, publicationsReader, null,
                         Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
+                configure(availableEndpoints, guidPrefix, null, subscriptionsWriter,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR, unicast);
             } else {
                 LOGGER.fine("Participant has no locator defined, ignoring...");
             }
@@ -108,20 +110,41 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
         }
     }
 
-    private void configure(BuiltinEndpointSet availableEndpoints, GuidPrefix guidPrefix,
+    private void configure(BuiltinEndpointSet availableRemoteEndpoints, GuidPrefix guidPrefix,
             StatefullRtpsReader<ParameterList> reader,
-            Endpoint endpoint, List<Locator> unicast) {
-        if (!availableEndpoints.hasEndpoint(endpoint)) {
+            StatefullRtpsWriter<ParameterList> writer,
+            Endpoint remoteEndpoint, List<Locator> unicast) {
+        if (remoteEndpoint.getType() == EndpointType.READER) {
+            XAsserts.assertNotNull(writer, "Writer endpoint requires non null writer");
+        }
+        if (remoteEndpoint.getType() == EndpointType.WRITER) {
+            XAsserts.assertNotNull(reader, "Reader endpoint requires non null reader");
+        }
+        if (!availableRemoteEndpoints.hasEndpoint(remoteEndpoint)) {
             LOGGER.fine(
-                    "Participant does not support {0} endpoint, ignoring...", endpoint);
+                    "Participant does not support {0} endpoint, ignoring...", remoteEndpoint);
             return;
         }
-        reader.matchedWriterAdd(
-                new Guid(guidPrefix, endpoint.getEntityId().getValue()),
-                unicast);
+        LOGGER.fine("Configuring {0} endpoint...", remoteEndpoint);
+        var remoteGuid = new Guid(guidPrefix, remoteEndpoint.getEntityId().getValue());
+        switch (remoteEndpoint.getType()) {
+        case WRITER:
+            reader.matchedWriterAdd(remoteGuid, unicast);
+            break;
+        case READER:
+            try {
+                writer.matchedReaderAdd(remoteGuid, unicast);
+            } catch (IOException e) {
+                LOGGER.severe("Endpoint " + remoteEndpoint + " configuration failed", e);
+                e.printStackTrace();
+            }
+            break;
+        default:
+            break;
+        }
     }
 
-    public RtpsWriter<ParameterList> getSubscriptionsWriter() {
+    public StatefullRtpsWriter<ParameterList> getSubscriptionsWriter() {
         return subscriptionsWriter;
     }
 }
