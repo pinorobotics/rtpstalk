@@ -17,10 +17,10 @@ public class HistoryCache<D extends Payload> {
      */
     private Set<CacheChange<D>> changes = new LinkedHashSet<>();
 
-    public void addChange(CacheChange<D> change) {
+    public boolean addChange(CacheChange<D> change) {
         if (!changes.add(change)) {
             LOGGER.fine("Change already present in the cache, ignoring...");
-            return;
+            return false;
         }
         LOGGER.fine("New change added into the cache");
         var seqNum = change.getSequenceNumber();
@@ -32,6 +32,7 @@ public class HistoryCache<D extends Payload> {
             LOGGER.fine("Updating maximum sequence number");
             seqNumMax = seqNum;
         }
+        return true;
     }
 
     public long getSeqNumMin() {

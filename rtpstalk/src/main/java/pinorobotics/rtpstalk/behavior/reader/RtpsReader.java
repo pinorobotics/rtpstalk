@@ -90,8 +90,10 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<CacheChan
 
     protected void addChange(CacheChange<D> cacheChange) {
         LOGGER.entering("addChange");
-        cache.addChange(cacheChange);
-        submit(cacheChange);
+        if (cache.addChange(cacheChange)) {
+            LOGGER.fine("Submitting new change to subscribers");
+            submit(cacheChange);
+        }
         LOGGER.exiting("addChange");
     }
 
