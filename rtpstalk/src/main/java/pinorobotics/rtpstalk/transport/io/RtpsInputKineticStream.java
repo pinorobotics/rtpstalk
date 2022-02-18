@@ -33,6 +33,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
 
@@ -279,7 +280,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             buf.mark();
             var submessageHeader = reader.read(SubmessageHeader.class);
             LOGGER.fine("submessageHeader: {0}", submessageHeader);
-            
+
             // save position where submessage itself (NOT its header) starts
             var submessageStart = buf.position();
             LOGGER.fine("submessageStart: {0}", submessageStart);
@@ -374,6 +375,18 @@ class RtpsInputKineticStream implements InputKineticStream {
         int high = readInt();
         int low = readInt();
         return new SequenceNumber((high << 31) | low);
+    }
+
+    public SequenceNumberSet readSequenceNumberSet() throws Exception {
+        LOGGER.entering("readSequenceNumberSet");
+        var bitmapBase = readSequenceNumber();
+        var numBits = readInt();
+        var bits = new int[(numBits + 31) / 32];
+        for (int i = 0; i < bits.length; i++) {
+            bits[i] = readInt();
+        }
+        LOGGER.exiting("readSequenceNumberSet");
+        return new SequenceNumberSet(bitmapBase, numBits, bits);
     }
 
 }
