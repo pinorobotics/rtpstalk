@@ -82,6 +82,10 @@ public class WriterHeartbeatProcessor {
         }
 
         var infoDst = new InfoDestination(writerGuid.guidPrefix);
+
+        writerProxy.missingChangesUpdate(lastHeartbeat.lastSN.value);
+        writerProxy.lostChangesUpdate(lastHeartbeat.firstSN.value);
+
         var ack = new AckNack(readerGuid.entityId, writerGuid.entityId, createSequenceNumberSet(lastHeartbeat),
                 new Count(count++));
         var submessages = new Submessage[] { infoDst, ack };
@@ -96,28 +100,23 @@ public class WriterHeartbeatProcessor {
     }
 
     private SequenceNumberSet createSequenceNumberSet(Heartbeat heartbeat) {
+        var missing = writerProxy.missingChanges();
+        if (missing.length == 0) {
+            return expectNextSet();
+        }
+
         var first = heartbeat.firstSN.value;
         var last = heartbeat.lastSN.value;
+
+        // enumeration from 1
         var numBits = (int) (last - first + 1);
 
         // Creates bitmask of missing changes between [first..last]
         var bset = new IntBitSet(numBits);
-        bset.flip(0, numBits);
-        var missing = numBits;
-        for (var change : writerProxy.getChangesFromWriter()) {
-            var n = change.getSequenceNumber();
-            if (n < first || last < n)
+        for (var sn : missing) {
+            if (sn < first || last < sn)
                 continue;
-            n -= first;
-            if (n >= numBits) {
-                // new message, ignoring it
-                continue;
-            }
-            bset.flip((int) n);
-            missing--;
-        }
-        if (missing == 0) {
-            return expectNextSet();
+            bset.flip((int) (sn - first));
         }
         return new SequenceNumberSet(lastHeartbeat.firstSN, numBits, bset.intArray());
     }

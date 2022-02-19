@@ -78,10 +78,11 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     @Override
     protected boolean addChange(CacheChange<D> cacheChange) {
         var isAdded = super.addChange(cacheChange);
-        if (!isAdded) return false;
+        if (!isAdded)
+            return false;
         var writerInfo = matchedWriters.get(cacheChange.getWriterGuid());
         if (writerInfo != null) {
-            writerInfo.proxy().addChange(cacheChange);
+            writerInfo.proxy().receivedChangeSet(cacheChange.getSequenceNumber());
         } else {
             LOGGER.fine("No matched writer with guid {0} found for a new change, ignoring...",
                     cacheChange.getWriterGuid());

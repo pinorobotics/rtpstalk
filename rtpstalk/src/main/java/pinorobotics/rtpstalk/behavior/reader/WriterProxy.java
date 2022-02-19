@@ -1,13 +1,15 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
+import static pinorobotics.rtpstalk.behavior.reader.ChangeFromWriterStatusKind.*;
+
 import id.xfunction.logging.XLogger;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.structure.CacheChange;
 
 public class WriterProxy {
 
@@ -16,7 +18,7 @@ public class WriterProxy {
     private Guid readerGuid;
     private Guid remoteWriterGuid;
     private List<Locator> unicastLocatorList;
-    private Set<CacheChange<?>> changesFromWriter = new LinkedHashSet<>();
+    private Map<Long, ChangeFromWriterStatusKind> changesFromWriter = new LinkedHashMap<>();
     private long seqNumMax = 1;
 
     public WriterProxy(Guid readerGuid, Guid remoteWriterGuid, List<Locator> unicastLocatorList) {
@@ -25,15 +27,16 @@ public class WriterProxy {
         this.unicastLocatorList = unicastLocatorList;
     }
 
-    public <D extends Payload> void addChange(CacheChange<D> change) {
-        if (!changesFromWriter.add(change)) {
+    public void receivedChangeSet(long seqNum) {
+        if (changesFromWriter.get(seqNum) == RECEIVED) {
             LOGGER.fine("Change already present in the cache, ignoring...");
             return;
         }
+        changesFromWriter.put(seqNum, RECEIVED);
         LOGGER.fine("New change added into the cache");
-        if (seqNumMax < change.getSequenceNumber()) {
+        if (seqNumMax < seqNum) {
             LOGGER.fine("Updating maximum sequence number");
-            seqNumMax = change.getSequenceNumber();
+            seqNumMax = seqNum;
         }
     }
 
@@ -61,17 +64,34 @@ public class WriterProxy {
     }
 
     /**
-     * List of CacheChange changes received or expected from the matched RTPS Writer
-     */
-    public Set<CacheChange<?>> getChangesFromWriter() {
-        return changesFromWriter;
-    }
-
-    /**
      * List of unicast (address, port) combinations that can be used to send
      * messages to the matched Writer or Writers. The list may be empty.
      */
     public List<Locator> getUnicastLocatorList() {
         return unicastLocatorList;
+    }
+
+    public void missingChangesUpdate(long lastSN) {
+        LongStream.rangeClosed(seqNumMax + 1, lastSN)
+                .forEach(sn -> changesFromWriter.put(sn, MISSING));
+    }
+
+    public void lostChangesUpdate(long firstSN) {
+        for (var sn : changesFromWriter.keySet()) {
+            if (sn >= firstSN)
+                continue;
+            changesFromWriter.remove(sn);
+        }
+    }
+
+    /**
+     * This operation returns the subset of changes for the WriterProxy that have
+     * status {@link ChangeFromWriterStatusKind#MISSING}.
+     */
+    public long[] missingChanges() {
+        return changesFromWriter.entrySet().stream()
+                .filter(e -> e.getValue() == MISSING)
+                .mapToLong(Entry::getKey)
+                .toArray();
     }
 }
