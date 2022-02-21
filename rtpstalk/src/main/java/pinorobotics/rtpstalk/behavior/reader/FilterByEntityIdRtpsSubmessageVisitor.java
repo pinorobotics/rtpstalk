@@ -1,5 +1,6 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
+import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -29,5 +30,12 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
         if (!entityId.equals(heartbeat.readerId))
             return Result.CONTINUE;
         return nextVisitor.onHeartbeat(guidPrefix, heartbeat);
+    }
+
+    @Override
+    public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
+        if (!entityId.equals(ackNack.readerId))
+            return Result.CONTINUE;
+        return nextVisitor.onAckNack(guidPrefix, ackNack);
     }
 }
