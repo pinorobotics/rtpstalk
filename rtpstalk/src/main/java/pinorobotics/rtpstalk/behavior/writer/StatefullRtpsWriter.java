@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -15,6 +16,7 @@ import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
@@ -50,6 +52,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
     private int heartbeatCount;
     private DataChannelFactory channelFactory;
     private String writerName;
+    private final Header header;
 
     public StatefullRtpsWriter(DataChannelFactory channelFactory, Guid writerGuid, EntityId readerEntiyId,
             Duration heartbeatPeriod) {
@@ -57,6 +60,12 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
         this.channelFactory = channelFactory;
         this.heartbeatPeriod = heartbeatPeriod;
         writerName = getGuid().entityId.toString();
+        OperatingEntities.getInstance().add(writerGuid.entityId, this);
+        header = new Header(
+                ProtocolId.Predefined.RTPS.getValue(),
+                ProtocolVersion.Predefined.Version_2_3.getValue(),
+                VendorId.Predefined.RTPSTALK.getValue(),
+                getGuid().guidPrefix);
     }
 
     /**
@@ -78,19 +87,26 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
                     writerName);
             return;
         }
+        var sender = new RtpsMessageSender(channelFactory.connect(unicast.get(0)), writerName, remoteGuid.guidPrefix);
         var proxy = new ReaderProxy(remoteGuid, unicast);
         LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
-        var sender = new RtpsMessageSender(channelFactory.connect(unicast.get(0)), writerName, remoteGuid.guidPrefix);
         subscribe(sender);
         if (numOfReaders == 0) {
             executor.scheduleWithFixedDelay(this, 0, heartbeatPeriod.seconds, TimeUnit.SECONDS);
         }
     }
 
-    public void matchedWriterRemove() {
+    public void matchedReaderRemove() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * This operation finds the {@link ReaderProxy} with given {@link Guid}
+     */
+    public Optional<ReaderProxy> matchedReaderLookup(Guid guid) {
+        return Optional.ofNullable(matchedReaders.get(guid));
     }
 
     @Override
@@ -98,23 +114,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
         try {
             if (executor.isShutdown())
                 return;
-            var seqNumMin = historyCache.getSeqNumMin();
-            if (seqNumMin <= 0) {
-                LOGGER.fine("Skipping heartbeat since there is no new changes");
-                return;
-            }
-            var seqNumMax = historyCache.getSeqNumMax();
-            XAsserts.assertLess(0, seqNumMax, "Negative sequence number");
-            var heartbeat = new Heartbeat(getReaderEntiyId(), getGuid().entityId, new SequenceNumber(seqNumMin),
-                    new SequenceNumber(seqNumMax), new Count(heartbeatCount++));
-            var submessages = new Submessage[] { heartbeat };
-            var header = new Header(
-                    ProtocolId.Predefined.RTPS.getValue(),
-                    ProtocolVersion.Predefined.Version_2_3.getValue(),
-                    VendorId.Predefined.RTPSTALK.getValue(),
-                    getGuid().guidPrefix);
-            submit(new RtpsMessage(header, submessages));
-            LOGGER.fine("Heartbeat submitted");
+            sendHeartbeat();
         } catch (Exception e) {
             LOGGER.severe("Writer " + writerName + " heartbeat error", e);
         }
@@ -124,5 +124,21 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
     public void close() {
         super.close();
         executor.shutdown();
+        OperatingEntities.getInstance().remove(getGuid().entityId);
+    }
+
+    private void sendHeartbeat() {
+        var seqNumMin = historyCache.getSeqNumMin();
+        if (seqNumMin <= 0) {
+            LOGGER.fine("Skipping heartbeat since there is no new changes");
+            return;
+        }
+        var seqNumMax = historyCache.getSeqNumMax();
+        XAsserts.assertLess(0, seqNumMax, "Negative sequence number");
+        var heartbeat = new Heartbeat(getReaderEntiyId(), getGuid().entityId, new SequenceNumber(seqNumMin),
+                new SequenceNumber(seqNumMax), new Count(heartbeatCount++));
+        var submessages = new Submessage[] { heartbeat };
+        submit(new RtpsMessage(header, submessages));
+        LOGGER.fine("Heartbeat submitted");
     }
 }
