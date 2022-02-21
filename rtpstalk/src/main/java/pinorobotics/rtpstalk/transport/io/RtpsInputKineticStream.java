@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.transport.io;
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.XAsserts;
+import id.xfunction.XByte;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
 import java.net.InetAddress;
@@ -383,7 +384,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         var numBits = readInt();
         var bits = new int[(numBits + 31) / 32];
         for (int i = 0; i < bits.length; i++) {
-            bits[i] = readInt();
+            bits[i] = XByte.reverseBytes(buf.getInt());
         }
         LOGGER.exiting("readSequenceNumberSet");
         return new SequenceNumberSet(bitmapBase, numBits, bits);

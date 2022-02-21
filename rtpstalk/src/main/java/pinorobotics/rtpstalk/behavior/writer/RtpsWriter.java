@@ -46,6 +46,9 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsWriter.class);
 
+    protected static final SerializedPayloadHeader PAYLOAD_HEADER = new SerializedPayloadHeader(
+            RepresentationIdentifier.Predefined.PL_CDR_LE.getValue());
+
     private long lastChangeNumber;
     private Guid writerGuid;
     private EntityId readerEntiyId;
@@ -89,9 +92,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
                 readerEntiyId,
                 writerGuid.entityId,
                 new SequenceNumber(lastChangeNumber),
-                new SerializedPayload(new SerializedPayloadHeader(
-                        RepresentationIdentifier.Predefined.PL_CDR_LE.getValue()),
-                        data));
+                new SerializedPayload(PAYLOAD_HEADER, data));
         var submessages = new Submessage[] { InfoTimestamp.now(), dataSubmessage };
         var header = new Header(
                 ProtocolId.Predefined.RTPS.getValue(),
