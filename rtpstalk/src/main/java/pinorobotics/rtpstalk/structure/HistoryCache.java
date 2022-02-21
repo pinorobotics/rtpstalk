@@ -1,9 +1,11 @@
 package pinorobotics.rtpstalk.structure;
 
 import id.xfunction.logging.XLogger;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
@@ -16,16 +18,17 @@ public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>>
     /**
      * The list of CacheChanges contained in the HistoryCache.
      */
-    private Set<CacheChange<D>> changes = new LinkedHashSet<>();
+    private Map<Long, CacheChange<D>> changes = new LinkedHashMap<>();
 
     public boolean addChange(CacheChange<D> change) {
         boolean firstChange = changes.isEmpty();
-        if (!changes.add(change)) {
+        if (changes.containsKey(change.getSequenceNumber())) {
             LOGGER.fine("Change already present in the cache, ignoring...");
             return false;
         }
-        LOGGER.fine("New change added into the cache");
+        changes.put(change.getSequenceNumber(), change);
         updateSeqNums(change.getSequenceNumber(), firstChange);
+        LOGGER.fine("New change added into the cache");
         return true;
     }
 
@@ -54,6 +57,12 @@ public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>>
 
     @Override
     public Iterator<CacheChange<D>> iterator() {
-        return changes.iterator();
+        return changes.values().iterator();
+    }
+
+    public Stream<CacheChange<D>> findAll(Collection<Long> seqNums) {
+        return seqNums.stream()
+                .map(changes::get)
+                .filter(change -> change != null);
     }
 }
