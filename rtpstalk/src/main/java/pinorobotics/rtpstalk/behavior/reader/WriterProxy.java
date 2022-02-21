@@ -19,7 +19,7 @@ public class WriterProxy {
     private Guid remoteWriterGuid;
     private List<Locator> unicastLocatorList;
     private Map<Long, ChangeFromWriterStatusKind> changesFromWriter = new LinkedHashMap<>();
-    private long seqNumMax = 1;
+    private long seqNumMax = 0;
 
     public WriterProxy(Guid readerGuid, Guid remoteWriterGuid, List<Locator> unicastLocatorList) {
         this.readerGuid = readerGuid;
