@@ -14,13 +14,16 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
@@ -88,11 +91,11 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
             return;
         }
         var sender = new RtpsMessageSender(channelFactory.connect(unicast.get(0)), writerName, remoteGuid.guidPrefix);
-        var proxy = new ReaderProxy(remoteGuid, unicast);
+        var proxy = new ReaderProxy(remoteGuid, unicast, sender);
         LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
-        subscribe(sender);
+        subscribe(proxy.getSender());
         if (numOfReaders == 0) {
             executor.scheduleWithFixedDelay(this, 0, heartbeatPeriod.seconds, TimeUnit.SECONDS);
         }
@@ -114,6 +117,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
         try {
             if (executor.isShutdown())
                 return;
+            sendRequested();
             sendHeartbeat();
         } catch (Exception e) {
             LOGGER.severe("Writer " + writerName + " heartbeat error", e);
@@ -140,5 +144,27 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
         var submessages = new Submessage[] { heartbeat };
         submit(new RtpsMessage(header, submessages));
         LOGGER.fine("Heartbeat submitted");
+    }
+
+    private void sendRequested() {
+        matchedReaders.values().stream()
+                .forEach(this::sendRequested);
+    }
+
+    private void sendRequested(ReaderProxy readerProxy) {
+        var requestedChanges = readerProxy.requestedChanges();
+        if (requestedChanges.isEmpty())
+            return;
+        var submessages = historyCache.findAll(requestedChanges)
+                .map(change -> new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
+                        readerProxy.getRemoteReaderGuid().entityId,
+                        getGuid().entityId,
+                        new SequenceNumber(change.getSequenceNumber()),
+                        new SerializedPayload(PAYLOAD_HEADER, change.getDataValue())))
+                .toArray(Submessage[]::new);
+        if (submessages.length == 0)
+            return;
+        submit(new RtpsMessage(header, submessages));
+        LOGGER.fine("Submitted {0} requested changes", requestedChanges.size());
     }
 }

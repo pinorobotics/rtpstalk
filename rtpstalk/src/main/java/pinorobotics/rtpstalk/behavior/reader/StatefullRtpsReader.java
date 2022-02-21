@@ -1,15 +1,17 @@
 package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.IntBitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -52,12 +54,6 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
         throw new UnsupportedOperationException();
     }
 
-    public List<WriterProxy> matchedWriters() {
-        return matchedWriters.values().stream()
-                .map(WriterInfo::proxy)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
     @Override
     public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
         // However, if the FinalFlag is not set, then the Reader must send an AckNack
@@ -73,6 +69,22 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
             }
         }
         return super.onHeartbeat(guidPrefix, heartbeat);
+    }
+
+    @Override
+    public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
+        OperatingEntities.getInstance().findStatefullWriter(ackNack.writerId)
+                .flatMap(writer -> writer.matchedReaderLookup(new Guid(guidPrefix, ackNack.readerId)))
+                .ifPresent(readerProxy -> {
+                    var set = ackNack.readerSNState;
+                    var base = set.bitmapBase.value;
+                    var bitset = new IntBitSet(set.bitmap);
+                    readerProxy.requestedChangesClear();
+                    for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
+                        readerProxy.requestChange(base + i);
+                    }
+                });
+        return super.onAckNack(guidPrefix, ackNack);
     }
 
     @Override
