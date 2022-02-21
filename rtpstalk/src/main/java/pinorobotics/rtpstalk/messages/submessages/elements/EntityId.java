@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static pinorobotics.rtpstalk.messages.submessages.elements.EntityKind.*;
+
 import id.xfunction.XJsonStringBuilder;
 
 public class EntityId {
@@ -12,16 +14,17 @@ public class EntityId {
     public static final int SIZE = 3;
 
     public static enum Predefined {
-        ENTITYID_PARTICIPANT(new EntityId(new byte[] { 00, 00, 01 }, 0xc1)),
-        ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 02 }, 0xc2)),
-        ENTITYID_SEDP_BUILTIN_TOPICS_DETECTOR(new EntityId(new byte[] { 00, 00, 02 }, 0xc7)),
+        ENTITYID_PARTICIPANT(new EntityId(new byte[] { 00, 00, 01 }, BUILTIN_PARTICIPANT)),
+        ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 02 }, BUILTIN_WRITER)),
+        ENTITYID_SEDP_BUILTIN_TOPICS_DETECTOR(new EntityId(new byte[] { 00, 00, 02 }, BUILTIN_READER)),
 
         /**
          * Publication endpoints allow topic publisher to announce what topics it has
          * and subscribers to detect those announcements.
          */
-        ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 03 }, 0xc2)),
-        ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR(new EntityId(new byte[] { 00, 00, 03 }, 0xc7)),
+        ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER(
+                new EntityId(new byte[] { 00, 00, 03 }, BUILTIN_WRITER)),
+        ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR(new EntityId(new byte[] { 00, 00, 03 }, BUILTIN_READER)),
 
         /**
          * Once subscriber detected that there is a new topic available (through
@@ -29,13 +32,17 @@ public class EntityId {
          * announce publisher about its intention to subscribe to the topic using
          * subscription endpoints.
          */
-        ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER(new EntityId(new byte[] { 00, 00, 04 }, 0xc2)),
-        ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR(new EntityId(new byte[] { 00, 00, 04 }, 0xc7)),
+        ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER(
+                new EntityId(new byte[] { 00, 00, 04 }, BUILTIN_WRITER)),
+        ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR(
+                new EntityId(new byte[] { 00, 00, 04 }, BUILTIN_READER)),
 
-        ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER(new EntityId(new byte[] { 00, 01, 00 }, 0xc2)),
-        ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR(new EntityId(new byte[] { 00, 01, 00 }, 0xc7)),
-        ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER(new EntityId(new byte[] { 00, 02, 00 }, 0xc2)),
-        ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER(new EntityId(new byte[] { 00, 02, 00 }, 0xc7)),
+        ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER(new EntityId(new byte[] { 00, 01, 00 }, BUILTIN_WRITER)),
+        ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR(new EntityId(new byte[] { 00, 01, 00 }, BUILTIN_READER)),
+        ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER(
+                new EntityId(new byte[] { 00, 02, 00 }, BUILTIN_WRITER)),
+        ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER(
+                new EntityId(new byte[] { 00, 02, 00 }, BUILTIN_READER)),
         ENTITYID_UNKNOWN(new EntityId());
 
         static final Map<EntityId, Predefined> MAP = Arrays.stream(Predefined.values())
@@ -58,9 +65,9 @@ public class EntityId {
     public EntityId() {
     }
 
-    public EntityId(byte[] entityKey, int entityKind) {
+    public EntityId(byte[] entityKey, EntityKind entityKind) {
         this.entityKey = entityKey;
-        this.entityKind = (byte) entityKind;
+        this.entityKind = (byte) entityKind.getValue();
     }
 
     @Override
