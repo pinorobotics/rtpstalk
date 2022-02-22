@@ -42,7 +42,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * }
  * </pre>
  */
-public class RtpsReader<D extends Payload> extends SubmissionPublisher<CacheChange<D>>
+public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
     private final XLogger LOGGER = XLogger.getLogger(getClass());
@@ -93,7 +93,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<CacheChan
         var isAdded = cache.addChange(cacheChange);
         if (isAdded) {
             LOGGER.fine("Submitting new change to subscribers");
-            submit(cacheChange);
+            submit(cacheChange.getDataValue());
         }
         LOGGER.exiting("addChange");
         return isAdded;

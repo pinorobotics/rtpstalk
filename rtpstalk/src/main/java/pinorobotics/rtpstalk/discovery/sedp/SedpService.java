@@ -19,7 +19,6 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
@@ -29,7 +28,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * by the DiscoveredParticipantData participant_data. The discovered Participant
  * uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
-public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
+public class SedpService extends XSubscriber<ParameterList> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
@@ -47,7 +46,7 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
         subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(channelFactory, config);
     }
 
-    public void start(Publisher<CacheChange<ParameterList>> participantsPublisher) throws IOException {
+    public void start(Publisher<ParameterList> participantsPublisher) throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
@@ -64,9 +63,9 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
     }
 
     @Override
-    public void onNext(CacheChange<ParameterList> change) {
+    public void onNext(ParameterList participantData) {
         LOGGER.entering("onNext");
-        configureEndpoints(change.getWriterGuid().guidPrefix, change.getDataValue());
+        configureEndpoints(participantData);
         subscription.request(1);
         LOGGER.exiting("onNext");
     }
@@ -89,18 +88,23 @@ public class SedpService extends XSubscriber<CacheChange<ParameterList>> {
         return subscriptionsReader;
     }
 
-    private void configureEndpoints(GuidPrefix guidPrefix, ParameterList participantData) {
-        LOGGER.fine("Configuring builtin endpoints for Participant {0}", guidPrefix);
+    private void configureEndpoints(ParameterList participantData) {
+        var guid = (Guid) participantData.params.get(ParameterId.PID_PARTICIPANT_GUID);
+        if (guid == null) {
+            LOGGER.warning("Received participant data without PID_PARTICIPANT_GUID");
+            return;
+        }
+        LOGGER.fine("Configuring builtin endpoints for Participant {0}", guid.guidPrefix);
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
             if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
                 var unicast = List.of(locator);
-                configure(availableEndpoints, guidPrefix, subscriptionsReader, null,
+                configure(availableEndpoints, guid.guidPrefix, subscriptionsReader, null,
                         Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guidPrefix, publicationsReader, null,
+                configure(availableEndpoints, guid.guidPrefix, publicationsReader, null,
                         Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guidPrefix, null, subscriptionsWriter,
+                configure(availableEndpoints, guid.guidPrefix, null, subscriptionsWriter,
                         Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR, unicast);
             } else {
                 LOGGER.fine("Participant has no locator defined, ignoring...");

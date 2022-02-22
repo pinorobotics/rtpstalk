@@ -17,7 +17,6 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
@@ -43,7 +42,7 @@ public class RtpsTalkClient {
         userService = new UserDataService(config, channelFactory);
     }
 
-    public void subscribe(String topic, String type, EntityId entityId, Subscriber<CacheChange<RawData>> subscriber) {
+    public void subscribe(String topic, String type, EntityId entityId, Subscriber<RawData> subscriber) {
         if (!isStarted) {
             start();
         }

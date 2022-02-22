@@ -9,7 +9,6 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
@@ -28,7 +27,7 @@ public class UserDataService {
         receiver = new RtpsMessageReceiver("UserDataServiceReceiver");
     }
 
-    public void subscribe(EntityId entityId, Subscriber<CacheChange<RawData>> subscriber) {
+    public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
         var reader = readers.computeIfAbsent(entityId, eid -> new DataReader(config, eid));
         reader.subscribe(subscriber);
         receiver.subscribe(reader);

@@ -5,16 +5,15 @@ import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.structure.CacheChange;
 
 public class Test {
 
     public static void main(String[] args) throws Exception {
         XLogger.load("rtpstalk-debug.properties");
-        var printer = new XSubscriber<CacheChange<RawData>>() {
+        var printer = new XSubscriber<RawData>() {
             @Override
-            public void onNext(CacheChange<RawData> item) {
-                System.out.println(item.getDataValue());
+            public void onNext(RawData data) {
+                System.out.println(data);
                 subscription.request(1);
             }
         };
