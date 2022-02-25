@@ -4,6 +4,7 @@ import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
@@ -44,7 +45,7 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  */
 public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessage> implements RtpsEntity {
 
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsWriter.class);
+    protected final XLogger logger;
 
     protected static final SerializedPayloadHeader PAYLOAD_HEADER = new SerializedPayloadHeader(
             RepresentationIdentifier.Predefined.PL_CDR_LE.getValue());
@@ -68,6 +69,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
             ReliabilityKind reliabilityKind, boolean pushMode) {
         this.writerGuid = writerGuid;
         this.readerEntiyId = readerEntiyId;
+        logger = InternalUtils.getInstance().getLogger(getClass(), writerGuid.entityId);
     }
 
     /**
@@ -80,13 +82,13 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
 
     public void repeatLastChange() {
         XAsserts.assertNotNull(lastMessage);
-        LOGGER.entering("repeatLastChange");
+        logger.entering("repeatLastChange");
         submit(lastMessage);
-        LOGGER.exiting("repeatLastChange");
+        logger.exiting("repeatLastChange");
     }
 
     public void newChange(D data) {
-        LOGGER.entering("newChange");
+        logger.entering("newChange");
         lastChangeNumber++;
         var dataSubmessage = new Data(0b100 | RtpsTalkConfiguration.ENDIANESS_BIT, 0,
                 readerEntiyId,
@@ -101,7 +103,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
                 writerGuid.guidPrefix);
         lastMessage = new RtpsMessage(header, submessages);
         submit(lastMessage);
-        LOGGER.exiting("newChange");
+        logger.exiting("newChange");
     }
 
     @Override

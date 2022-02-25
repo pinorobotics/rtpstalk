@@ -3,6 +3,7 @@ package pinorobotics.rtpstalk.transport;
 import id.xfunction.concurrent.flow.XSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
@@ -21,11 +22,12 @@ public class RtpsMessageSender extends XSubscriber<RtpsMessage> {
 
     /**
      * @param remoteReader this is used by reliable writers to send heartbeats for
-     *                     particular reader, for best-effort writers this can be null
+     *                     particular reader, for best-effort writers this can be
+     *                     null
      */
     public RtpsMessageSender(DataChannel dataChannel, String writerName, GuidPrefix remoteReader) {
         this.dataChannel = dataChannel;
-        logger = XLogger.getLogger(getClass().getName() + "#" + writerName);
+        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
         if (remoteReader != null)
             infoDstOpt = Optional.of(new InfoDestination(remoteReader));
     }

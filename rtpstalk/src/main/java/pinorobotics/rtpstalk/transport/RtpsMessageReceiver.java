@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 /**
@@ -26,7 +27,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
 
     public RtpsMessageReceiver(String readerName) {
         executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(readerName));
-        logger = XLogger.getLogger(getClass().getName() + "#" + readerName);
+        logger = InternalUtils.getInstance().getLogger(getClass(), readerName);
     }
 
     public void start(DataChannel dataChannel) throws IOException {

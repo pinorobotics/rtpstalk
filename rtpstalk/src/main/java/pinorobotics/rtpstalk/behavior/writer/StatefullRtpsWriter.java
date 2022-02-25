@@ -2,7 +2,6 @@ package pinorobotics.rtpstalk.behavior.writer;
 
 import id.xfunction.XAsserts;
 import id.xfunction.concurrent.NamedThreadFactory;
-import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +36,6 @@ import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implements Runnable, AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(StatefullRtpsWriter.class);
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
             new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
 
@@ -86,13 +84,13 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
 
     public synchronized void matchedReaderAdd(Guid remoteGuid, List<Locator> unicast) throws IOException {
         if (matchedReaders.containsKey(remoteGuid)) {
-            LOGGER.fine("Reader {0} is already registered with the writer {1}, not adding it", remoteGuid,
+            logger.fine("Reader {0} is already registered with the writer {1}, not adding it", remoteGuid,
                     writerName);
             return;
         }
         var sender = new RtpsMessageSender(channelFactory.connect(unicast.get(0)), writerName, remoteGuid.guidPrefix);
         var proxy = new ReaderProxy(remoteGuid, unicast, sender);
-        LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteReaderGuid());
+        logger.fine("Adding reader proxy for reader with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
         subscribe(proxy.getSender());
@@ -120,7 +118,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
             sendRequested();
             sendHeartbeat();
         } catch (Exception e) {
-            LOGGER.severe("Writer " + writerName + " heartbeat error", e);
+            logger.severe("Writer " + writerName + " heartbeat error", e);
         }
     }
 
@@ -134,7 +132,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
     private void sendHeartbeat() {
         var seqNumMin = historyCache.getSeqNumMin();
         if (seqNumMin <= 0) {
-            LOGGER.fine("Skipping heartbeat since there is no new changes");
+            logger.fine("Skipping heartbeat since history cache is empty");
             return;
         }
         var seqNumMax = historyCache.getSeqNumMax();
@@ -143,7 +141,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
                 new SequenceNumber(seqNumMax), new Count(heartbeatCount++));
         var submessages = new Submessage[] { heartbeat };
         submit(new RtpsMessage(header, submessages));
-        LOGGER.fine("Heartbeat submitted");
+        logger.fine("Heartbeat submitted");
     }
 
     private void sendRequested() {
@@ -165,6 +163,6 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D> implem
         if (submessages.length == 0)
             return;
         submit(new RtpsMessage(header, submessages));
-        LOGGER.fine("Submitted {0} requested changes", requestedChanges.size());
+        logger.fine("Submitted {0} requested changes", requestedChanges.size());
     }
 }

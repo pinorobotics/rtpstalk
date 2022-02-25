@@ -29,8 +29,6 @@ import pinorobotics.rtpstalk.structure.CacheChange;
  */
 public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
-    private final XLogger LOGGER = XLogger.getLogger(getClass());
-
     /**
      * Used to maintain state on the remote Writers matched up with the Reader.
      */
@@ -45,7 +43,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
         var proxy = new WriterProxy(getGuid(), remoteGuid, unicast);
-        LOGGER.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
+        logger.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(proxy.getRemoteWriterGuid(),
                 new WriterInfo(proxy, new WriterHeartbeatProcessor(config, proxy)));
     }
@@ -62,10 +60,10 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
             var writerGuid = new Guid(guidPrefix, heartbeat.writerId);
             var writerInfo = matchedWriters.get(writerGuid);
             if (writerInfo != null) {
-                LOGGER.fine("Received heartbeat from writer {0}", writerGuid);
+                logger.fine("Received heartbeat from writer {0}", writerGuid);
                 writerInfo.heartbeatProcessor().addHeartbeat(heartbeat);
             } else {
-                LOGGER.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);
+                logger.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);
             }
         }
         return super.onHeartbeat(guidPrefix, heartbeat);
@@ -96,7 +94,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
         if (writerInfo != null) {
             writerInfo.proxy().receivedChangeSet(cacheChange.getSequenceNumber());
         } else {
-            LOGGER.fine("No matched writer with guid {0} found for a new change, ignoring...",
+            logger.fine("No matched writer with guid {0} found for a new change, ignoring...",
                     cacheChange.getWriterGuid());
         }
         return true;

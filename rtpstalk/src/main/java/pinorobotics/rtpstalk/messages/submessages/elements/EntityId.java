@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import static pinorobotics.rtpstalk.messages.submessages.elements.EntityKind.*;
 
-import id.xfunction.XJsonStringBuilder;
+import id.xfunction.XByte;
 
 public class EntityId {
 
@@ -97,9 +97,6 @@ public class EntityId {
         if (predefined != null) {
             return predefined.name();
         }
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("entityKey", Arrays.toString(entityKey));
-        builder.append("entityKind", entityKind);
-        return builder.toString();
+        return XByte.toHex(entityKey) + "-" + XByte.toHex(entityKind);
     }
 }

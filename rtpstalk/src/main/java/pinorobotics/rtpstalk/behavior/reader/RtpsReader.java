@@ -5,6 +5,7 @@ import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -45,7 +46,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
-    private final XLogger LOGGER = XLogger.getLogger(getClass());
+    protected final XLogger logger;
 
     private HistoryCache<D> cache = new HistoryCache<>();
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
@@ -58,10 +59,11 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         this(guid, ReliabilityKind.BEST_EFFORT);
     }
 
-    public RtpsReader(Guid guid, ReliabilityKind reliabilityKind) {
-        this.guid = guid;
+    public RtpsReader(Guid readerGuid, ReliabilityKind reliabilityKind) {
+        this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
-        filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(guid.entityId, this);
+        filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
+        logger = InternalUtils.getInstance().getLogger(getClass(), readerGuid.entityId);
     }
 
     /**
@@ -82,20 +84,20 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
-        LOGGER.fine("Received data {0}", d);
+        logger.fine("Received data {0}", d);
         addChange(
                 new CacheChange<>(new Guid(guidPrefix, d.writerId), d.writerSN.value, (D) d.serializedPayload.payload));
         return Result.CONTINUE;
     }
 
     protected boolean addChange(CacheChange<D> cacheChange) {
-        LOGGER.entering("addChange");
+        logger.entering("addChange");
         var isAdded = cache.addChange(cacheChange);
         if (isAdded) {
-            LOGGER.fine("Submitting new change to subscribers");
+            logger.fine("Submitting new change to subscribers");
             submit(cacheChange.getDataValue());
         }
-        LOGGER.exiting("addChange");
+        logger.exiting("addChange");
         return isAdded;
     }
 
@@ -123,12 +125,12 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     @Override
     public void onError(Throwable throwable) {
-        LOGGER.severe(throwable);
+        logger.severe(throwable);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void onComplete() {
-        LOGGER.severe(new UnsupportedOperationException());
+        logger.severe(new UnsupportedOperationException());
     }
 }
