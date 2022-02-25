@@ -20,6 +20,10 @@ public class Duration {
         Predefined(Duration value) {
             this.value = value;
         }
+
+        public Duration getValue() {
+            return value;
+        }
     }
 
     public int seconds;

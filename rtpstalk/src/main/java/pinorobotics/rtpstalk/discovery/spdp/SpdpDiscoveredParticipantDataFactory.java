@@ -22,6 +22,7 @@ public class SpdpDiscoveredParticipantDataFactory {
         var endpointSet = EnumSet.of(
                 Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
+                Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
                 Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
                 Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
                 Endpoint.SECURE_PUBLICATION_READER,

@@ -35,6 +35,7 @@ public class SedpService extends XSubscriber<ParameterList> {
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
     private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
     private SedpBuiltinPublicationsReader publicationsReader;
+    private SedpBuiltinPublicationsWriter publicationsWriter;
     private RtpsMessageReceiver receiver;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
@@ -44,6 +45,7 @@ public class SedpService extends XSubscriber<ParameterList> {
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("SedpServiceReceiver");
         subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(channelFactory, config);
+        publicationsWriter = new SedpBuiltinPublicationsWriter(channelFactory, config);
     }
 
     public void start(Publisher<ParameterList> participantsPublisher) throws IOException {
@@ -102,10 +104,12 @@ public class SedpService extends XSubscriber<ParameterList> {
                 var unicast = List.of(locator);
                 configure(availableEndpoints, guid.guidPrefix, subscriptionsReader, null,
                         Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guid.guidPrefix, publicationsReader, null,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
                 configure(availableEndpoints, guid.guidPrefix, null, subscriptionsWriter,
                         Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR, unicast);
+                configure(availableEndpoints, guid.guidPrefix, publicationsReader, null,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
+                configure(availableEndpoints, guid.guidPrefix, null, publicationsWriter,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR, unicast);
             } else {
                 LOGGER.fine("Participant has no locator defined, ignoring...");
             }
@@ -129,7 +133,7 @@ public class SedpService extends XSubscriber<ParameterList> {
                     "Participant does not support {0} endpoint, ignoring...", remoteEndpoint);
             return;
         }
-        LOGGER.fine("Configuring {0} endpoint...", remoteEndpoint);
+        LOGGER.fine("Configuring remote endpoint {0}...", remoteEndpoint);
         var remoteGuid = new Guid(guidPrefix, remoteEndpoint.getEntityId().getValue());
         switch (remoteEndpoint.getType()) {
         case WRITER:
@@ -139,7 +143,7 @@ public class SedpService extends XSubscriber<ParameterList> {
             try {
                 writer.matchedReaderAdd(remoteGuid, unicast);
             } catch (IOException e) {
-                LOGGER.severe("Endpoint " + remoteEndpoint + " configuration failed", e);
+                LOGGER.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
                 e.printStackTrace();
             }
             break;
@@ -150,5 +154,9 @@ public class SedpService extends XSubscriber<ParameterList> {
 
     public StatefullRtpsWriter<ParameterList> getSubscriptionsWriter() {
         return subscriptionsWriter;
+    }
+
+    public SedpBuiltinPublicationsWriter getPublicationsWriter() {
+        return publicationsWriter;
     }
 }

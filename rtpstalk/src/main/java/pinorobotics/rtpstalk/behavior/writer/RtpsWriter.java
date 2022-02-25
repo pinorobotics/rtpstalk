@@ -2,6 +2,9 @@ package pinorobotics.rtpstalk.behavior.writer;
 
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
+import java.util.concurrent.Flow.Processor;
+import java.util.concurrent.Flow.Subscription;
+import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
@@ -35,7 +38,7 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  * <pre>
  * {@code
  * 
- * USER calls {@link RtpsWriter#newChange}:
+ * USER calls {@link RtpsWriter#newChange} or USER publisher to which this writer subscribed issues {@link RtpsWriter#onNext(Object)}:
  * - {@link RtpsWriter} publishes change to all its connected subscribers (endpoint readers):
  *  - {@link RtpsMessageSender} sends message to remote reader1
  *  - {@link RtpsMessageSender} sends message to remote reader2
@@ -43,7 +46,8 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  * }
  * </pre>
  */
-public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessage> implements RtpsEntity {
+public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessage>
+        implements Processor<D, RtpsMessage>, RtpsEntity, AutoCloseable {
 
     protected final XLogger logger;
 
@@ -54,6 +58,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     private Guid writerGuid;
     private EntityId readerEntiyId;
     private RtpsMessage lastMessage;
+    private Optional<Subscription> subscriptionOpt = Optional.empty();
 
     public RtpsWriter(Guid writerGuid, EntityId readerEntiyId) {
         this(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
@@ -113,5 +118,34 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
 
     public EntityId getReaderEntiyId() {
         return readerEntiyId;
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        XAsserts.assertTrue(this.subscriptionOpt.isEmpty(), "Already subscribed");
+        this.subscriptionOpt = Optional.of(subscription);
+        subscription.request(1);
+    }
+
+    @Override
+    public void onNext(D item) {
+        newChange(item);
+        subscriptionOpt.get().request(1);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        logger.severe(throwable);
+    }
+
+    @Override
+    public void onComplete() {
+        logger.fine("Publisher stopped");
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        subscriptionOpt.ifPresent(Subscription::cancel);
     }
 }

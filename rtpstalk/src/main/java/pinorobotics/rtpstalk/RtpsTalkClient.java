@@ -5,12 +5,16 @@ import id.xfunction.logging.XLogger;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
+import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
+import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
@@ -50,6 +54,15 @@ public class RtpsTalkClient {
         userService.subscribe(entityId, subscriber);
     }
 
+    public void publish(String topic, String type, EntityId writerEntityId, EntityId readerEntityId,
+            Publisher<RawData> publisher) {
+        if (!isStarted) {
+            start();
+        }
+        sedp.getPublicationsWriter().newChange(createPublicationData(topic, type, writerEntityId));
+        userService.publish(writerEntityId, readerEntityId, publisher);
+    }
+
     private void start() {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
@@ -79,6 +92,23 @@ public class RtpsTalkClient {
                         new Guid(config.getGuidPrefix(), entityId)),
                 Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
                 Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
+        return new ParameterList(params);
+    }
+
+    private ParameterList createPublicationData(String topicName, String typeName, EntityId entityId) {
+        var guid = new Guid(config.getGuidPrefix(), entityId);
+        var params = List.<Entry<ParameterId, Object>>of(
+                Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
+                Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
+                        config.getGuidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
+                Map.entry(ParameterId.PID_TYPE_NAME, typeName),
+                Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(guid)),
+                Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
+                Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
+                Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
+                Map.entry(ParameterId.PID_RELIABILITY,
+                        new ReliabilityQosPolicy(ReliabilityKind.RELIABLE, Duration.Predefined.ZERO.getValue())));
         return new ParameterList(params);
     }
 }
