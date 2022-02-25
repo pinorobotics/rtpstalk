@@ -12,12 +12,14 @@ import pinorobotics.rtpstalk.messages.IntSequence;
 import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
@@ -92,6 +94,8 @@ public class LengthCalculator {
             return Integer.BYTES;
         if (clazz == BuiltinEndpointQos.class)
             return Integer.BYTES;
+        if (clazz == ReliabilityQosPolicy.class)
+            return Integer.BYTES + getFixedLength(Duration.class);
         if (clazz == KeyHash.class)
             return KeyHash.SIZE;
         if (clazz == Heartbeat.class)
@@ -130,6 +134,8 @@ public class LengthCalculator {
             return getFixedLength(SequenceNumber.class) + Integer.BYTES + Integer.BYTES * set.bitmap.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
+        if (obj instanceof RawData rawData)
+            return rawData.data.length;
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 
@@ -156,6 +162,7 @@ public class LengthCalculator {
         case PID_SENTINEL -> 0;
         case PID_USER_DATA -> calculateLength(param.getValue());
         case PID_BUILTIN_ENDPOINT_QOS -> getFixedLength(BuiltinEndpointQos.class);
+        case PID_RELIABILITY -> getFixedLength(ReliabilityQosPolicy.class);
         default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
         };
 

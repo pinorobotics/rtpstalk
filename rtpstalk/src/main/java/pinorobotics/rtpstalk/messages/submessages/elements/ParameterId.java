@@ -21,6 +21,7 @@ public enum ParameterId {
     PID_ENDPOINT_GUID(0x005a),
     PID_BUILTIN_ENDPOINT_QOS(0x0077),
     PID_KEY_HASH(0x0070),
+    PID_RELIABILITY(0x001a),
     PID_SENTINEL(0x0001);
 
     public static Map<Short, ParameterId> map = new HashMap<>();
