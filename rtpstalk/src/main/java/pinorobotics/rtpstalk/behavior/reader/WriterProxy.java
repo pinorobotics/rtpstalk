@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.behavior.reader;
 
 import static pinorobotics.rtpstalk.behavior.reader.ChangeFromWriterStatusKind.*;
@@ -40,32 +57,27 @@ public class WriterProxy {
         }
     }
 
-    /**
-     * Identifies the matched Writer. N/A. Configured by discovery
-     */
+    /** Identifies the matched Writer. N/A. Configured by discovery */
     public Guid getRemoteWriterGuid() {
         return remoteWriterGuid;
     }
 
-    /**
-     * Identifies the reader to which this Writer belongs
-     */
+    /** Identifies the reader to which this Writer belongs */
     public Guid getReaderGuid() {
         return readerGuid;
     }
 
     /**
-     * This operation returns the maximum SequenceNumber among the changesFromWriter
-     * changes in the RTPS WriterProxy that are available for access by the DDS
-     * DataReader.
+     * This operation returns the maximum SequenceNumber among the changesFromWriter changes in the
+     * RTPS WriterProxy that are available for access by the DDS DataReader.
      */
     public long availableChangesMax() {
         return seqNumMax;
     }
 
     /**
-     * List of unicast (address, port) combinations that can be used to send
-     * messages to the matched Writer or Writers. The list may be empty.
+     * List of unicast (address, port) combinations that can be used to send messages to the matched
+     * Writer or Writers. The list may be empty.
      */
     public List<Locator> getUnicastLocatorList() {
         return unicastLocatorList;
@@ -78,15 +90,14 @@ public class WriterProxy {
 
     public void lostChangesUpdate(long firstSN) {
         for (var sn : changesFromWriter.keySet()) {
-            if (sn >= firstSN)
-                continue;
+            if (sn >= firstSN) continue;
             changesFromWriter.remove(sn);
         }
     }
 
     /**
-     * This operation returns the subset of changes for the WriterProxy that have
-     * status {@link ChangeFromWriterStatusKind#MISSING}.
+     * This operation returns the subset of changes for the WriterProxy that have status {@link
+     * ChangeFromWriterStatusKind#MISSING}.
      */
     public long[] missingChanges() {
         return changesFromWriter.entrySet().stream()

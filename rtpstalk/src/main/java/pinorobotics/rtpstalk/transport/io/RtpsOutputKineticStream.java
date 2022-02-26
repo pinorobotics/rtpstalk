@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.KineticStreamWriter;
@@ -46,10 +63,8 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     private void writeSubmessages(Submessage[] a) throws Exception {
         for (int i = 0; i < a.length; i++) {
             XAsserts.assertTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
-            if (a[i] instanceof Data data)
-                writeData(data);
-            else
-                writer.write(a[i]);
+            if (a[i] instanceof Data data) writeData(data);
+            else writer.write(a[i]);
         }
     }
 
@@ -153,22 +168,22 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         LOGGER.entering("writeParameterList");
         var paramListStart = buf.position();
         for (var param : pl.getParameters().entrySet()) {
-            XAsserts.assertTrue((buf.position() - paramListStart) % 4 == 0,
+            XAsserts.assertTrue(
+                    (buf.position() - paramListStart) % 4 == 0,
                     "Invalid param alignment: " + param.getKey());
             writeShort(param.getKey().getValue());
             var len = LengthCalculator.getInstance().calculateParameterValueLength(param);
             writeShort((short) len);
             var endPos = buf.position() + len;
-            if (param.getValue() instanceof Locator locator)
-                writeLocator(locator);
-            else
-                writer.write(param.getValue());
-            while (buf.position() < endPos)
-                writeByte((byte) 0);
+            if (param.getValue() instanceof Locator locator) writeLocator(locator);
+            else writer.write(param.getValue());
+            while (buf.position() < endPos) writeByte((byte) 0);
         }
         writeShort(ParameterId.PID_SENTINEL.getValue());
         writeShort((short) 0);
-        XAsserts.assertTrue((buf.position() - paramListStart) % 4 == 0, "Invalid param alignment: PID_SENTINEL");
+        XAsserts.assertTrue(
+                (buf.position() - paramListStart) % 4 == 0,
+                "Invalid param alignment: PID_SENTINEL");
         LOGGER.exiting("writeParameterList");
     }
 
@@ -177,21 +192,23 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         writeInt(locator.kind().value);
         writeInt(locator.port());
         switch (locator.kind()) {
-        case LOCATOR_KIND_UDPv4: {
-            var buf = new byte[LengthCalculator.ADDRESS_SIZE];
-            System.arraycopy(locator.address().getAddress(), 0, buf, 12, 4);
-            writeByteArray(buf);
-            break;
-        }
-        case LOCATOR_KIND_UDPv6: {
-            LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, writing empty address");
-            var buf = new byte[LengthCalculator.ADDRESS_SIZE];
-            writeByteArray(buf);
-            break;
-        }
-        default:
-            // ignore
-            break;
+            case LOCATOR_KIND_UDPv4:
+                {
+                    var buf = new byte[LengthCalculator.ADDRESS_SIZE];
+                    System.arraycopy(locator.address().getAddress(), 0, buf, 12, 4);
+                    writeByteArray(buf);
+                    break;
+                }
+            case LOCATOR_KIND_UDPv6:
+                {
+                    LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, writing empty address");
+                    var buf = new byte[LengthCalculator.ADDRESS_SIZE];
+                    writeByteArray(buf);
+                    break;
+                }
+            default:
+                // ignore
+                break;
         }
         LOGGER.exiting("writeLocator");
     }

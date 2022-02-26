@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.transport;
 
 import id.xfunction.logging.XLogger;
@@ -20,7 +37,11 @@ public class DataChannel {
 
     private SocketAddress target;
 
-    public DataChannel(DatagramChannel dataChannel, SocketAddress target, GuidPrefix guidPrefix, int packetBufferSize) {
+    public DataChannel(
+            DatagramChannel dataChannel,
+            SocketAddress target,
+            GuidPrefix guidPrefix,
+            int packetBufferSize) {
         this.dataChannel = dataChannel;
         this.target = target;
         this.guidPrefix = guidPrefix;
@@ -35,8 +56,7 @@ public class DataChannel {
             buf.rewind();
             buf.limit(len);
             var messageOpt = reader.readRtpsMessage(buf);
-            if (messageOpt.isEmpty())
-                continue;
+            if (messageOpt.isEmpty()) continue;
             var message = messageOpt.get();
             if (message.header.guidPrefix.equals(guidPrefix)) {
                 LOGGER.fine("Received its own message, ignoring...");
@@ -60,5 +80,4 @@ public class DataChannel {
             return;
         }
     }
-
 }

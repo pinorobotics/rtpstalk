@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.logging.XLogger;
@@ -21,8 +38,8 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /**
  * Combines multiple heartbeats into one AckNack
- * 
- * 8.4.15.2 Efficient use of Gap and AckNack Submessages
+ *
+ * <p>8.4.15.2 Efficient use of Gap and AckNack Submessages
  */
 public class WriterHeartbeatProcessor {
 
@@ -40,9 +57,7 @@ public class WriterHeartbeatProcessor {
         dataChannelFactory = new DataChannelFactory(config);
     }
 
-    /**
-     * Called when new Heartbeat received
-     */
+    /** Called when new Heartbeat received */
     public void addHeartbeat(Heartbeat heartbeat) {
         // However, if the FinalFlag is not set, then the Reader must send an AckNack
         // message (8.3.7.5.5)
@@ -58,9 +73,7 @@ public class WriterHeartbeatProcessor {
         }
     }
 
-    /**
-     * Ack all received heartbeats
-     */
+    /** Ack all received heartbeats */
     public void ack() {
         if (lastHeartbeat == null) {
             LOGGER.fine("No new heartbeats, nothing to acknowledge...");
@@ -76,7 +89,9 @@ public class WriterHeartbeatProcessor {
             try {
                 dataChannel = dataChannelFactory.connect(locator);
             } catch (IOException e) {
-                LOGGER.warning("Cannot open connection to remote writer on {0}: {1}", locator, e.getMessage());
+                LOGGER.warning(
+                        "Cannot open connection to remote writer on {0}: {1}",
+                        locator, e.getMessage());
                 return;
             }
         }
@@ -86,14 +101,19 @@ public class WriterHeartbeatProcessor {
         writerProxy.missingChangesUpdate(lastHeartbeat.lastSN.value);
         writerProxy.lostChangesUpdate(lastHeartbeat.firstSN.value);
 
-        var ack = new AckNack(readerGuid.entityId, writerGuid.entityId, createSequenceNumberSet(lastHeartbeat),
-                new Count(count++));
-        var submessages = new Submessage[] { infoDst, ack };
-        Header header = new Header(
-                ProtocolId.Predefined.RTPS.getValue(),
-                ProtocolVersion.Predefined.Version_2_3.getValue(),
-                VendorId.Predefined.RTPSTALK.getValue(),
-                readerGuid.guidPrefix);
+        var ack =
+                new AckNack(
+                        readerGuid.entityId,
+                        writerGuid.entityId,
+                        createSequenceNumberSet(lastHeartbeat),
+                        new Count(count++));
+        var submessages = new Submessage[] {infoDst, ack};
+        Header header =
+                new Header(
+                        ProtocolId.Predefined.RTPS.getValue(),
+                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                        VendorId.Predefined.RTPSTALK.getValue(),
+                        readerGuid.guidPrefix);
         var message = new RtpsMessage(header, submessages);
         dataChannel.send(message);
         lastHeartbeat = null;
@@ -114,8 +134,7 @@ public class WriterHeartbeatProcessor {
         // Creates bitmask of missing changes between [first..last]
         var bset = new IntBitSet(numBits);
         for (var sn : missing) {
-            if (sn < first || last < sn)
-                continue;
+            if (sn < first || last < sn) continue;
             bset.flip((int) (sn - first));
         }
         return new SequenceNumberSet(lastHeartbeat.firstSN, numBits, bset.intArray());

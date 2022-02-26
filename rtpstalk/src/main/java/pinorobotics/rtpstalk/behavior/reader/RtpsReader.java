@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.XAsserts;
@@ -21,27 +38,22 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
- * Stateless RTPS endpoint reader (best-effort reliability) which can be
- * subscribed to {@link RtpsMessageReceiver} to receive RTPS messages and
- * process them.
- * 
- * <p>
- * Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to
- * one {@link RtpsMessageReceiver} can be subscribed multiple different readers
- * (many endpoints to one receiver).
- * 
- * <pre>
- * {@code
- * 
+ * Stateless RTPS endpoint reader (best-effort reliability) which can be subscribed to {@link
+ * RtpsMessageReceiver} to receive RTPS messages and process them.
+ *
+ * <p>Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to one {@link
+ * RtpsMessageReceiver} can be subscribed multiple different readers (many endpoints to one
+ * receiver).
+ *
+ * <pre>{@code
  * USER subscribes to:
  * - {@link RtpsReader} subscribes to:
  *  - {@link RtpsMessageReceiver} receives messages from single data channel
  *   - remove writer endpoint1
  *   - remove writer endpoint2
  *   - ...
- * 
- * }
- * </pre>
+ *
+ * }</pre>
  */
 public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
@@ -66,9 +78,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         logger = InternalUtils.getInstance().getLogger(getClass(), readerGuid.entityId);
     }
 
-    /**
-     * Contains the history of CacheChange changes for this RTPS Reader.
-     */
+    /** Contains the history of CacheChange changes for this RTPS Reader. */
     public HistoryCache<D> getReaderCache() {
         return cache;
     }
@@ -86,7 +96,10 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     public Result onData(GuidPrefix guidPrefix, Data d) {
         logger.fine("Received data {0}", d);
         addChange(
-                new CacheChange<>(new Guid(guidPrefix, d.writerId), d.writerSN.value, (D) d.serializedPayload.payload));
+                new CacheChange<>(
+                        new Guid(guidPrefix, d.writerId),
+                        d.writerSN.value,
+                        (D) d.serializedPayload.payload));
         return Result.CONTINUE;
     }
 

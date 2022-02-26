@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.InputKineticStream;
@@ -50,9 +67,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public void close() throws Exception {
-
-    }
+    public void close() throws Exception {}
 
     @Override
     public Object[] readArray(Object[] a, Class<?> type) throws Exception {
@@ -137,9 +152,9 @@ class RtpsInputKineticStream implements InputKineticStream {
         byte b = 0;
         // TODO assert length after reading
         var len = readInt();
-        while ((b = buf.get()) != 0)
-            strBuf.append((char) b);
-        XAsserts.assertEquals(len, strBuf.length() + 1 /* NULL byte */, "String length does not match");
+        while ((b = buf.get()) != 0) strBuf.append((char) b);
+        XAsserts.assertEquals(
+                len, strBuf.length() + 1 /* NULL byte */, "String length does not match");
         return strBuf.toString();
     }
 
@@ -189,49 +204,49 @@ class RtpsInputKineticStream implements InputKineticStream {
             }
             Object value = null;
             switch (parameterId) {
-            case PID_ENTITY_NAME:
-            case PID_TYPE_NAME:
-            case PID_TOPIC_NAME:
-                value = readString();
-                break;
-            case PID_BUILTIN_ENDPOINT_SET:
-                value = reader.read(BuiltinEndpointSet.class);
-                break;
-            case PID_BUILTIN_ENDPOINT_QOS:
-                value = reader.read(BuiltinEndpointQos.class);
-                break;
-            case PID_PARTICIPANT_LEASE_DURATION:
-                value = reader.read(Duration.class);
-                break;
-            case PID_UNICAST_LOCATOR:
-            case PID_DEFAULT_UNICAST_LOCATOR:
-            case PID_METATRAFFIC_UNICAST_LOCATOR:
-                value = readLocator();
-                break;
-            case PID_ENDPOINT_GUID:
-            case PID_PARTICIPANT_GUID:
-                value = reader.read(Guid.class);
-                break;
-            case PID_PROTOCOL_VERSION:
-                value = reader.read(ProtocolVersion.class);
-                break;
-            case PID_VENDORID:
-                value = reader.read(VendorId.class);
-                break;
-            case PID_USER_DATA:
-                value = new UserDataQosPolicy(readSequence());
-                break;
-            case PID_EXPECTS_INLINE_QOS:
-                value = readBool();
-                break;
-            case PID_KEY_HASH:
-                value = reader.read(KeyHash.class);
-                break;
-            case PID_RELIABILITY:
-                value = reader.read(ReliabilityQosPolicy.class);
-                break;
-            default:
-                throw new UnsupportedOperationException("Parameter id " + id);
+                case PID_ENTITY_NAME:
+                case PID_TYPE_NAME:
+                case PID_TOPIC_NAME:
+                    value = readString();
+                    break;
+                case PID_BUILTIN_ENDPOINT_SET:
+                    value = reader.read(BuiltinEndpointSet.class);
+                    break;
+                case PID_BUILTIN_ENDPOINT_QOS:
+                    value = reader.read(BuiltinEndpointQos.class);
+                    break;
+                case PID_PARTICIPANT_LEASE_DURATION:
+                    value = reader.read(Duration.class);
+                    break;
+                case PID_UNICAST_LOCATOR:
+                case PID_DEFAULT_UNICAST_LOCATOR:
+                case PID_METATRAFFIC_UNICAST_LOCATOR:
+                    value = readLocator();
+                    break;
+                case PID_ENDPOINT_GUID:
+                case PID_PARTICIPANT_GUID:
+                    value = reader.read(Guid.class);
+                    break;
+                case PID_PROTOCOL_VERSION:
+                    value = reader.read(ProtocolVersion.class);
+                    break;
+                case PID_VENDORID:
+                    value = reader.read(VendorId.class);
+                    break;
+                case PID_USER_DATA:
+                    value = new UserDataQosPolicy(readSequence());
+                    break;
+                case PID_EXPECTS_INLINE_QOS:
+                    value = readBool();
+                    break;
+                case PID_KEY_HASH:
+                    value = reader.read(KeyHash.class);
+                    break;
+                case PID_RELIABILITY:
+                    value = reader.read(ReliabilityQosPolicy.class);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Parameter id " + id);
             }
             skip(len - (buf.position() - startPos));
             LOGGER.fine(parameterId + ": " + value);
@@ -251,19 +266,24 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private Data readData() throws Exception {
         LOGGER.entering("readData");
-        var dataSubmessageStart = buf.position()
-                + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
+        var dataSubmessageStart =
+                buf.position()
+                        + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
         var data = reader.read(Data.class);
         if (data.isInlineQos())
             throw new UnsupportedOperationException("InlineQos in Data submessage");
         var payloadHeader = reader.read(SerializedPayloadHeader.class);
         LOGGER.fine("payloadHeader: {0}", payloadHeader);
-        Payload payload = switch (payloadHeader.representation_identifier.findPredefined().get()) {
-        case PL_CDR_LE -> readParameterList();
-        case CDR_LE -> readRawData(data.submessageHeader.submessageLength - (buf.position() - dataSubmessageStart));
-        default -> throw new XRuntimeException("Unknown representation identifier %s",
-                payloadHeader.representation_identifier);
-        };
+        Payload payload =
+                switch (payloadHeader.representation_identifier.findPredefined().get()) {
+                    case PL_CDR_LE -> readParameterList();
+                    case CDR_LE -> readRawData(
+                            data.submessageHeader.submessageLength
+                                    - (buf.position() - dataSubmessageStart));
+                    default -> throw new XRuntimeException(
+                            "Unknown representation identifier %s",
+                            payloadHeader.representation_identifier);
+                };
         LOGGER.fine("payload: {0}", payload);
         data.serializedPayload = new SerializedPayload(payloadHeader, payload);
         LOGGER.exiting("readData");
@@ -293,7 +313,8 @@ class RtpsInputKineticStream implements InputKineticStream {
 
             var messageClassOpt = submessageHeader.submessageKind.getSubmessageClass();
             if (messageClassOpt.isEmpty()) {
-                LOGGER.warning("Submessage kind {} is not supported", submessageHeader.submessageKind);
+                LOGGER.warning(
+                        "Submessage kind {} is not supported", submessageHeader.submessageKind);
                 skip(submessageHeader.submessageLength);
                 continue;
             }
@@ -304,7 +325,9 @@ class RtpsInputKineticStream implements InputKineticStream {
             var submessageEnd = buf.position();
             LOGGER.fine("submessageEnd: {0}", submessageEnd);
             LOGGER.fine("submessage: {0}", submessage);
-            XAsserts.assertEquals(submessageHeader.submessageLength, submessageEnd - submessageStart,
+            XAsserts.assertEquals(
+                    submessageHeader.submessageLength,
+                    submessageEnd - submessageStart,
                     "Read message size does not match expected");
         }
         LOGGER.exiting("readSubmessages");
@@ -313,12 +336,9 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private Submessage readSubmessage(Class<? extends Submessage> type) throws Exception {
         // submessages with polymorphic types inside we read manually
-        if (type == Data.class)
-            return readData();
-        else if (type == Heartbeat.class)
-            return readHeartbeat();
-        else
-            /* rest we leave for kineticstreamer */ return reader.read(type);
+        if (type == Data.class) return readData();
+        else if (type == Heartbeat.class) return readHeartbeat();
+        else /* rest we leave for kineticstreamer */ return reader.read(type);
     }
 
     private Heartbeat readHeartbeat() throws Exception {
@@ -340,18 +360,19 @@ class RtpsInputKineticStream implements InputKineticStream {
         readByteArray(buf);
         InetAddress address = null;
         switch (kind) {
-        case LOCATOR_KIND_UDPv4:
-            address = InetAddress.getByAddress(new byte[] { buf[12], buf[13], buf[14], buf[15] });
-            break;
-        case LOCATOR_KIND_UDPv6: {
-            LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, reading empty address");
-            address = InetAddress.getByAddress(new byte[4]);
-            break;
-        }
-        case LOCATOR_KIND_INVALID:
-            return Locator.INVALID;
-        default:
-            throw new XRuntimeException("Unknown locator kind %s", kind);
+            case LOCATOR_KIND_UDPv4:
+                address = InetAddress.getByAddress(new byte[] {buf[12], buf[13], buf[14], buf[15]});
+                break;
+            case LOCATOR_KIND_UDPv6:
+                {
+                    LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, reading empty address");
+                    address = InetAddress.getByAddress(new byte[4]);
+                    break;
+                }
+            case LOCATOR_KIND_INVALID:
+                return Locator.INVALID;
+            default:
+                throw new XRuntimeException("Unknown locator kind %s", kind);
         }
         LOGGER.exiting("readLocator");
         return new Locator(kind, port, address);
@@ -367,8 +388,10 @@ class RtpsInputKineticStream implements InputKineticStream {
         if (!Objects.equals(header.protocolId, ProtocolId.Predefined.RTPS.getValue())) {
             throw new NotRtpsPacketException();
         }
-        if (!Objects.equals(header.protocolVersion, ProtocolVersion.Predefined.Version_2_3.getValue())) {
-            throw new XRuntimeException("RTPS protocol version %s not supported", header.protocolVersion);
+        if (!Objects.equals(
+                header.protocolVersion, ProtocolVersion.Predefined.Version_2_3.getValue())) {
+            throw new XRuntimeException(
+                    "RTPS protocol version %s not supported", header.protocolVersion);
         }
         // TODO check little endian only
         LOGGER.fine("header: {0}", header);
@@ -393,5 +416,4 @@ class RtpsInputKineticStream implements InputKineticStream {
         LOGGER.exiting("readSequenceNumberSet");
         return new SequenceNumberSet(bitmapBase, numBits, bits);
     }
-
 }

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.structure;
 
 import id.xfunction.logging.XLogger;
@@ -15,9 +32,7 @@ public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>>
     private long seqNumMin = SequenceNumber.MIN.value;
     private long seqNumMax = SequenceNumber.MIN.value;
 
-    /**
-     * The list of CacheChanges contained in the HistoryCache.
-     */
+    /** The list of CacheChanges contained in the HistoryCache. */
     private Map<Long, CacheChange<D>> changes = new LinkedHashMap<>();
 
     public boolean addChange(CacheChange<D> change) {
@@ -61,8 +76,6 @@ public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>>
     }
 
     public Stream<CacheChange<D>> findAll(Collection<Long> seqNums) {
-        return seqNums.stream()
-                .map(changes::get)
-                .filter(change -> change != null);
+        return seqNums.stream().map(changes::get).filter(change -> change != null);
     }
 }

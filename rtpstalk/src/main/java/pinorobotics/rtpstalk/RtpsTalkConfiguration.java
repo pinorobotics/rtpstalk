@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk;
 
 import id.xfunction.XJsonStringBuilder;
@@ -15,21 +32,28 @@ public class RtpsTalkConfiguration {
     private static final String DEFAULT_NETWORK_IFACE = "eth0";
 
     /**
-     * A UDP datagram is carried in a single IP packet and is hence limited to a
-     * maximum payload of 65,507 bytes for IPv4"
-     * 
-     * https://datatracker.ietf.org/doc/html/rfc8085
+     * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload of
+     * 65,507 bytes for IPv4"
+     *
+     * <p>https://datatracker.ietf.org/doc/html/rfc8085
      */
     private static final int UDP_MAX_PACKET_SIZE = 65_507;
 
-    /**
-     * E=0 means big-endian, E=1 means little-endian.
-     */
+    /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
 
-    public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration(
-            DEFAULT_NETWORK_IFACE, 7412, 7413, UDP_MAX_PACKET_SIZE, 0, getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-            GuidPrefix.generate(), EndpointQos.NONE, new Duration(20), new Duration(1));
+    public static final RtpsTalkConfiguration DEFAULT =
+            new RtpsTalkConfiguration(
+                    DEFAULT_NETWORK_IFACE,
+                    7412,
+                    7413,
+                    UDP_MAX_PACKET_SIZE,
+                    0,
+                    getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
+                    GuidPrefix.generate(),
+                    EndpointQos.NONE,
+                    new Duration(20),
+                    new Duration(1));
 
     private String networkIface;
     private int builtInEnpointsPort;
@@ -45,7 +69,8 @@ public class RtpsTalkConfiguration {
     private Locator metatrafficMulticastLocator;
     private Duration heartbeatPeriod;
 
-    public RtpsTalkConfiguration(String networkIface,
+    public RtpsTalkConfiguration(
+            String networkIface,
             int builtInEnpointsPort,
             int userEndpointsPort,
             int packetBufferSize,
@@ -65,30 +90,30 @@ public class RtpsTalkConfiguration {
         this.builtinEndpointQos = builtinEndpointQos;
         this.leaseDuration = leaseDuration;
         this.heartbeatPeriod = heartbeatPeriod;
-        defaultUnicastLocator = new Locator(
-                LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
-        metatrafficUnicastLocator = new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
+        defaultUnicastLocator =
+                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
+        metatrafficUnicastLocator =
+                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
         metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId);
     }
 
     /**
-     * List of unicast locators (transport, address, port combinations) that can be
-     * used to send messages to the built-in Endpoints contained in the Participant.
-     * 
-     * Currently only one locator supported.
+     * List of unicast locators (transport, address, port combinations) that can be used to send
+     * messages to the built-in Endpoints contained in the Participant.
+     *
+     * <p>Currently only one locator supported.
      */
     public Locator getMetatrafficUnicastLocator() {
         return metatrafficUnicastLocator;
     }
 
     /**
-     * Default list of unicast locators (transport, address, port combinations) that
-     * can be used to send messages to the user-defined Endpoints contained in the
-     * Participant. These are the unicast locators that will be used in case the
-     * Endpoint does not specify its own set of Locators, so at least one Locator
-     * must be present.
-     * 
-     * Currently only one locator supported.
+     * Default list of unicast locators (transport, address, port combinations) that can be used to
+     * send messages to the user-defined Endpoints contained in the Participant. These are the
+     * unicast locators that will be used in case the Endpoint does not specify its own set of
+     * Locators, so at least one Locator must be present.
+     *
+     * <p>Currently only one locator supported.
      */
     public Locator getDefaultUnicastLocator() {
         return defaultUnicastLocator;
@@ -132,7 +157,10 @@ public class RtpsTalkConfiguration {
 
     private static InetAddress getNetworkIfaceIp(String networkIface) {
         try {
-            return NetworkInterface.getByName(networkIface).getInterfaceAddresses().get(0).getAddress();
+            return NetworkInterface.getByName(networkIface)
+                    .getInterfaceAddresses()
+                    .get(0)
+                    .getAddress();
         } catch (Exception e) {
             throw new XRE("Error obtaining IP address for network interface %s", networkIface);
         }
@@ -162,5 +190,4 @@ public class RtpsTalkConfiguration {
     public Duration getHeartbeatPeriod() {
         return heartbeatPeriod;
     }
-
 }

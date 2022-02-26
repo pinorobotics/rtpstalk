@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
@@ -10,85 +27,80 @@ import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 public class Heartbeat extends Submessage {
 
     /**
-     * Identifies the Reader Entity that is being informed of the availability of a
-     * set of sequence numbers. Can be set to {@link EntityId#ENTITYID_UNKNOWN} to
-     * indicate all readers for the writer that sent the message.
+     * Identifies the Reader Entity that is being informed of the availability of a set of sequence
+     * numbers. Can be set to {@link EntityId#ENTITYID_UNKNOWN} to indicate all readers for the
+     * writer that sent the message.
      */
     public EntityId readerId;
 
-    /**
-     * Identifies the Writer Entity to which the range of sequence numbers applies.
-     */
+    /** Identifies the Writer Entity to which the range of sequence numbers applies. */
     public EntityId writerId;
 
     /**
-     * If samples are available in the Writer, identifies the first (lowest)
-     * sequence number that is available in the Writer. If no samples are available
-     * in the Writer, identifies the lowest sequence number that is yet to be
-     * written by the Writer.
+     * If samples are available in the Writer, identifies the first (lowest) sequence number that is
+     * available in the Writer. If no samples are available in the Writer, identifies the lowest
+     * sequence number that is yet to be written by the Writer.
      */
     public SequenceNumber firstSN;
 
-    /**
-     * Identifies the last (highest) sequence number that the Writer has ever
-     * written
-     */
+    /** Identifies the last (highest) sequence number that the Writer has ever written */
     public SequenceNumber lastSN;
 
     /**
-     * A counter that is incremented each time a new Heartbeat message is sent.
-     * Provides the means for a Reader to detect duplicate Heartbeat messages that
-     * can result from the presence of redundant communication paths
+     * A counter that is incremented each time a new Heartbeat message is sent. Provides the means
+     * for a Reader to detect duplicate Heartbeat messages that can result from the presence of
+     * redundant communication paths
      */
     public Count count;
 
-    public Heartbeat() {
+    public Heartbeat() {}
 
-    }
-
-    public Heartbeat(EntityId readerId, EntityId writerId, SequenceNumber firstSN, SequenceNumber lastSN, Count count) {
+    public Heartbeat(
+            EntityId readerId,
+            EntityId writerId,
+            SequenceNumber firstSN,
+            SequenceNumber lastSN,
+            Count count) {
         this.readerId = readerId;
         this.writerId = writerId;
         this.firstSN = firstSN;
         this.lastSN = lastSN;
         this.count = count;
-        submessageHeader = new SubmessageHeader(SubmessageKind.Predefined.HEARTBEAT.getValue(),
-                RtpsTalkConfiguration.ENDIANESS_BIT,
-                LengthCalculator.getInstance().calculateLength(this));
+        submessageHeader =
+                new SubmessageHeader(
+                        SubmessageKind.Predefined.HEARTBEAT.getValue(),
+                        RtpsTalkConfiguration.ENDIANESS_BIT,
+                        LengthCalculator.getInstance().calculateLength(this));
     }
 
     @Override
     public List<String> getFlags() {
         var flags = super.getFlags();
-        if (isFinal())
-            flags.add("Final");
-        if (isLiveliness())
-            flags.add("Liveliness");
-        if (isGroupInfo())
-            flags.add("GroupInfo");
+        if (isFinal()) flags.add("Final");
+        if (isLiveliness()) flags.add("Liveliness");
+        if (isGroupInfo()) flags.add("GroupInfo");
         return flags;
     }
 
     /**
-     * Indicates whether the Reader is required to respond to the Heartbeat or if it
-     * is just an advisory heartbeat. If set means the Writer does not require a
-     * response from the Reader.
+     * Indicates whether the Reader is required to respond to the Heartbeat or if it is just an
+     * advisory heartbeat. If set means the Writer does not require a response from the Reader.
      */
     public boolean isFinal() {
         return (getFlagsInternal() & 2) != 0;
     }
 
     /**
-     * Indicates that the DDS DataWriter associated with the RTPS Writer of the
-     * message has manually asserted its LIVELINESS.
+     * Indicates that the DDS DataWriter associated with the RTPS Writer of the message has manually
+     * asserted its LIVELINESS.
      */
     public boolean isLiveliness() {
         return (getFlagsInternal() & 4) != 0;
     }
 
     /**
-     * Indicates the presence of additional information about the group of writers
-     * (Writer Group) the sender belongs to.
+     * Indicates the presence of additional information about the group of writers (Writer Group)
+     * the sender belongs to.
      */
     public boolean isGroupInfo() {
         return (getFlagsInternal() & 8) != 0;
@@ -97,11 +109,11 @@ public class Heartbeat extends Submessage {
     @Override
     protected Object[] getAdditionalFields() {
         return new Object[] {
-                "readerId", readerId,
-                "writerId", writerId,
-                "firstSN", firstSN,
-                "lastSN", lastSN,
-                "count", count };
+            "readerId", readerId,
+            "writerId", writerId,
+            "firstSN", firstSN,
+            "lastSN", lastSN,
+            "count", count
+        };
     }
-
 }

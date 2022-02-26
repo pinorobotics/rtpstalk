@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk;
 
 import id.xfunction.XAsserts;
@@ -46,7 +63,8 @@ public class RtpsTalkClient {
         userService = new UserDataService(config, channelFactory);
     }
 
-    public void subscribe(String topic, String type, EntityId entityId, Subscriber<RawData> subscriber) {
+    public void subscribe(
+            String topic, String type, EntityId entityId, Subscriber<RawData> subscriber) {
         if (!isStarted) {
             start();
         }
@@ -54,7 +72,11 @@ public class RtpsTalkClient {
         userService.subscribe(entityId, subscriber);
     }
 
-    public void publish(String topic, String type, EntityId writerEntityId, EntityId readerEntityId,
+    public void publish(
+            String topic,
+            String type,
+            EntityId writerEntityId,
+            EntityId readerEntityId,
             Publisher<RawData> publisher) {
         if (!isStarted) {
             start();
@@ -78,37 +100,61 @@ public class RtpsTalkClient {
         LOGGER.exiting("start");
     }
 
-    private ParameterList createSubscriptionData(String topicName, String typeName, EntityId entityId) {
-        var params = List.<Entry<ParameterId, Object>>of(
-                Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
-                Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
-                        config.getGuidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(
-                        0x01, 0x0f, 0xeb, 0x7d, 0x5f, 0xfa, 0x9f, 0xe4, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12,
-                        0x04)),
-                Map.entry(ParameterId.PID_ENDPOINT_GUID,
-                        new Guid(config.getGuidPrefix(), entityId)),
-                Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
-                Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
+    private ParameterList createSubscriptionData(
+            String topicName, String typeName, EntityId entityId) {
+        var params =
+                List.<Entry<ParameterId, Object>>of(
+                        Map.entry(
+                                ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
+                        Map.entry(
+                                ParameterId.PID_PARTICIPANT_GUID,
+                                new Guid(
+                                        config.getGuidPrefix(),
+                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
+                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
+                        Map.entry(
+                                ParameterId.PID_KEY_HASH,
+                                new KeyHash(
+                                        0x01, 0x0f, 0xeb, 0x7d, 0x5f, 0xfa, 0x9f, 0xe4, 0x01, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x12, 0x04)),
+                        Map.entry(
+                                ParameterId.PID_ENDPOINT_GUID,
+                                new Guid(config.getGuidPrefix(), entityId)),
+                        Map.entry(
+                                ParameterId.PID_PROTOCOL_VERSION,
+                                ProtocolVersion.Predefined.Version_2_3.getValue()),
+                        Map.entry(
+                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
         return new ParameterList(params);
     }
 
-    private ParameterList createPublicationData(String topicName, String typeName, EntityId entityId) {
+    private ParameterList createPublicationData(
+            String topicName, String typeName, EntityId entityId) {
         var guid = new Guid(config.getGuidPrefix(), entityId);
-        var params = List.<Entry<ParameterId, Object>>of(
-                Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
-                Map.entry(ParameterId.PID_PARTICIPANT_GUID, new Guid(
-                        config.getGuidPrefix(), EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(guid)),
-                Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
-                Map.entry(ParameterId.PID_PROTOCOL_VERSION, ProtocolVersion.Predefined.Version_2_3.getValue()),
-                Map.entry(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
-                Map.entry(ParameterId.PID_RELIABILITY,
-                        new ReliabilityQosPolicy(ReliabilityKind.RELIABLE, Duration.Predefined.ZERO.getValue())));
+        var params =
+                List.<Entry<ParameterId, Object>>of(
+                        Map.entry(
+                                ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
+                        Map.entry(
+                                ParameterId.PID_PARTICIPANT_GUID,
+                                new Guid(
+                                        config.getGuidPrefix(),
+                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
+                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
+                        Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(guid)),
+                        Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
+                        Map.entry(
+                                ParameterId.PID_PROTOCOL_VERSION,
+                                ProtocolVersion.Predefined.Version_2_3.getValue()),
+                        Map.entry(
+                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
+                        Map.entry(
+                                ParameterId.PID_RELIABILITY,
+                                new ReliabilityQosPolicy(
+                                        ReliabilityKind.RELIABLE,
+                                        Duration.Predefined.ZERO.getValue())));
         return new ParameterList(params);
     }
 }

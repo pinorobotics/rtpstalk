@@ -1,12 +1,28 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
+import id.xfunction.XJsonStringBuilder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import id.xfunction.XJsonStringBuilder;
 
 public class Timestamp implements SubmessageElement {
 
@@ -15,8 +31,8 @@ public class Timestamp implements SubmessageElement {
         TIME_INVALID(new Timestamp(0xffffffff, 0xffffffff)),
         TIME_INFINITE(new Timestamp(0xffffffff, 0xfffffffe));
 
-        static final Map<Timestamp, Predefined> MAP = Arrays.stream(Predefined.values())
-                .collect(Collectors.toMap(k -> k.value, v -> v));
+        static final Map<Timestamp, Predefined> MAP =
+                Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
         private Timestamp value;
 
         Predefined(Timestamp value) {
@@ -30,9 +46,7 @@ public class Timestamp implements SubmessageElement {
 
     public int seconds;
 
-    /**
-     * Time in sec/2^32
-     */
+    /** Time in sec/2^32 */
     public int fraction;
 
     public Timestamp() {
@@ -51,12 +65,9 @@ public class Timestamp implements SubmessageElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Timestamp other = (Timestamp) obj;
         return fraction == other.fraction && seconds == other.seconds;
     }
@@ -78,5 +89,4 @@ public class Timestamp implements SubmessageElement {
         var fraction = secs / (1 << 31);
         return new Timestamp(secs, fraction);
     }
-
 }

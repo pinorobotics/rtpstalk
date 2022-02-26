@@ -1,11 +1,28 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.messages;
 
+import id.xfunction.XJsonStringBuilder;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
-import id.xfunction.XJsonStringBuilder;
 
 public record Locator(LocatorKind kind, int port, InetAddress address) {
 
@@ -27,7 +44,9 @@ public record Locator(LocatorKind kind, int port, InetAddress address) {
 
     public static Locator createDefaultMulticastLocator(int domainId) {
         try {
-            return new Locator(LocatorKind.LOCATOR_KIND_UDPv4, PortNumberParameters.DEFAULT.getMultiCastPort(domainId),
+            return new Locator(
+                    LocatorKind.LOCATOR_KIND_UDPv4,
+                    PortNumberParameters.DEFAULT.getMultiCastPort(domainId),
                     InetAddress.getByName("239.255.0.1"));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);

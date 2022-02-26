@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.discovery.sedp;
 
 import id.xfunction.XAsserts;
@@ -23,10 +40,9 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
- * Using the SPDPbuiltinParticipantReader, a local Participant local_participant
- * discovers the existence of another Participant described by the
- * DiscoveredParticipantData participant_data. The discovered Participant uses
- * the SEDP (8.5.5.1 Discovery of a new remote Participant)
+ * Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
+ * existence of another Participant described by the DiscoveredParticipantData participant_data. The
+ * discovered Participant uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
 public class SedpService extends XSubscriber<ParameterList> {
 
@@ -78,9 +94,7 @@ public class SedpService extends XSubscriber<ParameterList> {
     }
 
     @Override
-    public void onComplete() {
-
-    }
+    public void onComplete() {}
 
     public StatefullRtpsReader<ParameterList> getPublicationsReader() {
         return publicationsReader;
@@ -100,16 +114,37 @@ public class SedpService extends XSubscriber<ParameterList> {
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {
-            if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR) instanceof Locator locator) {
+            if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR)
+                    instanceof Locator locator) {
                 var unicast = List.of(locator);
-                configure(availableEndpoints, guid.guidPrefix, subscriptionsReader, null,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guid.guidPrefix, null, subscriptionsWriter,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR, unicast);
-                configure(availableEndpoints, guid.guidPrefix, publicationsReader, null,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER, unicast);
-                configure(availableEndpoints, guid.guidPrefix, null, publicationsWriter,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR, unicast);
+                configure(
+                        availableEndpoints,
+                        guid.guidPrefix,
+                        subscriptionsReader,
+                        null,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
+                        unicast);
+                configure(
+                        availableEndpoints,
+                        guid.guidPrefix,
+                        null,
+                        subscriptionsWriter,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
+                        unicast);
+                configure(
+                        availableEndpoints,
+                        guid.guidPrefix,
+                        publicationsReader,
+                        null,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
+                        unicast);
+                configure(
+                        availableEndpoints,
+                        guid.guidPrefix,
+                        null,
+                        publicationsWriter,
+                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
+                        unicast);
             } else {
                 LOGGER.fine("Participant has no locator defined, ignoring...");
             }
@@ -118,10 +153,13 @@ public class SedpService extends XSubscriber<ParameterList> {
         }
     }
 
-    private void configure(BuiltinEndpointSet availableRemoteEndpoints, GuidPrefix guidPrefix,
+    private void configure(
+            BuiltinEndpointSet availableRemoteEndpoints,
+            GuidPrefix guidPrefix,
             StatefullRtpsReader<ParameterList> reader,
             StatefullRtpsWriter<ParameterList> writer,
-            Endpoint remoteEndpoint, List<Locator> unicast) {
+            Endpoint remoteEndpoint,
+            List<Locator> unicast) {
         if (remoteEndpoint.getType() == EndpointType.READER) {
             XAsserts.assertNotNull(writer, "Writer endpoint requires non null writer");
         }
@@ -129,26 +167,25 @@ public class SedpService extends XSubscriber<ParameterList> {
             XAsserts.assertNotNull(reader, "Reader endpoint requires non null reader");
         }
         if (!availableRemoteEndpoints.hasEndpoint(remoteEndpoint)) {
-            LOGGER.fine(
-                    "Participant does not support {0} endpoint, ignoring...", remoteEndpoint);
+            LOGGER.fine("Participant does not support {0} endpoint, ignoring...", remoteEndpoint);
             return;
         }
         LOGGER.fine("Configuring remote endpoint {0}...", remoteEndpoint);
         var remoteGuid = new Guid(guidPrefix, remoteEndpoint.getEntityId().getValue());
         switch (remoteEndpoint.getType()) {
-        case WRITER:
-            reader.matchedWriterAdd(remoteGuid, unicast);
-            break;
-        case READER:
-            try {
-                writer.matchedReaderAdd(remoteGuid, unicast);
-            } catch (IOException e) {
-                LOGGER.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
-                e.printStackTrace();
-            }
-            break;
-        default:
-            break;
+            case WRITER:
+                reader.matchedWriterAdd(remoteGuid, unicast);
+                break;
+            case READER:
+                try {
+                    writer.matchedReaderAdd(remoteGuid, unicast);
+                } catch (IOException e) {
+                    LOGGER.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
+                    e.printStackTrace();
+                }
+                break;
+            default:
+                break;
         }
     }
 

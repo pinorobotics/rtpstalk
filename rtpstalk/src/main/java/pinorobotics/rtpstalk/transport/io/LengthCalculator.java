@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.transport.io;
 
 import id.xfunction.lang.XRE;
@@ -47,95 +64,76 @@ public class LengthCalculator {
 
     public int getFixedLength(Class<?> clazz) {
         var len = getFixedLengthInternal(clazz);
-        if (len == -1)
-            throw new XRE("Fixed length is unknown for type %s", clazz);
+        if (len == -1) throw new XRE("Fixed length is unknown for type %s", clazz);
         return len;
     }
 
     // TODO add all to HashMap to avoid recalculations
     public int getFixedLengthInternal(Class<?> clazz) {
-        if (clazz == EntityId.class)
-            return EntityId.SIZE + 1;
-        if (clazz == BuiltinEndpointSet.class)
-            return Integer.BYTES;
-        if (clazz == SequenceNumber.class)
-            return Integer.BYTES * 2;
-        if (clazz == Timestamp.class)
-            return Integer.BYTES * 2;
-        if (clazz == ParameterId.class)
-            return Short.BYTES;
-        if (clazz == Duration.class)
-            return Integer.BYTES * 2;
-        if (clazz == LocatorKind.class)
-            return Integer.BYTES;
-        if (clazz == GuidPrefix.class)
-            return GuidPrefix.SIZE;
-        if (clazz == ProtocolVersion.class)
-            return 2;
-        if (clazz == VendorId.class)
-            return 2;
-        if (clazz == InfoTimestamp.class)
-            return getFixedLength(Timestamp.class);
-        if (clazz == InfoDestination.class)
-            return getFixedLength(GuidPrefix.class);
-        if (clazz == RepresentationIdentifier.class)
-            return RepresentationIdentifier.SIZE;
+        if (clazz == EntityId.class) return EntityId.SIZE + 1;
+        if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
+        if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
+        if (clazz == Timestamp.class) return Integer.BYTES * 2;
+        if (clazz == ParameterId.class) return Short.BYTES;
+        if (clazz == Duration.class) return Integer.BYTES * 2;
+        if (clazz == LocatorKind.class) return Integer.BYTES;
+        if (clazz == GuidPrefix.class) return GuidPrefix.SIZE;
+        if (clazz == ProtocolVersion.class) return 2;
+        if (clazz == VendorId.class) return 2;
+        if (clazz == InfoTimestamp.class) return getFixedLength(Timestamp.class);
+        if (clazz == InfoDestination.class) return getFixedLength(GuidPrefix.class);
+        if (clazz == RepresentationIdentifier.class) return RepresentationIdentifier.SIZE;
         if (clazz == SerializedPayloadHeader.class)
             return SerializedPayloadHeader.SIZE + getFixedLength(RepresentationIdentifier.class);
-        if (clazz == SubmessageKind.class)
-            return 1;
+        if (clazz == SubmessageKind.class) return 1;
         if (clazz == SubmessageHeader.class)
             return getFixedLength(SubmessageKind.class) + 1 + Short.BYTES;
         if (clazz == Locator.class)
             return getFixedLength(LocatorKind.class) + Integer.BYTES + ADDRESS_SIZE;
         if (clazz == Guid.class)
             return getFixedLength(GuidPrefix.class) + getFixedLength(EntityId.class);
-        if (clazz == Count.class)
-            return Integer.BYTES;
-        if (clazz == BuiltinEndpointQos.class)
-            return Integer.BYTES;
+        if (clazz == Count.class) return Integer.BYTES;
+        if (clazz == BuiltinEndpointQos.class) return Integer.BYTES;
         if (clazz == ReliabilityQosPolicy.class)
             return Integer.BYTES + getFixedLength(Duration.class);
-        if (clazz == KeyHash.class)
-            return KeyHash.SIZE;
+        if (clazz == KeyHash.class) return KeyHash.SIZE;
         if (clazz == Heartbeat.class)
-            return getFixedLength(EntityId.class) * 2 + getFixedLength(SequenceNumber.class) * 2
+            return getFixedLength(EntityId.class) * 2
+                    + getFixedLength(SequenceNumber.class) * 2
                     + getFixedLength(Count.class);
         return -1;
     }
 
     public int calculateLength(Object obj) {
         var len = getFixedLengthInternal(obj.getClass());
-        if (len != -1)
-            return len;
+        if (len != -1) return len;
         if (obj instanceof Data d)
-            return Short.BYTES * 2 + getFixedLength(EntityId.class) * 2
+            return Short.BYTES * 2
+                    + getFixedLength(EntityId.class) * 2
                     + getFixedLength(SequenceNumber.class)
                     + calculateLength(d.serializedPayload);
         if (obj instanceof SerializedPayload p)
-            return getFixedLength(SerializedPayloadHeader.class)
-                    + calculateLength(p.payload);
+            return getFixedLength(SerializedPayloadHeader.class) + calculateLength(p.payload);
         if (obj instanceof ParameterList pl)
             return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
                     + pl.getParameters().entrySet().stream()
                             .mapToInt(this::calculateParameterLength)
                             .sum();
-        if (obj instanceof String s)
-            return s.length() + 1 + Integer.BYTES;
-        if (obj instanceof UserDataQosPolicy policy)
-            return calculateLength(policy.value);
-        if (obj instanceof ByteSequence seq)
-            return Integer.BYTES + seq.length;
+        if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
+        if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);
+        if (obj instanceof ByteSequence seq) return Integer.BYTES + seq.length;
         if (obj instanceof AckNack ackNack) {
-            return getFixedLength(EntityId.class) * 2 + calculateLength(ackNack.readerSNState)
+            return getFixedLength(EntityId.class) * 2
+                    + calculateLength(ackNack.readerSNState)
                     + getFixedLength(Count.class);
         }
         if (obj instanceof SequenceNumberSet set)
-            return getFixedLength(SequenceNumber.class) + Integer.BYTES + Integer.BYTES * set.bitmap.length;
+            return getFixedLength(SequenceNumber.class)
+                    + Integer.BYTES
+                    + Integer.BYTES * set.bitmap.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
-        if (obj instanceof RawData rawData)
-            return rawData.data.length;
+        if (obj instanceof RawData rawData) return rawData.data.length;
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 
@@ -147,24 +145,27 @@ public class LengthCalculator {
 
     public int calculateParameterValueLength(Entry<ParameterId, ?> param) {
         ParameterId id = param.getKey();
-        var len = switch (id) {
-        case PID_ENTITY_NAME -> calculateLength(param.getValue());
-        case PID_TOPIC_NAME -> calculateLength(param.getValue());
-        case PID_TYPE_NAME -> calculateLength(param.getValue());
-        case PID_KEY_HASH -> getFixedLength(KeyHash.class);
-        case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
-        case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
-        case PID_DEFAULT_UNICAST_LOCATOR, PID_METATRAFFIC_UNICAST_LOCATOR, PID_UNICAST_LOCATOR -> getFixedLength(
-                Locator.class);
-        case PID_PARTICIPANT_GUID, PID_ENDPOINT_GUID -> getFixedLength(Guid.class);
-        case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
-        case PID_VENDORID -> getFixedLength(VendorId.class);
-        case PID_SENTINEL -> 0;
-        case PID_USER_DATA -> calculateLength(param.getValue());
-        case PID_BUILTIN_ENDPOINT_QOS -> getFixedLength(BuiltinEndpointQos.class);
-        case PID_RELIABILITY -> getFixedLength(ReliabilityQosPolicy.class);
-        default -> throw new XRE("Cannot calculate length for an unknown parameter id %s", id);
-        };
+        var len =
+                switch (id) {
+                    case PID_ENTITY_NAME -> calculateLength(param.getValue());
+                    case PID_TOPIC_NAME -> calculateLength(param.getValue());
+                    case PID_TYPE_NAME -> calculateLength(param.getValue());
+                    case PID_KEY_HASH -> getFixedLength(KeyHash.class);
+                    case PID_BUILTIN_ENDPOINT_SET -> getFixedLength(BuiltinEndpointSet.class);
+                    case PID_PARTICIPANT_LEASE_DURATION -> getFixedLength(Duration.class);
+                    case PID_DEFAULT_UNICAST_LOCATOR,
+                            PID_METATRAFFIC_UNICAST_LOCATOR,
+                            PID_UNICAST_LOCATOR -> getFixedLength(Locator.class);
+                    case PID_PARTICIPANT_GUID, PID_ENDPOINT_GUID -> getFixedLength(Guid.class);
+                    case PID_PROTOCOL_VERSION -> getFixedLength(ProtocolVersion.class);
+                    case PID_VENDORID -> getFixedLength(VendorId.class);
+                    case PID_SENTINEL -> 0;
+                    case PID_USER_DATA -> calculateLength(param.getValue());
+                    case PID_BUILTIN_ENDPOINT_QOS -> getFixedLength(BuiltinEndpointQos.class);
+                    case PID_RELIABILITY -> getFixedLength(ReliabilityQosPolicy.class);
+                    default -> throw new XRE(
+                            "Cannot calculate length for an unknown parameter id %s", id);
+                };
 
         /*
          * 9.4.2.11 ParameterList A ParameterList contains a list of Parameters,

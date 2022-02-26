@@ -1,12 +1,28 @@
+/*
+ * Copyright 2022 rtpstalk project
+ * 
+ * Website: https://github.com/pinorobotics/rtpstalk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pinorobotics.rtpstalk.messages.submessages;
 
+import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import id.xfunction.XJsonStringBuilder;
 
 public class SubmessageKind {
 
@@ -51,8 +67,8 @@ public class SubmessageKind {
         /** DataFrag */
         DATA_FRAG(new SubmessageKind(0x16), InfoTimestamp.class);
 
-        static final Map<SubmessageKind, Predefined> MAP = Arrays.stream(Predefined.values())
-                .collect(Collectors.toMap(k -> k.value, v -> v));
+        static final Map<SubmessageKind, Predefined> MAP =
+                Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
         private SubmessageKind value;
         private Class<? extends Submessage> messageClass;
 
@@ -68,17 +84,14 @@ public class SubmessageKind {
 
     public byte value;
 
-    public SubmessageKind() {
-
-    }
+    public SubmessageKind() {}
 
     public SubmessageKind(int value) {
         this.value = (byte) value;
     }
 
     public Optional<Class<? extends Submessage>> getSubmessageClass() {
-        return Optional.ofNullable(Predefined.MAP.get(this))
-                .map(val -> val.messageClass);
+        return Optional.ofNullable(Predefined.MAP.get(this)).map(val -> val.messageClass);
     }
 
     @Override
@@ -88,12 +101,9 @@ public class SubmessageKind {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         SubmessageKind other = (SubmessageKind) obj;
         return value == other.value;
     }
@@ -108,5 +118,4 @@ public class SubmessageKind {
         builder.append("value", value);
         return builder.toString();
     }
-
 }
