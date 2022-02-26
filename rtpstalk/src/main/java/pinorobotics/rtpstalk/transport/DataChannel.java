@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class DataChannel {
     private static final XLogger LOGGER = XLogger.getLogger(DataChannel.class);
 

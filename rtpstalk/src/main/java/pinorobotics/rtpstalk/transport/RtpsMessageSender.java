@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsMessageSender extends XSubscriber<RtpsMessage> {
 
     private final XLogger logger;

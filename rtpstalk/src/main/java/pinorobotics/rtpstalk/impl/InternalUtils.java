@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl;
 import id.xfunction.logging.XLogger;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class InternalUtils {
 
     private static final InternalUtils INSTANCE = new InternalUtils();

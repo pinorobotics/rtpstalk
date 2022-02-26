@@ -51,6 +51,7 @@ import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         implements Runnable, AutoCloseable {
 

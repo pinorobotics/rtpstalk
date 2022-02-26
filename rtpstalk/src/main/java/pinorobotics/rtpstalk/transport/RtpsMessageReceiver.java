@@ -35,6 +35,8 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
  * send RTPS messages. When reader is subscribed to the data channel it is going to receive all RTPS
  * messages from it. Since one RTPS message can contain submessages which belong to different
  * readers it is reader responsibility to filter them out.
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
     private final XLogger logger;

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.messages;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class BuiltinTopicKey {
 
     public int[] value = new int[3];

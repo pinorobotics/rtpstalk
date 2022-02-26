@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages.submessages;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RawData implements Payload {
 
     public byte[] data;

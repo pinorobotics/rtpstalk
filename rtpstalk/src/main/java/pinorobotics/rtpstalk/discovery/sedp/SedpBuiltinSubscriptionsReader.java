@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<ParameterList> {
 
     public SedpBuiltinSubscriptionsReader(RtpsTalkConfiguration config) {

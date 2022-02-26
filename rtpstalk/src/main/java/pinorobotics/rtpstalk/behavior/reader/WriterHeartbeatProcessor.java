@@ -41,6 +41,7 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
  *
  * <p>8.4.15.2 Efficient use of Gap and AckNack Submessages
  */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class WriterHeartbeatProcessor {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterHeartbeatProcessor.class);

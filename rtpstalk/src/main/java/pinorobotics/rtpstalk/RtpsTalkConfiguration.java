@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsTalkConfiguration {
 
     private static final String DEFAULT_NETWORK_IFACE = "eth0";

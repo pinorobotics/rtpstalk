@@ -17,7 +17,11 @@
  */
 package pinorobotics.rtpstalk.exceptions;
 
-/** Generic runtime exception for all <b>rtpstalk</b> operations. */
+/**
+ * Generic runtime exception for all <b>rtpstalk</b> operations.
+ *
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RtpsTalkException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

@@ -24,6 +24,7 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public record Locator(LocatorKind kind, int port, InetAddress address) {
 
     public static final Locator EMPTY_IPV6 = createEmpty(LocatorKind.LOCATOR_KIND_UDPv6);

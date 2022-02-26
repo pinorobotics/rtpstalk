@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.XJsonStringBuilder;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class ByteSequence implements Sequence {
 
     public int length;

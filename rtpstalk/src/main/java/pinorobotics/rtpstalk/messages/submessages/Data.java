@@ -22,6 +22,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class Data extends Submessage {
 
     public short extraFlags;

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 import java.util.HashMap;
 import java.util.Map;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public enum ParameterId {
     PID_ENTITY_NAME(0x0062),
     PID_BUILTIN_ENDPOINT_SET(0x0058),

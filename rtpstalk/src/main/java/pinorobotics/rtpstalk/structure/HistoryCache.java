@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);

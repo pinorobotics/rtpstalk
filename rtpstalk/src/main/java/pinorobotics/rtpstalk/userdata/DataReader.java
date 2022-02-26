@@ -22,6 +22,7 @@ import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class DataReader extends StatefullRtpsReader<RawData> {
 
     public DataReader(RtpsTalkConfiguration config, EntityId entityId) {

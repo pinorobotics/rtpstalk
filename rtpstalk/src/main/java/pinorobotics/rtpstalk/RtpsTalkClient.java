@@ -41,6 +41,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
+/** @author lambdaprime intid@protonmail.com */
 public class RtpsTalkClient {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsTalkClient.class);

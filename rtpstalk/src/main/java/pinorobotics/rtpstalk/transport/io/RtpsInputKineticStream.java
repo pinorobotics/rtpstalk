@@ -56,6 +56,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 class RtpsInputKineticStream implements InputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);

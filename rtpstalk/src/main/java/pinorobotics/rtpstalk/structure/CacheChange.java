@@ -22,6 +22,7 @@ import java.util.Objects;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class CacheChange<D extends Payload> {
 
     private Guid writerGuid;

@@ -25,6 +25,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 /**
  * The Header identifies the message as belonging to the RTPS protocol. The Header identifies the
  * version of the protocol and the vendor that sent the message.
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Header {
 

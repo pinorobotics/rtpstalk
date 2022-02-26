@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class BuiltinEndpointSet {
 
     public static enum EndpointType {

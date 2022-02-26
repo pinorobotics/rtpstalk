@@ -21,6 +21,7 @@ import static pinorobotics.rtpstalk.messages.TrafficType.*;
 
 import pinorobotics.rtpstalk.messages.TrafficType;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public record PortNumberParameters(
         int DomainIdGain,
         int ParticipantIdGain,

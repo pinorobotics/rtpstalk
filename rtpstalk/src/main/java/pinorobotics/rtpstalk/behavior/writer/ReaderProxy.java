@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class ReaderProxy {
 
     private Guid remoteReaderGuid;

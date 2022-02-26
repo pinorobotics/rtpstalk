@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterList>
         implements Runnable, AutoCloseable {
 

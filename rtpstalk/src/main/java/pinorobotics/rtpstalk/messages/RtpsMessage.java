@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsMessage {
 
     public Header header;

@@ -25,6 +25,7 @@ import id.xfunction.XJsonStringBuilder;
  * information about individual sequence numbers within a range. The sequence numbers represented in
  * the SequenceNumberSet are limited to belong to an interval with a range no bigger than 256.
  */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SequenceNumberSet {
 
     /** First sequence number in the set, must be >= 1 (9.4.2.6 SequenceNumberSet) */

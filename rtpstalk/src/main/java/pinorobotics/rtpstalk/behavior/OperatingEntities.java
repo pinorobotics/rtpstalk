@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
+/** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
     private static final OperatingEntities INSTANCE = new OperatingEntities();

@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpService implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpService.class);

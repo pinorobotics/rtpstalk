@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /** Stateless RTPS writer (best-effort reliability). */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
 
     private DataChannelFactory channelFactory;

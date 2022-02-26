@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsSubmessagesWalker {
 
     public void walk(RtpsMessage message, RtpsSubmessageVisitor visitor) {

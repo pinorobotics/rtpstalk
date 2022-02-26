@@ -25,6 +25,7 @@ import java.nio.channels.DatagramChannel;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Locator;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class DataChannelFactory {
 
     private RtpsTalkConfiguration config;

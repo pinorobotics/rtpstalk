@@ -16,5 +16,5 @@
  * limitations under the License.
  */
 package pinorobotics.rtpstalk.messages;
-
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public interface Sequence {}

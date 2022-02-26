@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 class RtpsOutputKineticStream implements OutputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);

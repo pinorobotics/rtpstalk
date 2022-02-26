@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.messages.submessages;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.messages.submessages.elements.SubmessageElement;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SerializedPayload implements SubmessageElement {
 
     public SerializedPayloadHeader serializedPayloadHeader;

@@ -33,6 +33,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpDiscoveredParticipantDataFactory {
 
     public ParameterList createData(RtpsTalkConfiguration config) {

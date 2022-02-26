@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.transport.io.exceptions;
 
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class UnsupportedProtocolVersion extends Exception {
 
     private static final long serialVersionUID = 1L;

@@ -21,6 +21,7 @@ import id.xfunction.XAsserts;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class KeyHash implements Sequence {
 
     public static final int SIZE = 16;

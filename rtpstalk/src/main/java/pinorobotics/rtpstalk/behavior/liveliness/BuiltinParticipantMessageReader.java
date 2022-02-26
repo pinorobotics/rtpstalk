@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
 /** Reliable liveliness reader */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class BuiltinParticipantMessageReader extends StatefullRtpsReader<ParameterList> {
 
     public BuiltinParticipantMessageReader(RtpsTalkConfiguration config) {

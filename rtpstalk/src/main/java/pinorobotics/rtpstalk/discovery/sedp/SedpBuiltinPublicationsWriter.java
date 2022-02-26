@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
+/** @author lambdaprime intid@protonmail.com */
 public class SedpBuiltinPublicationsWriter extends StatefullRtpsWriter<ParameterList> {
 
     public SedpBuiltinPublicationsWriter(

@@ -19,7 +19,11 @@ package pinorobotics.rtpstalk.messages;
 
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
-/** GroupDigest is used to communicate a set of {@link EntityId} in a compact manner */
+/**
+ * GroupDigest is used to communicate a set of {@link EntityId} in a compact manner
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class GroupDigest {
 
     public int value;

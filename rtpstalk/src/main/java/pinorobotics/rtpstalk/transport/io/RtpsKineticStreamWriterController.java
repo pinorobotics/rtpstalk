@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 class RtpsKineticStreamWriterController extends KineticStreamWriterController {
 
     @Override

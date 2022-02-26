@@ -21,6 +21,7 @@ import id.kineticstreamer.KineticStreamWriter;
 import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsMessageWriter {
 
     public void writeRtpsMessage(RtpsMessage data, ByteBuffer buf) throws Exception {

@@ -22,6 +22,7 @@ import java.util.Objects;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class Guid {
 
     public GuidPrefix guidPrefix;

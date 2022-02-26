@@ -26,6 +26,8 @@ import id.xfunction.XJsonStringBuilder;
  * time the write operation may block waiting for space to become available. If max_blocking_time
  * elapses before the DataWriter is able to store the modification without exceeding the limits, the
  * write operation will fail and return TIMEOUT (2.2.2.4.2.11 write)
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class ReliabilityQosPolicy {
 

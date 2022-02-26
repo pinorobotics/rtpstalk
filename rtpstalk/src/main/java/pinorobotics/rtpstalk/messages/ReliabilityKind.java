@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public enum ReliabilityKind {
     BEST_EFFORT(1),
     RELIABLE(2);

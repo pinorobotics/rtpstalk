@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class ParticipantProxy {
 
     /** Identifies the DDS domainId of the associated DDS DomainParticipant. */

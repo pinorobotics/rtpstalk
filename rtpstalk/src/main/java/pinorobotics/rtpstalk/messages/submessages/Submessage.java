@@ -21,7 +21,11 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Each RTPS Message consists of a variable number of RTPS Submessage parts. */
+/**
+ * Each RTPS Message consists of a variable number of RTPS Submessage parts.
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public abstract class Submessage {
 
     /**

@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.transport.io.exceptions;
 
 import pinorobotics.rtpstalk.messages.submessages.SubmessageKind;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class UnsupportedSubmessageKindException extends Exception {
 
     private static final long serialVersionUID = 1L;

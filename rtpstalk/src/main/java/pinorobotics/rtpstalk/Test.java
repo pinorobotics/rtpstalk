@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class Test {
 
     public static void main(String[] args) throws Exception {

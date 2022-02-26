@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SedpBuiltinSubscriptionsWriter extends StatefullRtpsWriter<ParameterList> {
 
     public SedpBuiltinSubscriptionsWriter(

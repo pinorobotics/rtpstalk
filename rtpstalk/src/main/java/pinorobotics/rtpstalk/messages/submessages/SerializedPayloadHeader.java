@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.messages.submessages;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class SerializedPayloadHeader {
 
     public static final int SIZE = 2;

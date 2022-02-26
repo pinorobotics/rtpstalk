@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 /** Uniquely identifies the Participant within the Domain */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class GuidPrefix implements SubmessageElement {
 
     public static final int SIZE = 12;

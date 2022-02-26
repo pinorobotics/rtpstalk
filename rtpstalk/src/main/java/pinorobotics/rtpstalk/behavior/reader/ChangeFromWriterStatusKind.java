@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior.reader;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public enum ChangeFromWriterStatusKind {
     /**
      * The changes with status {@link #MISSING} represent the set of changes available in the

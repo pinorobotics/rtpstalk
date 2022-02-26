@@ -42,6 +42,7 @@ import pinorobotics.rtpstalk.structure.CacheChange;
  * #matchedWriterAdd(Guid, List)} when another doing {@link #process(RtpsMessage)} and that
  * happening at the same time.
  */
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class ParameterList implements SubmessageElement, Payload {
 
     public Map<ParameterId, Object> params = new LinkedHashMap<>();

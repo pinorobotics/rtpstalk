@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages.walk;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public enum Result {
     STOP,
     CONTINUE

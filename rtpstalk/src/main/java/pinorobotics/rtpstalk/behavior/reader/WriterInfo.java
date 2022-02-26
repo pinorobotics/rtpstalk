@@ -17,4 +17,5 @@
  */
 package pinorobotics.rtpstalk.behavior.reader;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public record WriterInfo(WriterProxy proxy, WriterHeartbeatProcessor heartbeatProcessor) {}

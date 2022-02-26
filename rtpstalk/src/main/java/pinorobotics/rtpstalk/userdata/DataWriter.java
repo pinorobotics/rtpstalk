@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class DataWriter extends StatefullRtpsWriter<RawData> {
 
     public DataWriter(

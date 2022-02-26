@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
+/** @author aeon_flux aeon_flux@eclipso.ch */
 public class AckNack extends Submessage {
 
     /**
