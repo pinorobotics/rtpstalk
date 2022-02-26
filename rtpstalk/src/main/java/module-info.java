@@ -15,12 +15,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-/*
- * Authors: - aeon_flux <aeon_flux@eclipso.ch>
- */
 /**
+ * Java client for RTPS (Real-time Publish-Subscribe) protocol.
+ *
  * @see <a href="https://github.com/pinorobotics/rtpstalk/releases">Download</a>
  * @see <a href="https://github.com/pinorobotics/rtpstalk">Github</a>
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 module rtpstalk {
     exports pinorobotics.rtpstalk;

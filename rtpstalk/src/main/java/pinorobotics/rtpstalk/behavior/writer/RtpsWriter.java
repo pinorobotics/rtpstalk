@@ -77,7 +77,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     }
 
     /**
-     * @param pushMode Note that for a {@link ReliabilityKind.BEST_EFFORT} Writer, pushMode is true,
+     * @param pushMode Note that for a {@link ReliabilityKind#BEST_EFFORT} Writer, pushMode is true,
      *     as there are no acknowledgments. Therefore, the Writer always pushes out data as it
      *     becomes available (8.4.9.1.1)
      */

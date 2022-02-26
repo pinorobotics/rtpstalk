@@ -28,8 +28,8 @@ public class Heartbeat extends Submessage {
 
     /**
      * Identifies the Reader Entity that is being informed of the availability of a set of sequence
-     * numbers. Can be set to {@link EntityId#ENTITYID_UNKNOWN} to indicate all readers for the
-     * writer that sent the message.
+     * numbers. Can be set to {@link EntityId.Predefined#ENTITYID_UNKNOWN} to indicate all readers
+     * for the writer that sent the message.
      */
     public EntityId readerId;
 

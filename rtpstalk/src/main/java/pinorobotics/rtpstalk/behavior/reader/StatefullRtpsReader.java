@@ -39,7 +39,7 @@ import pinorobotics.rtpstalk.structure.CacheChange;
  * Reliable Statefull RTPS reader.
  *
  * <p>This should be thread safe since it is possible that one thread will be calling {@link
- * #matchedWriterAdd(WriterProxy)} when another doing {@link #process(RtpsMessage)} and that
+ * #matchedWriterAdd(Guid, List)} when another doing {@link #process(RtpsMessage)} and that
  * happening at the same time.
  */
 public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
