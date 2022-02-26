@@ -16,8 +16,10 @@ dependencies {
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
-java {
-    modularity.inferModulePath = true
+compileJava {
+    // "Pattern Matching for switch Expressions and Statements" is still preview in Java 17
+    // https://docs.oracle.com/en/java/javase/17/language/pattern-matching.html
+    options.compilerArgs += ['--enable-preview']
 }
 
 javadoc {

@@ -23,10 +23,10 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**
- * Using the SPDPbuiltinParticipantReader, a local Participant
- * ‘local_participant’ discovers the existence of another Participant described
- * by the DiscoveredParticipantData participant_data. The discovered Participant
- * uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
+ * Using the SPDPbuiltinParticipantReader, a local Participant local_participant
+ * discovers the existence of another Participant described by the
+ * DiscoveredParticipantData participant_data. The discovered Participant uses
+ * the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
 public class SedpService extends XSubscriber<ParameterList> {
 
