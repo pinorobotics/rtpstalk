@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "com.diffplug.spotless" version "6.3.0"
+    id 'jacoco'
 }
 
 apply plugin : 'eclipse'
@@ -16,8 +17,41 @@ dependencies {
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
+jacoco {
+    // Java 17 support
+    toolVersion = "0.8.7"
+}
+
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+}
+
+jacocoTestReport {
+    // generate only HTML report
+    reports {
+        xml.enabled = false
+        csv.enabled = false
+        html.enabled = true
+    }
+    sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
+    classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
+}
+
+jacocoTestCoverageVerification {
+    sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
+    classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
+    violationRules {
+        rule {
+        enabled = true
+            element = 'PACKAGE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.0
+            }
+        }
+    }
 }
 
 spotless {
