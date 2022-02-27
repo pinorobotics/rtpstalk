@@ -21,16 +21,20 @@
  * @see <a href="https://github.com/pinorobotics/rtpstalk/releases">Download</a>
  * @see <a href="https://github.com/pinorobotics/rtpstalk">Github</a>
  * @author aeon_flux aeon_flux@eclipso.ch
+ * @author lambdaprime intid@protonmail.com
  */
 module rtpstalk {
+    requires id.xfunction;
+    requires id.kineticstreamer;
+
     exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.messages to
             id.kineticstreamer;
     exports pinorobotics.rtpstalk.messages.submessages to
             id.kineticstreamer;
     exports pinorobotics.rtpstalk.messages.submessages.elements to
-            id.kineticstreamer;
-
-    requires id.xfunction;
-    requires id.kineticstreamer;
+            id.kineticstreamer,
+            rtpstalk.tests;
+    exports pinorobotics.rtpstalk.transport.io to
+            rtpstalk.tests;
 }
