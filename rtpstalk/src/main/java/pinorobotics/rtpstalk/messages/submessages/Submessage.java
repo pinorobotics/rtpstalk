@@ -39,6 +39,7 @@ public abstract class Submessage {
     }
 
     protected byte getFlagsInternal() {
+        if (submessageHeader == null) return 0;
         return submessageHeader.submessageFlag;
     }
 

@@ -30,7 +30,7 @@ public class RtpsMessage {
 
     public RtpsMessage() {}
 
-    public RtpsMessage(Header header, Submessage[] submessages) {
+    public RtpsMessage(Header header, Submessage... submessages) {
         this.header = header;
         this.submessages = submessages;
     }

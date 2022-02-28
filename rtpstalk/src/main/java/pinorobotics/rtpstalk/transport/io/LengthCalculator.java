@@ -138,7 +138,7 @@ public class LengthCalculator {
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 
-    public int calculateParameterLength(Entry<ParameterId, ?> param) {
+    private int calculateParameterLength(Entry<ParameterId, ?> param) {
         return getFixedLength(ParameterId.class)
                 + Short.BYTES /* length */
                 + calculateParameterValueLength(param);
