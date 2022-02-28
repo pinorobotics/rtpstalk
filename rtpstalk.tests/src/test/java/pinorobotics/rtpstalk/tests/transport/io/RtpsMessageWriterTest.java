@@ -24,18 +24,22 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 /** @author lambdaprime intid@protonmail.com */
-public class RtpsMessageReaderTest {
+public class RtpsMessageWriterTest {
 
     @ParameterizedTest
     @MethodSource("pinorobotics.rtpstalk.tests.transport.io.DataProviders#rtpsMessageConversion")
-    public void testRead(List testData) throws Exception {
-        var buf = ByteBuffer.wrap(new XInputStream((String) testData.get(0)).readAllBytes());
-        var expected = testData.get(1);
-        var actual = new RtpsMessageReader().readRtpsMessage(buf).get();
+    public void testWrite(List testData) throws Exception {
+        var expected = ByteBuffer.wrap(new XInputStream((String) testData.get(0)).readAllBytes());
+        var actual = ByteBuffer.allocate(RtpsTalkConfiguration.DEFAULT.getPacketBufferSize());
+        new RtpsMessageWriter().writeRtpsMessage((RtpsMessage) testData.get(1), actual);
+        actual.limit(actual.position());
+        actual.rewind();
         System.out.println(actual);
-        assertEquals(expected.toString(), actual.toString());
+        assertEquals(expected, actual);
     }
 }
