@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.transport.io;
 
-import static pinorobotics.rtpstalk.tests.transport.io.TestConstants.TEST_MESSAGE_INFODST_ACKNACK;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_MESSAGE_INFODST_ACKNACK;
 
 import id.xfunction.ResourceUtils;
 import java.util.List;

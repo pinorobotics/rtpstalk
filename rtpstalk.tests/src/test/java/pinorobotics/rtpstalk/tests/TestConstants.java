@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.transport.io;
+package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.XByte;
 import pinorobotics.rtpstalk.messages.Header;
@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 public interface TestConstants {
 
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
+
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
 
     RtpsMessage TEST_MESSAGE_INFODST_ACKNACK =
