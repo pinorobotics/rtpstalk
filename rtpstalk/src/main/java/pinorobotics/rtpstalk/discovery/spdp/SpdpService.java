@@ -57,7 +57,7 @@ public class SpdpService implements AutoCloseable {
         var dataChannel = channelFactory.bind(config.getMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(channelFactory, config.getGuidPrefix());
+        writer = new SpdpBuiltinParticipantWriter(channelFactory, config);
         writer.readerLocatorAdd(config.getMetatrafficMulticastLocator());
         writer.setSpdpDiscoveredParticipantData(spdpDiscoveredDataFactory.createData(config));
         writer.start();

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.behavior.writer;
 import id.xfunction.XAsserts;
 import id.xfunction.concurrent.NamedThreadFactory;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -120,7 +120,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
         subscribe(proxy.getSender());
         if (numOfReaders == 0) {
-            executor.scheduleWithFixedDelay(this, 0, heartbeatPeriod.seconds, TimeUnit.SECONDS);
+            executor.scheduleWithFixedDelay(this, 0, heartbeatPeriod.toSeconds(), TimeUnit.SECONDS);
         }
     }
 

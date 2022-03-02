@@ -21,8 +21,8 @@ import id.xfunction.XJsonStringBuilder;
 import id.xfunction.lang.XRE;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.time.Duration;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
-import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -43,18 +43,7 @@ public class RtpsTalkConfiguration {
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
 
-    public static final RtpsTalkConfiguration DEFAULT =
-            new RtpsTalkConfiguration(
-                    DEFAULT_NETWORK_IFACE,
-                    7412,
-                    7413,
-                    UDP_MAX_PACKET_SIZE,
-                    0,
-                    getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-                    GuidPrefix.generate(),
-                    EndpointQos.NONE,
-                    new Duration(20),
-                    new Duration(1));
+    public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration();
 
     private String networkIface;
     private int builtInEnpointsPort;
@@ -66,9 +55,10 @@ public class RtpsTalkConfiguration {
     private EndpointQos builtinEndpointQos;
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
-    private Duration leaseDuration;
     private Locator metatrafficMulticastLocator;
+    private Duration leaseDuration;
     private Duration heartbeatPeriod;
+    private Duration spdpDiscoveredParticipantDataPublishPeriod;
 
     public RtpsTalkConfiguration(
             String networkIface,
@@ -80,7 +70,8 @@ public class RtpsTalkConfiguration {
             GuidPrefix guidPrefix,
             EndpointQos builtinEndpointQos,
             Duration leaseDuration,
-            Duration heartbeatPeriod) {
+            Duration heartbeatPeriod,
+            Duration spdpDiscoveredParticipantDataPublishPeriod) {
         this.networkIface = networkIface;
         this.builtInEnpointsPort = builtInEnpointsPort;
         this.userEndpointsPort = userEndpointsPort;
@@ -91,11 +82,28 @@ public class RtpsTalkConfiguration {
         this.builtinEndpointQos = builtinEndpointQos;
         this.leaseDuration = leaseDuration;
         this.heartbeatPeriod = heartbeatPeriod;
+        this.spdpDiscoveredParticipantDataPublishPeriod =
+                spdpDiscoveredParticipantDataPublishPeriod;
         defaultUnicastLocator =
                 new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
         metatrafficUnicastLocator =
                 new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
         metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId);
+    }
+
+    public RtpsTalkConfiguration() {
+        this(
+                DEFAULT_NETWORK_IFACE,
+                7412,
+                7413,
+                UDP_MAX_PACKET_SIZE,
+                0,
+                getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
+                GuidPrefix.generate(),
+                EndpointQos.NONE,
+                Duration.ofSeconds(20),
+                Duration.ofSeconds(1),
+                Duration.ofSeconds(5));
     }
 
     /**
@@ -190,5 +198,19 @@ public class RtpsTalkConfiguration {
 
     public Duration getHeartbeatPeriod() {
         return heartbeatPeriod;
+    }
+
+    public Duration getSpdpDiscoveredParticipantDataPublishPeriod() {
+        return spdpDiscoveredParticipantDataPublishPeriod;
+    }
+
+    public RtpsTalkConfiguration withSpdpDiscoveredParticipantDataPublishPeriod(Duration period) {
+        spdpDiscoveredParticipantDataPublishPeriod = period;
+        return this;
+    }
+
+    public RtpsTalkConfiguration withGuidPrefix(GuidPrefix prefix) {
+        this.guidPrefix = prefix;
+        return this;
     }
 }

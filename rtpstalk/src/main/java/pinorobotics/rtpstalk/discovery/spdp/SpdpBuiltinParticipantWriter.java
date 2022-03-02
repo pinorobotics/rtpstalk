@@ -19,13 +19,14 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.XLogger;
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
@@ -38,18 +39,21 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
             Executors.newSingleThreadScheduledExecutor(
                     new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
     private ParameterList data;
+    private Duration rate;
 
-    public SpdpBuiltinParticipantWriter(DataChannelFactory channelFactory, GuidPrefix guidPrefix) {
+    public SpdpBuiltinParticipantWriter(
+            DataChannelFactory channelFactory, RtpsTalkConfiguration config) {
         super(
                 channelFactory,
                 new Guid(
-                        guidPrefix,
+                        config.getGuidPrefix(),
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue()),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
+        this.rate = config.getSpdpDiscoveredParticipantDataPublishPeriod();
     }
 
     public void start() {
-        executor.scheduleWithFixedDelay(this, 0, 5, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this, 0, rate.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     public void setSpdpDiscoveredParticipantData(ParameterList data) {
