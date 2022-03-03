@@ -29,8 +29,12 @@ public class SerializedPayload implements SubmessageElement {
 
     public SerializedPayload() {}
 
-    public SerializedPayload(SerializedPayloadHeader serializedPayloadHeader, Payload payload) {
-        this.serializedPayloadHeader = serializedPayloadHeader;
+    public SerializedPayload(Payload payload) {
+        this(SerializedPayloadHeader.DEFAULT_PAYLOAD_HEADER, payload);
+    }
+
+    public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {
+        this.serializedPayloadHeader = payloadHeader;
         this.payload = payload;
     }
 

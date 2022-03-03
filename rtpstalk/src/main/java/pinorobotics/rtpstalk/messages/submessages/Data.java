@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.transport.io.LengthCalculator;
@@ -55,13 +56,18 @@ public class Data extends Submessage {
     public Data() {}
 
     public Data(
-            int flags,
-            int extraFlags,
+            EntityId.Predefined readerId,
+            EntityId.Predefined writerId,
+            SequenceNumber writerSN,
+            SerializedPayload serializedPayload) {
+        this(readerId.getValue(), writerId.getValue(), writerSN, serializedPayload);
+    }
+
+    public Data(
             EntityId readerId,
             EntityId writerId,
             SequenceNumber writerSN,
             SerializedPayload serializedPayload) {
-        this.extraFlags = (short) extraFlags;
         this.octetsToInlineQos =
                 (short)
                         (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
@@ -74,7 +80,7 @@ public class Data extends Submessage {
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.DATA.getValue(),
-                        flags,
+                        0b100 | RtpsTalkConfiguration.ENDIANESS_BIT,
                         LengthCalculator.getInstance().calculateLength(this));
     }
 

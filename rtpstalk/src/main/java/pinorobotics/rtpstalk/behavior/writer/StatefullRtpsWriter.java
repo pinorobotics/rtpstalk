@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -184,13 +183,10 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
                         .map(
                                 change ->
                                         new Data(
-                                                0b100 | RtpsTalkConfiguration.ENDIANESS_BIT,
-                                                0,
                                                 readerProxy.getRemoteReaderGuid().entityId,
                                                 getGuid().entityId,
                                                 new SequenceNumber(change.getSequenceNumber()),
-                                                new SerializedPayload(
-                                                        PAYLOAD_HEADER, change.getDataValue())))
+                                                new SerializedPayload(change.getDataValue())))
                         .toArray(Submessage[]::new);
         if (submessages.length == 0) return;
         submit(new RtpsMessage(header, submessages));

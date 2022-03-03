@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.Flow.Processor;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -33,9 +32,7 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -62,9 +59,6 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
         implements Processor<D, RtpsMessage>, RtpsEntity, AutoCloseable {
 
     protected final XLogger logger;
-
-    protected static final SerializedPayloadHeader PAYLOAD_HEADER =
-            new SerializedPayloadHeader(RepresentationIdentifier.Predefined.PL_CDR_LE.getValue());
 
     private long lastChangeNumber;
     private Guid writerGuid;
@@ -110,12 +104,10 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
         lastChangeNumber++;
         var dataSubmessage =
                 new Data(
-                        0b100 | RtpsTalkConfiguration.ENDIANESS_BIT,
-                        0,
                         readerEntiyId,
                         writerGuid.entityId,
                         new SequenceNumber(lastChangeNumber),
-                        new SerializedPayload(PAYLOAD_HEADER, data));
+                        new SerializedPayload(data));
         var submessages = new Submessage[] {InfoTimestamp.now(), dataSubmessage};
         var header =
                 new Header(
