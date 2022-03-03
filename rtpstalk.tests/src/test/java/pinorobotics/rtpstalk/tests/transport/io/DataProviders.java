@@ -30,6 +30,8 @@ public class DataProviders {
 
     public static Stream<List> rtpsMessageConversion() {
         return Stream.of(
-                List.of(resourceUtils.readResource("test1"), TEST_MESSAGE_INFODST_ACKNACK));
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test1"),
+                        TEST_MESSAGE_INFODST_ACKNACK));
     }
 }
