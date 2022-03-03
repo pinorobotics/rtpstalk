@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.tests.discovery.spdp;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -28,30 +28,37 @@ import pinorobotics.rtpstalk.transport.DataChannel;
 /** @author lambdaprime intid@protonmail.com */
 public class TestDataChannel extends DataChannel {
 
-    protected TestDataChannel(GuidPrefix prefix) {
+    private BlockingQueue<RtpsMessage> dataQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<RtpsMessage> inputQueue;
+    private boolean blockReceiveForever;
+
+    protected TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
         super(null, null, prefix, 0);
+        this.blockReceiveForever = blockReceiveForever;
     }
 
-    private BlockingQueue<RtpsMessage> input = new LinkedBlockingQueue<>();
-    private List<RtpsMessage> output = new CopyOnWriteArrayList<>();
-
     public TestDataChannel withInput(List<RtpsMessage> input) {
-        this.input.addAll(input);
+        this.inputQueue = new LinkedBlockingQueue<>(input);
         return this;
     }
 
     @Override
     public RtpsMessage receive() throws Exception {
-        return input.take();
+        if (blockReceiveForever) {
+            new CompletableFuture<Void>().get();
+        }
+        if (inputQueue != null) {
+            return inputQueue.take();
+        }
+        return dataQueue.take();
     }
 
     @Override
     public void send(RtpsMessage message) {
-        output.add(message);
+        dataQueue.add(message);
     }
 
-    /** List of RTPS messages sent to remote participant */
-    public List<RtpsMessage> getOutput() {
-        return output;
+    public BlockingQueue<RtpsMessage> getDataQueue() {
+        return dataQueue;
     }
 }

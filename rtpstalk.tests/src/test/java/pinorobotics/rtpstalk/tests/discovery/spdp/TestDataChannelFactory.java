@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests.discovery.spdp;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -38,21 +39,28 @@ public class TestDataChannelFactory extends DataChannelFactory {
 
     @Override
     public DataChannel connect(Locator locator) throws IOException {
-        return createDataChannel(locator);
+        return getOrCreateDataChannel(locator);
     }
 
     @Override
     public DataChannel bind(Locator locator) throws IOException {
-        return createDataChannel(locator);
+        return getOrCreateDataChannel(locator);
     }
 
-    private DataChannel createDataChannel(Locator locator) {
-        var channel = new TestDataChannel(config.getGuidPrefix());
+    public void addChannel(Locator locator, TestDataChannel channel) {
         channels.put(locator, channel);
+    }
+
+    private DataChannel getOrCreateDataChannel(Locator locator) {
+        var channel = channels.get(locator);
+        if (channel == null) {
+            channel = new TestDataChannel(config.getGuidPrefix(), false);
+            channels.put(locator, channel);
+        }
         return channel;
     }
 
     public Map<Locator, TestDataChannel> getChannels() {
-        return channels;
+        return Collections.unmodifiableMap(channels);
     }
 }

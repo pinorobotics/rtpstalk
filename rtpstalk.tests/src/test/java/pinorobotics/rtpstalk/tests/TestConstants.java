@@ -18,8 +18,12 @@
 package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.XByte;
+import id.xfunction.function.Unchecked;
+import java.net.InetAddress;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
@@ -40,6 +44,11 @@ public interface TestConstants {
             new RtpsTalkConfiguration().withGuidPrefix(TEST_GUID_PREFIX);
 
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
+    InetAddress TEST_REMOTE_ADDRESS = Unchecked.get(() -> InetAddress.getByName("33.3.3.3"));
+    Locator TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR =
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7012, TEST_REMOTE_ADDRESS);
+    Locator TEST_REMOTE_DEFAULT_UNICAST_LOCATOR =
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7013, TEST_REMOTE_ADDRESS);
 
     RtpsMessage TEST_MESSAGE_INFODST_ACKNACK =
             new RtpsMessage(
