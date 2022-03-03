@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.XByte;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -35,6 +36,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 public interface TestConstants {
 
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
+    RtpsTalkConfiguration TEST_CONFIG =
+            new RtpsTalkConfiguration().withGuidPrefix(TEST_GUID_PREFIX);
 
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
 

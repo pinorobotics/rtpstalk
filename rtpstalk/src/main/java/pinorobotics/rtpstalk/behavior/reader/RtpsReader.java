@@ -143,7 +143,5 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     }
 
     @Override
-    public void onComplete() {
-        logger.severe(new UnsupportedOperationException());
-    }
+    public void onComplete() {}
 }

@@ -70,6 +70,7 @@ public class SpdpService implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        if (!isStarted) return;
         receiver.close();
         writer.close();
     }
