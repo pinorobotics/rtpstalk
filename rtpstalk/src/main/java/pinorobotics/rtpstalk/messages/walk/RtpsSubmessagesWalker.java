@@ -30,17 +30,17 @@ public class RtpsSubmessagesWalker {
     public void walk(RtpsMessage message, RtpsSubmessageVisitor visitor) {
         var guidPrefix = message.header.guidPrefix;
         for (var submessage : message.getSubmessages()) {
-            var res =
-                    switch (submessage) {
-                        case Data data -> visitor.onData(guidPrefix, data);
-                        case AckNack ackNack -> visitor.onAckNack(guidPrefix, ackNack);
-                        case Heartbeat heartbeat -> visitor.onHeartbeat(guidPrefix, heartbeat);
-                        case InfoTimestamp infoTimestamp -> visitor.onInfoTimestamp(
-                                guidPrefix, infoTimestamp);
-                        case InfoDestination infoDestination -> visitor.onInfoDestination(
-                                guidPrefix, infoDestination);
-                        default -> Result.CONTINUE;
-                    };
+            Result res = null;
+            if (submessage instanceof Data data) res = visitor.onData(guidPrefix, data);
+            else if (submessage instanceof AckNack ackNack)
+                res = visitor.onAckNack(guidPrefix, ackNack);
+            else if (submessage instanceof Heartbeat heartbeat)
+                res = visitor.onHeartbeat(guidPrefix, heartbeat);
+            else if (submessage instanceof InfoTimestamp infoTimestamp)
+                res = visitor.onInfoTimestamp(guidPrefix, infoTimestamp);
+            else if (submessage instanceof InfoDestination infoDestination)
+                res = visitor.onInfoDestination(guidPrefix, infoDestination);
+            else res = Result.CONTINUE;
             if (res == Result.STOP) break;
         }
     }
