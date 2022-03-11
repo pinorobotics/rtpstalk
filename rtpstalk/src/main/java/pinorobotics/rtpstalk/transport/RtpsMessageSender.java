@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.transport;
 
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
@@ -28,7 +28,7 @@ import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class RtpsMessageSender extends XSubscriber<RtpsMessage> {
+public class RtpsMessageSender extends SimpleSubscriber<RtpsMessage> {
 
     private final XLogger logger;
     private DataChannel dataChannel;

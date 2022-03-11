@@ -27,4 +27,8 @@ public class RawData implements Payload {
     public RawData(byte[] data) {
         this.data = data;
     }
+
+    public byte[] getData() {
+        return data;
+    }
 }

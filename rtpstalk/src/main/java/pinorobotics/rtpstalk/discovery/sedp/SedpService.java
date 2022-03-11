@@ -18,7 +18,7 @@
 package pinorobotics.rtpstalk.discovery.sedp;
 
 import id.xfunction.XAsserts;
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +44,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * existence of another Participant described by the DiscoveredParticipantData participant_data. The
  * discovered Participant uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
-public class SedpService extends XSubscriber<ParameterList> {
+public class SedpService extends SimpleSubscriber<ParameterList> {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;

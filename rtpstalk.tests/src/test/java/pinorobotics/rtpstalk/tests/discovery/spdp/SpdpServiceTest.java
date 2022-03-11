@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests.discovery.spdp;
 import static pinorobotics.rtpstalk.tests.TestConstants.*;
 
 import id.xfunction.ResourceUtils;
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.text.WildcardMatcher;
 import java.util.EnumSet;
 import java.util.List;
@@ -130,7 +130,7 @@ public class SpdpServiceTest {
         CompletableFuture<ParameterList> future = new CompletableFuture<>();
         service.getReader()
                 .subscribe(
-                        new XSubscriber<>() {
+                        new SimpleSubscriber<>() {
                             @Override
                             public void onNext(ParameterList item) {
                                 future.complete(item);

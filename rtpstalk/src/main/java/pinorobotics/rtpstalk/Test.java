@@ -18,7 +18,7 @@
 package pinorobotics.rtpstalk;
 
 import id.xfunction.XByte;
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.lang.XThread;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.SubmissionPublisher;
@@ -32,9 +32,9 @@ public class Test {
     public static void main(String[] args) throws Exception {
         XLogger.load("rtpstalk-debug.properties");
         var printer =
-                new XSubscriber<RawData>() {
+                new SimpleSubscriber<byte[]>() {
                     @Override
-                    public void onNext(RawData data) {
+                    public void onNext(byte[] data) {
                         System.out.println(data);
                         subscription.request(1);
                     }

@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk;
 
 import id.xfunction.XAsserts;
+import id.xfunction.concurrent.flow.TransformProcessor;
 import id.xfunction.logging.XLogger;
 import java.util.List;
 import java.util.Map;
@@ -65,12 +66,14 @@ public class RtpsTalkClient {
     }
 
     public void subscribe(
-            String topic, String type, EntityId entityId, Subscriber<RawData> subscriber) {
+            String topic, String type, EntityId entityId, Subscriber<byte[]> subscriber) {
         if (!isStarted) {
             start();
         }
         sedp.getSubscriptionsWriter().newChange(createSubscriptionData(topic, type, entityId));
-        userService.subscribe(entityId, subscriber);
+        var transformer = new TransformProcessor<>(RawData::getData);
+        transformer.subscribe(subscriber);
+        userService.subscribe(entityId, transformer);
     }
 
     public void publish(

@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.discovery.sedp;
 
-import id.xfunction.concurrent.flow.XSubscriber;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
     public SedpBuiltinSubscriptionsReader(RtpsTalkConfiguration config) {
         super(config, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
         subscribe(
-                new XSubscriber<ParameterList>() {
+                new SimpleSubscriber<ParameterList>() {
                     @Override
                     public void onNext(ParameterList pl) {
                         processSubscription(pl);
