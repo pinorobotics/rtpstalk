@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
@@ -229,5 +230,14 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             buf.putInt(XByte.reverseBytes(i));
         }
         LOGGER.exiting("writeSequenceNumberSet");
+    }
+
+    public void writeEntityId(EntityId entiyId) throws Exception {
+        LOGGER.entering("writeEntityId");
+        writeByte((byte) (entiyId.entityKey >> 16));
+        writeByte((byte) (entiyId.entityKey >> 8));
+        writeByte((byte) entiyId.entityKey);
+        writeByte(entiyId.entityKind);
+        LOGGER.exiting("writeEntityId");
     }
 }

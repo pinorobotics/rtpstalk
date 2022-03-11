@@ -48,6 +48,7 @@ import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.SubmessageHeader;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -416,5 +417,12 @@ class RtpsInputKineticStream implements InputKineticStream {
         }
         LOGGER.exiting("readSequenceNumberSet");
         return new SequenceNumberSet(bitmapBase, numBits, bits);
+    }
+
+    public EntityId readEntityId() throws Exception {
+        var val = buf.getInt();
+        int entityKey = val >> 8;
+        var entityKind = (byte) (val & 0x000000ff);
+        return new EntityId(entityKey, entityKind);
     }
 }

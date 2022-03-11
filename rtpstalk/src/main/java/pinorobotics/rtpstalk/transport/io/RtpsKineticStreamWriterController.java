@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.KineticStreamWriterController;
 import id.kineticstreamer.OutputKineticStream;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
@@ -42,6 +43,11 @@ class RtpsKineticStreamWriterController extends KineticStreamWriterController {
         if (obj instanceof SequenceNumberSet set) {
             // writing it manually in custom format
             rtpsStream.writeSequenceNumberSet(set);
+            return new Result(true);
+        }
+        if (obj instanceof EntityId entiyId) {
+            // writing it manually in custom format
+            rtpsStream.writeEntityId(entiyId);
             return new Result(true);
         }
         return Result.CONTINUE;

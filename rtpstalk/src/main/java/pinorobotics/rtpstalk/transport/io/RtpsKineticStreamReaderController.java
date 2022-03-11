@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.transport.io;
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReaderController;
 import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 
@@ -41,6 +42,10 @@ class RtpsKineticStreamReaderController extends KineticStreamReaderController {
         if (fieldType == SequenceNumberSet.class) {
             // reading it manually in custom format
             return new Result(true, rtpsStream.readSequenceNumberSet());
+        }
+        if (fieldType == EntityId.class) {
+            // reading it manually in custom format
+            return new Result(true, rtpsStream.readEntityId());
         }
         return Result.CONTINUE;
     }

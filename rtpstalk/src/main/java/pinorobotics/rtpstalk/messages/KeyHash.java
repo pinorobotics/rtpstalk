@@ -38,13 +38,11 @@ public class KeyHash implements Sequence {
     public KeyHash(Guid guid) {
         value = new byte[SIZE];
         System.arraycopy(guid.guidPrefix.value, 0, value, 0, guid.guidPrefix.value.length);
-        System.arraycopy(
-                guid.entityId.entityKey,
-                0,
-                value,
-                guid.guidPrefix.value.length,
-                guid.entityId.entityKey.length);
-        value[value.length - 1] = guid.entityId.entityKind;
+        int pos = guid.guidPrefix.value.length;
+        value[pos++] = (byte) ((guid.entityId.entityKey & 0x00ff0000) >> 16);
+        value[pos++] = (byte) ((guid.entityId.entityKey & 0x0000ff00) >> 8);
+        value[pos++] = (byte) (guid.entityId.entityKey & 0x000000ff);
+        value[pos++] = guid.entityId.entityKind;
     }
 
     @Override

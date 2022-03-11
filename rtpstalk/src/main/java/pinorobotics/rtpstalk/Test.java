@@ -47,8 +47,8 @@ public class Test {
                 .publish(
                         "rt/chatter",
                         "std_msgs::msg::dds_::String_",
-                        new EntityId(new byte[] {00, 00, 0x12}, EntityKind.WRITER_NO_KEY),
-                        new EntityId(new byte[] {00, 00, 0x12}, EntityKind.READER_NO_KEY),
+                        new EntityId(0x000012, EntityKind.WRITER_NO_KEY),
+                        new EntityId(0x000012, EntityKind.READER_NO_KEY),
                         publisher);
         while (true) {
             publisher.submit(
