@@ -76,14 +76,16 @@ public class RtpsTalkClient {
         userService.subscribe(entityId, transformer);
     }
 
-    public void publish(String topic, String type, Publisher<RawData> publisher) {
+    public void publish(String topic, String type, Publisher<byte[]> publisher) {
         if (!isStarted) {
             start();
         }
         EntityId writerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.WRITER_NO_KEY);
         EntityId readerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.READER_NO_KEY);
         sedp.getPublicationsWriter().newChange(createPublicationData(topic, type, writerEntityId));
-        userService.publish(writerEntityId, readerEntityId, publisher);
+        var transformer = new TransformProcessor<byte[], RawData>(RawData::new);
+        userService.publish(writerEntityId, readerEntityId, transformer);
+        publisher.subscribe(transformer);
     }
 
     private void start() {
