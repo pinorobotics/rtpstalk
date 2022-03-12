@@ -30,6 +30,11 @@ public enum EntityKind {
 
     UNKNOWN(0x00),
     WRITER(0x02),
+
+    /**
+     * Enumeration used to distinguish whether a Topic has defined some fields within to be used as
+     * the key that identifies data-instances within the Topic.
+     */
     WRITER_NO_KEY(0x03),
     READER_NO_KEY(0x04),
     READER(0x07),

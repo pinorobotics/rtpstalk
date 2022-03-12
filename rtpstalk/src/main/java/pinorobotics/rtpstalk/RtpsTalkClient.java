@@ -30,11 +30,11 @@ import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -65,26 +65,23 @@ public class RtpsTalkClient {
         userService = new UserDataService(config, channelFactory);
     }
 
-    public void subscribe(
-            String topic, String type, EntityId entityId, Subscriber<byte[]> subscriber) {
+    public void subscribe(String topic, String type, Subscriber<byte[]> subscriber) {
         if (!isStarted) {
             start();
         }
+        var entityId = new EntityId(config.getAppEntityKey(), EntityKind.READER_NO_KEY);
         sedp.getSubscriptionsWriter().newChange(createSubscriptionData(topic, type, entityId));
         var transformer = new TransformProcessor<>(RawData::getData);
         transformer.subscribe(subscriber);
         userService.subscribe(entityId, transformer);
     }
 
-    public void publish(
-            String topic,
-            String type,
-            EntityId writerEntityId,
-            EntityId readerEntityId,
-            Publisher<RawData> publisher) {
+    public void publish(String topic, String type, Publisher<RawData> publisher) {
         if (!isStarted) {
             start();
         }
+        EntityId writerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.WRITER_NO_KEY);
+        EntityId readerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.READER_NO_KEY);
         sedp.getPublicationsWriter().newChange(createPublicationData(topic, type, writerEntityId));
         userService.publish(writerEntityId, readerEntityId, publisher);
     }
@@ -118,11 +115,6 @@ public class RtpsTalkClient {
                         Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
                         Map.entry(ParameterId.PID_TYPE_NAME, typeName),
                         Map.entry(
-                                ParameterId.PID_KEY_HASH,
-                                new KeyHash(
-                                        0x01, 0x0f, 0xeb, 0x7d, 0x5f, 0xfa, 0x9f, 0xe4, 0x01, 0x00,
-                                        0x00, 0x00, 0x00, 0x00, 0x12, 0x04)),
-                        Map.entry(
                                 ParameterId.PID_ENDPOINT_GUID,
                                 new Guid(config.getGuidPrefix(), entityId)),
                         Map.entry(
@@ -147,7 +139,6 @@ public class RtpsTalkClient {
                                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                         Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
                         Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                        Map.entry(ParameterId.PID_KEY_HASH, new KeyHash(guid)),
                         Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
                         Map.entry(
                                 ParameterId.PID_PROTOCOL_VERSION,

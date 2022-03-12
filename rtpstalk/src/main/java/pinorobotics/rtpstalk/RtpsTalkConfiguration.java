@@ -59,6 +59,7 @@ public class RtpsTalkConfiguration {
     private Duration leaseDuration;
     private Duration heartbeatPeriod;
     private Duration spdpDiscoveredParticipantDataPublishPeriod;
+    private int appEntityKey;
 
     public RtpsTalkConfiguration(
             String networkIface,
@@ -66,6 +67,7 @@ public class RtpsTalkConfiguration {
             int userEndpointsPort,
             int packetBufferSize,
             int domainId,
+            int appEntityKey,
             InetAddress ipAddress,
             GuidPrefix guidPrefix,
             EndpointQos builtinEndpointQos,
@@ -77,6 +79,7 @@ public class RtpsTalkConfiguration {
         this.userEndpointsPort = userEndpointsPort;
         this.packetBufferSize = packetBufferSize;
         this.domainId = domainId;
+        this.appEntityKey = appEntityKey;
         this.ipAddress = ipAddress;
         this.guidPrefix = guidPrefix;
         this.builtinEndpointQos = builtinEndpointQos;
@@ -98,6 +101,7 @@ public class RtpsTalkConfiguration {
                 7413,
                 UDP_MAX_PACKET_SIZE,
                 0,
+                0x000012,
                 getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
                 GuidPrefix.generate(),
                 EndpointQos.NONE,
@@ -212,5 +216,9 @@ public class RtpsTalkConfiguration {
     public RtpsTalkConfiguration withGuidPrefix(GuidPrefix prefix) {
         this.guidPrefix = prefix;
         return this;
+    }
+
+    public int getAppEntityKey() {
+        return appEntityKey;
     }
 }
