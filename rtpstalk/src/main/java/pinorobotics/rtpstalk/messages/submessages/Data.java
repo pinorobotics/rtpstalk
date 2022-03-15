@@ -18,8 +18,10 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import java.util.List;
+import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.transport.io.LengthCalculator;
 
@@ -50,6 +52,12 @@ public class Data extends Submessage {
      * Writer maintains is own sequence number
      */
     public SequenceNumber writerSN;
+
+    /**
+     * Present only if the InlineQosFlag is set in the header. Contains QoS that may affect the
+     * interpretation of the message
+     */
+    public transient Optional<ParameterList> inlineQos = Optional.empty();
 
     public transient SerializedPayload serializedPayload;
 
@@ -90,7 +98,7 @@ public class Data extends Submessage {
         if (isInlineQos()) flags.add("InlineQos");
         if (isData()) flags.add("Data");
         if (isKey()) flags.add("Key");
-        if (isNonStandardPayloadFlag()) flags.add("NonStandardPayloadFlag");
+        if (isNonStandardPayload()) flags.add("NonStandardPayload");
         return flags;
     }
 
@@ -106,7 +114,7 @@ public class Data extends Submessage {
         return (getFlagsInternal() & 8) != 0;
     }
 
-    public boolean isNonStandardPayloadFlag() {
+    public boolean isNonStandardPayload() {
         return (getFlagsInternal() & 10) != 0;
     }
 

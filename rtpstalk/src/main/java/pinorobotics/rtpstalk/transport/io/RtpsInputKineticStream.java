@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.Optional;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
@@ -272,22 +273,26 @@ class RtpsInputKineticStream implements InputKineticStream {
                 buf.position()
                         + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
         var data = reader.read(Data.class);
-        if (data.isInlineQos())
-            throw new UnsupportedOperationException("InlineQos in Data submessage");
-        var payloadHeader = reader.read(SerializedPayloadHeader.class);
-        LOGGER.fine("payloadHeader: {0}", payloadHeader);
-        Payload payload =
-                switch (payloadHeader.representation_identifier.findPredefined().get()) {
-                    case PL_CDR_LE -> readParameterList();
-                    case CDR_LE -> readRawData(
-                            data.submessageHeader.submessageLength
-                                    - (buf.position() - dataSubmessageStart));
-                    default -> throw new XRuntimeException(
-                            "Unknown representation identifier %s",
-                            payloadHeader.representation_identifier);
-                };
-        LOGGER.fine("payload: {0}", payload);
-        data.serializedPayload = new SerializedPayload(payloadHeader, payload);
+        if (data.isInlineQos()) {
+            LOGGER.warning("Reading InlineQos");
+            data.inlineQos = Optional.of(readParameterList());
+        }
+        if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {
+            var payloadHeader = reader.read(SerializedPayloadHeader.class);
+            LOGGER.fine("payloadHeader: {0}", payloadHeader);
+            Payload payload =
+                    switch (payloadHeader.representation_identifier.findPredefined().get()) {
+                        case PL_CDR_LE -> readParameterList();
+                        case CDR_LE -> readRawData(
+                                data.submessageHeader.submessageLength
+                                        - (buf.position() - dataSubmessageStart));
+                        default -> throw new XRuntimeException(
+                                "Unknown representation identifier %s",
+                                payloadHeader.representation_identifier);
+                    };
+            LOGGER.fine("payload: {0}", payload);
+            data.serializedPayload = new SerializedPayload(payloadHeader, payload);
+        }
         LOGGER.exiting("readData");
         return data;
     }
@@ -323,6 +328,9 @@ class RtpsInputKineticStream implements InputKineticStream {
 
             // knowing submessage type now we can read it fully
             var submessage = readSubmessage(messageClassOpt.get());
+            if (!submessage.isLittleEndian()) {
+                throw new UnsupportedOperationException("Only Little Endian CDR is supported");
+            }
             submessages.add(submessage);
             var submessageEnd = buf.position();
             LOGGER.fine("submessageEnd: {0}", submessageEnd);

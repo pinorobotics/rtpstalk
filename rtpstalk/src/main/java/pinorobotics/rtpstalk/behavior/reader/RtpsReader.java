@@ -95,11 +95,13 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
         logger.fine("Received data {0}", d);
-        addChange(
-                new CacheChange<>(
-                        new Guid(guidPrefix, d.writerId),
-                        d.writerSN.value,
-                        (D) d.serializedPayload.payload));
+        if (d.serializedPayload != null) {
+            addChange(
+                    new CacheChange<>(
+                            new Guid(guidPrefix, d.writerId),
+                            d.writerSN.value,
+                            (D) d.serializedPayload.payload));
+        }
         return Result.CONTINUE;
     }
 
