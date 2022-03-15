@@ -227,7 +227,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         writeSequenceNumber(set.bitmapBase);
         writeInt(set.numBits);
         for (var i : set.bitmap) {
-            buf.putInt(XByte.reverseBytes(i));
+            buf.putInt(XByte.reverseBitsInBytes(i));
         }
         LOGGER.exiting("writeSequenceNumberSet");
     }

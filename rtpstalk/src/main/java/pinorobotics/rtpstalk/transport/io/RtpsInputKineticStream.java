@@ -413,7 +413,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         var numBits = readInt();
         var bits = new int[(numBits + 31) / 32];
         for (int i = 0; i < bits.length; i++) {
-            bits[i] = XByte.reverseBytes(buf.getInt());
+            bits[i] = XByte.reverseBitsInBytes(buf.getInt());
         }
         LOGGER.exiting("readSequenceNumberSet");
         return new SequenceNumberSet(bitmapBase, numBits, bits);

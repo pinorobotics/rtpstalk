@@ -18,7 +18,7 @@
 package pinorobotics.rtpstalk.behavior.writer;
 
 import java.io.IOException;
-import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
@@ -33,8 +33,11 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
     private DataChannelFactory channelFactory;
 
     public StatelessRtpsWriter(
-            DataChannelFactory channelFactory, Guid writerGuid, EntityId readerEntiyId) {
-        super(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            EntityId writerEntityId,
+            EntityId readerEntiyId) {
+        super(config, writerEntityId, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
         this.channelFactory = channelFactory;
     }
 

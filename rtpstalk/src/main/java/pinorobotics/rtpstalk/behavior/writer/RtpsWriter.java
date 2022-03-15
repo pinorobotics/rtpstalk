@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.Flow.Processor;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -66,8 +67,9 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     private RtpsMessage lastMessage;
     private Optional<Subscription> subscriptionOpt = Optional.empty();
 
-    public RtpsWriter(Guid writerGuid, EntityId readerEntiyId) {
-        this(writerGuid, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+    public RtpsWriter(
+            RtpsTalkConfiguration config, EntityId writerEntiyId, EntityId readerEntiyId) {
+        this(config, writerEntiyId, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
     }
 
     /**
@@ -76,11 +78,12 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
      *     becomes available (8.4.9.1.1)
      */
     public RtpsWriter(
-            Guid writerGuid,
+            RtpsTalkConfiguration config,
+            EntityId writerEntityId,
             EntityId readerEntiyId,
             ReliabilityKind reliabilityKind,
             boolean pushMode) {
-        this.writerGuid = writerGuid;
+        this.writerGuid = new Guid(config.getGuidPrefix(), writerEntityId);
         this.readerEntiyId = readerEntiyId;
         logger = InternalUtils.getInstance().getLogger(getClass(), writerGuid.entityId);
     }

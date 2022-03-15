@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -74,15 +75,16 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private final Header header;
 
     public StatefullRtpsWriter(
+            RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
-            Guid writerGuid,
+            EntityId writerEntiyId,
             EntityId readerEntiyId,
             Duration heartbeatPeriod) {
-        super(writerGuid, readerEntiyId, ReliabilityKind.RELIABLE, true);
+        super(config, writerEntiyId, readerEntiyId, ReliabilityKind.RELIABLE, true);
         this.channelFactory = channelFactory;
         this.heartbeatPeriod = heartbeatPeriod;
         writerName = getGuid().entityId.toString();
-        OperatingEntities.getInstance().add(writerGuid.entityId, this);
+        OperatingEntities.getInstance().add(writerEntiyId, this);
         header =
                 new Header(
                         ProtocolId.Predefined.RTPS.getValue(),
