@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,8 +28,11 @@ import java.util.stream.Collectors;
 public class ProtocolVersion {
 
     public static enum Predefined {
+        Version_2_2(new ProtocolVersion(2, 2)),
         Version_2_3(new ProtocolVersion(2, 3));
 
+        static final EnumSet<Predefined> SUPPORTED =
+                EnumSet.of(Predefined.Version_2_2, Predefined.Version_2_3);
         static final Map<ProtocolVersion, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
         private ProtocolVersion value;
@@ -77,5 +81,11 @@ public class ProtocolVersion {
         builder.append("major", major);
         builder.append("minor", minor);
         return builder.toString();
+    }
+
+    public static boolean isSupported(ProtocolVersion protocolVersion) {
+        var predefined = Predefined.MAP.get(protocolVersion);
+        if (predefined == null) return false;
+        return Predefined.SUPPORTED.contains(predefined);
     }
 }

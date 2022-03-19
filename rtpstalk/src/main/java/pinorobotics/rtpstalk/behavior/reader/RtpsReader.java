@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.behavior.reader;
 
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
+import java.util.Map;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
@@ -29,6 +30,8 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.messages.walk.RtpsSubmessagesWalker;
@@ -95,13 +98,15 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
         logger.fine("Received data {0}", d);
+        var writerGuid = new Guid(guidPrefix, d.writerId);
         if (d.serializedPayload != null) {
             addChange(
                     new CacheChange<>(
-                            new Guid(guidPrefix, d.writerId),
-                            d.writerSN.value,
-                            (D) d.serializedPayload.payload));
+                            writerGuid, d.writerSN.value, (D) d.serializedPayload.payload));
         }
+        d.inlineQos
+                .map(ParameterList::getParameters)
+                .ifPresent(pl -> processInlineQos(writerGuid, pl));
         return Result.CONTINUE;
     }
 
@@ -146,4 +151,8 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     @Override
     public void onComplete() {}
+
+    protected void processInlineQos(Guid writer, Map<ParameterId, ?> params) {
+        // empty
+    }
 }

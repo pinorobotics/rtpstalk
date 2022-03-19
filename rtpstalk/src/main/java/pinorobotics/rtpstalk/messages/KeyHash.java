@@ -20,6 +20,8 @@ package pinorobotics.rtpstalk.messages;
 import id.xfunction.XAsserts;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class KeyHash implements Sequence {
@@ -43,6 +45,18 @@ public class KeyHash implements Sequence {
         value[pos++] = (byte) ((guid.entityId.entityKey & 0x0000ff00) >> 8);
         value[pos++] = (byte) (guid.entityId.entityKey & 0x000000ff);
         value[pos++] = guid.entityId.entityKind;
+    }
+
+    public Guid asGuid() {
+        var guidPrefix = new GuidPrefix();
+        for (int i = 0; i < guidPrefix.value.length; i++) {
+            guidPrefix.value[i] = value[i];
+        }
+        var pos = guidPrefix.value.length;
+        var entityKey = value[pos++] << 16;
+        entityKey |= value[pos++] << 8;
+        entityKey |= value[pos++];
+        return new Guid(guidPrefix, new EntityId(entityKey, value[pos]));
     }
 
     @Override

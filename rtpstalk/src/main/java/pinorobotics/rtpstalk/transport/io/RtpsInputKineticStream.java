@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
@@ -248,6 +249,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_RELIABILITY:
                     value = reader.read(ReliabilityQosPolicy.class);
                     break;
+                case PID_STATUS_INFO:
+                    value = readStatusInfo();
+                    break;
                 default:
                     throw new UnsupportedOperationException("Parameter id " + id);
             }
@@ -398,8 +402,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         if (!Objects.equals(header.protocolId, ProtocolId.Predefined.RTPS.getValue())) {
             throw new NotRtpsPacketException();
         }
-        if (!Objects.equals(
-                header.protocolVersion, ProtocolVersion.Predefined.Version_2_3.getValue())) {
+        if (!ProtocolVersion.isSupported(header.protocolVersion)) {
             throw new XRuntimeException(
                     "RTPS protocol version %s not supported", header.protocolVersion);
         }
@@ -432,5 +435,9 @@ class RtpsInputKineticStream implements InputKineticStream {
         int entityKey = val >> 8;
         var entityKind = (byte) (val & 0x000000ff);
         return new EntityId(entityKey, entityKind);
+    }
+
+    public StatusInfo readStatusInfo() {
+        return new StatusInfo(buf.getInt());
     }
 }
