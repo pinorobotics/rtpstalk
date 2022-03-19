@@ -36,6 +36,7 @@ public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>>
     /** The list of CacheChanges contained in the HistoryCache. */
     private Map<Long, CacheChange<D>> changes = new LinkedHashMap<>();
 
+    /** @return true if this is a new change and it was added */
     public boolean addChange(CacheChange<D> change) {
         boolean firstChange = changes.isEmpty();
         if (changes.containsKey(change.getSequenceNumber())) {

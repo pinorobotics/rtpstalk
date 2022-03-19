@@ -153,6 +153,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
         }
     }
 
+    /** Configures all local builtin endpoints to work with new remote participant */
     private void configure(
             BuiltinEndpointSet availableRemoteEndpoints,
             GuidPrefix guidPrefix,

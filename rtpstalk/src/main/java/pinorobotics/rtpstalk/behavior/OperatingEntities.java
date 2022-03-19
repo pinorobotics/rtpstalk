@@ -21,6 +21,7 @@ import id.xfunction.XAsserts;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
@@ -29,6 +30,7 @@ public class OperatingEntities {
 
     private static final OperatingEntities INSTANCE = new OperatingEntities();
     private Map<EntityId, StatefullRtpsWriter<?>> writers = new ConcurrentHashMap<>();
+    private Map<EntityId, StatefullRtpsReader<?>> readers = new ConcurrentHashMap<>();
 
     public static OperatingEntities getInstance() {
         return INSTANCE;
@@ -40,8 +42,18 @@ public class OperatingEntities {
         writers.put(entityId, writer);
     }
 
+    public void add(EntityId entityId, StatefullRtpsReader<?> reader) {
+        XAsserts.assertTrue(
+                !readers.containsKey(entityId), "Reader " + entityId + " already present");
+        readers.put(entityId, reader);
+    }
+
     public Optional<StatefullRtpsWriter<?>> findStatefullWriter(EntityId entityId) {
         return Optional.ofNullable(writers.get(entityId));
+    }
+
+    public Optional<StatefullRtpsReader<?>> findStatefullReader(EntityId entityId) {
+        return Optional.ofNullable(readers.get(entityId));
     }
 
     public void remove(EntityId entityId) {
