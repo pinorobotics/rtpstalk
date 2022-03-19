@@ -41,8 +41,9 @@ import pinorobotics.rtpstalk.structure.CacheChange;
  * <p>This should be thread safe since it is possible that one thread will be calling {@link
  * #matchedWriterAdd(Guid, List)} when another doing {@link #process(RtpsMessage)} and that
  * happening at the same time.
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-/** @author aeon_flux aeon_flux@eclipso.ch */
 public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */
@@ -53,6 +54,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
         super(new Guid(config.getGuidPrefix(), entityId), ReliabilityKind.RELIABLE);
         this.config = config;
+        OperatingEntities.getInstance().add(getGuid().entityId, this);
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
@@ -63,8 +65,12 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
                 new WriterInfo(proxy, new WriterHeartbeatProcessor(config, proxy)));
     }
 
-    public void matchedWriterRemove() {
-        throw new UnsupportedOperationException();
+    public void matchedWriterRemove(Guid writer) {
+        if (matchedWriters.remove(writer) == null) {
+            logger.warning("Trying to remove unknwon matched writer {0}, ignoring...", writer);
+        } else {
+            logger.warning("Matched writer {0} is removed", writer);
+        }
     }
 
     @Override

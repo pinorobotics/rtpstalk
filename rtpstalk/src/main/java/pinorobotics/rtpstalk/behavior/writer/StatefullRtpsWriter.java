@@ -125,8 +125,14 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         }
     }
 
-    public void matchedReaderRemove() {
-        throw new UnsupportedOperationException();
+    public void matchedReaderRemove(Guid remoteGuid) {
+        var reader = matchedReaders.remove(remoteGuid);
+        if (reader == null) {
+            logger.warning("Trying to remove unknwon matched reader {0}, ignoring...", remoteGuid);
+        } else {
+            reader.close();
+            logger.info("Matched reader {0} is removed", remoteGuid);
+        }
     }
 
     /** This operation finds the {@link ReaderProxy} with given {@link Guid} */

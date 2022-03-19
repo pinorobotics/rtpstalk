@@ -25,7 +25,7 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class ReaderProxy {
+public class ReaderProxy implements AutoCloseable {
 
     private Guid remoteReaderGuid;
     private List<Locator> unicastLocatorList;
@@ -77,5 +77,10 @@ public class ReaderProxy {
 
     public RtpsMessageSender getSender() {
         return sender;
+    }
+
+    @Override
+    public void close() {
+        sender.close();
     }
 }

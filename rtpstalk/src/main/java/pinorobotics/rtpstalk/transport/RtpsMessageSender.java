@@ -28,7 +28,7 @@ import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class RtpsMessageSender extends SimpleSubscriber<RtpsMessage> {
+public class RtpsMessageSender extends SimpleSubscriber<RtpsMessage> implements AutoCloseable {
 
     private final XLogger logger;
     private DataChannel dataChannel;
@@ -64,5 +64,12 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessage> {
         dataChannel.send(message);
         subscription.request(1);
         logger.exiting("onNext");
+    }
+
+    @Override
+    public void close() {
+        logger.entering("close");
+        subscription.cancel();
+        logger.exiting("close");
     }
 }
