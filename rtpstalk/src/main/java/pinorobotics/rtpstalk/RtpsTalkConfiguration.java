@@ -87,6 +87,10 @@ public class RtpsTalkConfiguration {
         this.heartbeatPeriod = heartbeatPeriod;
         this.spdpDiscoveredParticipantDataPublishPeriod =
                 spdpDiscoveredParticipantDataPublishPeriod;
+        refreshDependentParameters();
+    }
+
+    private void refreshDependentParameters() {
         defaultUnicastLocator =
                 new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
         metatrafficUnicastLocator =
@@ -215,6 +219,18 @@ public class RtpsTalkConfiguration {
 
     public RtpsTalkConfiguration withGuidPrefix(GuidPrefix prefix) {
         this.guidPrefix = prefix;
+        return this;
+    }
+
+    public RtpsTalkConfiguration withBuiltinEndpointPort(int builtInEnpointsPort) {
+        this.builtInEnpointsPort = builtInEnpointsPort;
+        refreshDependentParameters();
+        return this;
+    }
+
+    public RtpsTalkConfiguration withUserEndpointPort(int userEndpointsPort) {
+        this.userEndpointsPort = userEndpointsPort;
+        refreshDependentParameters();
         return this;
     }
 
