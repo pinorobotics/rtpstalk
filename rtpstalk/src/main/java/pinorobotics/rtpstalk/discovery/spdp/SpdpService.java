@@ -54,12 +54,18 @@ public class SpdpService implements AutoCloseable {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        var dataChannel = channelFactory.bind(config.metatrafficMulticastLocator());
+        var iface = config.networkInterfaces().get(0);
+        var localMetatrafficMulticastLocator = iface.getLocalMetatrafficMulticastLocator();
+        var dataChannel = channelFactory.bind(localMetatrafficMulticastLocator);
         receiver.start(dataChannel);
         receiver.subscribe(reader);
         writer = new SpdpBuiltinParticipantWriter(channelFactory, config);
-        writer.readerLocatorAdd(config.metatrafficMulticastLocator());
-        writer.setSpdpDiscoveredParticipantData(spdpDiscoveredDataFactory.createData(config));
+        writer.readerLocatorAdd(localMetatrafficMulticastLocator);
+        writer.setSpdpDiscoveredParticipantData(
+                spdpDiscoveredDataFactory.createData(
+                        config,
+                        iface.getLocalMetatrafficUnicastLocator(),
+                        iface.getLocalDefaultUnicastLocator()));
         writer.start();
         isStarted = true;
     }

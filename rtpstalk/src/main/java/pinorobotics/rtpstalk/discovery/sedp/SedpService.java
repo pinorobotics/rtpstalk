@@ -76,7 +76,9 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
         if (config.builtinEndpointQos() == EndpointQos.NONE)
             receiver.subscribe(new BuiltinParticipantMessageReader(config));
         participantsPublisher.subscribe(this);
-        receiver.start(channelFactory.bind(config.metatrafficUnicastLocator()));
+        var iface = config.networkInterfaces().get(0);
+        var localMetatrafficUnicastLocator = iface.getLocalMetatrafficUnicastLocator();
+        receiver.start(channelFactory.bind(localMetatrafficUnicastLocator));
         isStarted = true;
     }
 

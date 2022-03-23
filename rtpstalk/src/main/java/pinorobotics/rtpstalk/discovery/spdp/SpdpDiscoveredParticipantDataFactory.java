@@ -26,8 +26,7 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.messages.Duration;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -36,7 +35,10 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpDiscoveredParticipantDataFactory {
 
-    public ParameterList createData(RtpsTalkConfiguration config) {
+    public ParameterList createData(
+            RtpsTalkConfiguration config,
+            Locator metatrafficUnicastLocator,
+            Locator defaultUnicastLocator) {
         var endpointSet =
                 EnumSet.of(
                         Endpoint.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR,
@@ -59,16 +61,11 @@ public class SpdpDiscoveredParticipantDataFactory {
                         Map.entry(
                                 ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
                         Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID,
-                                new Guid(
-                                        config.guidPrefix(),
-                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
+                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
                         Map.entry(
                                 ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                                config.metatrafficUnicastLocator()),
-                        Map.entry(
-                                ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
-                                config.defaultUnicastLocator()),
+                                metatrafficUnicastLocator),
+                        Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator),
                         Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
                         Map.entry(
                                 ParameterId.PID_BUILTIN_ENDPOINT_SET,

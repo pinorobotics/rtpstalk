@@ -71,7 +71,9 @@ public class UserDataService {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        receiver.start(channelFactory.bind(config.defaultUnicastLocator()));
+        receiver.start(
+                channelFactory.bind(
+                        config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
         isStarted = true;
     }
 }

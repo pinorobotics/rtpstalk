@@ -30,6 +30,7 @@ import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -70,7 +71,13 @@ public class RtpsTalkClient {
             start();
         }
         var entityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
-        sedp.getSubscriptionsWriter().newChange(createSubscriptionData(topic, type, entityId));
+        sedp.getSubscriptionsWriter()
+                .newChange(
+                        createSubscriptionData(
+                                topic,
+                                type,
+                                entityId,
+                                config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
         var transformer = new TransformProcessor<>(RawData::getData);
         transformer.subscribe(subscriber);
         userService.subscribe(entityId, transformer);
@@ -82,7 +89,13 @@ public class RtpsTalkClient {
         }
         EntityId writerEntityId = new EntityId(config.appEntityKey(), EntityKind.WRITER_NO_KEY);
         EntityId readerEntityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
-        sedp.getPublicationsWriter().newChange(createPublicationData(topic, type, writerEntityId));
+        sedp.getPublicationsWriter()
+                .newChange(
+                        createPublicationData(
+                                topic,
+                                type,
+                                writerEntityId,
+                                config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
         var transformer = new TransformProcessor<byte[], RawData>(RawData::new);
         userService.publish(writerEntityId, readerEntityId, transformer);
         publisher.subscribe(transformer);
@@ -104,10 +117,10 @@ public class RtpsTalkClient {
     }
 
     private ParameterList createSubscriptionData(
-            String topicName, String typeName, EntityId entityId) {
+            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
         var params =
                 List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.defaultUnicastLocator()),
+                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID,
                                 new Guid(
@@ -127,11 +140,11 @@ public class RtpsTalkClient {
     }
 
     private ParameterList createPublicationData(
-            String topicName, String typeName, EntityId entityId) {
+            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
         var guid = new Guid(config.guidPrefix(), entityId);
         var params =
                 List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.defaultUnicastLocator()),
+                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID,
                                 new Guid(

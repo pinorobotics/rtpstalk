@@ -17,18 +17,34 @@
  */
 package pinorobotics.rtpstalk.messages;
 
+import id.xfunction.XAsserts;
 import id.xfunction.XJsonStringBuilder;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public record Locator(LocatorKind kind, int port, InetAddress address) {
+public record Locator(
+        LocatorKind kind,
+        int port,
+        InetAddress address,
+
+        /** Used in multicast locators */
+        Optional<NetworkInterface> networkInterface) {
 
     public static final Locator EMPTY_IPV6 = createEmpty(LocatorKind.LOCATOR_KIND_UDPv6);
     public static final Locator INVALID = createEmpty(LocatorKind.LOCATOR_KIND_INVALID);
+
+    public Locator(LocatorKind kind, int port, InetAddress address) {
+        this(kind, port, address, Optional.empty());
+        XAsserts.assertTrue(
+                !address.isMulticastAddress(),
+                "This constructor does not support multicast addresses");
+    }
 
     public SocketAddress getSocketAddress() {
         return new InetSocketAddress(address, port);
@@ -43,12 +59,14 @@ public record Locator(LocatorKind kind, int port, InetAddress address) {
         return builder.toString();
     }
 
-    public static Locator createDefaultMulticastLocator(int domainId) {
+    public static Locator createDefaultMulticastLocator(
+            int domainId, NetworkInterface networkInterface) {
         try {
             return new Locator(
                     LocatorKind.LOCATOR_KIND_UDPv4,
                     PortNumberParameters.DEFAULT.getMultiCastPort(domainId),
-                    InetAddress.getByName("239.255.0.1"));
+                    InetAddress.getByName("239.255.0.1"),
+                    Optional.of(networkInterface));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }

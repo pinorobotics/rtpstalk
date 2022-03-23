@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.transport;
 
 import java.io.IOException;
-import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
@@ -37,13 +36,14 @@ public class DataChannelFactory {
     /** Channel bind to local port */
     public DataChannel bind(Locator locator) throws IOException {
         if (locator.address().isMulticastAddress()) {
-            var ni = NetworkInterface.getByName(config.networkIface());
             var dataChannel =
                     DatagramChannel.open(StandardProtocolFamily.INET)
                             .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                             .bind(locator.getSocketAddress())
-                            .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-            dataChannel.join(locator.address(), ni);
+                            .setOption(
+                                    StandardSocketOptions.IP_MULTICAST_IF,
+                                    locator.networkInterface().get());
+            dataChannel.join(locator.address(), locator.networkInterface().get());
             return new DataChannel(
                     dataChannel,
                     locator.getSocketAddress(),
