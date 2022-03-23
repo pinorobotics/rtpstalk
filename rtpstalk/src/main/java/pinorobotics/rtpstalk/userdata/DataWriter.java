@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.userdata;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -29,8 +30,15 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
     public DataWriter(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
+            OperatingEntities operatingEntities,
             EntityId writerEntityId,
             EntityId readerEntityId) {
-        super(config, channelFactory, writerEntityId, readerEntityId, config.heartbeatPeriod());
+        super(
+                config,
+                channelFactory,
+                operatingEntities,
+                writerEntityId,
+                readerEntityId,
+                config.heartbeatPeriod());
     }
 }

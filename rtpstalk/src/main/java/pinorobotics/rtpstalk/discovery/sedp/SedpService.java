@@ -60,8 +60,6 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("SedpServiceReceiver");
-        subscriptionsWriter = new SedpBuiltinSubscriptionsWriter(channelFactory, config);
-        publicationsWriter = new SedpBuiltinPublicationsWriter(channelFactory, config);
     }
 
     public void start(Publisher<ParameterList> participantsPublisher) throws IOException {
@@ -69,14 +67,23 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
 
-        subscriptionsReader = new SedpBuiltinSubscriptionsReader(config);
+        var iface = config.networkInterfaces().get(0);
+        subscriptionsWriter =
+                new SedpBuiltinSubscriptionsWriter(
+                        config, channelFactory, iface.getOperatingEntities());
+        publicationsWriter =
+                new SedpBuiltinPublicationsWriter(
+                        config, channelFactory, iface.getOperatingEntities());
+        subscriptionsReader =
+                new SedpBuiltinSubscriptionsReader(config, iface.getOperatingEntities());
         receiver.subscribe(subscriptionsReader);
-        publicationsReader = new SedpBuiltinPublicationsReader(config);
+        publicationsReader =
+                new SedpBuiltinPublicationsReader(config, iface.getOperatingEntities());
         receiver.subscribe(publicationsReader);
         if (config.builtinEndpointQos() == EndpointQos.NONE)
-            receiver.subscribe(new BuiltinParticipantMessageReader(config));
+            receiver.subscribe(
+                    new BuiltinParticipantMessageReader(config, iface.getOperatingEntities()));
         participantsPublisher.subscribe(this);
-        var iface = config.networkInterfaces().get(0);
         var localMetatrafficUnicastLocator = iface.getLocalMetatrafficUnicastLocator();
         receiver.start(channelFactory.bind(localMetatrafficUnicastLocator));
         isStarted = true;

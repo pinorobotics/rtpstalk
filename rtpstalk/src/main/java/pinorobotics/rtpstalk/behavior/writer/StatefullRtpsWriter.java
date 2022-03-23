@@ -73,18 +73,21 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private DataChannelFactory channelFactory;
     private String writerName;
     private final Header header;
+    private OperatingEntities operatingEntities;
 
     public StatefullRtpsWriter(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
+            OperatingEntities operatingEntities,
             EntityId writerEntiyId,
             EntityId readerEntiyId,
             Duration heartbeatPeriod) {
         super(config, writerEntiyId, readerEntiyId, ReliabilityKind.RELIABLE, true);
         this.channelFactory = channelFactory;
+        this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = heartbeatPeriod;
         writerName = getGuid().entityId.toString();
-        OperatingEntities.getInstance().add(writerEntiyId, this);
+        operatingEntities.add(writerEntiyId, this);
         header =
                 new Header(
                         ProtocolId.Predefined.RTPS.getValue(),
@@ -155,7 +158,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     public void close() {
         super.close();
         executor.shutdown();
-        OperatingEntities.getInstance().remove(getGuid().entityId);
+        operatingEntities.remove(getGuid().entityId);
     }
 
     private void sendHeartbeat() {

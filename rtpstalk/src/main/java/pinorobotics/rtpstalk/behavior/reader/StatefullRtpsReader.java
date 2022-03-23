@@ -50,11 +50,14 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     private Map<Guid, WriterInfo> matchedWriters = new ConcurrentHashMap<>();
 
     private RtpsTalkConfiguration config;
+    private OperatingEntities operatingEntities;
 
-    public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
+    public StatefullRtpsReader(
+            RtpsTalkConfiguration config, OperatingEntities operatingEntities, EntityId entityId) {
         super(new Guid(config.guidPrefix(), entityId), ReliabilityKind.RELIABLE);
         this.config = config;
-        OperatingEntities.getInstance().add(getGuid().entityId, this);
+        this.operatingEntities = operatingEntities;
+        operatingEntities.add(getGuid().entityId, this);
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
@@ -92,7 +95,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     @Override
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
-        OperatingEntities.getInstance()
+        operatingEntities
                 .findStatefullWriter(ackNack.writerId)
                 .flatMap(
                         writer ->
@@ -133,5 +136,9 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
         matchedWriters.values().stream()
                 .map(WriterInfo::heartbeatProcessor)
                 .forEach(WriterHeartbeatProcessor::ack);
+    }
+
+    protected OperatingEntities getOperatingEntities() {
+        return operatingEntities;
     }
 }

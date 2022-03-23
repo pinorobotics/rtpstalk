@@ -97,4 +97,8 @@ public class RtpsNetworkInterface {
             throw new XRE("Error obtaining IP address for network interface %s", networkIface);
         }
     }
+
+    public OperatingEntities getOperatingEntities() {
+        return operatingEntities;
+    }
 }

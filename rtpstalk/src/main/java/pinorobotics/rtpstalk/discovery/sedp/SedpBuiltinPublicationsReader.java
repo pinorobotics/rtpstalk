@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.discovery.sedp;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -25,7 +26,11 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SedpBuiltinPublicationsReader extends StatefullRtpsReader<ParameterList> {
 
-    public SedpBuiltinPublicationsReader(RtpsTalkConfiguration config) {
-        super(config, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
+    public SedpBuiltinPublicationsReader(
+            RtpsTalkConfiguration config, OperatingEntities operatingEntities) {
+        super(
+                config,
+                operatingEntities,
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
     }
 }

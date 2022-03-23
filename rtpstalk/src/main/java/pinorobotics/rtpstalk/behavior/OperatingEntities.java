@@ -28,13 +28,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
-    private static final OperatingEntities INSTANCE = new OperatingEntities();
     private Map<EntityId, StatefullRtpsWriter<?>> writers = new ConcurrentHashMap<>();
     private Map<EntityId, StatefullRtpsReader<?>> readers = new ConcurrentHashMap<>();
-
-    public static OperatingEntities getInstance() {
-        return INSTANCE;
-    }
 
     public void add(EntityId entityId, StatefullRtpsWriter<?> writer) {
         XAsserts.assertTrue(

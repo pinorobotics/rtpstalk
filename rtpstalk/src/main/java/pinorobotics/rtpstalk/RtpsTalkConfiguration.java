@@ -39,7 +39,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
  */
 public record RtpsTalkConfiguration(
         List<RtpsNetworkInterface> networkInterfaces,
-        int builtInEnpointsPort,
+        int builtinEnpointsPort,
         int userEndpointsPort,
         int packetBufferSize,
         int domainId,
@@ -104,7 +104,7 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
-        public Builder builtInEnpointsPort(int builtInEnpointsPort) {
+        public Builder builtinEnpointsPort(int builtInEnpointsPort) {
             this.builtInEnpointsPort = builtInEnpointsPort;
             return this;
         }

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -40,15 +41,19 @@ public class UserDataService {
     private Map<EntityId, DataReader> readers = new HashMap<>();
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
+    private OperatingEntities operatingEntities;
 
     public UserDataService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("UserDataServiceReceiver");
+        operatingEntities = config.networkInterfaces().get(0).getOperatingEntities();
     }
 
     public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
-        var reader = readers.computeIfAbsent(entityId, eid -> new DataReader(config, eid));
+        var reader =
+                readers.computeIfAbsent(
+                        entityId, eid -> new DataReader(config, operatingEntities, eid));
         reader.subscribe(subscriber);
         receiver.subscribe(reader);
     }
@@ -60,10 +65,16 @@ public class UserDataService {
                         writerEntityId,
                         eid ->
                                 new DataWriter(
-                                        config, channelFactory, writerEntityId, readerEntityId));
+                                        config,
+                                        channelFactory,
+                                        operatingEntities,
+                                        writerEntityId,
+                                        readerEntityId));
         publisher.subscribe(writer);
         // to process ackNacks we create readers
-        var reader = readers.computeIfAbsent(readerEntityId, eid -> new DataReader(config, eid));
+        var reader =
+                readers.computeIfAbsent(
+                        readerEntityId, eid -> new DataReader(config, operatingEntities, eid));
         receiver.subscribe(reader);
     }
 

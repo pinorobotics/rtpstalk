@@ -34,8 +34,12 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<ParameterList> {
 
-    public SedpBuiltinSubscriptionsReader(RtpsTalkConfiguration config) {
-        super(config, EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
+    public SedpBuiltinSubscriptionsReader(
+            RtpsTalkConfiguration config, OperatingEntities operatingEntities) {
+        super(
+                config,
+                operatingEntities,
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
         subscribe(
                 new SimpleSubscriber<ParameterList>() {
                     @Override
@@ -58,7 +62,7 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
                 readerEndpointGuid);
         var writerEndpointEntityId =
                 new EntityId(readerEndpointGuid.entityId.entityKey, EntityKind.WRITER_NO_KEY);
-        OperatingEntities.getInstance()
+        getOperatingEntities()
                 .findStatefullWriter(writerEndpointEntityId)
                 .ifPresent(
                         writer -> {
