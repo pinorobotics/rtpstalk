@@ -83,7 +83,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
             EntityId readerEntiyId,
             ReliabilityKind reliabilityKind,
             boolean pushMode) {
-        this.writerGuid = new Guid(config.getGuidPrefix(), writerEntityId);
+        this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
         this.readerEntiyId = readerEntiyId;
         logger = InternalUtils.getInstance().getLogger(getClass(), writerGuid.entityId);
     }

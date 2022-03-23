@@ -89,7 +89,7 @@ public class SpdpServiceTest {
     @Test
     public void test_publisher_happy() throws Exception {
         TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
-        channelFactory.addChannel(CONFIG.getMetatrafficMulticastLocator(), metatrafficChannel);
+        channelFactory.addChannel(CONFIG.metatrafficMulticastLocator(), metatrafficChannel);
         service.start();
         // we expect spdp publisher startup time no longer than 100 msec
         Thread.sleep(100);
@@ -106,16 +106,17 @@ public class SpdpServiceTest {
     @Test
     public void test_publisher_rate() throws Exception {
         TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
-        channelFactory.addChannel(CONFIG.getMetatrafficMulticastLocator(), metatrafficChannel);
+        channelFactory.addChannel(CONFIG.metatrafficMulticastLocator(), metatrafficChannel);
         try (var service =
                 new SpdpService(
-                        new RtpsTalkConfiguration()
-                                .withSpdpDiscoveredParticipantDataPublishPeriod(
-                                        java.time.Duration.ofMillis(50)),
+                        new RtpsTalkConfiguration.Builder()
+                                .spdpDiscoveredParticipantDataPublishPeriod(
+                                        java.time.Duration.ofMillis(50))
+                                .build(),
                         channelFactory)) {
             service.start();
             Thread.sleep(160);
-            var channel = channelFactory.getChannels().get(CONFIG.getMetatrafficMulticastLocator());
+            var channel = channelFactory.getChannels().get(CONFIG.metatrafficMulticastLocator());
             Assertions.assertNotNull(channel);
             Assertions.assertEquals(4, channel.getDataQueue().size());
         }
@@ -126,7 +127,7 @@ public class SpdpServiceTest {
         TestDataChannel metatrafficChannel =
                 new TestDataChannel(TEST_GUID_PREFIX, false)
                         .withInput(List.of(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_MESSAGE));
-        channelFactory.addChannel(CONFIG.getMetatrafficMulticastLocator(), metatrafficChannel);
+        channelFactory.addChannel(CONFIG.metatrafficMulticastLocator(), metatrafficChannel);
         CompletableFuture<ParameterList> future = new CompletableFuture<>();
         service.getReader()
                 .subscribe(
@@ -137,7 +138,7 @@ public class SpdpServiceTest {
                             }
                         });
         service.start();
-        var channel = channelFactory.getChannels().get(CONFIG.getMetatrafficMulticastLocator());
+        var channel = channelFactory.getChannels().get(CONFIG.metatrafficMulticastLocator());
         Assertions.assertNotNull(channel);
         var actual = future.get();
         System.out.println(actual);

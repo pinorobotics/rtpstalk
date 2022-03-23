@@ -47,7 +47,7 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
                 channelFactory,
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
-        this.rate = config.getSpdpDiscoveredParticipantDataPublishPeriod();
+        this.rate = config.spdpDiscoveredParticipantDataPublishPeriod();
     }
 
     public void start() {

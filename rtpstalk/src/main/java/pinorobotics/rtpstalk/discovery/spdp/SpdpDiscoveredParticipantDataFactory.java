@@ -49,7 +49,7 @@ public class SpdpDiscoveredParticipantDataFactory {
                         Endpoint.SECURE_SUBSCRIPTION_READER,
                         Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
         // best-effort is not currently supported
-        if (config.getBuiltinEndpointQos() == EndpointQos.NONE)
+        if (config.builtinEndpointQos() == EndpointQos.NONE)
             endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
         var params =
                 List.<Entry<ParameterId, Object>>of(
@@ -61,14 +61,14 @@ public class SpdpDiscoveredParticipantDataFactory {
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID,
                                 new Guid(
-                                        config.getGuidPrefix(),
+                                        config.guidPrefix(),
                                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                         Map.entry(
                                 ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                                config.getMetatrafficUnicastLocator()),
+                                config.metatrafficUnicastLocator()),
                         Map.entry(
                                 ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
-                                config.getDefaultUnicastLocator()),
+                                config.defaultUnicastLocator()),
                         Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
                         Map.entry(
                                 ParameterId.PID_BUILTIN_ENDPOINT_SET,

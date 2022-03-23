@@ -33,6 +33,6 @@ public class SedpBuiltinSubscriptionsWriter extends StatefullRtpsWriter<Paramete
                 channelFactory,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue(),
-                config.getHeartbeatPeriod());
+                config.heartbeatPeriod());
     }
 }

@@ -54,7 +54,7 @@ public class TestDataChannelFactory extends DataChannelFactory {
     private DataChannel getOrCreateDataChannel(Locator locator) {
         var channel = channels.get(locator);
         if (channel == null) {
-            channel = new TestDataChannel(config.getGuidPrefix(), false);
+            channel = new TestDataChannel(config.guidPrefix(), false);
             channels.put(locator, channel);
         }
         return channel;

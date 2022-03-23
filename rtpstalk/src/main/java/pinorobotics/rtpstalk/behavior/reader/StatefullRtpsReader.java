@@ -52,7 +52,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     private RtpsTalkConfiguration config;
 
     public StatefullRtpsReader(RtpsTalkConfiguration config, EntityId entityId) {
-        super(new Guid(config.getGuidPrefix(), entityId), ReliabilityKind.RELIABLE);
+        super(new Guid(config.guidPrefix(), entityId), ReliabilityKind.RELIABLE);
         this.config = config;
         OperatingEntities.getInstance().add(getGuid().entityId, this);
     }

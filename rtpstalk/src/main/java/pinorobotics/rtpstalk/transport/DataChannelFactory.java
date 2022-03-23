@@ -37,7 +37,7 @@ public class DataChannelFactory {
     /** Channel bind to local port */
     public DataChannel bind(Locator locator) throws IOException {
         if (locator.address().isMulticastAddress()) {
-            var ni = NetworkInterface.getByName(config.getNetworkIface());
+            var ni = NetworkInterface.getByName(config.networkIface());
             var dataChannel =
                     DatagramChannel.open(StandardProtocolFamily.INET)
                             .setOption(StandardSocketOptions.SO_REUSEADDR, true)
@@ -47,8 +47,8 @@ public class DataChannelFactory {
             return new DataChannel(
                     dataChannel,
                     locator.getSocketAddress(),
-                    config.getGuidPrefix(),
-                    config.getPacketBufferSize());
+                    config.guidPrefix(),
+                    config.packetBufferSize());
         } else {
             var dataChannel =
                     DatagramChannel.open(StandardProtocolFamily.INET)
@@ -56,8 +56,8 @@ public class DataChannelFactory {
             return new DataChannel(
                     dataChannel,
                     locator.getSocketAddress(),
-                    config.getGuidPrefix(),
-                    config.getPacketBufferSize());
+                    config.guidPrefix(),
+                    config.packetBufferSize());
         }
     }
 
@@ -70,7 +70,7 @@ public class DataChannelFactory {
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .connect(locator.getSocketAddress()),
                 locator.getSocketAddress(),
-                config.getGuidPrefix(),
-                config.getPacketBufferSize());
+                config.guidPrefix(),
+                config.packetBufferSize());
     }
 }

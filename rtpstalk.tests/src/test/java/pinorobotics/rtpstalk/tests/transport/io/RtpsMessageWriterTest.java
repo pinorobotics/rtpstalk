@@ -24,8 +24,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 /** @author lambdaprime intid@protonmail.com */
@@ -35,7 +35,7 @@ public class RtpsMessageWriterTest {
     @MethodSource("pinorobotics.rtpstalk.tests.transport.io.DataProviders#rtpsMessageConversion")
     public void testWrite(List testData) throws Exception {
         var expected = ByteBuffer.wrap(new XInputStream((String) testData.get(0)).readAllBytes());
-        var actual = ByteBuffer.allocate(RtpsTalkConfiguration.DEFAULT.getPacketBufferSize());
+        var actual = ByteBuffer.allocate(TestConstants.TEST_CONFIG.packetBufferSize());
         new RtpsMessageWriter().writeRtpsMessage((RtpsMessage) testData.get(1), actual);
         actual.limit(actual.position());
         actual.rewind();

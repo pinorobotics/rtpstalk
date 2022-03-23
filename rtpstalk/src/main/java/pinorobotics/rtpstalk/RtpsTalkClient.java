@@ -54,7 +54,7 @@ public class RtpsTalkClient {
     private boolean isStarted;
 
     public RtpsTalkClient() {
-        this(RtpsTalkConfiguration.DEFAULT);
+        this(new RtpsTalkConfiguration.Builder().build());
     }
 
     public RtpsTalkClient(RtpsTalkConfiguration config) {
@@ -69,7 +69,7 @@ public class RtpsTalkClient {
         if (!isStarted) {
             start();
         }
-        var entityId = new EntityId(config.getAppEntityKey(), EntityKind.READER_NO_KEY);
+        var entityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
         sedp.getSubscriptionsWriter().newChange(createSubscriptionData(topic, type, entityId));
         var transformer = new TransformProcessor<>(RawData::getData);
         transformer.subscribe(subscriber);
@@ -80,8 +80,8 @@ public class RtpsTalkClient {
         if (!isStarted) {
             start();
         }
-        EntityId writerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.WRITER_NO_KEY);
-        EntityId readerEntityId = new EntityId(config.getAppEntityKey(), EntityKind.READER_NO_KEY);
+        EntityId writerEntityId = new EntityId(config.appEntityKey(), EntityKind.WRITER_NO_KEY);
+        EntityId readerEntityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
         sedp.getPublicationsWriter().newChange(createPublicationData(topic, type, writerEntityId));
         var transformer = new TransformProcessor<byte[], RawData>(RawData::new);
         userService.publish(writerEntityId, readerEntityId, transformer);
@@ -107,18 +107,17 @@ public class RtpsTalkClient {
             String topicName, String typeName, EntityId entityId) {
         var params =
                 List.<Entry<ParameterId, Object>>of(
-                        Map.entry(
-                                ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
+                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.defaultUnicastLocator()),
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID,
                                 new Guid(
-                                        config.getGuidPrefix(),
+                                        config.guidPrefix(),
                                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                         Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
                         Map.entry(ParameterId.PID_TYPE_NAME, typeName),
                         Map.entry(
                                 ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.getGuidPrefix(), entityId)),
+                                new Guid(config.guidPrefix(), entityId)),
                         Map.entry(
                                 ParameterId.PID_PROTOCOL_VERSION,
                                 ProtocolVersion.Predefined.Version_2_3.getValue()),
@@ -129,15 +128,14 @@ public class RtpsTalkClient {
 
     private ParameterList createPublicationData(
             String topicName, String typeName, EntityId entityId) {
-        var guid = new Guid(config.getGuidPrefix(), entityId);
+        var guid = new Guid(config.guidPrefix(), entityId);
         var params =
                 List.<Entry<ParameterId, Object>>of(
-                        Map.entry(
-                                ParameterId.PID_UNICAST_LOCATOR, config.getDefaultUnicastLocator()),
+                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, config.defaultUnicastLocator()),
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID,
                                 new Guid(
-                                        config.getGuidPrefix(),
+                                        config.guidPrefix(),
                                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
                         Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
                         Map.entry(ParameterId.PID_TYPE_NAME, typeName),

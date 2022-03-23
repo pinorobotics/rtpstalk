@@ -27,161 +27,45 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
-public class RtpsTalkConfiguration {
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch 
+ * @author lambdaprime intid@protonmail.com
+ */
+public record RtpsTalkConfiguration(
+        String networkIface,
+        int builtInEnpointsPort,
+        int userEndpointsPort,
+        int packetBufferSize,
+        int domainId,
+        InetAddress ipAddress,
+        GuidPrefix guidPrefix,
+        EndpointQos builtinEndpointQos,
 
-    private static final String DEFAULT_NETWORK_IFACE = "eth0";
+        /**
+         * Default list of unicast locators (transport, address, port combinations) that can be used
+         * to send messages to the user-defined Endpoints contained in the Participant. These are
+         * the unicast locators that will be used in case the Endpoint does not specify its own set
+         * of Locators, so at least one Locator must be present.
+         *
+         * <p>Currently only one locator supported.
+         */
+        Locator defaultUnicastLocator,
 
-    /**
-     * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload of
-     * 65,507 bytes for IPv4"
-     *
-     * <p>https://datatracker.ietf.org/doc/html/rfc8085
-     */
-    private static final int UDP_MAX_PACKET_SIZE = 65_507;
+        /**
+         * List of unicast locators (transport, address, port combinations) that can be used to send
+         * messages to the built-in Endpoints contained in the Participant.
+         *
+         * <p>Currently only one locator supported.
+         */
+        Locator metatrafficUnicastLocator,
+        Locator metatrafficMulticastLocator,
+        Duration leaseDuration,
+        Duration heartbeatPeriod,
+        Duration spdpDiscoveredParticipantDataPublishPeriod,
+        int appEntityKey) {
 
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
-
-    public static final RtpsTalkConfiguration DEFAULT = new RtpsTalkConfiguration();
-
-    private String networkIface;
-    private int builtInEnpointsPort;
-    private int userEndpointsPort;
-    private int packetBufferSize;
-    private int domainId;
-    private InetAddress ipAddress;
-    private GuidPrefix guidPrefix;
-    private EndpointQos builtinEndpointQos;
-    private Locator defaultUnicastLocator;
-    private Locator metatrafficUnicastLocator;
-    private Locator metatrafficMulticastLocator;
-    private Duration leaseDuration;
-    private Duration heartbeatPeriod;
-    private Duration spdpDiscoveredParticipantDataPublishPeriod;
-    private int appEntityKey;
-
-    public RtpsTalkConfiguration(
-            String networkIface,
-            int builtInEnpointsPort,
-            int userEndpointsPort,
-            int packetBufferSize,
-            int domainId,
-            int appEntityKey,
-            InetAddress ipAddress,
-            GuidPrefix guidPrefix,
-            EndpointQos builtinEndpointQos,
-            Duration leaseDuration,
-            Duration heartbeatPeriod,
-            Duration spdpDiscoveredParticipantDataPublishPeriod) {
-        this.networkIface = networkIface;
-        this.builtInEnpointsPort = builtInEnpointsPort;
-        this.userEndpointsPort = userEndpointsPort;
-        this.packetBufferSize = packetBufferSize;
-        this.domainId = domainId;
-        this.appEntityKey = appEntityKey;
-        this.ipAddress = ipAddress;
-        this.guidPrefix = guidPrefix;
-        this.builtinEndpointQos = builtinEndpointQos;
-        this.leaseDuration = leaseDuration;
-        this.heartbeatPeriod = heartbeatPeriod;
-        this.spdpDiscoveredParticipantDataPublishPeriod =
-                spdpDiscoveredParticipantDataPublishPeriod;
-        refreshDependentParameters();
-    }
-
-    private void refreshDependentParameters() {
-        defaultUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
-        metatrafficUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
-        metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId);
-    }
-
-    public RtpsTalkConfiguration() {
-        this(
-                DEFAULT_NETWORK_IFACE,
-                7412,
-                7413,
-                UDP_MAX_PACKET_SIZE,
-                0,
-                0x000012,
-                getNetworkIfaceIp(DEFAULT_NETWORK_IFACE),
-                GuidPrefix.generate(),
-                EndpointQos.NONE,
-                Duration.ofSeconds(20),
-                Duration.ofSeconds(1),
-                Duration.ofSeconds(5));
-    }
-
-    /**
-     * List of unicast locators (transport, address, port combinations) that can be used to send
-     * messages to the built-in Endpoints contained in the Participant.
-     *
-     * <p>Currently only one locator supported.
-     */
-    public Locator getMetatrafficUnicastLocator() {
-        return metatrafficUnicastLocator;
-    }
-
-    /**
-     * Default list of unicast locators (transport, address, port combinations) that can be used to
-     * send messages to the user-defined Endpoints contained in the Participant. These are the
-     * unicast locators that will be used in case the Endpoint does not specify its own set of
-     * Locators, so at least one Locator must be present.
-     *
-     * <p>Currently only one locator supported.
-     */
-    public Locator getDefaultUnicastLocator() {
-        return defaultUnicastLocator;
-    }
-
-    public String getNetworkIface() {
-        return networkIface;
-    }
-
-    public int getBuiltInEnpointsPort() {
-        return builtInEnpointsPort;
-    }
-
-    public int getUserEndpointsPort() {
-        return userEndpointsPort;
-    }
-
-    public int getPacketBufferSize() {
-        return packetBufferSize;
-    }
-
-    public int getDomainId() {
-        return domainId;
-    }
-
-    public InetAddress getIpAddress() {
-        return ipAddress;
-    }
-
-    public GuidPrefix getGuidPrefix() {
-        return guidPrefix;
-    }
-
-    public EndpointQos getBuiltinEndpointQos() {
-        return builtinEndpointQos;
-    }
-
-    public Duration getLeaseDuration() {
-        return leaseDuration;
-    }
-
-    private static InetAddress getNetworkIfaceIp(String networkIface) {
-        try {
-            return NetworkInterface.getByName(networkIface)
-                    .getInterfaceAddresses()
-                    .get(0)
-                    .getAddress();
-        } catch (Exception e) {
-            throw new XRE("Error obtaining IP address for network interface %s", networkIface);
-        }
-    }
 
     @Override
     public String toString() {
@@ -200,41 +84,127 @@ public class RtpsTalkConfiguration {
         return builder.toString();
     }
 
-    public Locator getMetatrafficMulticastLocator() {
-        return metatrafficMulticastLocator;
-    }
+    public static class Builder {
 
-    public Duration getHeartbeatPeriod() {
-        return heartbeatPeriod;
-    }
+        /**
+         * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload
+         * of 65,507 bytes for IPv4"
+         *
+         * <p>https://datatracker.ietf.org/doc/html/rfc8085
+         */
+        private static final int UDP_MAX_PACKET_SIZE = 65_507;
 
-    public Duration getSpdpDiscoveredParticipantDataPublishPeriod() {
-        return spdpDiscoveredParticipantDataPublishPeriod;
-    }
+        private static final String DEFAULT_NETWORK_IFACE = "eth0";
 
-    public RtpsTalkConfiguration withSpdpDiscoveredParticipantDataPublishPeriod(Duration period) {
-        spdpDiscoveredParticipantDataPublishPeriod = period;
-        return this;
-    }
+        private String networkIface = DEFAULT_NETWORK_IFACE;
+        private int builtInEnpointsPort = 7412;
+        private int userEndpointsPort = 7413;
+        private int packetBufferSize = UDP_MAX_PACKET_SIZE;
+        private int domainId = 0;
+        private int appEntityKey = 0x000012;
+        private InetAddress ipAddress = getNetworkIfaceIp(DEFAULT_NETWORK_IFACE);
+        private GuidPrefix guidPrefix = GuidPrefix.generate();
+        private EndpointQos builtinEndpointQos = EndpointQos.NONE;
+        private Duration leaseDuration = Duration.ofSeconds(20);
+        private Duration heartbeatPeriod = Duration.ofSeconds(1);
+        private Duration spdpDiscoveredParticipantDataPublishPeriod = Duration.ofSeconds(5);
 
-    public RtpsTalkConfiguration withGuidPrefix(GuidPrefix prefix) {
-        this.guidPrefix = prefix;
-        return this;
-    }
+        public Builder networkIface(String networkIface) {
+            this.networkIface = networkIface;
+            return this;
+        }
 
-    public RtpsTalkConfiguration withBuiltinEndpointPort(int builtInEnpointsPort) {
-        this.builtInEnpointsPort = builtInEnpointsPort;
-        refreshDependentParameters();
-        return this;
-    }
+        public Builder builtInEnpointsPort(int builtInEnpointsPort) {
+            this.builtInEnpointsPort = builtInEnpointsPort;
+            return this;
+        }
 
-    public RtpsTalkConfiguration withUserEndpointPort(int userEndpointsPort) {
-        this.userEndpointsPort = userEndpointsPort;
-        refreshDependentParameters();
-        return this;
-    }
+        public Builder userEndpointsPort(int userEndpointsPort) {
+            this.userEndpointsPort = userEndpointsPort;
+            return this;
+        }
 
-    public int getAppEntityKey() {
-        return appEntityKey;
+        public Builder packetBufferSize(int packetBufferSize) {
+            this.packetBufferSize = packetBufferSize;
+            return this;
+        }
+
+        public Builder domainId(int domainId) {
+            this.domainId = domainId;
+            return this;
+        }
+
+        public Builder appEntityKey(int appEntityKey) {
+            this.appEntityKey = appEntityKey;
+            return this;
+        }
+
+        public Builder ipAddress(InetAddress ipAddress) {
+            this.ipAddress = ipAddress;
+            return this;
+        }
+
+        public Builder guidPrefix(GuidPrefix guidPrefix) {
+            this.guidPrefix = guidPrefix;
+            return this;
+        }
+
+        public Builder builtinEndpointQos(EndpointQos builtinEndpointQos) {
+            this.builtinEndpointQos = builtinEndpointQos;
+            return this;
+        }
+
+        public Builder leaseDuration(Duration leaseDuration) {
+            this.leaseDuration = leaseDuration;
+            return this;
+        }
+
+        public Builder heartbeatPeriod(Duration heartbeatPeriod) {
+            this.heartbeatPeriod = heartbeatPeriod;
+            return this;
+        }
+
+        public Builder spdpDiscoveredParticipantDataPublishPeriod(
+                Duration spdpDiscoveredParticipantDataPublishPeriod) {
+            this.spdpDiscoveredParticipantDataPublishPeriod =
+                    spdpDiscoveredParticipantDataPublishPeriod;
+            return this;
+        }
+
+        public RtpsTalkConfiguration build() {
+            var defaultUnicastLocator =
+                    new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
+            var metatrafficUnicastLocator =
+                    new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
+            var metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId);
+
+            return new RtpsTalkConfiguration(
+                    networkIface,
+                    builtInEnpointsPort,
+                    userEndpointsPort,
+                    packetBufferSize,
+                    domainId,
+                    ipAddress,
+                    guidPrefix,
+                    builtinEndpointQos,
+                    defaultUnicastLocator,
+                    metatrafficUnicastLocator,
+                    metatrafficMulticastLocator,
+                    leaseDuration,
+                    heartbeatPeriod,
+                    spdpDiscoveredParticipantDataPublishPeriod,
+                    appEntityKey);
+        }
+
+        private static InetAddress getNetworkIfaceIp(String networkIface) {
+            try {
+                return NetworkInterface.getByName(networkIface)
+                        .getInterfaceAddresses()
+                        .get(0)
+                        .getAddress();
+            } catch (Exception e) {
+                throw new XRE("Error obtaining IP address for network interface %s", networkIface);
+            }
+        }
     }
 }

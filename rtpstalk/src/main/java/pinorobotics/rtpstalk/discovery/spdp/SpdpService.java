@@ -47,18 +47,18 @@ public class SpdpService implements AutoCloseable {
         this.channelFactory = channelFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
         receiver = new RtpsMessageReceiver(getClass().getSimpleName());
-        reader = new SpdpBuiltinParticipantReader(config.getGuidPrefix());
+        reader = new SpdpBuiltinParticipantReader(config.guidPrefix());
     }
 
     public void start() throws Exception {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        var dataChannel = channelFactory.bind(config.getMetatrafficMulticastLocator());
+        var dataChannel = channelFactory.bind(config.metatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
         writer = new SpdpBuiltinParticipantWriter(channelFactory, config);
-        writer.readerLocatorAdd(config.getMetatrafficMulticastLocator());
+        writer.readerLocatorAdd(config.metatrafficMulticastLocator());
         writer.setSpdpDiscoveredParticipantData(spdpDiscoveredDataFactory.createData(config));
         writer.start();
         isStarted = true;

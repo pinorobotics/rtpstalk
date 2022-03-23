@@ -31,6 +31,6 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
             DataChannelFactory channelFactory,
             EntityId writerEntityId,
             EntityId readerEntityId) {
-        super(config, channelFactory, writerEntityId, readerEntityId, config.getHeartbeatPeriod());
+        super(config, channelFactory, writerEntityId, readerEntityId, config.heartbeatPeriod());
     }
 }
