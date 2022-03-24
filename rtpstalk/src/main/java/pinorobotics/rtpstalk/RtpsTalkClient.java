@@ -20,28 +20,12 @@ package pinorobotics.rtpstalk;
 import id.xfunction.XAsserts;
 import id.xfunction.concurrent.flow.TransformProcessor;
 import id.xfunction.logging.XLogger;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.discovery.sedp.SedpService;
-import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
-import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
-import pinorobotics.rtpstalk.messages.Duration;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
-import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsTalkClient {
@@ -49,9 +33,7 @@ public class RtpsTalkClient {
     private static final XLogger LOGGER = XLogger.getLogger(RtpsTalkClient.class);
     private RtpsTalkConfiguration config;
     private DataChannelFactory channelFactory;
-    private SpdpService spdp;
-    private SedpService sedp;
-    private UserDataService userService;
+    private RtpsServiceManager serviceManager;
     private boolean isStarted;
 
     public RtpsTalkClient() {
@@ -61,9 +43,7 @@ public class RtpsTalkClient {
     public RtpsTalkClient(RtpsTalkConfiguration config) {
         this.config = config;
         channelFactory = new DataChannelFactory(config);
-        spdp = new SpdpService(config, channelFactory);
-        sedp = new SedpService(config, channelFactory);
-        userService = new UserDataService(config, channelFactory);
+        serviceManager = new RtpsServiceManager(config, channelFactory);
     }
 
     public void subscribe(String topic, String type, Subscriber<byte[]> subscriber) {
@@ -71,33 +51,17 @@ public class RtpsTalkClient {
             start();
         }
         var entityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
-        sedp.getSubscriptionsWriter()
-                .newChange(
-                        createSubscriptionData(
-                                topic,
-                                type,
-                                entityId,
-                                config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
         var transformer = new TransformProcessor<>(RawData::getData);
         transformer.subscribe(subscriber);
-        userService.subscribe(entityId, transformer);
+        serviceManager.subscribe(topic, type, transformer, entityId);
     }
 
     public void publish(String topic, String type, Publisher<byte[]> publisher) {
         if (!isStarted) {
             start();
         }
-        EntityId writerEntityId = new EntityId(config.appEntityKey(), EntityKind.WRITER_NO_KEY);
-        EntityId readerEntityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
-        sedp.getPublicationsWriter()
-                .newChange(
-                        createPublicationData(
-                                topic,
-                                type,
-                                writerEntityId,
-                                config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
         var transformer = new TransformProcessor<byte[], RawData>(RawData::new);
-        userService.publish(writerEntityId, readerEntityId, transformer);
+        serviceManager.publish(topic, type, transformer);
         publisher.subscribe(transformer);
     }
 
@@ -105,64 +69,8 @@ public class RtpsTalkClient {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        try {
-            spdp.start();
-            sedp.start(spdp.getReader());
-            userService.start();
-        } catch (Exception e) {
-            throw new RtpsTalkException(e);
-        }
+        serviceManager.startAll();
         isStarted = true;
         LOGGER.exiting("start");
-    }
-
-    private ParameterList createSubscriptionData(
-            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID,
-                                new Guid(
-                                        config.guidPrefix(),
-                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                        Map.entry(
-                                ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.guidPrefix(), entityId)),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
-        return new ParameterList(params);
-    }
-
-    private ParameterList createPublicationData(
-            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
-        var guid = new Guid(config.guidPrefix(), entityId);
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID,
-                                new Guid(
-                                        config.guidPrefix(),
-                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                        Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
-                        Map.entry(
-                                ParameterId.PID_RELIABILITY,
-                                new ReliabilityQosPolicy(
-                                        ReliabilityKind.RELIABLE,
-                                        Duration.Predefined.ZERO.getValue())));
-        return new ParameterList(params);
     }
 }

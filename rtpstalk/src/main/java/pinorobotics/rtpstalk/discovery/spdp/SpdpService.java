@@ -19,7 +19,10 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
+import java.util.concurrent.Flow.Publisher;
+import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
@@ -49,19 +52,17 @@ public class SpdpService implements AutoCloseable {
         receiver = new RtpsMessageReceiver(getClass().getSimpleName());
     }
 
-    public void start() throws Exception {
+    public void start(RtpsNetworkInterface iface) throws Exception {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        var iface = config.networkInterfaces().get(0);
         reader =
                 new SpdpBuiltinParticipantReader(config.guidPrefix(), iface.getOperatingEntities());
-        var localMetatrafficMulticastLocator = iface.getLocalMetatrafficMulticastLocator();
-        var dataChannel = channelFactory.bind(localMetatrafficMulticastLocator);
+        var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
         writer = new SpdpBuiltinParticipantWriter(channelFactory, config);
-        writer.readerLocatorAdd(localMetatrafficMulticastLocator);
+        writer.readerLocatorAdd(iface.getLocalMetatrafficMulticastLocator());
         writer.setSpdpDiscoveredParticipantData(
                 spdpDiscoveredDataFactory.createData(
                         config,
@@ -71,13 +72,13 @@ public class SpdpService implements AutoCloseable {
         isStarted = true;
     }
 
-    public SpdpBuiltinParticipantReader getReader() {
+    public Publisher<ParameterList> getParticipantsPublisher() {
         XAsserts.assertTrue(isStarted, "Service not yet started");
         return reader;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!isStarted) return;
         receiver.close();
         writer.close();

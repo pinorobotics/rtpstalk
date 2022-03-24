@@ -93,7 +93,7 @@ public class SpdpServiceTest {
         TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
         channelFactory.addChannel(
                 NETWORK_IFACE.getLocalMetatrafficMulticastLocator(), metatrafficChannel);
-        service.start();
+        service.start(NETWORK_IFACE);
         // we expect spdp publisher startup time no longer than 100 msec
         Thread.sleep(100);
         Assertions.assertEquals(1, metatrafficChannel.getDataQueue().size());
@@ -118,7 +118,7 @@ public class SpdpServiceTest {
                                         java.time.Duration.ofMillis(50))
                                 .build(),
                         channelFactory)) {
-            service.start();
+            service.start(NETWORK_IFACE);
             Thread.sleep(160);
             var channel =
                     channelFactory
@@ -135,8 +135,8 @@ public class SpdpServiceTest {
         channelFactory.addChannel(
                 NETWORK_IFACE.getLocalMetatrafficMulticastLocator(), metatrafficChannel);
         CompletableFuture<ParameterList> future = new CompletableFuture<>();
-        service.start();
-        service.getReader()
+        service.start(NETWORK_IFACE);
+        service.getParticipantsPublisher()
                 .subscribe(
                         new SimpleSubscriber<>() {
                             @Override

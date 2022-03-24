@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -78,13 +79,12 @@ public class UserDataService {
         receiver.subscribe(reader);
     }
 
-    public void start() throws IOException {
+    public void start(RtpsNetworkInterface iface) throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
-        receiver.start(
-                channelFactory.bind(
-                        config.networkInterfaces().get(0).getLocalDefaultUnicastLocator()));
+        receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
+        operatingEntities = iface.getOperatingEntities();
         isStarted = true;
     }
 }

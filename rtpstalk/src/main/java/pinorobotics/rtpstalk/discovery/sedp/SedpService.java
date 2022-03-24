@@ -23,6 +23,7 @@ import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Flow.Publisher;
+import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
@@ -52,22 +53,23 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
     private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
     private SedpBuiltinPublicationsReader publicationsReader;
     private SedpBuiltinPublicationsWriter publicationsWriter;
-    private RtpsMessageReceiver receiver;
+    private RtpsMessageReceiver metatrafficReceiver;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
+    private RtpsNetworkInterface iface;
 
     public SedpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
-        receiver = new RtpsMessageReceiver("SedpServiceReceiver");
+        metatrafficReceiver = new RtpsMessageReceiver("SedpServiceReceiver");
     }
 
-    public void start(Publisher<ParameterList> participantsPublisher) throws IOException {
+    public void start(Publisher<ParameterList> participantsPublisher, RtpsNetworkInterface iface)
+            throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
 
-        var iface = config.networkInterfaces().get(0);
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config, channelFactory, iface.getOperatingEntities());
@@ -76,16 +78,16 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
                         config, channelFactory, iface.getOperatingEntities());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(config, iface.getOperatingEntities());
-        receiver.subscribe(subscriptionsReader);
+        metatrafficReceiver.subscribe(subscriptionsReader);
         publicationsReader =
                 new SedpBuiltinPublicationsReader(config, iface.getOperatingEntities());
-        receiver.subscribe(publicationsReader);
+        metatrafficReceiver.subscribe(publicationsReader);
         if (config.builtinEndpointQos() == EndpointQos.NONE)
-            receiver.subscribe(
+            metatrafficReceiver.subscribe(
                     new BuiltinParticipantMessageReader(config, iface.getOperatingEntities()));
         participantsPublisher.subscribe(this);
-        var localMetatrafficUnicastLocator = iface.getLocalMetatrafficUnicastLocator();
-        receiver.start(channelFactory.bind(localMetatrafficUnicastLocator));
+        metatrafficReceiver.start(channelFactory.bind(iface.getLocalMetatrafficUnicastLocator()));
+        this.iface = iface;
         isStarted = true;
     }
 
@@ -205,5 +207,9 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
 
     public SedpBuiltinPublicationsWriter getPublicationsWriter() {
         return publicationsWriter;
+    }
+
+    public RtpsNetworkInterface getNetworkInterface() {
+        return iface;
     }
 }
