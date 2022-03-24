@@ -131,12 +131,11 @@ public class SpdpServiceTest {
 
     @Test
     public void test_new_participant_discovery() throws Exception {
-        TestDataChannel metatrafficChannel =
-                new TestDataChannel(TEST_GUID_PREFIX, false)
-                        .withInput(List.of(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_MESSAGE));
+        var metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, false);
         channelFactory.addChannel(
                 NETWORK_IFACE.getLocalMetatrafficMulticastLocator(), metatrafficChannel);
         CompletableFuture<ParameterList> future = new CompletableFuture<>();
+        service.start();
         service.getReader()
                 .subscribe(
                         new SimpleSubscriber<>() {
@@ -145,7 +144,7 @@ public class SpdpServiceTest {
                                 future.complete(item);
                             }
                         });
-        service.start();
+        metatrafficChannel.addInput(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_MESSAGE);
         var channel =
                 channelFactory
                         .getChannels()

@@ -20,8 +20,11 @@ package pinorobotics.rtpstalk.discovery.spdp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.KeyHash;
+import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
@@ -32,12 +35,15 @@ import pinorobotics.rtpstalk.structure.CacheChange;
 public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
 
     private Map<Guid, ParameterList> participants = new HashMap<>();
+    private OperatingEntities operatingEntities;
 
-    public SpdpBuiltinParticipantReader(GuidPrefix guidPrefix) {
+    public SpdpBuiltinParticipantReader(
+            GuidPrefix guidPrefix, OperatingEntities operatingEntities) {
         super(
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));
+        this.operatingEntities = operatingEntities;
     }
 
     @Override
@@ -56,5 +62,47 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
                 new Guid(
                         participantGuidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
         return Optional.ofNullable(participants.get(guid));
+    }
+
+    @Override
+    protected void processInlineQos(Guid writer, Map<ParameterId, ?> params) {
+        processStatusInfo(writer, params);
+    }
+
+    private void processStatusInfo(Guid writerGuid, Map<ParameterId, ?> params) {
+        if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
+            if (info.isDisposed()) {
+                if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
+                    var guid = keyHash.asGuid();
+                    if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(guid.entityId)) {
+                        logger.fine("Writer marked participant {} as disposed", guid);
+                        var writersToReaders =
+                                Map.of(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER
+                                                .getValue(),
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
+                                                .getValue(),
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
+                                                .getValue(),
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
+                                                .getValue());
+                        for (var pair : writersToReaders.entrySet()) {
+                            operatingEntities
+                                    .findStatefullWriter(pair.getKey())
+                                    .ifPresent(
+                                            writer ->
+                                                    writer.matchedReaderRemove(
+                                                            new Guid(
+                                                                    guid.guidPrefix,
+                                                                    pair.getValue())));
+                        }
+                    }
+                }
+            }
+        }
     }
 }

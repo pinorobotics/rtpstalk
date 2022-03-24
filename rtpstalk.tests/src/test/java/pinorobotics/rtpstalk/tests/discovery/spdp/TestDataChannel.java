@@ -29,7 +29,7 @@ import pinorobotics.rtpstalk.transport.DataChannel;
 public class TestDataChannel extends DataChannel {
 
     private BlockingQueue<RtpsMessage> dataQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<RtpsMessage> inputQueue;
+    private BlockingQueue<RtpsMessage> inputQueue = new LinkedBlockingQueue<>();
     private boolean blockReceiveForever;
 
     protected TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
@@ -38,8 +38,12 @@ public class TestDataChannel extends DataChannel {
     }
 
     public TestDataChannel withInput(List<RtpsMessage> input) {
-        this.inputQueue = new LinkedBlockingQueue<>(input);
+        inputQueue.addAll(input);
         return this;
+    }
+
+    public void addInput(RtpsMessage... inputs) {
+        for (var in : inputs) inputQueue.add(in);
     }
 
     @Override

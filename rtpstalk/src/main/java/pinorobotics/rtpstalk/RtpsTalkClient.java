@@ -106,8 +106,8 @@ public class RtpsTalkClient {
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
         try {
-            sedp.start(spdp.getReader());
             spdp.start();
+            sedp.start(spdp.getReader());
             userService.start();
         } catch (Exception e) {
             throw new RtpsTalkException(e);

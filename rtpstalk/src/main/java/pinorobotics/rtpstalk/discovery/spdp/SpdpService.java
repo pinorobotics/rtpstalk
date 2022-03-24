@@ -47,7 +47,6 @@ public class SpdpService implements AutoCloseable {
         this.channelFactory = channelFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
         receiver = new RtpsMessageReceiver(getClass().getSimpleName());
-        reader = new SpdpBuiltinParticipantReader(config.guidPrefix());
     }
 
     public void start() throws Exception {
@@ -55,6 +54,8 @@ public class SpdpService implements AutoCloseable {
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
         var iface = config.networkInterfaces().get(0);
+        reader =
+                new SpdpBuiltinParticipantReader(config.guidPrefix(), iface.getOperatingEntities());
         var localMetatrafficMulticastLocator = iface.getLocalMetatrafficMulticastLocator();
         var dataChannel = channelFactory.bind(localMetatrafficMulticastLocator);
         receiver.start(dataChannel);
@@ -71,6 +72,7 @@ public class SpdpService implements AutoCloseable {
     }
 
     public SpdpBuiltinParticipantReader getReader() {
+        XAsserts.assertTrue(isStarted, "Service not yet started");
         return reader;
     }
 

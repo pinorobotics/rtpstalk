@@ -17,11 +17,8 @@
  */
 package pinorobotics.rtpstalk;
 
-import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
-import id.xfunction.lang.XThread;
 import id.xfunction.logging.XLogger;
-import java.util.concurrent.SubmissionPublisher;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class Test {
@@ -35,17 +32,33 @@ public class Test {
                         System.out.println(data);
                         subscription.request(1);
                     }
+
+                    @Override
+                    public void onComplete() {
+                        // TEST!!!!
+                    }
                 };
-        //        new RtpsTalkClient().subscribe("rt/chatter", "std_msgs::msg::dds_::String_",
-        // printer);
-        var publisher = new SubmissionPublisher<byte[]>();
-        new RtpsTalkClient().publish("rt/chatter", "std_msgs::msg::dds_::String_", publisher);
-        while (true) {
-            publisher.submit(
-                    XByte.castToByteArray(
-                            0x10, 0x00, 0x00, 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
-                            0x72, 0x6c, 0x64, 0x3a, 0x20, 0x31, 0x36, 0x00));
-            XThread.sleep(1000);
-        }
+        //                new RtpsTalkClient().subscribe("rt/chatter",
+        // "std_msgs::msg::dds_::String_",
+        //         printer);
+        new RtpsTalkClient(
+                        new RtpsTalkConfiguration.Builder()
+                                .builtinEnpointsPort(8080)
+                                .userEndpointsPort(8081)
+                                .build())
+                .subscribe("HelloWorldTopic", "HelloWorld", printer);
+
+        //        var publisher = new SubmissionPublisher<byte[]>();
+        //        new RtpsTalkClient().publish("rt/chatter", "std_msgs::msg::dds_::String_",
+        // publisher);
+        //        while (true) {
+        //            publisher.submit(
+        //                            XByte.castToByteArray(
+        //                                    0x10, 0x00, 0x00, 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f,
+        // 0x20,
+        //                                    0x57, 0x6f, 0x72, 0x6c, 0x64, 0x3a, 0x20, 0x31, 0x36,
+        // 0x00));
+        //            XThread.sleep(1000);
+        //        }
     }
 }
