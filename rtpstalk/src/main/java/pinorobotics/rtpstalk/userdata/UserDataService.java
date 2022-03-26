@@ -82,7 +82,7 @@ public class UserDataService {
     public void start(RtpsNetworkInterface iface) throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
-        LOGGER.fine("Using following configuration: {0}", config);
+        LOGGER.fine("Starting user service using following configuration: {0}", config);
         receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
         operatingEntities = iface.getOperatingEntities();
         isStarted = true;

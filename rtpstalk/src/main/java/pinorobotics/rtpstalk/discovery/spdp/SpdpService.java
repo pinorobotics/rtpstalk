@@ -55,7 +55,7 @@ public class SpdpService implements AutoCloseable {
     public void start(RtpsNetworkInterface iface) throws Exception {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
-        LOGGER.fine("Using following configuration: {0}", config);
+        LOGGER.fine("Starting SPDP service using following configuration: {0}", config);
         reader =
                 new SpdpBuiltinParticipantReader(config.guidPrefix(), iface.getOperatingEntities());
         var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());

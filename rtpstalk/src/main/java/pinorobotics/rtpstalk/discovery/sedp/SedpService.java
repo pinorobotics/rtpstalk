@@ -68,7 +68,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
             throws IOException {
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
-        LOGGER.fine("Using following configuration: {0}", config);
+        LOGGER.fine("Starting SEDP service using following configuration: {0}", config);
 
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
