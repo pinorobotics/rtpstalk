@@ -72,19 +72,22 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
 
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
-                        config, channelFactory, iface.getOperatingEntities());
+                        config, iface.getName(), channelFactory, iface.getOperatingEntities());
         publicationsWriter =
                 new SedpBuiltinPublicationsWriter(
-                        config, channelFactory, iface.getOperatingEntities());
+                        config, iface.getName(), channelFactory, iface.getOperatingEntities());
         subscriptionsReader =
-                new SedpBuiltinSubscriptionsReader(config, iface.getOperatingEntities());
+                new SedpBuiltinSubscriptionsReader(
+                        config, iface.getName(), iface.getOperatingEntities());
         metatrafficReceiver.subscribe(subscriptionsReader);
         publicationsReader =
-                new SedpBuiltinPublicationsReader(config, iface.getOperatingEntities());
+                new SedpBuiltinPublicationsReader(
+                        config, iface.getName(), iface.getOperatingEntities());
         metatrafficReceiver.subscribe(publicationsReader);
         if (config.builtinEndpointQos() == EndpointQos.NONE)
             metatrafficReceiver.subscribe(
-                    new BuiltinParticipantMessageReader(config, iface.getOperatingEntities()));
+                    new BuiltinParticipantMessageReader(
+                            config, iface.getName(), iface.getOperatingEntities()));
         participantsPublisher.subscribe(this);
         metatrafficReceiver.start(channelFactory.bind(iface.getLocalMetatrafficUnicastLocator()));
         this.iface = iface;

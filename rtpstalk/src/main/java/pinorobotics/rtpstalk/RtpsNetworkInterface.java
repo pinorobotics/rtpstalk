@@ -101,4 +101,8 @@ public class RtpsNetworkInterface {
     public OperatingEntities getOperatingEntities() {
         return operatingEntities;
     }
+
+    public String getName() {
+        return networkIface.getDisplayName();
+    }
 }

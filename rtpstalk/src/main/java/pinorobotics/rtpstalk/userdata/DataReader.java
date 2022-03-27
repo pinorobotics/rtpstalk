@@ -27,7 +27,10 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 public class DataReader extends StatefullRtpsReader<RawData> {
 
     public DataReader(
-            RtpsTalkConfiguration config, OperatingEntities operatingEntities, EntityId entityId) {
-        super(config, operatingEntities, entityId);
+            RtpsTalkConfiguration config,
+            String readerNameExtension,
+            OperatingEntities operatingEntities,
+            EntityId entityId) {
+        super(config, readerNameExtension, operatingEntities, entityId);
     }
 }

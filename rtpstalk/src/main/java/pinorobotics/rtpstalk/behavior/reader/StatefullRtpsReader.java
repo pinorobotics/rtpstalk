@@ -53,8 +53,14 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     private OperatingEntities operatingEntities;
 
     public StatefullRtpsReader(
-            RtpsTalkConfiguration config, OperatingEntities operatingEntities, EntityId entityId) {
-        super(new Guid(config.guidPrefix(), entityId), ReliabilityKind.RELIABLE);
+            RtpsTalkConfiguration config,
+            String readerNameExtension,
+            OperatingEntities operatingEntities,
+            EntityId entityId) {
+        super(
+                readerNameExtension,
+                new Guid(config.guidPrefix(), entityId),
+                ReliabilityKind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
         operatingEntities.add(getGuid().entityId, this);

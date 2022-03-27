@@ -41,10 +41,13 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
     private Duration rate;
 
     public SpdpBuiltinParticipantWriter(
-            DataChannelFactory channelFactory, RtpsTalkConfiguration config) {
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            String writerNameExtension) {
         super(
                 config,
                 channelFactory,
+                writerNameExtension,
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
         this.rate = config.spdpDiscoveredParticipantDataPublishPeriod();

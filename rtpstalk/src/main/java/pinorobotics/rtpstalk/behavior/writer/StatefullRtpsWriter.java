@@ -71,7 +71,6 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private HistoryCache<D> historyCache = new HistoryCache<>();
     private int heartbeatCount;
     private DataChannelFactory channelFactory;
-    private String writerName;
     private final Header header;
     private OperatingEntities operatingEntities;
 
@@ -79,14 +78,19 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
+            String writerNameExtension,
             EntityId writerEntiyId,
-            EntityId readerEntiyId,
-            Duration heartbeatPeriod) {
-        super(config, writerEntiyId, readerEntiyId, ReliabilityKind.RELIABLE, true);
+            EntityId readerEntiyId) {
+        super(
+                config,
+                writerNameExtension,
+                writerEntiyId,
+                readerEntiyId,
+                ReliabilityKind.RELIABLE,
+                true);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
-        this.heartbeatPeriod = heartbeatPeriod;
-        writerName = getGuid().entityId.toString();
+        this.heartbeatPeriod = config.heartbeatPeriod();
         operatingEntities.add(writerEntiyId, this);
         header =
                 new Header(
@@ -104,6 +108,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     @Override
     public void newChange(D data) {
         super.newChange(data);
+        logger.fine("New change submitted");
         historyCache.addChange(new CacheChange<>(getGuid(), getLastChangeNumber(), data));
     }
 
@@ -111,13 +116,14 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             throws IOException {
         if (matchedReaders.containsKey(remoteGuid)) {
             logger.fine(
-                    "Reader {0} is already registered with the writer {1}, not adding it",
-                    remoteGuid, writerName);
+                    "Reader {0} is already registered with the writer, not adding it", remoteGuid);
             return;
         }
         var sender =
                 new RtpsMessageSender(
-                        channelFactory.connect(unicast.get(0)), writerName, remoteGuid.guidPrefix);
+                        channelFactory.connect(unicast.get(0)),
+                        getWriterName(),
+                        remoteGuid.guidPrefix);
         var proxy = new ReaderProxy(remoteGuid, unicast, sender);
         logger.fine("Adding reader proxy for reader with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();
@@ -150,7 +156,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             sendRequested();
             sendHeartbeat();
         } catch (Exception e) {
-            logger.severe("Writer " + writerName + " heartbeat error", e);
+            logger.severe("Writer heartbeat error", e);
         }
     }
 

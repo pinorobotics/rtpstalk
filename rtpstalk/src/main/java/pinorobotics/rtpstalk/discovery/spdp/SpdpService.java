@@ -57,11 +57,12 @@ public class SpdpService implements AutoCloseable {
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Starting SPDP service using following configuration: {0}", config);
         reader =
-                new SpdpBuiltinParticipantReader(config.guidPrefix(), iface.getOperatingEntities());
+                new SpdpBuiltinParticipantReader(
+                        iface.getName(), config.guidPrefix(), iface.getOperatingEntities());
         var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(channelFactory, config);
+        writer = new SpdpBuiltinParticipantWriter(config, channelFactory, iface.getName());
         writer.readerLocatorAdd(iface.getLocalMetatrafficMulticastLocator());
         writer.setSpdpDiscoveredParticipantData(
                 spdpDiscoveredDataFactory.createData(

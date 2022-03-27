@@ -43,18 +43,24 @@ public class UserDataService {
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
     private OperatingEntities operatingEntities;
+    private RtpsNetworkInterface networkInterface;
 
     public UserDataService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
         receiver = new RtpsMessageReceiver("UserDataServiceReceiver");
-        operatingEntities = config.networkInterfaces().get(0).getOperatingEntities();
     }
 
     public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
         var reader =
                 readers.computeIfAbsent(
-                        entityId, eid -> new DataReader(config, operatingEntities, eid));
+                        entityId,
+                        eid ->
+                                new DataReader(
+                                        config,
+                                        networkInterface.getName(),
+                                        operatingEntities,
+                                        eid));
         reader.subscribe(subscriber);
         receiver.subscribe(reader);
     }
@@ -67,6 +73,7 @@ public class UserDataService {
                         eid ->
                                 new DataWriter(
                                         config,
+                                        networkInterface.getName(),
                                         channelFactory,
                                         operatingEntities,
                                         writerEntityId,
@@ -75,11 +82,18 @@ public class UserDataService {
         // to process ackNacks we create readers
         var reader =
                 readers.computeIfAbsent(
-                        readerEntityId, eid -> new DataReader(config, operatingEntities, eid));
+                        readerEntityId,
+                        eid ->
+                                new DataReader(
+                                        config,
+                                        networkInterface.getName(),
+                                        operatingEntities,
+                                        eid));
         receiver.subscribe(reader);
     }
 
     public void start(RtpsNetworkInterface iface) throws IOException {
+        this.networkInterface = iface;
         LOGGER.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         LOGGER.fine("Starting user service using following configuration: {0}", config);

@@ -35,9 +35,12 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<ParameterList> {
 
     public SedpBuiltinSubscriptionsReader(
-            RtpsTalkConfiguration config, OperatingEntities operatingEntities) {
+            RtpsTalkConfiguration config,
+            String readerNameExtension,
+            OperatingEntities operatingEntities) {
         super(
                 config,
+                readerNameExtension,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
         subscribe(

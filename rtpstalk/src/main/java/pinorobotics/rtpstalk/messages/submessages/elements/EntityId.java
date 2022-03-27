@@ -20,7 +20,6 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 import static pinorobotics.rtpstalk.messages.submessages.elements.EntityKind.*;
 
 import id.xfunction.XByte;
-import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -109,9 +108,6 @@ public class EntityId {
         if (predefined != null) {
             return predefined.name();
         }
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("entityKey", XByte.toHexPairs(entityKey));
-        builder.append("entityKind", XByte.toHex(entityKind));
-        return builder.toString();
+        return XByte.toHex(entityKey) + ":" + XByte.toHex(entityKind);
     }
 }

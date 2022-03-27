@@ -69,16 +69,19 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private RtpsSubmessageVisitor filterVisitor;
     private ReliabilityKind reliabilityKind;
     private Subscription subscription;
+    private String readerName;
 
-    public RtpsReader(Guid guid) {
-        this(guid, ReliabilityKind.BEST_EFFORT);
+    public RtpsReader(String readerNameExtension, Guid guid) {
+        this(readerNameExtension, guid, ReliabilityKind.BEST_EFFORT);
     }
 
-    public RtpsReader(Guid readerGuid, ReliabilityKind reliabilityKind) {
+    public RtpsReader(
+            String readerNameExtension, Guid readerGuid, ReliabilityKind reliabilityKind) {
+        this.readerName = readerGuid.entityId + ":" + readerNameExtension;
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
-        logger = InternalUtils.getInstance().getLogger(getClass(), readerGuid.entityId);
+        logger = InternalUtils.getInstance().getLogger(getClass(), readerName);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Reader. */
@@ -154,5 +157,9 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     protected void processInlineQos(Guid writer, Map<ParameterId, ?> params) {
         // empty
+    }
+
+    public String getReaderName() {
+        return readerName;
     }
 }

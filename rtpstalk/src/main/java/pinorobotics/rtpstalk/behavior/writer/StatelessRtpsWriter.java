@@ -38,16 +38,21 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
     public StatelessRtpsWriter(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
+            String writerNameExtension,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
-        super(config, writerEntityId, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+        super(
+                config,
+                writerNameExtension,
+                writerEntityId,
+                readerEntiyId,
+                ReliabilityKind.BEST_EFFORT,
+                true);
         this.channelFactory = channelFactory;
     }
 
     public void readerLocatorAdd(Locator locator) throws IOException {
-        var sender =
-                new RtpsMessageSender(
-                        channelFactory.connect(locator), getGuid().entityId.toString());
+        var sender = new RtpsMessageSender(channelFactory.connect(locator), getWriterName());
         subscribe(sender);
     }
 }

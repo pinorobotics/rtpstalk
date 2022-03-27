@@ -38,8 +38,11 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     private OperatingEntities operatingEntities;
 
     public SpdpBuiltinParticipantReader(
-            GuidPrefix guidPrefix, OperatingEntities operatingEntities) {
+            String readerNameExtension,
+            GuidPrefix guidPrefix,
+            OperatingEntities operatingEntities) {
         super(
+                readerNameExtension,
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));

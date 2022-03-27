@@ -29,6 +29,7 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
 
     public DataWriter(
             RtpsTalkConfiguration config,
+            String writerName,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
             EntityId writerEntityId,
@@ -37,8 +38,8 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
                 config,
                 channelFactory,
                 operatingEntities,
+                writerName,
                 writerEntityId,
-                readerEntityId,
-                config.heartbeatPeriod());
+                readerEntityId);
     }
 }

@@ -27,9 +27,12 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 public class SedpBuiltinPublicationsReader extends StatefullRtpsReader<ParameterList> {
 
     public SedpBuiltinPublicationsReader(
-            RtpsTalkConfiguration config, OperatingEntities operatingEntities) {
+            RtpsTalkConfiguration config,
+            String readerNameExtension,
+            OperatingEntities operatingEntities) {
         super(
                 config,
+                readerNameExtension,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
     }

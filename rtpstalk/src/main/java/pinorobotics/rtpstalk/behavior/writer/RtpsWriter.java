@@ -66,10 +66,20 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     private EntityId readerEntiyId;
     private RtpsMessage lastMessage;
     private Optional<Subscription> subscriptionOpt = Optional.empty();
+    private String writerName;
 
     public RtpsWriter(
-            RtpsTalkConfiguration config, EntityId writerEntiyId, EntityId readerEntiyId) {
-        this(config, writerEntiyId, readerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+            RtpsTalkConfiguration config,
+            String writerNameExtension,
+            EntityId writerEntiyId,
+            EntityId readerEntiyId) {
+        this(
+                config,
+                writerNameExtension,
+                writerEntiyId,
+                readerEntiyId,
+                ReliabilityKind.BEST_EFFORT,
+                true);
     }
 
     /**
@@ -79,13 +89,15 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
      */
     public RtpsWriter(
             RtpsTalkConfiguration config,
+            String writerNameExtension,
             EntityId writerEntityId,
             EntityId readerEntiyId,
             ReliabilityKind reliabilityKind,
             boolean pushMode) {
+        this.writerName = writerEntityId + ":" + writerNameExtension;
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
         this.readerEntiyId = readerEntiyId;
-        logger = InternalUtils.getInstance().getLogger(getClass(), writerGuid.entityId);
+        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
     }
 
     /**
@@ -159,5 +171,9 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     public void close() {
         super.close();
         subscriptionOpt.ifPresent(Subscription::cancel);
+    }
+
+    public String getWriterName() {
+        return writerName;
     }
 }

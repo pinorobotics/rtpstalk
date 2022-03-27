@@ -25,14 +25,20 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
-/** Reliable liveliness reader */
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * Reliable liveliness reader
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class BuiltinParticipantMessageReader extends StatefullRtpsReader<ParameterList> {
 
     public BuiltinParticipantMessageReader(
-            RtpsTalkConfiguration config, OperatingEntities operatingEntities) {
+            RtpsTalkConfiguration config,
+            String readerNameExtension,
+            OperatingEntities operatingEntities) {
         super(
                 config,
+                readerNameExtension,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
         XAsserts.assertTrue(
