@@ -85,13 +85,18 @@ public class RtpsTalkClientTests {
                         subscription.request(1);
                     }
                 };
-        tools.runHelloWorldPublisher();
+        var proc = tools.runHelloWorldPublisher();
         // give 1 sec to start
         XThread.sleep(1000);
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
 
-        var expected = resourceUtils.readResource(RtpsTalkClientTests.class, "HelloWorldTopic");
-        Assertions.assertEquals(expected, future.get().toString());
+        Assertions.assertEquals(
+                resourceUtils.readResource(RtpsTalkClientTests.class, "HelloWorldTopic"),
+                future.get().toString());
+        Assertions.assertEquals(
+                resourceUtils.readResource(
+                        RtpsTalkClientTests.class, "HelloWorldExample_publisher"),
+                proc.stdoutAsString());
 
         var log =
                 Files.readString(

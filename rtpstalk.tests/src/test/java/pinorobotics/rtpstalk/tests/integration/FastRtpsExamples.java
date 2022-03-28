@@ -28,7 +28,7 @@ public class FastRtpsExamples implements AutoCloseable {
     private List<XProcess> procs = new ArrayList<>();
 
     public XProcess runHelloWorldPublisher() {
-        var proc = new XExec("HelloWorldExample publisher").run().forward();
+        var proc = new XExec("HelloWorldExample publisher").run();
         procs.add(proc);
         return proc;
     }
@@ -36,5 +36,11 @@ public class FastRtpsExamples implements AutoCloseable {
     @Override
     public void close() {
         procs.forEach(proc -> proc.process().destroyForcibly());
+    }
+
+    public XProcess runHelloWorldSubscriber() {
+        var proc = new XExec("HelloWorldExample subscriber").run();
+        procs.add(proc);
+        return proc;
     }
 }
