@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>520</x>
+      <y>430</y>
+      <w>440</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+messages for reader with entity id 1</panel_attributes>
+    <additional_attributes>420.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>190</x>
+      <y>370</y>
+      <w>390</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>Writer endpoints
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>520</x>
+      <y>460</y>
+      <w>440</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+messages for reader with entity id 2</panel_attributes>
+    <additional_attributes>420.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>520</x>
+      <y>490</y>
+      <w>440</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+messages for reader with entity id 3</panel_attributes>
+    <additional_attributes>420.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>500</x>
+      <y>430</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>460</x>
+      <y>400</y>
+      <w>120</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Network port A</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>940</x>
+      <y>430</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>900</x>
+      <y>400</y>
+      <w>120</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Network port B</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>890</x>
+      <y>370</y>
+      <w>390</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>Reader endpoints
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

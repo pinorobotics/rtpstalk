@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>45</y>
+      <w>90</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>Writer
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>990</x>
+      <y>162</y>
+      <w>117</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>288</y>
+      <w>468</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>Receiver
+valign=center
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>675</x>
+      <y>63</y>
+      <w>108</w>
+      <h>243</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+Data channel</panel_attributes>
+    <additional_attributes>10.0;250.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>495</x>
+      <y>324</y>
+      <w>72</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m2=submit</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>495</x>
+      <y>612</y>
+      <w>45</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+yes</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>486</x>
+      <y>585</y>
+      <w>36</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>bg=green
+type=decision</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>432</y>
+      <w>90</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>onNext</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>495</x>
+      <y>459</y>
+      <w>144</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+Message
+entity id matches?</panel_attributes>
+    <additional_attributes>10.0;140.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>675</y>
+      <w>90</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>onData</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>405</x>
+      <y>396</y>
+      <w>198</w>
+      <h>387</h>
+    </coordinates>
+    <panel_attributes>halign=center
+valign=bottom
+Reader
+entity id 1
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>846</x>
+      <y>324</y>
+      <w>72</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m2=submit</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>846</x>
+      <y>612</y>
+      <w>45</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+yes</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>837</x>
+      <y>585</y>
+      <w>36</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>bg=green
+type=decision</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>432</y>
+      <w>90</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>onNext</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>846</x>
+      <y>459</y>
+      <w>144</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+Message
+entity id matches?</panel_attributes>
+    <additional_attributes>10.0;140.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>675</y>
+      <w>90</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>onData</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>756</x>
+      <y>396</y>
+      <w>198</w>
+      <h>387</h>
+    </coordinates>
+    <panel_attributes>halign=center
+valign=bottom
+Reader
+entity id N
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
