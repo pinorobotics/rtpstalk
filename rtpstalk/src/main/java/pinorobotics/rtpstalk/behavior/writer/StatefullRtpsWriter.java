@@ -141,9 +141,9 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
 
     @Override
     public void close() {
-        super.close();
-        executor.shutdown();
         operatingEntities.remove(getGuid().entityId);
+        executor.shutdown();
+        super.close();
     }
 
     private void sendHeartbeat() {

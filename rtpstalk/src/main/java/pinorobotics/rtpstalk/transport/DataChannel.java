@@ -18,8 +18,10 @@
 package pinorobotics.rtpstalk.transport;
 
 import id.xfunction.logging.XLogger;
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -27,7 +29,7 @@ import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class DataChannel {
+public class DataChannel implements AutoCloseable {
     private static final XLogger LOGGER = XLogger.getLogger(DataChannel.class);
 
     private RtpsMessageReader reader = new RtpsMessageReader();
@@ -35,7 +37,7 @@ public class DataChannel {
     private DatagramChannel dataChannel;
     private int packetBufferSize;
     private GuidPrefix guidPrefix;
-
+    private boolean isClosed;
     private SocketAddress target;
 
     public DataChannel(
@@ -52,7 +54,14 @@ public class DataChannel {
     public RtpsMessage receive() throws Exception {
         while (true) {
             var buf = ByteBuffer.allocate(packetBufferSize);
-            dataChannel.receive(buf);
+            try {
+                dataChannel.receive(buf);
+            } catch (AsynchronousCloseException e) {
+                if (!isClosed) {
+                    LOGGER.severe(e);
+                }
+                return new RtpsMessage();
+            }
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
@@ -80,5 +89,16 @@ public class DataChannel {
             LOGGER.severe(e);
             return;
         }
+    }
+
+    @Override
+    public void close() {
+        try {
+            isClosed = true;
+            dataChannel.close();
+        } catch (IOException e) {
+            LOGGER.severe(e);
+        }
+        LOGGER.fine("Closed");
     }
 }

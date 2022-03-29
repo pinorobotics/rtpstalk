@@ -45,7 +45,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * existence of another Participant described by the DiscoveredParticipantData participant_data. The
  * discovered Participant uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
  */
-public class SedpService extends SimpleSubscriber<ParameterList> {
+public class SedpService extends SimpleSubscriber<ParameterList> implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SedpService.class);
     private RtpsTalkConfiguration config;
@@ -214,5 +214,17 @@ public class SedpService extends SimpleSubscriber<ParameterList> {
 
     public RtpsNetworkInterface getNetworkInterface() {
         return iface;
+    }
+
+    @Override
+    public void close() {
+        if (!isStarted) return;
+        subscription.cancel();
+        subscriptionsReader.close();
+        subscriptionsWriter.close();
+        publicationsReader.close();
+        publicationsWriter.close();
+        metatrafficReceiver.close();
+        LOGGER.fine("Closed");
     }
 }

@@ -130,9 +130,12 @@ public class RtpsServiceManager implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!isStarted) return;
         spdpServices.forEach(SpdpService::close);
+        sedpServices.forEach(SedpService::close);
+        userServices.forEach(UserDataService::close);
+        LOGGER.fine("Closed");
     }
 
     private ParameterList createSubscriptionData(

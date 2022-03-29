@@ -83,9 +83,14 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageBuilder>
     }
 
     @Override
+    public void onComplete() {
+        close();
+    }
+
+    @Override
     public void close() {
-        logger.entering("close");
         subscription.cancel();
-        logger.exiting("close");
+        dataChannel.close();
+        logger.fine("Closed");
     }
 }

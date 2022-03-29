@@ -38,10 +38,11 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
+public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implements AutoCloseable {
     private final XLogger logger;
     private ExecutorService executor;
     private boolean isStarted;
+    private DataChannel dataChannel;
 
     public RtpsMessageReceiver(String readerName) {
         executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(readerName));
@@ -49,6 +50,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
     }
 
     public void start(DataChannel dataChannel) throws IOException {
+        this.dataChannel = dataChannel;
         logger.entering("start");
         XAsserts.assertTrue(!isStarted, "Already started");
         executor.execute(
@@ -61,7 +63,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
                         try {
                             var message = dataChannel.receive();
                             logger.fine("Incoming RTPS message {0}", message);
-                            submit(message);
+                            if (!isClosed()) submit(message);
                         } catch (Exception e) {
                             logger.severe(e);
                         }
@@ -69,5 +71,14 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> {
                     logger.fine("Shutdown received, stopping...");
                 });
         isStarted = true;
+    }
+
+    @Override
+    public void close() {
+        if (!isStarted) return;
+        executor.shutdown();
+        dataChannel.close();
+        super.close();
+        logger.fine("Closed");
     }
 }

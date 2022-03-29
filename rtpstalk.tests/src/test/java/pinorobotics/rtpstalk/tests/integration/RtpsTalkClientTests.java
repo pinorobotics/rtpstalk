@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.joining;
 import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.function.Unchecked;
 import id.xfunction.lang.XThread;
 import id.xfunction.logging.XLogger;
 import id.xfunction.text.WildcardMatcher;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
@@ -42,16 +42,12 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 public class RtpsTalkClientTests {
 
     private static final ResourceUtils resourceUtils = new ResourceUtils();
-    private FastRtpsExamples tools = new FastRtpsExamples();
+    private FastRtpsExamples tools;
     private RtpsTalkClient client;
-
-    @BeforeAll
-    public static void setupAll() {
-        XLogger.load("rtpstalk-test.properties");
-    }
 
     @BeforeEach
     public void setup() {
+        XLogger.load("rtpstalk-test.properties");
         client =
                 new RtpsTalkClient(
                         new RtpsTalkConfiguration.Builder()
@@ -63,7 +59,7 @@ public class RtpsTalkClientTests {
 
     @AfterEach
     public void clean() {
-        // client.close();
+        client.close();
         tools.close();
     }
 
@@ -89,22 +85,41 @@ public class RtpsTalkClientTests {
         // give 1 sec to start
         XThread.sleep(1000);
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
+        var dataReceived = future.get().toString();
+        client.close();
 
         Assertions.assertEquals(
                 resourceUtils.readResource(RtpsTalkClientTests.class, "HelloWorldTopic"),
-                future.get().toString());
+                dataReceived);
         Assertions.assertEquals(
                 resourceUtils.readResource(
                         RtpsTalkClientTests.class, "HelloWorldExample_publisher"),
                 proc.stdoutAsString());
 
-        var log =
-                Files.readString(
-                        Paths.get(System.getProperty("java.io.tmpdir"), "rtpstalk-test.log"));
+        var log = readLogFile();
         Assertions.assertTrue(
                 new WildcardMatcher(
                                 resourceUtils.readResource(
-                                        RtpsTalkClientTests.class, "service_startup"))
+                                        RtpsTalkClientTests.class, "service_startup.template"))
                         .matches(log));
+        Assertions.assertTrue(
+                new WildcardMatcher(
+                                resourceUtils.readResource(
+                                        RtpsTalkClientTests.class, "spdp_close.template"))
+                        .matches(log));
+        Assertions.assertTrue(
+                new WildcardMatcher(
+                                resourceUtils.readResourceAsList(
+                                        RtpsTalkClientTests.class, "sedp_close.templates"))
+                        .matches(log));
+    }
+
+    private String readLogFile() {
+        return Unchecked.get(
+                () ->
+                        Files.readString(
+                                Paths.get(
+                                        System.getProperty("java.io.tmpdir"),
+                                        "rtpstalk-test.log")));
     }
 }

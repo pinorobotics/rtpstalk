@@ -83,5 +83,7 @@ public class SpdpService implements AutoCloseable {
         if (!isStarted) return;
         receiver.close();
         writer.close();
+        reader.close();
+        LOGGER.fine("Closed");
     }
 }

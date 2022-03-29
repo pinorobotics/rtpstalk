@@ -28,13 +28,14 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /** @author lambdaprime intid@protonmail.com */
-public class RtpsTalkClient {
+public class RtpsTalkClient implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsTalkClient.class);
     private RtpsTalkConfiguration config;
     private DataChannelFactory channelFactory;
     private RtpsServiceManager serviceManager;
     private boolean isStarted;
+    private boolean isClosed;
 
     public RtpsTalkClient() {
         this(new RtpsTalkConfiguration.Builder().build());
@@ -72,5 +73,13 @@ public class RtpsTalkClient {
         serviceManager.startAll();
         isStarted = true;
         LOGGER.exiting("start");
+    }
+
+    @Override
+    public void close() {
+        if (!isStarted) return;
+        if (isClosed) return;
+        serviceManager.close();
+        LOGGER.fine("Closed");
     }
 }

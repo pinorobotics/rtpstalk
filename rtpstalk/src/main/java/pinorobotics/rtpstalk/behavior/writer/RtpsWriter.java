@@ -133,8 +133,9 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
 
     @Override
     public void close() {
-        super.close();
         subscriptionOpt.ifPresent(Subscription::cancel);
+        super.close();
+        logger.fine("Closed");
     }
 
     public String getWriterName() {

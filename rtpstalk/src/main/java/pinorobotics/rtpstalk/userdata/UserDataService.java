@@ -33,7 +33,7 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /** @author lambdaprime intid@protonmail.com */
-public class UserDataService {
+public class UserDataService implements AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(UserDataService.class);
     private RtpsTalkConfiguration config;
@@ -99,5 +99,13 @@ public class UserDataService {
         receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
         operatingEntities = iface.getOperatingEntities();
         isStarted = true;
+    }
+
+    @Override
+    public void close() {
+        if (!isStarted) return;
+        receiver.close();
+        readers.values().forEach(DataReader::close);
+        writers.values().forEach(DataWriter::close);
     }
 }

@@ -86,5 +86,6 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
     public void close() {
         super.close();
         executor.shutdown();
+        LOGGER.fine("Closed");
     }
 }
