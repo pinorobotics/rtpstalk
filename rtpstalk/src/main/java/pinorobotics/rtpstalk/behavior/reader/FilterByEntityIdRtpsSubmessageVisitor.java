@@ -28,30 +28,32 @@ import pinorobotics.rtpstalk.messages.walk.RtpsSubmessageVisitor;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisitor {
 
-    private EntityId entityId;
+    private EntityId readerEntityId;
     private RtpsSubmessageVisitor nextVisitor;
 
     public FilterByEntityIdRtpsSubmessageVisitor(
-            EntityId entityId, RtpsSubmessageVisitor nextVisitor) {
-        this.entityId = entityId;
+            EntityId readerEntityId, RtpsSubmessageVisitor nextVisitor) {
+        this.readerEntityId = readerEntityId;
         this.nextVisitor = nextVisitor;
     }
 
     @Override
     public Result onData(GuidPrefix guidPrefix, Data data) {
-        if (!entityId.equals(data.readerId)) return Result.CONTINUE;
+        if (!readerEntityId.equals(data.readerId)) return Result.CONTINUE;
         return nextVisitor.onData(guidPrefix, data);
     }
 
     @Override
     public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
-        if (!entityId.equals(heartbeat.readerId)) return Result.CONTINUE;
+        if (!readerEntityId.equals(heartbeat.readerId)) return Result.CONTINUE;
         return nextVisitor.onHeartbeat(guidPrefix, heartbeat);
     }
 
     @Override
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
-        if (!entityId.equals(ackNack.readerId)) return Result.CONTINUE;
+        // AckNack submessages as readerId have remote readerId which acknowledges
+        // the data and not local readerId to which submessage should be delivered
+        // For that reason we does not filter AckNack submessages
         return nextVisitor.onAckNack(guidPrefix, ackNack);
     }
 }
