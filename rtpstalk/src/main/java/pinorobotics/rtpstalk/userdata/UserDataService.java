@@ -76,8 +76,7 @@ public class UserDataService {
                                         networkInterface.getName(),
                                         channelFactory,
                                         operatingEntities,
-                                        writerEntityId,
-                                        readerEntityId));
+                                        writerEntityId));
         publisher.subscribe(writer);
         // to process ackNacks we create readers
         var reader =

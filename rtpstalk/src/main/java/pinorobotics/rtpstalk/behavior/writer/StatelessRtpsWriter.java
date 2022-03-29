@@ -34,6 +34,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
 
     private DataChannelFactory channelFactory;
+    private EntityId readerEntiyId;
 
     public StatelessRtpsWriter(
             RtpsTalkConfiguration config,
@@ -41,18 +42,18 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
             String writerNameExtension,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
-        super(
-                config,
-                writerNameExtension,
-                writerEntityId,
-                readerEntiyId,
-                ReliabilityKind.BEST_EFFORT,
-                true);
+        super(config, writerNameExtension, writerEntityId, ReliabilityKind.BEST_EFFORT, true);
         this.channelFactory = channelFactory;
+        this.readerEntiyId = readerEntiyId;
     }
 
     public void readerLocatorAdd(Locator locator) throws IOException {
-        var sender = new RtpsMessageSender(channelFactory.connect(locator), getWriterName());
+        var sender =
+                new RtpsMessageSender(
+                        channelFactory.connect(locator),
+                        readerEntiyId,
+                        getGuid().entityId,
+                        getWriterName());
         subscribe(sender);
     }
 }

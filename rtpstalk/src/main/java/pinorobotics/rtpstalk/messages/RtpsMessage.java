@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 
@@ -33,6 +34,11 @@ public class RtpsMessage {
     public RtpsMessage(Header header, Submessage... submessages) {
         this.header = header;
         this.submessages = submessages;
+    }
+
+    public RtpsMessage(Header header, List<Submessage> submessages) {
+        this.header = header;
+        this.submessages = submessages.toArray(new Submessage[0]);
     }
 
     public Submessage[] getSubmessages() {

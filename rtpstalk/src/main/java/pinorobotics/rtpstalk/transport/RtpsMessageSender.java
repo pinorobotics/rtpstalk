@@ -21,36 +21,52 @@ import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class RtpsMessageSender extends SimpleSubscriber<RtpsMessage> implements AutoCloseable {
+public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageBuilder>
+        implements AutoCloseable {
 
     private final XLogger logger;
     private DataChannel dataChannel;
     private Optional<InfoDestination> infoDstOpt = Optional.empty();
+    private EntityId readerEntiyId;
+    private EntityId writerEntityId;
 
-    public RtpsMessageSender(DataChannel dataChannel, String writerName) {
-        this(dataChannel, writerName, null);
+    public RtpsMessageSender(
+            DataChannel dataChannel,
+            EntityId readerEntiyId,
+            EntityId writerEntityId,
+            String writerName) {
+        this.dataChannel = dataChannel;
+        this.readerEntiyId = readerEntiyId;
+        this.writerEntityId = writerEntityId;
+        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
     }
 
     /**
      * @param remoteReader this is used by reliable writers to send heartbeats for particular
      *     reader, for best-effort writers this can be null
      */
-    public RtpsMessageSender(DataChannel dataChannel, String writerName, GuidPrefix remoteReader) {
-        this.dataChannel = dataChannel;
-        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
-        if (remoteReader != null) infoDstOpt = Optional.of(new InfoDestination(remoteReader));
+    public RtpsMessageSender(
+            DataChannel dataChannel,
+            Guid remoteReader,
+            EntityId writerEntityId,
+            String writerName) {
+        this(dataChannel, remoteReader.entityId, writerEntityId, writerName);
+        if (remoteReader != null)
+            infoDstOpt = Optional.of(new InfoDestination(remoteReader.guidPrefix));
     }
 
     @Override
-    public void onNext(RtpsMessage message) {
+    public void onNext(RtpsMessageBuilder messageBuilder) {
         logger.entering("onNext");
+        var message = messageBuilder.build(readerEntiyId, writerEntityId);
         infoDstOpt.ifPresent(
                 infoDst -> {
                     if (!(message.submessages[0] instanceof Heartbeat)) return;

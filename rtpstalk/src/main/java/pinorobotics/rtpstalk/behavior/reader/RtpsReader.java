@@ -52,8 +52,8 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * USER subscribes to:
  * - {@link RtpsReader} subscribes to:
  *  - {@link RtpsMessageReceiver} receives messages from single data channel
- *   - remove writer endpoint1
- *   - remove writer endpoint2
+ *   - remote writer endpoint1
+ *   - remote writer endpoint2
  *   - ...
  *
  * }</pre>

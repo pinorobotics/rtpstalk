@@ -30,22 +30,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
+import pinorobotics.rtpstalk.impl.RtpsHeartbeatMessageBuilder;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.Submessage;
-import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.structure.CacheChange;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -71,7 +62,6 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private HistoryCache<D> historyCache = new HistoryCache<>();
     private int heartbeatCount;
     private DataChannelFactory channelFactory;
-    private final Header header;
     private OperatingEntities operatingEntities;
 
     public StatefullRtpsWriter(
@@ -79,25 +69,12 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
             String writerNameExtension,
-            EntityId writerEntiyId,
-            EntityId readerEntiyId) {
-        super(
-                config,
-                writerNameExtension,
-                writerEntiyId,
-                readerEntiyId,
-                ReliabilityKind.RELIABLE,
-                true);
+            EntityId writerEntiyId) {
+        super(config, writerNameExtension, writerEntiyId, ReliabilityKind.RELIABLE, true);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
         operatingEntities.add(writerEntiyId, this);
-        header =
-                new Header(
-                        ProtocolId.Predefined.RTPS.getValue(),
-                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                        VendorId.Predefined.RTPSTALK.getValue(),
-                        getGuid().guidPrefix);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Writer. */
@@ -112,19 +89,21 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         historyCache.addChange(new CacheChange<>(getGuid(), getLastChangeNumber(), data));
     }
 
-    public synchronized void matchedReaderAdd(Guid remoteGuid, List<Locator> unicast)
+    public synchronized void matchedReaderAdd(Guid remoteReaderGuid, List<Locator> unicast)
             throws IOException {
-        if (matchedReaders.containsKey(remoteGuid)) {
+        if (matchedReaders.containsKey(remoteReaderGuid)) {
             logger.fine(
-                    "Reader {0} is already registered with the writer, not adding it", remoteGuid);
+                    "Reader {0} is already registered with the writer, not adding it",
+                    remoteReaderGuid);
             return;
         }
         var sender =
                 new RtpsMessageSender(
                         channelFactory.connect(unicast.get(0)),
-                        getWriterName(),
-                        remoteGuid.guidPrefix);
-        var proxy = new ReaderProxy(remoteGuid, unicast, sender);
+                        remoteReaderGuid,
+                        getGuid().entityId,
+                        getWriterName());
+        var proxy = new ReaderProxy(remoteReaderGuid, unicast, sender);
         logger.fine("Adding reader proxy for reader with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
@@ -176,14 +155,9 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         var seqNumMax = historyCache.getSeqNumMax();
         XAsserts.assertLess(0, seqNumMax, "Negative sequence number");
         var heartbeat =
-                new Heartbeat(
-                        getReaderEntiyId(),
-                        getGuid().entityId,
-                        new SequenceNumber(seqNumMin),
-                        new SequenceNumber(seqNumMax),
-                        new Count(heartbeatCount++));
-        var submessages = new Submessage[] {heartbeat};
-        submit(new RtpsMessage(header, submessages));
+                new RtpsHeartbeatMessageBuilder(
+                        getGuid().guidPrefix, seqNumMin, seqNumMax, heartbeatCount++);
+        submit(heartbeat);
         logger.fine("Heartbeat submitted");
     }
 
@@ -194,19 +168,13 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private void sendRequested(ReaderProxy readerProxy) {
         var requestedChanges = readerProxy.requestedChanges();
         if (requestedChanges.isEmpty()) return;
-        var submessages =
-                historyCache
-                        .findAll(requestedChanges)
-                        .map(
-                                change ->
-                                        new Data(
-                                                readerProxy.getRemoteReaderGuid().entityId,
-                                                getGuid().entityId,
-                                                new SequenceNumber(change.getSequenceNumber()),
-                                                new SerializedPayload(change.getDataValue())))
-                        .toArray(Submessage[]::new);
-        if (submessages.length == 0) return;
-        submit(new RtpsMessage(header, submessages));
+        var builder = new RtpsDataMessageBuilder(getGuid().guidPrefix);
+        historyCache
+                .findAll(requestedChanges)
+                .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));
+        if (!builder.hasData()) return;
+        // all interested ReaderProxy subscribed to this writer
+        submit(builder);
         logger.fine("Submitted {0} requested changes", requestedChanges.size());
     }
 }

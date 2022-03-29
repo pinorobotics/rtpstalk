@@ -37,7 +37,6 @@ public class SedpBuiltinPublicationsWriter extends StatefullRtpsWriter<Parameter
                 channelFactory,
                 operatingEntities,
                 writerNameExtension,
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue(),
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue());
     }
 }

@@ -20,25 +20,17 @@ package pinorobotics.rtpstalk.behavior.writer;
 import id.xfunction.XAsserts;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
-import java.util.concurrent.Flow.Processor;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
+import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Header;
-import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 
@@ -56,30 +48,20 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  *  - ...
  * }</pre>
  */
-public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessage>
-        implements Processor<D, RtpsMessage>, RtpsEntity, AutoCloseable {
+public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessageBuilder>
+        implements Subscriber<D>, RtpsEntity, AutoCloseable {
 
     protected final XLogger logger;
 
     private long lastChangeNumber;
     private Guid writerGuid;
-    private EntityId readerEntiyId;
-    private RtpsMessage lastMessage;
+    private RtpsDataMessageBuilder lastMessage;
     private Optional<Subscription> subscriptionOpt = Optional.empty();
     private String writerName;
 
     public RtpsWriter(
-            RtpsTalkConfiguration config,
-            String writerNameExtension,
-            EntityId writerEntiyId,
-            EntityId readerEntiyId) {
-        this(
-                config,
-                writerNameExtension,
-                writerEntiyId,
-                readerEntiyId,
-                ReliabilityKind.BEST_EFFORT,
-                true);
+            RtpsTalkConfiguration config, String writerNameExtension, EntityId writerEntiyId) {
+        this(config, writerNameExtension, writerEntiyId, ReliabilityKind.BEST_EFFORT, true);
     }
 
     /**
@@ -91,12 +73,10 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
             RtpsTalkConfiguration config,
             String writerNameExtension,
             EntityId writerEntityId,
-            EntityId readerEntiyId,
             ReliabilityKind reliabilityKind,
             boolean pushMode) {
         this.writerName = writerEntityId + ":" + writerNameExtension;
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
-        this.readerEntiyId = readerEntiyId;
         logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
     }
 
@@ -117,20 +97,8 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     public void newChange(D data) {
         logger.entering("newChange");
         lastChangeNumber++;
-        var dataSubmessage =
-                new Data(
-                        readerEntiyId,
-                        writerGuid.entityId,
-                        new SequenceNumber(lastChangeNumber),
-                        new SerializedPayload(data));
-        var submessages = new Submessage[] {InfoTimestamp.now(), dataSubmessage};
-        var header =
-                new Header(
-                        ProtocolId.Predefined.RTPS.getValue(),
-                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                        VendorId.Predefined.RTPSTALK.getValue(),
-                        writerGuid.guidPrefix);
-        lastMessage = new RtpsMessage(header, submessages);
+        lastMessage = new RtpsDataMessageBuilder(writerGuid.guidPrefix);
+        lastMessage.add(lastChangeNumber, data);
         submit(lastMessage);
         logger.exiting("newChange");
     }
@@ -138,10 +106,6 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     @Override
     public Guid getGuid() {
         return writerGuid;
-    }
-
-    public EntityId getReaderEntiyId() {
-        return readerEntiyId;
     }
 
     @Override
