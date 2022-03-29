@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.messages.submessages;
 
+import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Predefined;
+
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class RawData implements Payload {
 
@@ -30,5 +32,10 @@ public class RawData implements Payload {
 
     public byte[] getData() {
         return data;
+    }
+
+    @Override
+    public Predefined getRepresentationIdentifier() {
+        return RepresentationIdentifier.Predefined.CDR_LE;
     }
 }

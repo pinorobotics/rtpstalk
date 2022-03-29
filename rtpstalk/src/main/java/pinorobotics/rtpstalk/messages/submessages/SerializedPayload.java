@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Predefined;
 import pinorobotics.rtpstalk.messages.submessages.elements.SubmessageElement;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -30,7 +31,17 @@ public class SerializedPayload implements SubmessageElement {
     public SerializedPayload() {}
 
     public SerializedPayload(Payload payload) {
-        this(SerializedPayloadHeader.DEFAULT_PAYLOAD_HEADER, payload);
+        this(getPredefinedPayloadHeader(payload.getRepresentationIdentifier()), payload);
+    }
+
+    private static SerializedPayloadHeader getPredefinedPayloadHeader(
+            Predefined representationIdentifier) {
+        return switch (representationIdentifier) {
+            case PL_CDR_LE -> SerializedPayloadHeader.DEFAULT_PARAMETER_LIST_HEADER;
+            case CDR_LE -> SerializedPayloadHeader.DEFAULT_DATA_HEADER;
+            default -> throw new UnsupportedOperationException(
+                    "Unsupported representation identifier " + representationIdentifier);
+        };
     }
 
     public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {

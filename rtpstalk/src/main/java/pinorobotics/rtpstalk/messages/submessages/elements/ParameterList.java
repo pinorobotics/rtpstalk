@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
+import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
+import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Predefined;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class ParameterList implements SubmessageElement, Payload {
@@ -48,5 +50,10 @@ public class ParameterList implements SubmessageElement, Payload {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("params", params);
         return builder.toString();
+    }
+
+    @Override
+    public Predefined getRepresentationIdentifier() {
+        return RepresentationIdentifier.Predefined.PL_CDR_LE;
     }
 }

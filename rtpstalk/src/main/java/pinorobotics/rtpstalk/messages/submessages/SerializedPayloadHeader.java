@@ -24,8 +24,10 @@ import java.util.Arrays;
 public class SerializedPayloadHeader {
 
     public static final int SIZE = 2;
-    public static final SerializedPayloadHeader DEFAULT_PAYLOAD_HEADER =
+    public static final SerializedPayloadHeader DEFAULT_PARAMETER_LIST_HEADER =
             new SerializedPayloadHeader(RepresentationIdentifier.Predefined.PL_CDR_LE.getValue());
+    public static final SerializedPayloadHeader DEFAULT_DATA_HEADER =
+            new SerializedPayloadHeader(RepresentationIdentifier.Predefined.CDR_LE.getValue());
 
     public RepresentationIdentifier representation_identifier;
 
