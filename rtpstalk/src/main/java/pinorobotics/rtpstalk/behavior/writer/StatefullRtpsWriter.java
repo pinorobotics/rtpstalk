@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior.writer;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
 import java.io.IOException;
 import java.time.Duration;
@@ -153,7 +153,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             return;
         }
         var seqNumMax = historyCache.getSeqNumMax();
-        XAsserts.assertLess(0, seqNumMax, "Negative sequence number");
+        Preconditions.isLess(0, seqNumMax, "Negative sequence number");
         var heartbeat =
                 new RtpsHeartbeatMessageBuilder(
                         getGuid().guidPrefix, seqNumMin, seqNumMax, heartbeatCount++);

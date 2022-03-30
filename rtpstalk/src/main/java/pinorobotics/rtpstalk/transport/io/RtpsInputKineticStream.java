@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
@@ -157,7 +157,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         // TODO assert length after reading
         var len = readInt();
         while ((b = buf.get()) != 0) strBuf.append((char) b);
-        XAsserts.assertEquals(
+        Preconditions.equals(
                 len, strBuf.length() + 1 /* NULL byte */, "String length does not match");
         return strBuf.toString();
     }
@@ -266,7 +266,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     private void skip(int offset) {
-        XAsserts.assertTrue(offset >= 0, "Negative offset");
+        Preconditions.isTrue(offset >= 0, "Negative offset");
         LOGGER.fine("Skipping {0} bytes", offset);
         buf.position(buf.position() + offset);
     }
@@ -339,7 +339,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             var submessageEnd = buf.position();
             LOGGER.fine("submessageEnd: {0}", submessageEnd);
             LOGGER.fine("submessage: {0}", submessage);
-            XAsserts.assertEquals(
+            Preconditions.equals(
                     submessageHeader.submessageLength,
                     submessageEnd - submessageStart,
                     "Read message size does not match expected");

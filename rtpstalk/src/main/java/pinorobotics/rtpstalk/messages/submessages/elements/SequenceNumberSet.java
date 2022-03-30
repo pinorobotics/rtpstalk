@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 
 /**
@@ -47,7 +47,7 @@ public class SequenceNumberSet {
         this.bitmapBase = bitmapBase;
         this.numBits = numBits;
         if (bitmap.length == 0) return;
-        XAsserts.assertTrue(bitmap.length <= 8, "Bitmap size should not exceed 8");
+        Preconditions.isTrue(bitmap.length <= 8, "Bitmap size should not exceed 8");
         this.bitmap = bitmap;
     }
 

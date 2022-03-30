@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -41,7 +41,7 @@ public record Locator(
 
     public Locator(LocatorKind kind, int port, InetAddress address) {
         this(kind, port, address, Optional.empty());
-        XAsserts.assertTrue(
+        Preconditions.isTrue(
                 !address.isMulticastAddress(),
                 "This constructor does not support multicast addresses");
     }

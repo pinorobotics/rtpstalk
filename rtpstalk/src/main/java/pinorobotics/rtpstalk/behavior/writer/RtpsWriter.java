@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior.writer;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import java.util.concurrent.Flow.Subscriber;
@@ -88,7 +88,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     }
 
     public void repeatLastChange() {
-        XAsserts.assertNotNull(lastMessage);
+        Preconditions.notNull(lastMessage);
         logger.entering("repeatLastChange");
         submit(lastMessage);
         logger.exiting("repeatLastChange");
@@ -110,7 +110,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
 
     @Override
     public void onSubscribe(Subscription subscription) {
-        XAsserts.assertTrue(this.subscriptionOpt.isEmpty(), "Already subscribed");
+        Preconditions.isTrue(this.subscriptionOpt.isEmpty(), "Already subscribed");
         this.subscriptionOpt = Optional.of(subscription);
         subscription.request(1);
     }

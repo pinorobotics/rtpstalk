@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.userdata;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class UserDataService implements AutoCloseable {
     public void start(RtpsNetworkInterface iface) throws IOException {
         this.networkInterface = iface;
         LOGGER.entering("start");
-        XAsserts.assertTrue(!isStarted, "Already started");
+        Preconditions.isTrue(!isStarted, "Already started");
         LOGGER.fine("Starting user service using following configuration: {0}", config);
         receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
         operatingEntities = iface.getOperatingEntities();

@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior.reader;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Map;
 import java.util.concurrent.Flow.Subscriber;
@@ -130,7 +130,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     @Override
     public void onSubscribe(Subscription subscription) {
-        XAsserts.assertNotNull(subscription, "Already subscribed");
+        Preconditions.notNull(subscription, "Already subscribed");
         this.subscription = subscription;
         subscription.request(1);
     }

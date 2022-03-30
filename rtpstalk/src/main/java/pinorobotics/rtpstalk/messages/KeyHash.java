@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -33,7 +33,7 @@ public class KeyHash implements Sequence {
     public KeyHash() {}
 
     public KeyHash(int... value) {
-        XAsserts.assertEquals(SIZE, value.length, "Value size is wrong");
+        Preconditions.equals(SIZE, value.length, "Value size is wrong");
         this.value = XByte.castToByteArray(value);
     }
 

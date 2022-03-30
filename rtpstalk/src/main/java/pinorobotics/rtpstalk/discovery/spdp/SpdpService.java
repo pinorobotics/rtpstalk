@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.discovery.spdp;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsNetworkInterface;
@@ -54,7 +54,7 @@ public class SpdpService implements AutoCloseable {
 
     public void start(RtpsNetworkInterface iface) throws Exception {
         LOGGER.entering("start");
-        XAsserts.assertTrue(!isStarted, "Already started");
+        Preconditions.isTrue(!isStarted, "Already started");
         LOGGER.fine("Starting SPDP service using following configuration: {0}", config);
         reader =
                 new SpdpBuiltinParticipantReader(
@@ -74,7 +74,7 @@ public class SpdpService implements AutoCloseable {
     }
 
     public Publisher<ParameterList> getParticipantsPublisher() {
-        XAsserts.assertTrue(isStarted, "Service not yet started");
+        Preconditions.isTrue(isStarted, "Service not yet started");
         return reader;
     }
 

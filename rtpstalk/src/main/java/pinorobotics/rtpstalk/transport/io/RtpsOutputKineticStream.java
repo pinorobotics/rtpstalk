@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.transport.io;
 
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
@@ -64,7 +64,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     private void writeSubmessages(Submessage[] a) throws Exception {
         for (int i = 0; i < a.length; i++) {
-            XAsserts.assertTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
+            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
             if (a[i] instanceof Data data) writeData(data);
             else writer.write(a[i]);
         }
@@ -170,7 +170,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         LOGGER.entering("writeParameterList");
         var paramListStart = buf.position();
         for (var param : pl.getParameters().entrySet()) {
-            XAsserts.assertTrue(
+            Preconditions.isTrue(
                     (buf.position() - paramListStart) % 4 == 0,
                     "Invalid param alignment: " + param.getKey());
             writeShort(param.getKey().getValue());
@@ -183,7 +183,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         }
         writeShort(ParameterId.PID_SENTINEL.getValue());
         writeShort((short) 0);
-        XAsserts.assertTrue(
+        Preconditions.isTrue(
                 (buf.position() - paramListStart) % 4 == 0,
                 "Invalid param alignment: PID_SENTINEL");
         LOGGER.exiting("writeParameterList");

@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.TransformProcessor;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
@@ -68,7 +68,7 @@ public class RtpsTalkClient implements AutoCloseable {
 
     private void start() {
         LOGGER.entering("start");
-        XAsserts.assertTrue(!isStarted, "Already started");
+        Preconditions.isTrue(!isStarted, "Already started");
         LOGGER.fine("Using following configuration: {0}", config);
         serviceManager.startAll();
         isStarted = true;

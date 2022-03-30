@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior.liveliness;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
@@ -41,7 +41,7 @@ public class BuiltinParticipantMessageReader extends StatefullRtpsReader<Paramet
                 readerNameExtension,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
-        XAsserts.assertTrue(
+        Preconditions.isTrue(
                 config.builtinEndpointQos()
                         != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,
                 "Not supported with best effort builtin endpoint Qos");

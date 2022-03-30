@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.discovery.sedp;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     public void start(Publisher<ParameterList> participantsPublisher, RtpsNetworkInterface iface)
             throws IOException {
         LOGGER.entering("start");
-        XAsserts.assertTrue(!isStarted, "Already started");
+        Preconditions.isTrue(!isStarted, "Already started");
         LOGGER.fine("Starting SEDP service using following configuration: {0}", config);
 
         subscriptionsWriter =
@@ -176,10 +176,10 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
             Endpoint remoteEndpoint,
             List<Locator> unicast) {
         if (remoteEndpoint.getType() == EndpointType.READER) {
-            XAsserts.assertNotNull(writer, "Writer endpoint requires non null writer");
+            Preconditions.notNull(writer, "Writer endpoint requires non null writer");
         }
         if (remoteEndpoint.getType() == EndpointType.WRITER) {
-            XAsserts.assertNotNull(reader, "Reader endpoint requires non null reader");
+            Preconditions.notNull(reader, "Reader endpoint requires non null reader");
         }
         if (!availableRemoteEndpoints.hasEndpoint(remoteEndpoint)) {
             LOGGER.fine("Participant does not support {0} endpoint, ignoring...", remoteEndpoint);

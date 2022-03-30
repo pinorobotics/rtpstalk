@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.MergeProcessor;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class RtpsServiceManager implements AutoCloseable {
 
     public void startAll() {
         LOGGER.entering("start");
-        XAsserts.assertTrue(!isStarted, "All services already started");
+        Preconditions.isTrue(!isStarted, "All services already started");
         LOGGER.fine("Using following configuration: {0}", config);
         for (var iface : config.networkInterfaces()) {
             var spdp = new SpdpService(config, channelFactory);

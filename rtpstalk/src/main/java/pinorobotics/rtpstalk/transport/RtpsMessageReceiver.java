@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.transport;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     public void start(DataChannel dataChannel) throws IOException {
         this.dataChannel = dataChannel;
         logger.entering("start");
-        XAsserts.assertTrue(!isStarted, "Already started");
+        Preconditions.isTrue(!isStarted, "Already started");
         executor.execute(
                 () -> {
                     var thread = Thread.currentThread();

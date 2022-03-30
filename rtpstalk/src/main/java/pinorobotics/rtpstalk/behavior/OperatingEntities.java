@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.behavior;
 
-import id.xfunction.XAsserts;
+import id.xfunction.Preconditions;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,13 +32,13 @@ public class OperatingEntities {
     private Map<EntityId, StatefullRtpsReader<?>> readers = new ConcurrentHashMap<>();
 
     public void add(EntityId entityId, StatefullRtpsWriter<?> writer) {
-        XAsserts.assertTrue(
+        Preconditions.isTrue(
                 !writers.containsKey(entityId), "Writer " + entityId + " already present");
         writers.put(entityId, writer);
     }
 
     public void add(EntityId entityId, StatefullRtpsReader<?> reader) {
-        XAsserts.assertTrue(
+        Preconditions.isTrue(
                 !readers.containsKey(entityId), "Reader " + entityId + " already present");
         readers.put(entityId, reader);
     }
