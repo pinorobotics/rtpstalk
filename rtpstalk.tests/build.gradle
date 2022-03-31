@@ -41,6 +41,14 @@ jacocoTestReport {
 jacocoTestCoverageVerification {
     sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
     classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude:  [
+                'pinorobotics/rtpstalk/transport/io/exceptions/*',
+                'pinorobotics/rtpstalk/exceptions/*',
+            ])
+        }))
+    }
     violationRules {
         rule {
         enabled = true
@@ -48,7 +56,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.0
+                minimum = 0.5
             }
         }
     }
