@@ -32,7 +32,9 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
             String writerNameExtension,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntityId) {
+            EntityId writerEntityId,
+            String topic) {
         super(config, channelFactory, operatingEntities, writerNameExtension, writerEntityId);
+        operatingEntities.add(topic, this);
     }
 }

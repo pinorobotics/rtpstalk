@@ -24,12 +24,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.userdata.DataWriter;
 
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
     private Map<EntityId, StatefullRtpsWriter<?>> writers = new ConcurrentHashMap<>();
     private Map<EntityId, StatefullRtpsReader<?>> readers = new ConcurrentHashMap<>();
+    private Map<String, DataWriter> topicNameToWriter = new ConcurrentHashMap<>();
 
     public void add(EntityId entityId, StatefullRtpsWriter<?> writer) {
         Preconditions.isTrue(
@@ -53,5 +55,13 @@ public class OperatingEntities {
 
     public void remove(EntityId entityId) {
         writers.remove(entityId);
+    }
+
+    public void add(String topic, DataWriter writer) {
+        topicNameToWriter.put(topic, writer);
+    }
+
+    public Optional<DataWriter> findWriter(String topicName) {
+        return Optional.ofNullable(topicNameToWriter.get(topicName));
     }
 }

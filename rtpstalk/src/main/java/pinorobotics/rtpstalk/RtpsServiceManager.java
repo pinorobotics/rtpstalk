@@ -109,7 +109,7 @@ public class RtpsServiceManager implements AutoCloseable {
                 });
     }
 
-    public void publish(String topic, String type, Publisher<RawData> transformer) {
+    public void publish(String topic, String type, Publisher<RawData> publisher) {
         EntityId writerEntityId = new EntityId(config.appEntityKey(), EntityKind.WRITER_NO_KEY);
         EntityId readerEntityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
         sedpServices.forEach(
@@ -125,7 +125,7 @@ public class RtpsServiceManager implements AutoCloseable {
                 });
         userServices.forEach(
                 userService -> {
-                    userService.publish(writerEntityId, readerEntityId, transformer);
+                    userService.publish(topic, writerEntityId, readerEntityId, publisher);
                 });
     }
 

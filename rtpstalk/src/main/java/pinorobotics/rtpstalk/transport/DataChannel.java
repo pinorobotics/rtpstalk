@@ -37,7 +37,6 @@ public class DataChannel implements AutoCloseable {
     private DatagramChannel dataChannel;
     private int packetBufferSize;
     private GuidPrefix guidPrefix;
-    private boolean isClosed;
     private SocketAddress target;
 
     public DataChannel(
@@ -51,17 +50,11 @@ public class DataChannel implements AutoCloseable {
         this.packetBufferSize = packetBufferSize;
     }
 
+    /** @throws AsynchronousCloseException if channel was closed during read */
     public RtpsMessage receive() throws Exception {
         while (true) {
             var buf = ByteBuffer.allocate(packetBufferSize);
-            try {
-                dataChannel.receive(buf);
-            } catch (AsynchronousCloseException e) {
-                if (!isClosed) {
-                    LOGGER.severe(e);
-                }
-                return new RtpsMessage();
-            }
+            dataChannel.receive(buf);
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
@@ -94,7 +87,6 @@ public class DataChannel implements AutoCloseable {
     @Override
     public void close() {
         try {
-            isClosed = true;
             dataChannel.close();
         } catch (IOException e) {
             LOGGER.severe(e);

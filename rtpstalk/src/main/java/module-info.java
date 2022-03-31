@@ -47,4 +47,6 @@ module rtpstalk {
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.behavior to
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.userdata to
+            rtpstalk.tests;
 }

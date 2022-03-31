@@ -66,7 +66,10 @@ public class UserDataService implements AutoCloseable {
     }
 
     public void publish(
-            EntityId writerEntityId, EntityId readerEntityId, Publisher<RawData> publisher) {
+            String topic,
+            EntityId writerEntityId,
+            EntityId readerEntityId,
+            Publisher<RawData> publisher) {
         var writer =
                 writers.computeIfAbsent(
                         writerEntityId,
@@ -76,7 +79,8 @@ public class UserDataService implements AutoCloseable {
                                         networkInterface.getName(),
                                         channelFactory,
                                         operatingEntities,
-                                        writerEntityId));
+                                        writerEntityId,
+                                        topic));
         publisher.subscribe(writer);
         // to process ackNacks we create readers
         var reader =

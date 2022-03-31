@@ -27,7 +27,6 @@ import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
@@ -57,16 +56,13 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
         if (!isValid(pl)) return;
         Map<ParameterId, ?> params = pl.params;
         var readerEndpointGuid = (Guid) params.get(ParameterId.PID_ENDPOINT_GUID);
+        String topicName = (String) params.get(ParameterId.PID_TOPIC_NAME);
         logger.fine(
                 "Remote participant {0} announced that it is subscribed to the topic {1} with"
                         + " endpoint {2}",
-                params.get(ParameterId.PID_PARTICIPANT_GUID),
-                params.get(ParameterId.PID_TOPIC_NAME),
-                readerEndpointGuid);
-        var writerEndpointEntityId =
-                new EntityId(readerEndpointGuid.entityId.entityKey, EntityKind.WRITER_NO_KEY);
+                params.get(ParameterId.PID_PARTICIPANT_GUID), topicName, readerEndpointGuid);
         getOperatingEntities()
-                .findStatefullWriter(writerEndpointEntityId)
+                .findWriter(topicName)
                 .ifPresent(
                         writer -> {
                             if (params.get(ParameterId.PID_UNICAST_LOCATOR)

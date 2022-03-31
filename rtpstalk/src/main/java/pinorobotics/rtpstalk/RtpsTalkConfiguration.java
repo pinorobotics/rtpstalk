@@ -96,6 +96,12 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /**
+         * List of network interfaces where <b>rtpstalk</b> will be working on. By default it is
+         * active on all network interfaces and it publishes and receives data from all of them.
+         * Users can limit <b>rtpstalk</b> traffic to local network by specifying only its loopback
+         * interface.
+         */
         public Builder networkInterfaces(String... networkIfaces) {
             this.networkIfaces =
                     Arrays.stream(networkIfaces)

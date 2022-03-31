@@ -101,23 +101,26 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     @Override
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
-        operatingEntities
-                .findStatefullWriter(ackNack.writerId)
-                .flatMap(
-                        writer ->
-                                writer.matchedReaderLookup(new Guid(guidPrefix, ackNack.readerId)))
-                .ifPresent(
-                        readerProxy -> {
-                            var set = ackNack.readerSNState;
-                            var base = set.bitmapBase.value;
-                            var bitset = new IntBitSet(set.bitmap);
-                            readerProxy.requestedChangesClear();
-                            for (int i = bitset.nextSetBit(0);
-                                    i >= 0;
-                                    i = bitset.nextSetBit(i + 1)) {
-                                readerProxy.requestChange(base + i);
-                            }
-                        });
+        var readerProxyOpt =
+                operatingEntities
+                        .findStatefullWriter(ackNack.writerId)
+                        .flatMap(
+                                writer ->
+                                        writer.matchedReaderLookup(
+                                                new Guid(guidPrefix, ackNack.readerId)));
+        if (readerProxyOpt.isEmpty()) {
+            logger.fine(
+                    "Received AckNack for unknown writer {0}, ignoring it...", ackNack.writerId);
+        } else {
+            var readerProxy = readerProxyOpt.get();
+            var set = ackNack.readerSNState;
+            var base = set.bitmapBase.value;
+            var bitset = new IntBitSet(set.bitmap);
+            readerProxy.requestedChangesClear();
+            for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
+                readerProxy.requestChange(base + i);
+            }
+        }
         return super.onAckNack(guidPrefix, ackNack);
     }
 

@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
+import java.nio.channels.AsynchronousCloseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
@@ -42,6 +43,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     private final XLogger logger;
     private ExecutorService executor;
     private boolean isStarted;
+    private boolean isClosed;
     private DataChannel dataChannel;
 
     public RtpsMessageReceiver(String readerName) {
@@ -64,6 +66,10 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
                             var message = dataChannel.receive();
                             logger.fine("Incoming RTPS message {0}", message);
                             if (!isClosed()) submit(message);
+                        } catch (AsynchronousCloseException e) {
+                            if (!isClosed) {
+                                logger.severe(e);
+                            }
                         } catch (Exception e) {
                             logger.severe(e);
                         }
@@ -76,6 +82,8 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     @Override
     public void close() {
         if (!isStarted) return;
+        if (isClosed) return;
+        isClosed = true;
         executor.shutdown();
         dataChannel.close();
         super.close();
