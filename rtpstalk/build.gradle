@@ -1,6 +1,16 @@
+// include xfunction for updateVersion
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.github.lambdaprime:id.xfunction:14.0"
+    }
+}
+
 plugins {
     id 'java'
-    id "com.diffplug.spotless" version "6.3.0"
+    id 'com.diffplug.spotless'
 }
 
 apply plugin : 'eclipse'
@@ -27,37 +37,6 @@ javadoc {
     // ignore missing @return, @param etc
     options.addBooleanOption('Xdoclint:all,-missing', true)
 }
-
-spotless {
-    java {
-        importOrder()
-        removeUnusedImports()
-
-        // Use Android style which has 4 whitespaces instead 2 by default
-        googleJavaFormat().aosp().reflowLongStrings()
-
-        licenseHeader '''/*
- * Copyright $YEAR rtpstalk project
- * 
- * Website: https://github.com/pinorobotics/rtpstalk
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-'''
-    }
-}
-// run spotless and format code before the build
-classes.dependsOn spotlessApply
 
 def packageDir = "$buildDir/package/${projectName}"
 
@@ -87,6 +66,9 @@ task cleanRelease(type: Delete) {
 createRelease.dependsOn createPackage
 assemble.dependsOn createRelease
 clean.dependsOn cleanRelease
+
+// run spotless and format code before the build
+classes.dependsOn spotlessApply
 
 if (project.hasProperty('publish')) {
 
