@@ -327,22 +327,29 @@ class RtpsInputKineticStream implements InputKineticStream {
                 LOGGER.warning(
                         "Submessage kind {} is not supported", submessageHeader.submessageKind);
                 skip(submessageHeader.submessageLength);
-                continue;
+            } else {
+                // knowing submessage type now we can read it fully
+                var submessage = readSubmessage(messageClassOpt.get());
+                if (!submessage.isLittleEndian()) {
+                    throw new UnsupportedOperationException("Only Little Endian CDR is supported");
+                }
+                submessages.add(submessage);
+                LOGGER.fine("submessage: {0}", submessage);
             }
 
-            // knowing submessage type now we can read it fully
-            var submessage = readSubmessage(messageClassOpt.get());
-            if (!submessage.isLittleEndian()) {
-                throw new UnsupportedOperationException("Only Little Endian CDR is supported");
-            }
-            submessages.add(submessage);
             var submessageEnd = buf.position();
             LOGGER.fine("submessageEnd: {0}", submessageEnd);
-            LOGGER.fine("submessage: {0}", submessage);
+
+            // The PSM aligns each Submessage on a 32-bit boundary with respect
+            // to the start of the Message (9.4 Mapping of the RTPS Messages)
+            // Skip padding if any
+            while (buf.position() % 4 != 0) readByte();
+            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
+
             Preconditions.equals(
                     submessageHeader.submessageLength,
                     submessageEnd - submessageStart,
-                    "Read message size does not match expected");
+                    "Read submessage size does not match expected");
         }
         LOGGER.exiting("readSubmessages");
         return submessages.toArray(Submessage[]::new);

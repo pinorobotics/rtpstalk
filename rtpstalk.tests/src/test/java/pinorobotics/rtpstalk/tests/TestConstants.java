@@ -27,11 +27,15 @@ import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
+import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
+import pinorobotics.rtpstalk.messages.submessages.RawData;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
@@ -65,4 +69,17 @@ public interface TestConstants {
                                     .getValue(),
                             new SequenceNumberSet(1, 9, 511),
                             new Count()));
+    RtpsMessage TEST_MESSAGE_INFODST_DATA_PADDING =
+            new RtpsMessage(
+                    new Header(
+                            ProtocolId.Predefined.RTPS.getValue(),
+                            ProtocolVersion.Predefined.Version_2_3.getValue(),
+                            VendorId.Predefined.RTPSTALK.getValue(),
+                            TEST_GUID_PREFIX),
+                    new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                    new Data(
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                            new SequenceNumber(1),
+                            new SerializedPayload(new RawData(new byte[] {0x11, 0x22}))));
 }

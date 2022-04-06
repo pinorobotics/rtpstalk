@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.messages.submessages;
 
+import id.xfunction.XJson;
+import id.xfunction.XUtils;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Predefined;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -37,5 +39,14 @@ public class RawData implements Payload {
     @Override
     public Predefined getRepresentationIdentifier() {
         return RepresentationIdentifier.Predefined.CDR_LE;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return XJson.asString("size", data.length, "md5", XUtils.md5Sum(data));
+        } catch (Exception e) {
+            return XJson.asString("size", data.length);
+        }
     }
 }

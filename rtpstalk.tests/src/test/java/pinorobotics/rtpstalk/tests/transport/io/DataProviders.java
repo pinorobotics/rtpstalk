@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.transport.io;
 
-import static pinorobotics.rtpstalk.tests.TestConstants.TEST_MESSAGE_INFODST_ACKNACK;
+import static pinorobotics.rtpstalk.tests.TestConstants.*;
 
 import id.xfunction.ResourceUtils;
 import java.util.List;
@@ -32,6 +32,9 @@ public class DataProviders {
         return Stream.of(
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test1"),
-                        TEST_MESSAGE_INFODST_ACKNACK));
+                        TEST_MESSAGE_INFODST_ACKNACK),
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_submessages_padding"),
+                        TEST_MESSAGE_INFODST_DATA_PADDING));
     }
 }

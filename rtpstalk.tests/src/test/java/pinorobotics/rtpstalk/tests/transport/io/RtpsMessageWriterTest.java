@@ -19,8 +19,10 @@ package pinorobotics.rtpstalk.tests.transport.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import id.xfunction.XByte;
 import id.xfunction.io.XInputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,12 +36,14 @@ public class RtpsMessageWriterTest {
     @ParameterizedTest
     @MethodSource("pinorobotics.rtpstalk.tests.transport.io.DataProviders#rtpsMessageConversion")
     public void testWrite(List testData) throws Exception {
-        var expected = ByteBuffer.wrap(new XInputStream((String) testData.get(0)).readAllBytes());
-        var actual = ByteBuffer.allocate(TestConstants.TEST_CONFIG.packetBufferSize());
-        new RtpsMessageWriter().writeRtpsMessage((RtpsMessage) testData.get(1), actual);
-        actual.limit(actual.position());
-        actual.rewind();
-        System.out.println(actual);
-        assertEquals(expected, actual);
+        var expected = new XInputStream((String) testData.get(0)).readAllBytes();
+        var buf = ByteBuffer.allocate(TestConstants.TEST_CONFIG.packetBufferSize());
+        new RtpsMessageWriter().writeRtpsMessage((RtpsMessage) testData.get(1), buf);
+        buf.limit(buf.position());
+        buf.rewind();
+        var actual = new byte[buf.limit()];
+        buf.get(actual);
+        System.out.println(XByte.toHexPairs(actual));
+        assertEquals(Arrays.toString(expected), Arrays.toString(actual));
     }
 }

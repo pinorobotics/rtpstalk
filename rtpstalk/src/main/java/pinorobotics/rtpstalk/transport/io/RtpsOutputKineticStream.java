@@ -64,9 +64,14 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     private void writeSubmessages(Submessage[] a) throws Exception {
         for (int i = 0; i < a.length; i++) {
-            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
             if (a[i] instanceof Data data) writeData(data);
             else writer.write(a[i]);
+
+            // The PSM aligns each Submessage on a 32-bit boundary with respect
+            // to the start of the Message (9.4 Mapping of the RTPS Messages)
+            // To satisfy RTPS requirement we may need to add padding
+            while (buf.position() % 4 != 0) writeByte((byte) 0);
+            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
         }
     }
 

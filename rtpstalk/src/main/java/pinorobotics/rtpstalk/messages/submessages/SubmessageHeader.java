@@ -28,7 +28,10 @@ public class SubmessageHeader {
 
     public byte submessageFlag;
 
-    /** octetsToNextHeader */
+    /**
+     * Number of octets from the start of the contents of the currennt Submessage to the start of
+     * the next Submessage header.
+     */
     public short submessageLength;
 
     public SubmessageHeader() {}
