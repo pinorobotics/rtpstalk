@@ -312,6 +312,12 @@ class RtpsInputKineticStream implements InputKineticStream {
         var submessages = new ArrayList<Submessage>();
         while (buf.hasRemaining()) {
 
+            // The PSM aligns each Submessage on a 32-bit boundary with respect
+            // to the start of the Message (9.4 Mapping of the RTPS Messages)
+            // Skip padding if any
+            while (buf.position() % 4 != 0) readByte();
+            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
+
             // peek submessage type
             buf.mark();
             var submessageHeader = reader.read(SubmessageHeader.class);
@@ -339,12 +345,6 @@ class RtpsInputKineticStream implements InputKineticStream {
 
             var submessageEnd = buf.position();
             LOGGER.fine("submessageEnd: {0}", submessageEnd);
-
-            // The PSM aligns each Submessage on a 32-bit boundary with respect
-            // to the start of the Message (9.4 Mapping of the RTPS Messages)
-            // Skip padding if any
-            while (buf.position() % 4 != 0) readByte();
-            Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             Preconditions.equals(
                     submessageHeader.submessageLength,
