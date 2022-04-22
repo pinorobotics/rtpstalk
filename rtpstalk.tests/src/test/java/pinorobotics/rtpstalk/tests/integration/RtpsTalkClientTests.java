@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
@@ -46,9 +47,13 @@ public class RtpsTalkClientTests {
     private FastRtpsExamples tools;
     private RtpsTalkClient client;
 
+    @BeforeAll
+    public static void setupAll() {
+        XLogger.load("rtpstalk-test.properties");
+    }
+
     @BeforeEach
     public void setup() {
-        XLogger.load("rtpstalk-test.properties");
         client =
                 new RtpsTalkClient(
                         new RtpsTalkConfiguration.Builder()

@@ -202,7 +202,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             var len = readShort();
             var startPos = buf.position();
             if (parameterId == null) {
-                LOGGER.warning("Unknown parameter {0}, ignoring...", Short.toUnsignedInt(id));
+                LOGGER.fine("Unknown parameter {0}, ignoring...", Short.toUnsignedInt(id));
                 skip(len);
                 continue;
             }

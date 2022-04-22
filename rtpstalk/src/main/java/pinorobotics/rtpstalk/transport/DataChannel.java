@@ -58,6 +58,7 @@ public class DataChannel implements AutoCloseable {
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
+            LOGGER.fine("Received UDP packet of size {0}", len);
             var messageOpt = reader.readRtpsMessage(buf);
             if (messageOpt.isEmpty()) continue;
             var message = messageOpt.get();
