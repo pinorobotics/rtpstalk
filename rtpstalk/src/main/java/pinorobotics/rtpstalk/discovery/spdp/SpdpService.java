@@ -55,7 +55,9 @@ public class SpdpService implements AutoCloseable {
     public void start(RtpsNetworkInterface iface) throws Exception {
         LOGGER.entering("start");
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine("Starting SPDP service using following configuration: {0}", config);
+        LOGGER.fine(
+                "Starting SPDP service on {0} using following configuration: {1}",
+                iface.getName(), config);
         reader =
                 new SpdpBuiltinParticipantReader(
                         iface.getName(), config.guidPrefix(), iface.getOperatingEntities());

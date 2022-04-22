@@ -20,9 +20,10 @@ package pinorobotics.rtpstalk;
 import static java.util.stream.Collectors.toList;
 
 import id.xfunction.XJsonStringBuilder;
+import id.xfunction.function.LazyInitializer;
 import id.xfunction.function.Unchecked;
-import id.xfunction.lang.XRE;
-import java.net.InetAddress;
+import id.xfunction.net.FreePortIterator;
+import id.xfunction.net.FreePortIterator.Protocol;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.time.Duration;
@@ -39,8 +40,6 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
  */
 public record RtpsTalkConfiguration(
         List<RtpsNetworkInterface> networkInterfaces,
-        int builtinEnpointsPort,
-        int userEndpointsPort,
         int packetBufferSize,
         int domainId,
         GuidPrefix guidPrefix,
@@ -75,13 +74,18 @@ public record RtpsTalkConfiguration(
          *
          * <p>https://datatracker.ietf.org/doc/html/rfc8085
          */
-        private static final int UDP_MAX_PACKET_SIZE = 65_507;
+        public static final int UDP_MAX_PACKET_SIZE = 65_507;
 
-        private static final String DEFAULT_NETWORK_IFACE = "eth0";
+        /**
+         * Default starting port from which port assignment for {@link #builtInEnpointsPort}, {@link
+         * #userEndpointsPort} will happen
+         */
+        public static final int DEFAULT_START_PORT = 7412;
 
         private List<NetworkInterface> networkIfaces = listAllNetworkInterfaces();
-        private int builtInEnpointsPort = 7412;
-        private int userEndpointsPort = 7413;
+        private int startPort = DEFAULT_START_PORT;
+        private int builtInEnpointsPort;
+        private int userEndpointsPort;
         private int packetBufferSize = UDP_MAX_PACKET_SIZE;
         private int domainId = 0;
         private int appEntityKey = 0x000012;
@@ -163,6 +167,16 @@ public record RtpsTalkConfiguration(
         }
 
         public RtpsTalkConfiguration build() {
+            var portIterator = new FreePortIterator(startPort, Protocol.UDP);
+            var builtInEnpointsPortSupplier =
+                    new LazyInitializer<Integer>(
+                            () ->
+                                    builtInEnpointsPort != 0
+                                            ? builtInEnpointsPort
+                                            : portIterator.next());
+            var userEndpointsPortSupplier =
+                    new LazyInitializer<Integer>(
+                            () -> userEndpointsPort != 0 ? userEndpointsPort : portIterator.next());
             var rtpsNetworkIfaces =
                     networkIfaces.stream()
                             .map(
@@ -170,14 +184,12 @@ public record RtpsTalkConfiguration(
                                             new RtpsNetworkInterface(
                                                     domainId,
                                                     iface,
-                                                    builtInEnpointsPort,
-                                                    userEndpointsPort))
+                                                    builtInEnpointsPortSupplier,
+                                                    userEndpointsPortSupplier))
                             .collect(toList());
 
             return new RtpsTalkConfiguration(
                     rtpsNetworkIfaces,
-                    builtInEnpointsPort,
-                    userEndpointsPort,
                     packetBufferSize,
                     domainId,
                     guidPrefix,
@@ -194,17 +206,6 @@ public record RtpsTalkConfiguration(
                 return NetworkInterface.networkInterfaces().collect(toList());
             } catch (SocketException e) {
                 throw new RuntimeException("Error listing available network interfaces", e);
-            }
-        }
-
-        private static InetAddress getNetworkIfaceIp(String networkIface) {
-            try {
-                return NetworkInterface.getByName(networkIface)
-                        .getInterfaceAddresses()
-                        .get(0)
-                        .getAddress();
-            } catch (Exception e) {
-                throw new XRE("Error obtaining IP address for network interface %s", networkIface);
             }
         }
     }

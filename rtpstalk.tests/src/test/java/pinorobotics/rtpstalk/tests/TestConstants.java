@@ -50,9 +50,9 @@ public interface TestConstants {
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
     InetAddress TEST_REMOTE_ADDRESS = Unchecked.get(() -> InetAddress.getByName("33.3.3.3"));
     Locator TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR =
-            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7012, TEST_REMOTE_ADDRESS);
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, () -> 7012, TEST_REMOTE_ADDRESS);
     Locator TEST_REMOTE_DEFAULT_UNICAST_LOCATOR =
-            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7013, TEST_REMOTE_ADDRESS);
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, () -> 7013, TEST_REMOTE_ADDRESS);
 
     RtpsMessage TEST_MESSAGE_INFODST_ACKNACK =
             new RtpsMessage(

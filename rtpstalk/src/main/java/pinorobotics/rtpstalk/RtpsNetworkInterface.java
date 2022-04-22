@@ -21,6 +21,7 @@ import id.xfunction.XJsonStringBuilder;
 import id.xfunction.lang.XRE;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.function.Supplier;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
@@ -38,14 +39,14 @@ public class RtpsNetworkInterface {
     public RtpsNetworkInterface(
             int domainId,
             NetworkInterface networkIface,
-            int builtInEnpointsPort,
-            int userEndpointsPort) {
+            Supplier<Integer> builtinEnpointsPortSupplier,
+            Supplier<Integer> userEndpointsPortSupplier) {
         this.networkIface = networkIface;
         ipAddress = getNetworkIfaceIp(networkIface);
         defaultUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
+                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPortSupplier, ipAddress);
         metatrafficUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
+                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtinEnpointsPortSupplier, ipAddress);
         metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId, networkIface);
     }
 
@@ -85,8 +86,8 @@ public class RtpsNetworkInterface {
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("ipAddress", ipAddress);
-        builder.append("builtInEnpointsPort", metatrafficUnicastLocator.port());
-        builder.append("userEndpointsPort", defaultUnicastLocator.port());
+        builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
+        builder.append("defaultUnicastLocator", defaultUnicastLocator);
         return builder.toString();
     }
 

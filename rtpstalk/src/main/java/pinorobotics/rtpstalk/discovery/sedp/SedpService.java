@@ -68,7 +68,9 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
             throws IOException {
         LOGGER.entering("start");
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine("Starting SEDP service using following configuration: {0}", config);
+        LOGGER.fine(
+                "Starting SEDP service on {0} using following configuration: {1}",
+                iface.getName(), config);
 
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(

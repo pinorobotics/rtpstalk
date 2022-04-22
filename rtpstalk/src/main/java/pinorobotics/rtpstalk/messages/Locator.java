@@ -25,36 +25,67 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
+import java.util.function.Supplier;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public record Locator(
-        LocatorKind kind,
-        int port,
-        InetAddress address,
-
-        /** Used in multicast locators */
-        Optional<NetworkInterface> networkInterface) {
+public class Locator {
 
     public static final Locator EMPTY_IPV6 = createEmpty(LocatorKind.LOCATOR_KIND_UDPv6);
     public static final Locator INVALID = createEmpty(LocatorKind.LOCATOR_KIND_INVALID);
 
-    public Locator(LocatorKind kind, int port, InetAddress address) {
-        this(kind, port, address, Optional.empty());
+    private LocatorKind kind;
+
+    /**
+     * Allows to assign port number later in time before it is actually used.
+     *
+     * <p>It avoids situations when it is assigned and before it is effectively being used some
+     * other application already takes it.
+     *
+     * <p>Mainly it is needed for local Locators like defaultUnicastLocator,
+     * metatrafficUnicastLocator.
+     */
+    private Supplier<Integer> portSupplier;
+
+    private InetAddress address;
+    private Optional<NetworkInterface> networkInterface = Optional.empty();
+
+    public Locator(
+            LocatorKind kind,
+            Supplier<Integer> port,
+            InetAddress address,
+            NetworkInterface networkInterface) {
+        this.kind = kind;
+        portSupplier = port;
+        this.address = address;
+        this.networkInterface = Optional.ofNullable(networkInterface);
+    }
+
+    public Locator(
+            LocatorKind kind, int port, InetAddress address, NetworkInterface networkInterface) {
+        this(kind, () -> port, address, networkInterface);
+    }
+
+    public Locator(LocatorKind kind, Supplier<Integer> port, InetAddress address) {
+        this(kind, port, address, null);
         Preconditions.isTrue(
                 !address.isMulticastAddress(),
                 "This constructor does not support multicast addresses");
     }
 
+    public Locator(LocatorKind kind, int port, InetAddress address) {
+        this(kind, () -> port, address);
+    }
+
     public SocketAddress getSocketAddress() {
-        return new InetSocketAddress(address, port);
+        return new InetSocketAddress(address, portSupplier.get());
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("transportType", kind);
-        builder.append("port", port);
+        builder.append("port", portSupplier);
         builder.append("address", address);
         return builder.toString();
     }
@@ -66,7 +97,7 @@ public record Locator(
                     LocatorKind.LOCATOR_KIND_UDPv4,
                     PortNumberParameters.DEFAULT.getMultiCastPort(domainId),
                     InetAddress.getByName("239.255.0.1"),
-                    Optional.of(networkInterface));
+                    networkInterface);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -78,5 +109,22 @@ public record Locator(
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public InetAddress address() {
+        return address;
+    }
+
+    /** Used in multicast locators */
+    public Optional<NetworkInterface> networkInterface() {
+        return networkInterface;
+    }
+
+    public LocatorKind kind() {
+        return kind;
+    }
+
+    public int port() {
+        return portSupplier.get();
     }
 }

@@ -21,7 +21,6 @@ import static pinorobotics.rtpstalk.tests.TestConstants.*;
 
 import id.xfunction.ResourceUtils;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
-import id.xfunction.text.WildcardMatcher;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.XAsserts;
 
 /** @author lambdaprime intid@protonmail.com */
 public class SpdpServiceTest {
@@ -99,11 +99,8 @@ public class SpdpServiceTest {
         Assertions.assertEquals(1, metatrafficChannel.getDataQueue().size());
         var message = metatrafficChannel.getDataQueue().peek().toString();
         System.out.println(message);
-        Assertions.assertTrue(
-                new WildcardMatcher(
-                                resourceUtils.readResource(
-                                        getClass(), "SpdpDiscoveredParticipantData"))
-                        .matches(message));
+        XAsserts.assertMatches(
+                resourceUtils.readResource(getClass(), "SpdpDiscoveredParticipantData"), message);
     }
 
     @Test

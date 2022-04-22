@@ -99,7 +99,9 @@ public class UserDataService implements AutoCloseable {
         this.networkInterface = iface;
         LOGGER.entering("start");
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine("Starting user service using following configuration: {0}", config);
+        LOGGER.fine(
+                "Starting user service on {0} using following configuration: {1}",
+                iface.getName(), config);
         receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
         operatingEntities = iface.getOperatingEntities();
         isStarted = true;
