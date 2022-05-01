@@ -164,6 +164,11 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     }
 
     @Override
+    public String toString() {
+        return getClass().getName() + getReaderName();
+    }
+
+    @Override
     public void close() {
         subscription.cancel();
         super.close();

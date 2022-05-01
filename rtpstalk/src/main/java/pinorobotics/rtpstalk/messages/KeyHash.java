@@ -62,7 +62,7 @@ public class KeyHash implements Sequence {
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("value", value);
+        builder.append("value", XByte.toHex(value));
         return builder.toString();
     }
 }

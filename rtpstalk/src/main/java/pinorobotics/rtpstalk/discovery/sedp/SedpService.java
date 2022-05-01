@@ -61,7 +61,6 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     public SedpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
-        metatrafficReceiver = new RtpsMessageReceiver("SedpServiceReceiver");
     }
 
     public void start(Publisher<ParameterList> participantsPublisher, RtpsNetworkInterface iface)
@@ -72,6 +71,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
                 "Starting SEDP service on {0} using following configuration: {1}",
                 iface.getName(), config);
 
+        metatrafficReceiver = new RtpsMessageReceiver("SedpServiceReceiver:" + iface.getName());
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config, iface.getName(), channelFactory, iface.getOperatingEntities());

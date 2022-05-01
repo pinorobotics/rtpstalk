@@ -6,11 +6,11 @@
 *.SedpBuiltinSubscriptionsWriter#ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER:eth0 - Closed*
 *.SedpBuiltinPublicationsReader#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR:eth0 - Closed*
 *.SedpBuiltinPublicationsWriter#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER:eth0 - Closed*
-*.RtpsMessageReceiver#SedpServiceReceiver - Closed*
+*.RtpsMessageReceiver#SedpServiceReceiver:eth0 - Closed*
 *.SedpService - Closed*
 *.SedpBuiltinSubscriptionsReader#ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR:lo - Closed*
 *.SedpBuiltinSubscriptionsWriter#ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER:lo - Closed*
 *.SedpBuiltinPublicationsReader#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR:lo - Closed*
 *.SedpBuiltinPublicationsWriter#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER:lo - Closed*
-*.RtpsMessageReceiver#SedpServiceReceiver - Closed*
+*.RtpsMessageReceiver#SedpServiceReceiver:lo - Closed*
 *.SedpService - Closed*

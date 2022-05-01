@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -77,6 +78,12 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
                     logger.fine("Shutdown received, stopping...");
                 });
         isStarted = true;
+    }
+
+    @Override
+    public void subscribe(Subscriber<? super RtpsMessage> subscriber) {
+        logger.fine("Subscribing {0}", subscriber);
+        super.subscribe(subscriber);
     }
 
     @Override

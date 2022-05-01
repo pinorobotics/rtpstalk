@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
+import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -86,7 +87,7 @@ public class GuidPrefix implements SubmessageElement {
             return predefined.name();
         }
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("value", value);
+        builder.append("value", XByte.toHex(value));
         return builder.toString();
     }
 
