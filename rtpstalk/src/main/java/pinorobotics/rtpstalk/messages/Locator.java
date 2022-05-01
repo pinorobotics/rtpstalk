@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import id.xfunction.function.ConstantSupplier;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -63,7 +64,7 @@ public class Locator {
 
     public Locator(
             LocatorKind kind, int port, InetAddress address, NetworkInterface networkInterface) {
-        this(kind, () -> port, address, networkInterface);
+        this(kind, new ConstantSupplier<>(port), address, networkInterface);
     }
 
     public Locator(LocatorKind kind, Supplier<Integer> port, InetAddress address) {
@@ -74,7 +75,7 @@ public class Locator {
     }
 
     public Locator(LocatorKind kind, int port, InetAddress address) {
-        this(kind, () -> port, address);
+        this(kind, new ConstantSupplier<>(port), address);
     }
 
     public SocketAddress getSocketAddress() {
