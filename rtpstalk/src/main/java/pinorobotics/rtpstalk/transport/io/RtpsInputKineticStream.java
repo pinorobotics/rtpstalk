@@ -447,4 +447,9 @@ class RtpsInputKineticStream implements InputKineticStream {
     public StatusInfo readStatusInfo() {
         return new StatusInfo(buf.getInt());
     }
+
+    @Override
+    public String[] readStringArray(String[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 }

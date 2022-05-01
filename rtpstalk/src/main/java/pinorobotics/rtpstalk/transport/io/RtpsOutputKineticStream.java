@@ -245,4 +245,9 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         writeByte(entiyId.entityKind);
         LOGGER.exiting("writeEntityId");
     }
+
+    @Override
+    public void writeStringArray(String[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 }
