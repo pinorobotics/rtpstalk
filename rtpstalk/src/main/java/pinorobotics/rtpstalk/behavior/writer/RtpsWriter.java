@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
@@ -57,11 +58,12 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
     private Guid writerGuid;
     private RtpsDataMessageBuilder lastMessage;
     private Optional<Subscription> subscriptionOpt = Optional.empty();
-    private String writerName;
+
+    private TracingToken tracingToken;
 
     public RtpsWriter(
-            RtpsTalkConfiguration config, String writerNameExtension, EntityId writerEntiyId) {
-        this(config, writerNameExtension, writerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+            RtpsTalkConfiguration config, TracingToken tracingToken, EntityId writerEntiyId) {
+        this(config, tracingToken, writerEntiyId, ReliabilityKind.BEST_EFFORT, true);
     }
 
     /**
@@ -71,13 +73,13 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
      */
     public RtpsWriter(
             RtpsTalkConfiguration config,
-            String writerNameExtension,
+            TracingToken token,
             EntityId writerEntityId,
             ReliabilityKind reliabilityKind,
             boolean pushMode) {
-        this.writerName = writerEntityId + ":" + writerNameExtension;
+        this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
-        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     /**
@@ -138,7 +140,7 @@ public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessa
         logger.fine("Closed");
     }
 
-    public String getWriterName() {
-        return writerName;
+    public TracingToken getTracingToken() {
+        return tracingToken;
     }
 }

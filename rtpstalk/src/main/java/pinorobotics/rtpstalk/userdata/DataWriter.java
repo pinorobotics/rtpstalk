@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.userdata;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -29,12 +30,12 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
 
     public DataWriter(
             RtpsTalkConfiguration config,
-            String writerNameExtension,
+            TracingToken tracingToken,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
             EntityId writerEntityId,
             String topic) {
-        super(config, channelFactory, operatingEntities, writerNameExtension, writerEntityId);
+        super(config, channelFactory, operatingEntities, tracingToken, writerEntityId);
         operatingEntities.add(topic, this);
     }
 }

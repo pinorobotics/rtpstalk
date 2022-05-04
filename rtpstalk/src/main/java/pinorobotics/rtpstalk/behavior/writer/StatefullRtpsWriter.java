@@ -32,6 +32,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.RtpsHeartbeatMessageBuilder;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
@@ -68,9 +69,9 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            String writerNameExtension,
+            TracingToken tracingToken,
             EntityId writerEntiyId) {
-        super(config, writerNameExtension, writerEntiyId, ReliabilityKind.RELIABLE, true);
+        super(config, tracingToken, writerEntiyId, ReliabilityKind.RELIABLE, true);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
@@ -99,10 +100,10 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         }
         var sender =
                 new RtpsMessageSender(
+                        getTracingToken(),
                         channelFactory.connect(unicast.get(0)),
                         remoteReaderGuid,
-                        getGuid().entityId,
-                        getWriterName());
+                        getGuid().entityId);
         var proxy = new ReaderProxy(remoteReaderGuid, unicast, sender);
         logger.fine("Adding reader proxy for reader with guid {0}", proxy.getRemoteReaderGuid());
         var numOfReaders = matchedReaders.size();

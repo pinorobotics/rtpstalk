@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
@@ -34,11 +35,11 @@ public class BuiltinParticipantMessageReader extends StatefullRtpsReader<Paramet
 
     public BuiltinParticipantMessageReader(
             RtpsTalkConfiguration config,
-            String readerNameExtension,
+            TracingToken tracingToken,
             OperatingEntities operatingEntities) {
         super(
                 config,
-                readerNameExtension,
+                tracingToken,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
         Preconditions.isTrue(

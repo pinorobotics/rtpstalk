@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.discovery.sedp;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
@@ -28,11 +29,11 @@ public class SedpBuiltinPublicationsReader extends StatefullRtpsReader<Parameter
 
     public SedpBuiltinPublicationsReader(
             RtpsTalkConfiguration config,
-            String readerNameExtension,
+            TracingToken tracingToken,
             OperatingEntities operatingEntities) {
         super(
                 config,
-                readerNameExtension,
+                tracingToken,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
     }

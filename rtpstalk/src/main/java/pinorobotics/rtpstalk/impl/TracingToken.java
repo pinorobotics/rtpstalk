@@ -17,23 +17,25 @@
  */
 package pinorobotics.rtpstalk.impl;
 
-import id.xfunction.logging.XLogger;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class InternalUtils {
+public class TracingToken {
 
-    private static final InternalUtils INSTANCE = new InternalUtils();
+    private static final String DELIM = "-";
+    private String token;
 
-    public static InternalUtils getInstance() {
-        return INSTANCE;
+    public TracingToken(String... tokens) {
+        this.token = Arrays.stream(tokens).collect(Collectors.joining(DELIM));
     }
 
-    public XLogger getLogger(Class<?> clazz, TracingToken token) {
-        return XLogger.getLogger(clazz.getName() + "#" + token.toString());
+    public TracingToken(TracingToken token, String... tokens) {
+        this.token = token + DELIM + Arrays.stream(tokens).collect(Collectors.joining(DELIM));
     }
 
-    public XLogger getLogger(Class<?> clazz, EntityId contextEntityId) {
-        return XLogger.getLogger(clazz.getName() + "#" + contextEntityId.toString());
+    @Override
+    public String toString() {
+        return token;
     }
 }

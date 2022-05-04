@@ -24,6 +24,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -69,19 +70,18 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private RtpsSubmessageVisitor filterVisitor;
     private ReliabilityKind reliabilityKind;
     private Subscription subscription;
-    private String readerName;
+    private TracingToken tracingToken;
 
-    public RtpsReader(String readerNameExtension, Guid guid) {
-        this(readerNameExtension, guid, ReliabilityKind.BEST_EFFORT);
+    public RtpsReader(TracingToken tracingToken, Guid guid) {
+        this(tracingToken, guid, ReliabilityKind.BEST_EFFORT);
     }
 
-    public RtpsReader(
-            String readerNameExtension, Guid readerGuid, ReliabilityKind reliabilityKind) {
-        this.readerName = readerGuid.entityId + ":" + readerNameExtension;
+    public RtpsReader(TracingToken token, Guid readerGuid, ReliabilityKind reliabilityKind) {
+        this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
-        logger = InternalUtils.getInstance().getLogger(getClass(), readerName);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Reader. */
@@ -159,13 +159,9 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         // empty
     }
 
-    public String getReaderName() {
-        return readerName;
-    }
-
     @Override
     public String toString() {
-        return getClass().getName() + getReaderName();
+        return tracingToken.toString();
     }
 
     @Override

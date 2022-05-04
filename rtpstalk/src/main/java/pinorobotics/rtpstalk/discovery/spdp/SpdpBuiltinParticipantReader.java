@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.StatusInfo;
@@ -38,11 +39,9 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     private OperatingEntities operatingEntities;
 
     public SpdpBuiltinParticipantReader(
-            String readerNameExtension,
-            GuidPrefix guidPrefix,
-            OperatingEntities operatingEntities) {
+            TracingToken tracingToken, GuidPrefix guidPrefix, OperatingEntities operatingEntities) {
         super(
-                readerNameExtension,
+                tracingToken,
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));

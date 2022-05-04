@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.discovery.sedp;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -29,14 +30,14 @@ public class SedpBuiltinSubscriptionsWriter extends StatefullRtpsWriter<Paramete
 
     public SedpBuiltinSubscriptionsWriter(
             RtpsTalkConfiguration config,
-            String writerNameExtension,
+            TracingToken tracingToken,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities) {
         super(
                 config,
                 channelFactory,
                 operatingEntities,
-                writerNameExtension,
+                tracingToken,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue());
     }
 }

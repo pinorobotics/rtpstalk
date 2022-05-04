@@ -24,6 +24,7 @@ import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -35,11 +36,11 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
 
     public SedpBuiltinSubscriptionsReader(
             RtpsTalkConfiguration config,
-            String readerNameExtension,
+            TracingToken tracingToken,
             OperatingEntities operatingEntities) {
         super(
                 config,
-                readerNameExtension,
+                tracingToken,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
         subscribe(

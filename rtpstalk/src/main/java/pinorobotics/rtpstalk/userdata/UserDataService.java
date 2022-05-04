@@ -27,6 +27,8 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -35,7 +37,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 /** @author lambdaprime intid@protonmail.com */
 public class UserDataService implements AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(UserDataService.class);
+    private XLogger logger;
     private RtpsTalkConfiguration config;
     private RtpsMessageReceiver receiver;
     private DataChannelFactory channelFactory;
@@ -43,24 +45,19 @@ public class UserDataService implements AutoCloseable {
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
     private OperatingEntities operatingEntities;
-    private RtpsNetworkInterface networkInterface;
+    private TracingToken tracingToken;
 
     public UserDataService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
-        receiver = new RtpsMessageReceiver("UserDataServiceReceiver");
     }
 
     public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
+        Preconditions.isTrue(isStarted, "User data service is not started");
         var reader =
                 readers.computeIfAbsent(
                         entityId,
-                        eid ->
-                                new DataReader(
-                                        config,
-                                        networkInterface.getName(),
-                                        operatingEntities,
-                                        eid));
+                        eid -> new DataReader(config, tracingToken, operatingEntities, eid));
         reader.subscribe(subscriber);
         receiver.subscribe(reader);
     }
@@ -70,13 +67,14 @@ public class UserDataService implements AutoCloseable {
             EntityId writerEntityId,
             EntityId readerEntityId,
             Publisher<RawData> publisher) {
+        Preconditions.isTrue(isStarted, "User data service is not started");
         var writer =
                 writers.computeIfAbsent(
                         writerEntityId,
                         eid ->
                                 new DataWriter(
                                         config,
-                                        networkInterface.getName(),
+                                        tracingToken,
                                         channelFactory,
                                         operatingEntities,
                                         writerEntityId,
@@ -86,20 +84,18 @@ public class UserDataService implements AutoCloseable {
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,
-                        eid ->
-                                new DataReader(
-                                        config,
-                                        networkInterface.getName(),
-                                        operatingEntities,
-                                        eid));
+                        eid -> new DataReader(config, tracingToken, operatingEntities, eid));
         receiver.subscribe(reader);
     }
 
-    public void start(RtpsNetworkInterface iface) throws IOException {
-        this.networkInterface = iface;
-        LOGGER.entering("start");
+    public void start(TracingToken token, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine(
+        tracingToken = new TracingToken(token, iface.getName());
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        receiver =
+                new RtpsMessageReceiver(new TracingToken(tracingToken, "UserDataServiceReceiver"));
+        logger.entering("start");
+        logger.fine(
                 "Starting user service on {0} using following configuration: {1}",
                 iface.getName(), config);
         receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));

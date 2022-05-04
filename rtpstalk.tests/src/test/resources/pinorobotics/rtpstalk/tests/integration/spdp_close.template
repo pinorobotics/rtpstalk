@@ -1,11 +1,11 @@
-*.RtpsMessageReceiver#SpdpService - Closed
-*.SpdpBuiltinParticipantWriter#ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER:eth0 - Closed
+*.RtpsMessageReceiver#*-eth0-SpdpService - Closed
+*.SpdpBuiltinParticipantWriter#*-eth0-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
 *.SpdpBuiltinParticipantWriter - Closed
-*.SpdpBuiltinParticipantReader#ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR:eth0 - Closed
-*.SpdpService - Closed
-*.RtpsMessageReceiver#SpdpService - Closed
-*.SpdpBuiltinParticipantWriter#ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER:lo - Closed
+*.SpdpBuiltinParticipantReader#*-eth0-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed
+*.SpdpService#*-eth0 - Closed
+*.RtpsMessageReceiver#*-lo-SpdpService - Closed
+*.SpdpBuiltinParticipantWriter#*-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
 *.SpdpBuiltinParticipantWriter - Closed
-*.SpdpBuiltinParticipantReader#ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR:lo - Closed
-*.SpdpService - Closed
+*.SpdpBuiltinParticipantReader#*-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed
+*.SpdpService#*-lo - Closed
 *

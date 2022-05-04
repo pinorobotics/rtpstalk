@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 
 /**
@@ -47,9 +48,10 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     private boolean isClosed;
     private DataChannel dataChannel;
 
-    public RtpsMessageReceiver(String readerName) {
-        executor = Executors.newSingleThreadExecutor(new NamedThreadFactory(readerName));
-        logger = InternalUtils.getInstance().getLogger(getClass(), readerName);
+    public RtpsMessageReceiver(TracingToken tracingToken) {
+        executor =
+                Executors.newSingleThreadExecutor(new NamedThreadFactory(tracingToken.toString()));
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     public void start(DataChannel dataChannel) throws IOException {

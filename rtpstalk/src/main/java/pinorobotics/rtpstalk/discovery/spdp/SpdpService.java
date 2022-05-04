@@ -22,6 +22,8 @@ import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
@@ -29,7 +31,6 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpService implements AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(SpdpService.class);
     private RtpsTalkConfiguration config;
     private RtpsMessageReceiver receiver;
     private SpdpBuiltinParticipantReader reader;
@@ -37,6 +38,7 @@ public class SpdpService implements AutoCloseable {
     private boolean isStarted;
     private DataChannelFactory channelFactory;
     private SpdpDiscoveredParticipantDataFactory spdpDiscoveredDataFactory;
+    private XLogger logger;
 
     public SpdpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this(config, channelFactory, new SpdpDiscoveredParticipantDataFactory());
@@ -49,22 +51,25 @@ public class SpdpService implements AutoCloseable {
         this.config = config;
         this.channelFactory = channelFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
-        receiver = new RtpsMessageReceiver(getClass().getSimpleName());
     }
 
-    public void start(RtpsNetworkInterface iface) throws Exception {
-        LOGGER.entering("start");
+    public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws Exception {
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine(
+        tracingToken = new TracingToken(tracingToken, iface.getName());
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger.entering("start");
+        receiver =
+                new RtpsMessageReceiver(new TracingToken(tracingToken, getClass().getSimpleName()));
+        logger.fine(
                 "Starting SPDP service on {0} using following configuration: {1}",
                 iface.getName(), config);
         reader =
                 new SpdpBuiltinParticipantReader(
-                        iface.getName(), config.guidPrefix(), iface.getOperatingEntities());
+                        tracingToken, config.guidPrefix(), iface.getOperatingEntities());
         var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(config, channelFactory, iface.getName());
+        writer = new SpdpBuiltinParticipantWriter(config, channelFactory, tracingToken);
         writer.readerLocatorAdd(iface.getLocalMetatrafficMulticastLocator());
         writer.setSpdpDiscoveredParticipantData(
                 spdpDiscoveredDataFactory.createData(
@@ -86,6 +91,6 @@ public class SpdpService implements AutoCloseable {
         receiver.close();
         writer.close();
         reader.close();
-        LOGGER.fine("Closed");
+        logger.fine("Closed");
     }
 }

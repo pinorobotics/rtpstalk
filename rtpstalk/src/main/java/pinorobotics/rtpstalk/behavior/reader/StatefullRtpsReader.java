@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
@@ -54,13 +55,10 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     public StatefullRtpsReader(
             RtpsTalkConfiguration config,
-            String readerNameExtension,
+            TracingToken tracingToken,
             OperatingEntities operatingEntities,
             EntityId entityId) {
-        super(
-                readerNameExtension,
-                new Guid(config.guidPrefix(), entityId),
-                ReliabilityKind.RELIABLE);
+        super(tracingToken, new Guid(config.guidPrefix(), entityId), ReliabilityKind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
         operatingEntities.add(getGuid().entityId, this);

@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatelessRtpsWriter;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -43,11 +44,11 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
     public SpdpBuiltinParticipantWriter(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
-            String writerNameExtension) {
+            TracingToken tracingToken) {
         super(
                 config,
                 channelFactory,
-                writerNameExtension,
+                tracingToken,
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
         this.rate = config.spdpDiscoveredParticipantDataPublishPeriod();

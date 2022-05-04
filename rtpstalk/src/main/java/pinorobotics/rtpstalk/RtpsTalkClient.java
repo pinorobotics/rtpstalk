@@ -22,6 +22,8 @@ import id.xfunction.concurrent.flow.TransformProcessor;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
@@ -30,12 +32,13 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsTalkClient implements AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsTalkClient.class);
+    private XLogger logger;
     private RtpsTalkConfiguration config;
     private DataChannelFactory channelFactory;
     private RtpsServiceManager serviceManager;
     private boolean isStarted;
     private boolean isClosed;
+    private TracingToken tracingToken;
 
     public RtpsTalkClient() {
         this(new RtpsTalkConfiguration.Builder().build());
@@ -45,6 +48,11 @@ public class RtpsTalkClient implements AutoCloseable {
         this.config = config;
         channelFactory = new DataChannelFactory(config);
         serviceManager = new RtpsServiceManager(config, channelFactory);
+    }
+
+    public RtpsTalkClient(RtpsTalkConfiguration config, String clientName) {
+        this(config);
+        tracingToken = new TracingToken(clientName);
     }
 
     public void subscribe(String topic, String type, Subscriber<byte[]> subscriber) {
@@ -67,12 +75,16 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     private void start() {
-        LOGGER.entering("start");
         Preconditions.isTrue(!isStarted, "Already started");
-        LOGGER.fine("Using following configuration: {0}", config);
-        serviceManager.startAll();
+        if (tracingToken == null) {
+            tracingToken = new TracingToken("" + hashCode());
+        }
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger.entering("start");
+        logger.fine("Using following configuration: {0}", config);
+        serviceManager.startAll(tracingToken);
         isStarted = true;
-        LOGGER.exiting("start");
+        logger.exiting("start");
     }
 
     @Override
@@ -80,6 +92,6 @@ public class RtpsTalkClient implements AutoCloseable {
         if (!isStarted) return;
         if (isClosed) return;
         serviceManager.close();
-        LOGGER.fine("Closed");
+        logger.fine("Closed");
     }
 }

@@ -22,6 +22,7 @@ import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
@@ -38,29 +39,29 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageBuilder>
     private EntityId readerEntiyId;
     private EntityId writerEntityId;
 
-    public RtpsMessageSender(
-            DataChannel dataChannel,
-            EntityId readerEntiyId,
-            EntityId writerEntityId,
-            String writerName) {
-        this.dataChannel = dataChannel;
-        this.readerEntiyId = readerEntiyId;
-        this.writerEntityId = writerEntityId;
-        logger = InternalUtils.getInstance().getLogger(getClass(), writerName);
-    }
-
     /**
      * @param remoteReader this is used by reliable writers to send heartbeats for particular
      *     reader, for best-effort writers this can be null
      */
     public RtpsMessageSender(
+            TracingToken tracingToken,
             DataChannel dataChannel,
             Guid remoteReader,
-            EntityId writerEntityId,
-            String writerName) {
-        this(dataChannel, remoteReader.entityId, writerEntityId, writerName);
+            EntityId writerEntityId) {
+        this(tracingToken, dataChannel, remoteReader.entityId, writerEntityId);
         if (remoteReader != null)
             infoDstOpt = Optional.of(new InfoDestination(remoteReader.guidPrefix));
+    }
+
+    public RtpsMessageSender(
+            TracingToken tracingToken,
+            DataChannel dataChannel,
+            EntityId readerEntiyId,
+            EntityId writerEntityId) {
+        this.dataChannel = dataChannel;
+        this.readerEntiyId = readerEntiyId;
+        this.writerEntityId = writerEntityId;
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     @Override

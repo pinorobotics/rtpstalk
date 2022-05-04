@@ -28,6 +28,8 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -51,36 +53,37 @@ import pinorobotics.rtpstalk.userdata.UserDataService;
  */
 public class RtpsServiceManager implements AutoCloseable {
 
-    private static final XLogger LOGGER = XLogger.getLogger(RtpsServiceManager.class);
     private RtpsTalkConfiguration config;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
     private List<SpdpService> spdpServices = new ArrayList<>();
     private List<SedpService> sedpServices = new ArrayList<>();
     private List<UserDataService> userServices = new ArrayList<>();
+    private XLogger logger;
 
     public RtpsServiceManager(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
     }
 
-    public void startAll() {
-        LOGGER.entering("start");
+    public void startAll(TracingToken tracingToken) {
         Preconditions.isTrue(!isStarted, "All services already started");
-        LOGGER.fine("Using following configuration: {0}", config);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger.entering("start");
+        logger.fine("Using following configuration: {0}", config);
         for (var iface : config.networkInterfaces()) {
             var spdp = new SpdpService(config, channelFactory);
             var sedp = new SedpService(config, channelFactory);
             var userService = new UserDataService(config, channelFactory);
             try {
-                spdp.start(iface);
+                spdp.start(tracingToken, iface);
                 spdpServices.add(spdp);
-                sedp.start(spdp.getParticipantsPublisher(), iface);
+                sedp.start(tracingToken, spdp.getParticipantsPublisher(), iface);
                 sedpServices.add(sedp);
-                userService.start(iface);
+                userService.start(tracingToken, iface);
                 userServices.add(userService);
             } catch (Exception e) {
-                LOGGER.severe(
+                logger.severe(
                         "Failed to start one of the RTPS services for network interface " + iface,
                         e);
             }
@@ -135,7 +138,7 @@ public class RtpsServiceManager implements AutoCloseable {
         spdpServices.forEach(SpdpService::close);
         sedpServices.forEach(SedpService::close);
         userServices.forEach(UserDataService::close);
-        LOGGER.fine("Closed");
+        logger.fine("Closed");
     }
 
     private ParameterList createSubscriptionData(
