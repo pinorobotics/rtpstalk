@@ -109,7 +109,7 @@ public class RtpsTalkClientTests {
         XAsserts.assertMatches(
                 resourceUtils.readResource(RtpsTalkClientTests.class, "spdp_close.template"), log);
         XAsserts.assertMatches(
-                resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.templates"),
+                resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
     }
 
@@ -147,7 +147,7 @@ public class RtpsTalkClientTests {
         XAsserts.assertMatches(
                 resourceUtils.readResource(RtpsTalkClientTests.class, "spdp_close.template"), log);
         XAsserts.assertMatches(
-                resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.templates"),
+                resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
     }
 }
