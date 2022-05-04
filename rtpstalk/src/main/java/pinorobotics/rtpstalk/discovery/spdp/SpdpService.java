@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpService implements AutoCloseable {
@@ -39,17 +40,23 @@ public class SpdpService implements AutoCloseable {
     private DataChannelFactory channelFactory;
     private SpdpDiscoveredParticipantDataFactory spdpDiscoveredDataFactory;
     private XLogger logger;
+    private RtpsMessageReceiverFactory receiverFactory;
 
-    public SpdpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
-        this(config, channelFactory, new SpdpDiscoveredParticipantDataFactory());
+    public SpdpService(
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            RtpsMessageReceiverFactory receiverFactory) {
+        this(config, channelFactory, receiverFactory, new SpdpDiscoveredParticipantDataFactory());
     }
 
     public SpdpService(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
+            RtpsMessageReceiverFactory receiverFactory,
             SpdpDiscoveredParticipantDataFactory spdpDiscoveredDataFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
+        this.receiverFactory = receiverFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
     }
 
@@ -59,13 +66,18 @@ public class SpdpService implements AutoCloseable {
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         logger.entering("start");
         receiver =
-                new RtpsMessageReceiver(new TracingToken(tracingToken, getClass().getSimpleName()));
+                receiverFactory.newRtpsMessageReceiver(
+                        new TracingToken(tracingToken, getClass().getSimpleName()));
         logger.fine(
                 "Starting SPDP service on {0} using following configuration: {1}",
                 iface.getName(), config);
         reader =
                 new SpdpBuiltinParticipantReader(
-                        tracingToken, config.guidPrefix(), iface.getOperatingEntities());
+                        tracingToken,
+                        config.guidPrefix(),
+                        iface.getOperatingEntities(),
+                        config.publisherExecutor(),
+                        config.publisherMaxBufferCapacity());
         var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);

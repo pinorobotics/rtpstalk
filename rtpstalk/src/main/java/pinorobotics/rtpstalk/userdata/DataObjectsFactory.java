@@ -19,19 +19,29 @@ package pinorobotics.rtpstalk.userdata;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class DataReader extends StatefullRtpsReader<RawData> {
+public class DataObjectsFactory {
 
-    protected DataReader(
+    public DataReader newDataReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             OperatingEntities operatingEntities,
-            EntityId entityId) {
-        super(config, tracingToken, operatingEntities, entityId);
+            EntityId eid) {
+        return new DataReader(config, tracingToken, operatingEntities, eid);
+    }
+
+    public DataWriter newDataWriter(
+            RtpsTalkConfiguration config,
+            TracingToken tracingToken,
+            DataChannelFactory channelFactory,
+            OperatingEntities operatingEntities,
+            EntityId writerEntityId,
+            String topic) {
+        return new DataWriter(
+                config, tracingToken, channelFactory, operatingEntities, writerEntityId, topic);
     }
 }

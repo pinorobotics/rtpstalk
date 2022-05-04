@@ -39,7 +39,7 @@ public class DataChannel implements AutoCloseable {
     private GuidPrefix guidPrefix;
     private SocketAddress target;
 
-    public DataChannel(
+    protected DataChannel(
             DatagramChannel dataChannel,
             SocketAddress target,
             GuidPrefix guidPrefix,

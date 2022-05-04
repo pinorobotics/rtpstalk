@@ -15,23 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.userdata;
+package pinorobotics.rtpstalk.transport;
 
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class DataReader extends StatefullRtpsReader<RawData> {
+public class RtpsMessageReceiverFactory {
 
-    protected DataReader(
-            RtpsTalkConfiguration config,
-            TracingToken tracingToken,
-            OperatingEntities operatingEntities,
-            EntityId entityId) {
-        super(config, tracingToken, operatingEntities, entityId);
+    public RtpsMessageReceiver newRtpsMessageReceiver(TracingToken token) {
+        return new RtpsMessageReceiver(token);
     }
 }

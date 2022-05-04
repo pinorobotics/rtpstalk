@@ -28,6 +28,7 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsTalkClient implements AutoCloseable {
@@ -47,7 +48,8 @@ public class RtpsTalkClient implements AutoCloseable {
     public RtpsTalkClient(RtpsTalkConfiguration config) {
         this.config = config;
         channelFactory = new DataChannelFactory(config);
-        serviceManager = new RtpsServiceManager(config, channelFactory);
+        serviceManager =
+                new RtpsServiceManager(config, channelFactory, new RtpsMessageReceiverFactory());
     }
 
     public RtpsTalkClient(RtpsTalkConfiguration config, String clientName) {

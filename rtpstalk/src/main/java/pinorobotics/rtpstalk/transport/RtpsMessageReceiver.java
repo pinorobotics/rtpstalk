@@ -48,7 +48,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     private boolean isClosed;
     private DataChannel dataChannel;
 
-    public RtpsMessageReceiver(TracingToken tracingToken) {
+    protected RtpsMessageReceiver(TracingToken tracingToken) {
         executor =
                 Executors.newSingleThreadExecutor(new NamedThreadFactory(tracingToken.toString()));
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);

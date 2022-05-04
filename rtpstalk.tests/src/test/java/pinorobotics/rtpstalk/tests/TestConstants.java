@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests;
 import id.xfunction.XByte;
 import id.xfunction.function.Unchecked;
 import java.net.InetAddress;
+import pinorobotics.rtpstalk.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -82,4 +83,5 @@ public interface TestConstants {
                             EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                             new SequenceNumber(1),
                             new SerializedPayload(new RawData(new byte[] {0x11, 0x22}))));
+    RtpsNetworkInterface TEST_NETWORK_IFACE = TEST_CONFIG.networkInterfaces().get(0);
 }

@@ -20,11 +20,13 @@ package pinorobotics.rtpstalk.discovery.spdp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
+import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -39,12 +41,19 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     private OperatingEntities operatingEntities;
 
     public SpdpBuiltinParticipantReader(
-            TracingToken tracingToken, GuidPrefix guidPrefix, OperatingEntities operatingEntities) {
+            TracingToken tracingToken,
+            GuidPrefix guidPrefix,
+            OperatingEntities operatingEntities,
+            Executor executor,
+            int maxBufferCapacity) {
         super(
                 tracingToken,
                 new Guid(
                         guidPrefix,
-                        EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));
+                        EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
+                ReliabilityKind.BEST_EFFORT,
+                executor,
+                maxBufferCapacity);
         this.operatingEntities = operatingEntities;
     }
 

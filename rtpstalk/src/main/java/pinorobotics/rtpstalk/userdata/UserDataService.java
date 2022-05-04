@@ -33,6 +33,7 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class UserDataService implements AutoCloseable {
@@ -46,10 +47,18 @@ public class UserDataService implements AutoCloseable {
     private boolean isStarted;
     private OperatingEntities operatingEntities;
     private TracingToken tracingToken;
+    private DataObjectsFactory dataObjectsFactory;
+    private RtpsMessageReceiverFactory receiverFactory;
 
-    public UserDataService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
+    public UserDataService(
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            DataObjectsFactory dataObjectsfactory,
+            RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
+        this.dataObjectsFactory = dataObjectsfactory;
+        this.receiverFactory = receiverFactory;
     }
 
     public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
@@ -57,7 +66,9 @@ public class UserDataService implements AutoCloseable {
         var reader =
                 readers.computeIfAbsent(
                         entityId,
-                        eid -> new DataReader(config, tracingToken, operatingEntities, eid));
+                        eid ->
+                                dataObjectsFactory.newDataReader(
+                                        config, tracingToken, operatingEntities, eid));
         reader.subscribe(subscriber);
         receiver.subscribe(reader);
     }
@@ -72,7 +83,7 @@ public class UserDataService implements AutoCloseable {
                 writers.computeIfAbsent(
                         writerEntityId,
                         eid ->
-                                new DataWriter(
+                                dataObjectsFactory.newDataWriter(
                                         config,
                                         tracingToken,
                                         channelFactory,
@@ -84,7 +95,9 @@ public class UserDataService implements AutoCloseable {
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,
-                        eid -> new DataReader(config, tracingToken, operatingEntities, eid));
+                        eid ->
+                                dataObjectsFactory.newDataReader(
+                                        config, tracingToken, operatingEntities, eid));
         receiver.subscribe(reader);
     }
 
@@ -93,7 +106,8 @@ public class UserDataService implements AutoCloseable {
         tracingToken = new TracingToken(token, iface.getName());
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         receiver =
-                new RtpsMessageReceiver(new TracingToken(tracingToken, "UserDataServiceReceiver"));
+                receiverFactory.newRtpsMessageReceiver(
+                        new TracingToken(tracingToken, "UserDataServiceReceiver"));
         logger.entering("start");
         logger.fine(
                 "Starting user service on {0} using following configuration: {1}",

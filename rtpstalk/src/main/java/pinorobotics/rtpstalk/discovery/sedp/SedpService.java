@@ -41,6 +41,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /**
  * Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
@@ -59,10 +60,15 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     private DataChannelFactory channelFactory;
     private RtpsNetworkInterface iface;
     private XLogger logger;
+    private RtpsMessageReceiverFactory receiverFactory;
 
-    public SedpService(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
+    public SedpService(
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
+        this.receiverFactory = receiverFactory;
     }
 
     public void start(
@@ -78,7 +84,8 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
                 "Starting SEDP service on {0} using following configuration: {1}",
                 iface.getName(), config);
         metatrafficReceiver =
-                new RtpsMessageReceiver(new TracingToken(tracingToken, "SedpReceiver"));
+                receiverFactory.newRtpsMessageReceiver(
+                        new TracingToken(tracingToken, "SedpReceiver"));
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config, tracingToken, channelFactory, iface.getOperatingEntities());

@@ -29,6 +29,9 @@ import java.net.SocketException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
+import java.util.concurrent.ForkJoinPool;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -48,7 +51,9 @@ public record RtpsTalkConfiguration(
         Duration leaseDuration,
         Duration heartbeatPeriod,
         Duration spdpDiscoveredParticipantDataPublishPeriod,
-        int appEntityKey) {
+        int appEntityKey,
+        Executor publisherExecutor,
+        int publisherMaxBufferCapacity) {
 
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
@@ -82,6 +87,9 @@ public record RtpsTalkConfiguration(
          */
         public static final int DEFAULT_START_PORT = 7412;
 
+        public static final Executor DEFAULT_PUBLISHER_EXECUTOR = ForkJoinPool.commonPool();
+        public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = Flow.defaultBufferSize();
+
         private List<NetworkInterface> networkIfaces = listAllNetworkInterfaces();
         private int startPort = DEFAULT_START_PORT;
         private int builtInEnpointsPort;
@@ -94,6 +102,8 @@ public record RtpsTalkConfiguration(
         private Duration leaseDuration = Duration.ofSeconds(20);
         private Duration heartbeatPeriod = Duration.ofSeconds(1);
         private Duration spdpDiscoveredParticipantDataPublishPeriod = Duration.ofSeconds(5);
+        private Executor publisherExecutor = DEFAULT_PUBLISHER_EXECUTOR;
+        private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
 
         public Builder networkInterfaces(List<NetworkInterface> networkIfaces) {
             this.networkIfaces = networkIfaces;
@@ -198,7 +208,9 @@ public record RtpsTalkConfiguration(
                     leaseDuration,
                     heartbeatPeriod,
                     spdpDiscoveredParticipantDataPublishPeriod,
-                    appEntityKey);
+                    appEntityKey,
+                    publisherExecutor,
+                    publisherMaxBufferCapacity);
         }
 
         private static List<NetworkInterface> listAllNetworkInterfaces() {

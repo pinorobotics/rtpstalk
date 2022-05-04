@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
@@ -72,11 +73,13 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private Subscription subscription;
     private TracingToken tracingToken;
 
-    public RtpsReader(TracingToken tracingToken, Guid guid) {
-        this(tracingToken, guid, ReliabilityKind.BEST_EFFORT);
-    }
-
-    public RtpsReader(TracingToken token, Guid readerGuid, ReliabilityKind reliabilityKind) {
+    public RtpsReader(
+            TracingToken token,
+            Guid readerGuid,
+            ReliabilityKind reliabilityKind,
+            Executor executor,
+            int maxBufferCapacity) {
+        super(executor, maxBufferCapacity);
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;

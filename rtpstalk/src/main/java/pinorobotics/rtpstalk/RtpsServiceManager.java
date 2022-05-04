@@ -43,6 +43,8 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.userdata.DataObjectsFactory;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /**
@@ -60,10 +62,15 @@ public class RtpsServiceManager implements AutoCloseable {
     private List<SedpService> sedpServices = new ArrayList<>();
     private List<UserDataService> userServices = new ArrayList<>();
     private XLogger logger;
+    private RtpsMessageReceiverFactory receiverFactory;
 
-    public RtpsServiceManager(RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
+    public RtpsServiceManager(
+            RtpsTalkConfiguration config,
+            DataChannelFactory channelFactory,
+            RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
+        this.receiverFactory = receiverFactory;
     }
 
     public void startAll(TracingToken tracingToken) {
@@ -72,9 +79,11 @@ public class RtpsServiceManager implements AutoCloseable {
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         for (var iface : config.networkInterfaces()) {
-            var spdp = new SpdpService(config, channelFactory);
-            var sedp = new SedpService(config, channelFactory);
-            var userService = new UserDataService(config, channelFactory);
+            var spdp = new SpdpService(config, channelFactory, receiverFactory);
+            var sedp = new SedpService(config, channelFactory, receiverFactory);
+            var userService =
+                    new UserDataService(
+                            config, channelFactory, new DataObjectsFactory(), receiverFactory);
             try {
                 spdp.start(tracingToken, iface);
                 spdpServices.add(spdp);

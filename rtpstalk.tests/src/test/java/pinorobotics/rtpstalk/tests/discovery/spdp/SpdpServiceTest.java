@@ -53,6 +53,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.XAsserts;
+import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class SpdpServiceTest {
@@ -73,15 +74,17 @@ public class SpdpServiceTest {
                             EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER,
                             new SequenceNumber(1),
                             new SerializedPayload(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA)));
-    private static final RtpsNetworkInterface NETWORK_IFACE = CONFIG.networkInterfaces().get(0);
+    private static final RtpsNetworkInterface NETWORK_IFACE = TestConstants.TEST_NETWORK_IFACE;
 
     private TestDataChannelFactory channelFactory;
     private SpdpService service;
+    private RtpsMessageReceiverFactory receiverFactory;
 
     @BeforeEach
     public void setup() {
         channelFactory = new TestDataChannelFactory(CONFIG);
-        service = new SpdpService(CONFIG, channelFactory);
+        receiverFactory = new RtpsMessageReceiverFactory();
+        service = new SpdpService(CONFIG, channelFactory, receiverFactory);
     }
 
     @AfterEach
@@ -115,7 +118,8 @@ public class SpdpServiceTest {
                                 .spdpDiscoveredParticipantDataPublishPeriod(
                                         java.time.Duration.ofMillis(50))
                                 .build(),
-                        channelFactory)) {
+                        channelFactory,
+                        receiverFactory)) {
             service.start(new TracingToken("test"), NETWORK_IFACE);
             Thread.sleep(160);
             var channel =
