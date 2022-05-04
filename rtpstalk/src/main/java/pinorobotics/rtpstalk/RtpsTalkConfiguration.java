@@ -124,6 +124,16 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        public Builder publisherExecutor(Executor publisherExecutor) {
+            this.publisherExecutor = publisherExecutor;
+            return this;
+        }
+
+        public Builder publisherMaxBufferCapacity(int publisherMaxBufferCapacity) {
+            this.publisherMaxBufferCapacity = publisherMaxBufferCapacity;
+            return this;
+        }
+
         public Builder builtinEnpointsPort(int builtInEnpointsPort) {
             this.builtInEnpointsPort = builtInEnpointsPort;
             return this;

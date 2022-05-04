@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
+import id.xfunction.lang.XThread;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class FastRtpsExamples implements AutoCloseable {
     public XProcess runHelloWorldPublisher() {
         var proc = new XExec("HelloWorldExample publisher").run();
         procs.add(proc);
+        // give 1 sec to start
+        XThread.sleep(1000);
         return proc;
     }
 

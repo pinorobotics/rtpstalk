@@ -45,8 +45,9 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 public interface TestConstants {
 
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
-    RtpsTalkConfiguration TEST_CONFIG =
-            new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX).build();
+    RtpsTalkConfiguration.Builder TEST_CONFIG_BUILDER =
+            new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX);
+    RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_BUILDER.build();
 
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
     InetAddress TEST_REMOTE_ADDRESS = Unchecked.get(() -> InetAddress.getByName("33.3.3.3"));

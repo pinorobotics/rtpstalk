@@ -69,8 +69,8 @@ public class UserDataService implements AutoCloseable {
                         eid ->
                                 dataObjectsFactory.newDataReader(
                                         config, tracingToken, operatingEntities, eid));
-        reader.subscribe(subscriber);
-        receiver.subscribe(reader);
+        if (!reader.isSubscribed(subscriber)) reader.subscribe(subscriber);
+        if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
 
     public void publish(

@@ -23,7 +23,7 @@ import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.function.Unchecked;
-import id.xfunction.lang.XThread;
+import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.tests.XAsserts;
@@ -69,8 +71,9 @@ public class RtpsTalkClientTests {
         tools.close();
     }
 
-    @Test
-    public void test_subscribe_to_existing() throws Exception {
+    @ParameterizedTest
+    @CsvSource({"true", "false"})
+    public void test_subscribe_happy(boolean isPublisherExist) throws Exception {
         var future = new CompletableFuture<String>();
         var printer =
                 new SimpleSubscriber<byte[]>() {
@@ -87,10 +90,12 @@ public class RtpsTalkClientTests {
                         subscription.request(1);
                     }
                 };
-        var proc = tools.runHelloWorldPublisher();
-        // give 1 sec to start
-        XThread.sleep(1000);
+
+        XProcess proc = null;
+        if (isPublisherExist) proc = tools.runHelloWorldPublisher();
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
+        if (!isPublisherExist) proc = tools.runHelloWorldPublisher();
+
         var dataReceived = future.get().toString();
         client.close();
 
