@@ -29,6 +29,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -63,6 +64,7 @@ public class RtpsServiceManager implements AutoCloseable {
     private List<UserDataService> userServices = new ArrayList<>();
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
+    private RtpsNetworkInterfaceFactory networkIfaceFactory;
 
     public RtpsServiceManager(
             RtpsTalkConfiguration config,
@@ -71,6 +73,7 @@ public class RtpsServiceManager implements AutoCloseable {
         this.config = config;
         this.channelFactory = channelFactory;
         this.receiverFactory = receiverFactory;
+        networkIfaceFactory = new RtpsNetworkInterfaceFactory(config);
     }
 
     public void startAll(TracingToken tracingToken) {
@@ -79,21 +82,23 @@ public class RtpsServiceManager implements AutoCloseable {
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         for (var iface : config.networkInterfaces()) {
+            var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(iface);
             var spdp = new SpdpService(config, channelFactory, receiverFactory);
             var sedp = new SedpService(config, channelFactory, receiverFactory);
             var userService =
                     new UserDataService(
                             config, channelFactory, new DataObjectsFactory(), receiverFactory);
             try {
-                spdp.start(tracingToken, iface);
+                spdp.start(tracingToken, rtpsIface);
                 spdpServices.add(spdp);
-                sedp.start(tracingToken, spdp.getParticipantsPublisher(), iface);
+                sedp.start(tracingToken, spdp.getParticipantsPublisher(), rtpsIface);
                 sedpServices.add(sedp);
-                userService.start(tracingToken, iface);
+                userService.start(tracingToken, rtpsIface);
                 userServices.add(userService);
             } catch (Exception e) {
                 logger.severe(
-                        "Failed to start one of the RTPS services for network interface " + iface,
+                        "Failed to start one of the RTPS services for network interface "
+                                + rtpsIface,
                         e);
             }
         }

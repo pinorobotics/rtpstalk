@@ -20,15 +20,13 @@ package pinorobotics.rtpstalk;
 import static java.util.stream.Collectors.toList;
 
 import id.xfunction.XJsonStringBuilder;
-import id.xfunction.function.LazyInitializer;
 import id.xfunction.function.Unchecked;
-import id.xfunction.net.FreePortIterator;
-import id.xfunction.net.FreePortIterator.Protocol;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ForkJoinPool;
@@ -42,7 +40,10 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
  * @author lambdaprime intid@protonmail.com
  */
 public record RtpsTalkConfiguration(
-        List<RtpsNetworkInterface> networkInterfaces,
+        int startPort,
+        Optional<Integer> builtInEnpointsPort,
+        Optional<Integer> userEndpointsPort,
+        List<NetworkInterface> networkInterfaces,
         int packetBufferSize,
         int domainId,
         GuidPrefix guidPrefix,
@@ -61,6 +62,7 @@ public record RtpsTalkConfiguration(
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("startPort", startPort);
         builder.append("networkIfaces", networkInterfaces);
         builder.append("packetBufferSize", packetBufferSize);
         builder.append("domainId", domainId);
@@ -92,8 +94,8 @@ public record RtpsTalkConfiguration(
 
         private List<NetworkInterface> networkIfaces = listAllNetworkInterfaces();
         private int startPort = DEFAULT_START_PORT;
-        private int builtInEnpointsPort;
-        private int userEndpointsPort;
+        private Optional<Integer> builtInEnpointsPort = Optional.empty();
+        private Optional<Integer> userEndpointsPort = Optional.empty();
         private int packetBufferSize = UDP_MAX_PACKET_SIZE;
         private int domainId = 0;
         private int appEntityKey = 0x000012;
@@ -135,12 +137,12 @@ public record RtpsTalkConfiguration(
         }
 
         public Builder builtinEnpointsPort(int builtInEnpointsPort) {
-            this.builtInEnpointsPort = builtInEnpointsPort;
+            this.builtInEnpointsPort = Optional.of(builtInEnpointsPort);
             return this;
         }
 
         public Builder userEndpointsPort(int userEndpointsPort) {
-            this.userEndpointsPort = userEndpointsPort;
+            this.userEndpointsPort = Optional.of(userEndpointsPort);
             return this;
         }
 
@@ -187,29 +189,11 @@ public record RtpsTalkConfiguration(
         }
 
         public RtpsTalkConfiguration build() {
-            var portIterator = new FreePortIterator(startPort, Protocol.UDP);
-            var builtInEnpointsPortSupplier =
-                    new LazyInitializer<Integer>(
-                            () ->
-                                    builtInEnpointsPort != 0
-                                            ? builtInEnpointsPort
-                                            : portIterator.next());
-            var userEndpointsPortSupplier =
-                    new LazyInitializer<Integer>(
-                            () -> userEndpointsPort != 0 ? userEndpointsPort : portIterator.next());
-            var rtpsNetworkIfaces =
-                    networkIfaces.stream()
-                            .map(
-                                    iface ->
-                                            new RtpsNetworkInterface(
-                                                    domainId,
-                                                    iface,
-                                                    builtInEnpointsPortSupplier,
-                                                    userEndpointsPortSupplier))
-                            .collect(toList());
-
             return new RtpsTalkConfiguration(
-                    rtpsNetworkIfaces,
+                    startPort,
+                    builtInEnpointsPort,
+                    userEndpointsPort,
+                    networkIfaces,
                     packetBufferSize,
                     domainId,
                     guidPrefix,
