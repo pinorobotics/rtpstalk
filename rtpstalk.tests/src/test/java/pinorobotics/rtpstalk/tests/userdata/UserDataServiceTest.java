@@ -39,7 +39,7 @@ public class UserDataServiceTest {
     private static final RtpsTalkConfiguration CONFIG =
             TestConstants.TEST_CONFIG_BUILDER
                     .publisherExecutor(new SameThreadExecutorService())
-                    .publisherMaxBufferCapacity(1)
+                    .publisherMaxBufferSize(1)
                     .build();
 
     @Test

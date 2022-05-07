@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.discovery.spdp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executor;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
@@ -41,19 +41,17 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     private OperatingEntities operatingEntities;
 
     public SpdpBuiltinParticipantReader(
+            RtpsTalkConfiguration config,
             TracingToken tracingToken,
             GuidPrefix guidPrefix,
-            OperatingEntities operatingEntities,
-            Executor executor,
-            int maxBufferCapacity) {
+            OperatingEntities operatingEntities) {
         super(
+                config,
                 tracingToken,
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
-                ReliabilityKind.BEST_EFFORT,
-                executor,
-                maxBufferCapacity);
+                ReliabilityKind.BEST_EFFORT);
         this.operatingEntities = operatingEntities;
     }
 

@@ -48,6 +48,8 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
  *  - {@link RtpsMessageSender} sends message to remote reader2
  *  - ...
  * }</pre>
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {

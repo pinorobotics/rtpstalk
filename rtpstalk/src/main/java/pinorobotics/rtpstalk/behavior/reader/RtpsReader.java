@@ -20,10 +20,10 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -54,11 +54,13 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
  * USER subscribes to:
  * - {@link RtpsReader} subscribes to:
  *  - {@link RtpsMessageReceiver} receives messages from single data channel
- *   - remote writer endpoint1
- *   - remote writer endpoint2
+ *   - remote writerX endpoint1
+ *   - remote writerX endpoint2
  *   - ...
  *
  * }</pre>
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
@@ -74,12 +76,11 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private TracingToken tracingToken;
 
     public RtpsReader(
+            RtpsTalkConfiguration config,
             TracingToken token,
             Guid readerGuid,
-            ReliabilityKind reliabilityKind,
-            Executor executor,
-            int maxBufferCapacity) {
-        super(executor, maxBufferCapacity);
+            ReliabilityKind reliabilityKind) {
+        super(config.publisherExecutor(), config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;

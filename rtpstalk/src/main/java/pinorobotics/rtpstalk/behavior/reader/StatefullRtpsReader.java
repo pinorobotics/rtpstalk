@@ -59,11 +59,10 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
             OperatingEntities operatingEntities,
             EntityId entityId) {
         super(
+                config,
                 tracingToken,
                 new Guid(config.guidPrefix(), entityId),
-                ReliabilityKind.RELIABLE,
-                config.publisherExecutor(),
-                config.publisherMaxBufferCapacity());
+                ReliabilityKind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
         operatingEntities.add(getGuid().entityId, this);

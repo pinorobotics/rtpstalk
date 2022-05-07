@@ -47,6 +47,8 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
  * Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
  * existence of another Participant described by the DiscoveredParticipantData participant_data. The
  * discovered Participant uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SedpService extends SimpleSubscriber<ParameterList> implements AutoCloseable {
 

@@ -54,7 +54,7 @@ public record RtpsTalkConfiguration(
         Duration spdpDiscoveredParticipantDataPublishPeriod,
         int appEntityKey,
         Executor publisherExecutor,
-        int publisherMaxBufferCapacity) {
+        int publisherMaxBufferSize) {
 
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
@@ -131,7 +131,7 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
-        public Builder publisherMaxBufferCapacity(int publisherMaxBufferCapacity) {
+        public Builder publisherMaxBufferSize(int publisherMaxBufferCapacity) {
             this.publisherMaxBufferCapacity = publisherMaxBufferCapacity;
             return this;
         }
