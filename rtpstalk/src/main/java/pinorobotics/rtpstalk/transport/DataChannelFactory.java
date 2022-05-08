@@ -22,6 +22,7 @@ import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Locator;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -34,7 +35,7 @@ public class DataChannelFactory {
     }
 
     /** Channel bind to local port */
-    public DataChannel bind(Locator locator) throws IOException {
+    public DataChannel bind(TracingToken tracingToken, Locator locator) throws IOException {
         if (locator.address().isMulticastAddress()) {
             var dataChannel =
                     DatagramChannel.open(StandardProtocolFamily.INET)
@@ -45,6 +46,7 @@ public class DataChannelFactory {
                                     locator.networkInterface().get());
             dataChannel.join(locator.address(), locator.networkInterface().get());
             return new DataChannel(
+                    tracingToken,
                     dataChannel,
                     locator.getSocketAddress(),
                     config.guidPrefix(),
@@ -54,6 +56,7 @@ public class DataChannelFactory {
                     DatagramChannel.open(StandardProtocolFamily.INET)
                             .bind(locator.getSocketAddress());
             return new DataChannel(
+                    tracingToken,
                     dataChannel,
                     locator.getSocketAddress(),
                     config.guidPrefix(),
@@ -62,11 +65,12 @@ public class DataChannelFactory {
     }
 
     /** Remote channel */
-    public DataChannel connect(Locator locator) throws IOException {
+    public DataChannel connect(TracingToken tracingToken, Locator locator) throws IOException {
         if (locator.address().isMulticastAddress()) {
-            return bind(locator);
+            return bind(tracingToken, locator);
         }
         return new DataChannel(
+                tracingToken,
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .connect(locator.getSocketAddress()),
                 locator.getSocketAddress(),

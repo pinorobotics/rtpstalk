@@ -52,7 +52,7 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
         var sender =
                 new RtpsMessageSender(
                         getTracingToken(),
-                        channelFactory.connect(locator),
+                        channelFactory.connect(getTracingToken(), locator),
                         readerEntiyId,
                         getGuid().entityId);
         subscribe(sender);

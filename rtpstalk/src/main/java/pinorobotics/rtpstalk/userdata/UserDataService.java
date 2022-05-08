@@ -112,7 +112,7 @@ public class UserDataService implements AutoCloseable {
         logger.fine(
                 "Starting user service on {0} using following configuration: {1}",
                 iface.getName(), config);
-        receiver.start(channelFactory.bind(iface.getLocalDefaultUnicastLocator()));
+        receiver.start(channelFactory.bind(token, iface.getLocalDefaultUnicastLocator()));
         operatingEntities = iface.getOperatingEntities();
         isStarted = true;
     }

@@ -107,7 +107,8 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
                     new BuiltinParticipantMessageReader(
                             config, tracingToken, iface.getOperatingEntities()));
         participantsPublisher.subscribe(this);
-        metatrafficReceiver.start(channelFactory.bind(iface.getLocalMetatrafficUnicastLocator()));
+        metatrafficReceiver.start(
+                channelFactory.bind(tracingToken, iface.getLocalMetatrafficUnicastLocator()));
         this.iface = iface;
         isStarted = true;
     }

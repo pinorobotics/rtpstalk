@@ -21,6 +21,8 @@ import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
 import java.io.IOException;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -44,18 +46,21 @@ import pinorobotics.rtpstalk.transport.DataChannelFactory;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class WriterHeartbeatProcessor {
 
-    private static final XLogger LOGGER = XLogger.getLogger(WriterHeartbeatProcessor.class);
-
+    private XLogger logger;
     private DataChannel dataChannel;
     private DataChannelFactory dataChannelFactory;
     private WriterProxy writerProxy;
     private int writerCount;
     private int count;
     private Heartbeat lastHeartbeat;
+    private TracingToken tracingToken;
 
-    public WriterHeartbeatProcessor(RtpsTalkConfiguration config, WriterProxy writerProxy) {
+    public WriterHeartbeatProcessor(
+            TracingToken tracingToken, RtpsTalkConfiguration config, WriterProxy writerProxy) {
+        this.tracingToken = tracingToken;
         this.writerProxy = writerProxy;
         dataChannelFactory = new DataChannelFactory(config);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     /** Called when new Heartbeat received */
@@ -63,34 +68,34 @@ public class WriterHeartbeatProcessor {
         // However, if the FinalFlag is not set, then the Reader must send an AckNack
         // message (8.3.7.5.5)
         if (heartbeat.isFinal()) {
-            LOGGER.fine("Received final heartbeat, ignoring...");
+            logger.fine("Received final heartbeat, ignoring...");
             return;
         }
         if (writerCount < heartbeat.count.value) {
             writerCount = heartbeat.count.value;
             lastHeartbeat = heartbeat;
         } else {
-            LOGGER.fine("Received duplicate heartbeat, ignoring...");
+            logger.fine("Received duplicate heartbeat, ignoring...");
         }
     }
 
     /** Ack all received heartbeats */
     public void ack() {
         if (lastHeartbeat == null) {
-            LOGGER.fine("No new heartbeats, nothing to acknowledge...");
+            logger.fine("No new heartbeats, nothing to acknowledge...");
             return;
         }
 
         var writerGuid = writerProxy.getRemoteWriterGuid();
         var readerGuid = writerProxy.getReaderGuid();
 
-        LOGGER.fine("Sending heartbeat ack for writer {0}", writerGuid);
+        logger.fine("Sending heartbeat ack for writer {0}", writerGuid);
         if (dataChannel == null) {
             var locator = writerProxy.getUnicastLocatorList().get(0);
             try {
-                dataChannel = dataChannelFactory.connect(locator);
+                dataChannel = dataChannelFactory.connect(tracingToken, locator);
             } catch (IOException e) {
-                LOGGER.warning(
+                logger.warning(
                         "Cannot open connection to remote writer on {0}: {1}",
                         locator, e.getMessage());
                 return;

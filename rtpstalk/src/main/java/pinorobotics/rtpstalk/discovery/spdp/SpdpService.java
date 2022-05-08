@@ -74,7 +74,8 @@ public class SpdpService implements AutoCloseable {
         reader =
                 new SpdpBuiltinParticipantReader(
                         config, tracingToken, config.guidPrefix(), iface.getOperatingEntities());
-        var dataChannel = channelFactory.bind(iface.getLocalMetatrafficMulticastLocator());
+        var dataChannel =
+                channelFactory.bind(tracingToken, iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
         receiver.subscribe(reader);
         writer = new SpdpBuiltinParticipantWriter(config, channelFactory, tracingToken);

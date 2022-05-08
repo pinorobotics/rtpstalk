@@ -101,7 +101,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         var sender =
                 new RtpsMessageSender(
                         getTracingToken(),
-                        channelFactory.connect(unicast.get(0)),
+                        channelFactory.connect(getTracingToken(), unicast.get(0)),
                         remoteReaderGuid,
                         getGuid().entityId);
         var proxy = new ReaderProxy(remoteReaderGuid, unicast, sender);

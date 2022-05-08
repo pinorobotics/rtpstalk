@@ -77,7 +77,6 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageBuilder>
                     submessages[1] = message.submessages[0];
                     message.submessages = submessages;
                 });
-        logger.fine("Outgoing RTPS message {0}", message);
         dataChannel.send(message);
         subscription.request(1);
         logger.exiting("onNext");

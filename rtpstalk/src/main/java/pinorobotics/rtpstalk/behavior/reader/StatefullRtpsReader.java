@@ -73,7 +73,8 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
         logger.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(
                 proxy.getRemoteWriterGuid(),
-                new WriterInfo(proxy, new WriterHeartbeatProcessor(config, proxy)));
+                new WriterInfo(
+                        proxy, new WriterHeartbeatProcessor(getTracingToken(), config, proxy)));
     }
 
     public void matchedWriterRemove(Guid writer) {

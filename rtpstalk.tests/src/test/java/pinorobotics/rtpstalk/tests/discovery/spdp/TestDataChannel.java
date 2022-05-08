@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.transport.DataChannel;
@@ -37,6 +38,7 @@ public class TestDataChannel extends DataChannel {
 
     protected TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
         super(
+                new TracingToken("test"),
                 Unchecked.get(() -> DatagramChannel.open(StandardProtocolFamily.INET)),
                 null,
                 prefix,

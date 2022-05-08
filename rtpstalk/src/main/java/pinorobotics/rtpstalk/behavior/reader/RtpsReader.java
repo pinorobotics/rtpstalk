@@ -168,6 +168,10 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         return tracingToken.toString();
     }
 
+    public TracingToken getTracingToken() {
+        return tracingToken;
+    }
+
     @Override
     public void close() {
         subscription.cancel();

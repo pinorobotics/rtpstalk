@@ -23,6 +23,8 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
@@ -30,7 +32,6 @@ import pinorobotics.rtpstalk.transport.io.RtpsMessageWriter;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class DataChannel implements AutoCloseable {
-    private static final XLogger LOGGER = XLogger.getLogger(DataChannel.class);
 
     private RtpsMessageReader reader = new RtpsMessageReader();
     private RtpsMessageWriter writer = new RtpsMessageWriter();
@@ -38,8 +39,10 @@ public class DataChannel implements AutoCloseable {
     private int packetBufferSize;
     private GuidPrefix guidPrefix;
     private SocketAddress target;
+    private XLogger logger;
 
     protected DataChannel(
+            TracingToken tracingToken,
             DatagramChannel dataChannel,
             SocketAddress target,
             GuidPrefix guidPrefix,
@@ -48,6 +51,7 @@ public class DataChannel implements AutoCloseable {
         this.target = target;
         this.guidPrefix = guidPrefix;
         this.packetBufferSize = packetBufferSize;
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     /** @throws AsynchronousCloseException if channel was closed during read */
@@ -58,12 +62,12 @@ public class DataChannel implements AutoCloseable {
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
-            LOGGER.fine("Received UDP packet of size {0}", len);
+            logger.fine("Received UDP packet of size {0}", len);
             var messageOpt = reader.readRtpsMessage(buf);
             if (messageOpt.isEmpty()) continue;
             var message = messageOpt.get();
             if (message.header.guidPrefix.equals(guidPrefix)) {
-                LOGGER.fine("Received its own message, ignoring...");
+                logger.fine("Received its own message, ignoring...");
                 continue;
             }
             return message;
@@ -71,6 +75,7 @@ public class DataChannel implements AutoCloseable {
     }
 
     public void send(RtpsMessage message) {
+        logger.fine("Outgoing RTPS message {0}", message);
         var buf = ByteBuffer.allocate(packetBufferSize);
         buf.rewind();
         buf.limit(buf.capacity());
@@ -80,7 +85,7 @@ public class DataChannel implements AutoCloseable {
             buf.rewind();
             dataChannel.send(buf, target);
         } catch (Throwable e) {
-            LOGGER.severe(e);
+            logger.severe(e);
             return;
         }
     }
@@ -90,8 +95,8 @@ public class DataChannel implements AutoCloseable {
         try {
             dataChannel.close();
         } catch (IOException e) {
-            LOGGER.severe(e);
+            logger.severe(e);
         }
-        LOGGER.fine("Closed");
+        logger.fine("Closed");
     }
 }
