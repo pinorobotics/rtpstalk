@@ -17,16 +17,18 @@
  */
 package pinorobotics.rtpstalk.impl;
 
-import id.xfunction.function.LazyInitializer;
 import id.xfunction.net.FreePortIterator;
 import id.xfunction.net.FreePortIterator.Protocol;
 import java.net.NetworkInterface;
+import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsNetworkInterfaceFactory {
 
     private RtpsTalkConfiguration config;
+    private Optional<Integer> builtInEnpointsPort = Optional.empty();
+    private Optional<Integer> userEndpointsPort = Optional.empty();
 
     public RtpsNetworkInterfaceFactory(RtpsTalkConfiguration config) {
         this.config = config;
@@ -34,13 +36,21 @@ public class RtpsNetworkInterfaceFactory {
 
     public RtpsNetworkInterface createRtpsNetworkInterface(NetworkInterface iface) {
         var portIterator = new FreePortIterator(config.startPort(), Protocol.UDP);
-        var builtInEnpointsPortSupplier =
-                new LazyInitializer<Integer>(
-                        () -> config.builtInEnpointsPort().orElseGet(() -> portIterator.next()));
-        var userEndpointsPortSupplier =
-                new LazyInitializer<Integer>(
-                        () -> config.userEndpointsPort().orElseGet(() -> portIterator.next()));
+
+        // looks like FASTRTPS does not support participant which runs on multiple network
+        // interfaces on different ports
+        // for example: lo 127.0.0.1 (7414, 7415), eth 172.17.0.2 (7412, 7413)
+        // in that case it will be sending messages to lo 127.0.0.1 (7412, 7413) which is wrong
+        // possibly it is expected or may be it is FASTRTPS bug but to make it work we
+        // disallow support of multiple network interfaces on different ports and assign them only
+        // once and for all network interfaces
+        if (builtInEnpointsPort.isEmpty())
+            builtInEnpointsPort =
+                    Optional.of(config.builtInEnpointsPort().orElseGet(() -> portIterator.next()));
+        if (userEndpointsPort.isEmpty())
+            userEndpointsPort =
+                    Optional.of(config.userEndpointsPort().orElseGet(() -> portIterator.next()));
         return new RtpsNetworkInterface(
-                config.domainId(), iface, builtInEnpointsPortSupplier, userEndpointsPortSupplier);
+                config.domainId(), iface, builtInEnpointsPort.get(), userEndpointsPort.get());
     }
 }

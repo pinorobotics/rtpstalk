@@ -19,14 +19,12 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
-import id.xfunction.function.ConstantSupplier;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
-import java.util.function.Supplier;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -37,56 +35,35 @@ public class Locator {
 
     private LocatorKind kind;
 
-    /**
-     * Allows to assign port number later in time before it is actually used.
-     *
-     * <p>It avoids situations when it is assigned and before it is effectively being used some
-     * other application already takes it.
-     *
-     * <p>Mainly it is needed for local Locators like defaultUnicastLocator,
-     * metatrafficUnicastLocator.
-     */
-    private Supplier<Integer> portSupplier;
+    private int port;
 
     private InetAddress address;
     private Optional<NetworkInterface> networkInterface = Optional.empty();
 
     public Locator(
-            LocatorKind kind,
-            Supplier<Integer> port,
-            InetAddress address,
-            NetworkInterface networkInterface) {
+            LocatorKind kind, int port, InetAddress address, NetworkInterface networkInterface) {
         this.kind = kind;
-        portSupplier = port;
+        this.port = port;
         this.address = address;
         this.networkInterface = Optional.ofNullable(networkInterface);
     }
 
-    public Locator(
-            LocatorKind kind, int port, InetAddress address, NetworkInterface networkInterface) {
-        this(kind, new ConstantSupplier<>(port), address, networkInterface);
-    }
-
-    public Locator(LocatorKind kind, Supplier<Integer> port, InetAddress address) {
+    public Locator(LocatorKind kind, int port, InetAddress address) {
         this(kind, port, address, null);
         Preconditions.isTrue(
                 !address.isMulticastAddress(),
                 "This constructor does not support multicast addresses");
     }
 
-    public Locator(LocatorKind kind, int port, InetAddress address) {
-        this(kind, new ConstantSupplier<>(port), address);
-    }
-
     public SocketAddress getSocketAddress() {
-        return new InetSocketAddress(address, portSupplier.get());
+        return new InetSocketAddress(address, port);
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("transportType", kind);
-        builder.append("port", portSupplier);
+        builder.append("port", port);
         builder.append("address", address);
         return builder.toString();
     }
@@ -126,6 +103,6 @@ public class Locator {
     }
 
     public int port() {
-        return portSupplier.get();
+        return port;
     }
 }

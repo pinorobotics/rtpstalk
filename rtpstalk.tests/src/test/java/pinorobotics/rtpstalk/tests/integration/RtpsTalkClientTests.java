@@ -31,13 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.tests.XAsserts;
@@ -71,9 +72,31 @@ public class RtpsTalkClientTests {
         tools.close();
     }
 
+    static Stream<List> dataProvider() {
+        return Stream.of(
+                // 1
+                List.of(
+                        new RtpsTalkConfiguration.Builder()
+                                .builtinEnpointsPort(8080)
+                                .userEndpointsPort(8081)
+                                .build(),
+                        true),
+                // 2
+                List.of(
+                        new RtpsTalkConfiguration.Builder()
+                                .builtinEnpointsPort(8080)
+                                .userEndpointsPort(8081)
+                                .build(),
+                        false),
+                // 3
+                List.of(new RtpsTalkConfiguration.Builder().build(), false));
+    }
+
     @ParameterizedTest
-    @CsvSource({"true", "false"})
-    public void test_subscribe_happy(boolean isPublisherExist) throws Exception {
+    @MethodSource("dataProvider")
+    public void test_subscribe_happy(List testData) throws Exception {
+        var config = (RtpsTalkConfiguration) testData.get(0);
+        var isPublisherExist = (Boolean) testData.get(1);
         var future = new CompletableFuture<String>();
         var printer =
                 new SimpleSubscriber<byte[]>() {
@@ -93,6 +116,7 @@ public class RtpsTalkClientTests {
 
         XProcess proc = null;
         if (isPublisherExist) proc = tools.runHelloWorldPublisher();
+        client = new RtpsTalkClient(config);
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
         if (!isPublisherExist) proc = tools.runHelloWorldPublisher();
 

@@ -70,6 +70,8 @@ public record RtpsTalkConfiguration(
         builder.append("builtinEndpointQos", builtinEndpointQos);
         builder.append("leaseDuration", leaseDuration);
         builder.append("localParticpantGuid", localParticpantGuid);
+        builder.append("builtInEnpointsPort", builtInEnpointsPort);
+        builder.append("userEndpointsPort", userEndpointsPort);
         return builder.toString();
     }
 

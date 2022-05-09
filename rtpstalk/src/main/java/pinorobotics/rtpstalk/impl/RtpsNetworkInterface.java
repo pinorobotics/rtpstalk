@@ -21,7 +21,6 @@ import id.xfunction.XJsonStringBuilder;
 import id.xfunction.lang.XRE;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.function.Supplier;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
@@ -39,8 +38,8 @@ public class RtpsNetworkInterface {
     public RtpsNetworkInterface(
             int domainId,
             NetworkInterface networkIface,
-            Supplier<Integer> builtinEnpointsPortSupplier,
-            Supplier<Integer> userEndpointsPortSupplier) {
+            int builtinEnpointsPortSupplier,
+            int userEndpointsPortSupplier) {
         this.networkIface = networkIface;
         ipAddress = getNetworkIfaceIp(networkIface);
         defaultUnicastLocator =

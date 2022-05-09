@@ -82,12 +82,19 @@ public class RtpsServiceManager implements AutoCloseable {
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         for (var iface : config.networkInterfaces()) {
-            var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(iface);
             var spdp = new SpdpService(config, channelFactory, receiverFactory);
             var sedp = new SedpService(config, channelFactory, receiverFactory);
             var userService =
                     new UserDataService(
                             config, channelFactory, new DataObjectsFactory(), receiverFactory);
+
+            // Assign port numbers right before starting the services.
+            // It avoids situations when it is assigned too early and before it is
+            // effectively being used some other application already takes it.
+            // Mainly it is needed for local Locators like defaultUnicastLocator,
+            // metatrafficUnicastLocator.
+            var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(iface);
+
             try {
                 spdp.start(tracingToken, rtpsIface);
                 spdpServices.add(spdp);
