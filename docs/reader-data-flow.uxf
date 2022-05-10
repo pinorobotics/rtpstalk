@@ -34,7 +34,8 @@ style=wordwrap</panel_attributes>
       <w>468</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>Receiver
+    <panel_attributes>*Receiver*
+listens network port
 valign=center
 </panel_attributes>
     <additional_attributes/>
@@ -132,7 +133,7 @@ entity id matches?</panel_attributes>
     </coordinates>
     <panel_attributes>halign=center
 valign=bottom
-Reader
+*Reader*
 entity id 1
 </panel_attributes>
     <additional_attributes/>
@@ -218,7 +219,7 @@ entity id matches?</panel_attributes>
     </coordinates>
     <panel_attributes>halign=center
 valign=bottom
-Reader
+*Reader*
 entity id N
 </panel_attributes>
     <additional_attributes/>

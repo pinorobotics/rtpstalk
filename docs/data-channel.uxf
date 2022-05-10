@@ -69,7 +69,7 @@ valign=center</panel_attributes>
       <w>120</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Network port A</panel_attributes>
+    <panel_attributes>Network port</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -92,7 +92,7 @@ valign=center</panel_attributes>
       <w>120</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Network port B</panel_attributes>
+    <panel_attributes>Network port</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
