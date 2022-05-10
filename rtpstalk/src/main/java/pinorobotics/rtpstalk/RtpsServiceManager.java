@@ -29,6 +29,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -73,7 +74,7 @@ public class RtpsServiceManager implements AutoCloseable {
         this.config = config;
         this.channelFactory = channelFactory;
         this.receiverFactory = receiverFactory;
-        networkIfaceFactory = new RtpsNetworkInterfaceFactory(config);
+        networkIfaceFactory = new RtpsNetworkInterfaceFactory(config, channelFactory);
     }
 
     public void startAll(TracingToken tracingToken) {
@@ -81,38 +82,52 @@ public class RtpsServiceManager implements AutoCloseable {
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
-        for (var iface : config.networkInterfaces()) {
-            var spdp = new SpdpService(config, channelFactory, receiverFactory);
+
+        // looks like FASTRTPS does not support participant which runs on multiple network
+        // interfaces on different ports
+        // for example: lo 127.0.0.1 (7414, 7415), eth 172.17.0.2 (7412, 7413)
+        // in that case it will be sending messages to lo 127.0.0.1 (7412, 7413) which is wrong
+        // possibly it is expected or may be it is FASTRTPS bug but to make it work we
+        // disallow support of multiple network interfaces on different ports and assign them only
+        // once and for all network interfaces (see commit "Disabling multiple network interfaces
+        // for SEDP and User Data endpoints")
+        try {
+            var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
             var sedp = new SedpService(config, channelFactory, receiverFactory);
             var userService =
                     new UserDataService(
                             config, channelFactory, new DataObjectsFactory(), receiverFactory);
+            var participantsPublisher = new MergeProcessor<ParameterList>();
 
-            // Assign port numbers right before starting the services.
-            // It avoids situations when it is assigned too early and before it is
-            // effectively being used some other application already takes it.
-            // Mainly it is needed for local Locators like defaultUnicastLocator,
-            // metatrafficUnicastLocator.
-            var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(iface);
-
-            try {
-                // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
-                // but SEDP is not subscribed to them yet (and since SPDP cache them it will
-                // not notify SEDP about them anymore)
-                sedp.start(tracingToken, rtpsIface);
-                sedpServices.add(sedp);
-                spdp.start(tracingToken, rtpsIface, sedp);
-                spdpServices.add(spdp);
-                userService.start(tracingToken, rtpsIface);
-                userServices.add(userService);
-            } catch (Exception e) {
-                logger.severe(
-                        "Failed to start one of the RTPS services for network interface "
-                                + rtpsIface,
-                        e);
-            }
+            // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
+            // but SEDP is not subscribed to them yet (and since SPDP cache them it will
+            // not notify SEDP about them anymore)
+            sedp.start(tracingToken, rtpsIface);
+            sedpServices.add(sedp);
+            participantsPublisher.subscribe(sedp);
+            startSpdp(tracingToken, rtpsIface, participantsPublisher);
+            userService.start(tracingToken, rtpsIface);
+            userServices.add(userService);
+        } catch (Exception e) {
+            logger.severe("Failed to start one of the RTPS services", e);
         }
         isStarted = true;
+    }
+
+    private void startSpdp(
+            TracingToken tracingToken,
+            RtpsNetworkInterface rtpsIface,
+            MergeProcessor<ParameterList> participantsPublisher)
+            throws Exception {
+        var networkInterfaces =
+                config.networkInterface()
+                        .map(List::of)
+                        .orElseGet(() -> InternalUtils.getInstance().listAllNetworkInterfaces());
+        for (var iface : networkInterfaces) {
+            var spdp = new SpdpService(config, channelFactory, receiverFactory);
+            spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());
+            spdpServices.add(spdp);
+        }
     }
 
     public void subscribe(

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.behavior.reader;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
@@ -72,7 +73,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
     private ReliabilityKind reliabilityKind;
-    private Subscription subscription;
+    private Optional<Subscription> subscription = Optional.empty();
     private TracingToken tracingToken;
 
     public RtpsReader(
@@ -135,7 +136,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     @Override
     public void onSubscribe(Subscription subscription) {
         Preconditions.notNull(subscription, "Already subscribed");
-        this.subscription = subscription;
+        this.subscription = Optional.of(subscription);
         subscription.request(1);
     }
 
@@ -146,7 +147,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            subscription.request(1);
+            subscription.get().request(1);
         }
     }
 
@@ -174,7 +175,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
 
     @Override
     public void close() {
-        subscription.cancel();
+        subscription.ifPresent(Subscription::cancel);
         super.close();
         logger.fine("Closed");
     }

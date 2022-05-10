@@ -1,16 +1,9 @@
-*.SedpBuiltinSubscriptionsReader#*-eth0-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR - Closed*
-*.SedpBuiltinSubscriptionsWriter#*-eth0-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
-*.SedpBuiltinPublicationsReader#*-eth0-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR - Closed*
-*.SedpBuiltinPublicationsWriter#*-eth0-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
-*.RtpsMessageSender#*-eth0-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
-*.RtpsMessageSender#*-eth0-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
-*.RtpsMessageReceiver#*-eth0-SedpReceiver - Closed*
-*.SedpService#*-eth0 - Closed*
-*.SedpBuiltinSubscriptionsReader#*-lo-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR - Closed*
-*.SedpBuiltinSubscriptionsWriter#*-lo-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
-*.SedpBuiltinPublicationsReader#*-lo-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR - Closed*
-*.SedpBuiltinPublicationsWriter#*-lo-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
-*.RtpsMessageSender#*-lo-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
-*.RtpsMessageSender#*-lo-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
-*.RtpsMessageReceiver#*-lo-SedpReceiver - Closed*
-*.SedpService#*-lo - Closed*
+*.SedpBuiltinSubscriptionsReader#*-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR - Closed*
+*.SedpBuiltinSubscriptionsWriter#*-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
+*.SedpBuiltinPublicationsReader#*-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR - Closed*
+*.SedpBuiltinPublicationsWriter#*-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
+*.RtpsMessageSender#*-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
+*.RtpsMessageSender#*-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
+*.RtpsMessageReceiver#*-SedpReceiver - Closed*
+*.SedpService#* - Closed*
+*

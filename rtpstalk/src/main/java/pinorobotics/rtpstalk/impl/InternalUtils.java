@@ -17,7 +17,12 @@
  */
 package pinorobotics.rtpstalk.impl;
 
+import static java.util.stream.Collectors.toList;
+
 import id.xfunction.logging.XLogger;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.List;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -35,5 +40,13 @@ public class InternalUtils {
 
     public XLogger getLogger(Class<?> clazz, EntityId contextEntityId) {
         return XLogger.getLogger(clazz.getName() + "#" + contextEntityId.toString());
+    }
+
+    public List<NetworkInterface> listAllNetworkInterfaces() {
+        try {
+            return NetworkInterface.networkInterfaces().collect(toList());
+        } catch (SocketException e) {
+            throw new RuntimeException("Error listing available network interfaces", e);
+        }
     }
 }

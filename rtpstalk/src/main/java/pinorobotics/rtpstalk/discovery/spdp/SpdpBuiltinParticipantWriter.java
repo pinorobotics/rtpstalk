@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.XLogger;
+import java.io.IOException;
+import java.net.NetworkInterface;
 import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,9 +28,11 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterList>
@@ -40,22 +44,37 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
                     new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
     private ParameterList data;
     private Duration rate;
+    private NetworkInterface networkInterface;
 
     public SpdpBuiltinParticipantWriter(
+            TracingToken tracingToken,
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
-            TracingToken tracingToken) {
+            NetworkInterface networkInterface) {
         super(
+                tracingToken,
                 config,
                 channelFactory,
-                tracingToken,
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
+        this.networkInterface = networkInterface;
         this.rate = config.spdpDiscoveredParticipantDataPublishPeriod();
     }
 
     public void start() {
         executor.scheduleWithFixedDelay(this, 0, rate.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void readerLocatorAdd(Locator locator) throws IOException {
+        var sender =
+                new RtpsMessageSender(
+                        getTracingToken(),
+                        getChannelFactory()
+                                .bindMulticast(getTracingToken(), networkInterface, locator),
+                        getReaderEntiyId(),
+                        getGuid().entityId);
+        subscribe(sender);
     }
 
     public void setSpdpDiscoveredParticipantData(ParameterList data) {

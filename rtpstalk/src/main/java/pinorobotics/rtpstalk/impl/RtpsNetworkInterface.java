@@ -18,47 +18,32 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
-import id.xfunction.lang.XRE;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
+import pinorobotics.rtpstalk.transport.DataChannel;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * Placeholder for all RTPS endpoints which are available on a certain network interface.
+ *
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RtpsNetworkInterface {
 
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
-    private Locator metatrafficMulticastLocator;
-    private InetAddress ipAddress;
-    private NetworkInterface networkIface;
     private OperatingEntities operatingEntities = new OperatingEntities();
+    private DataChannel defaultUnicastChannel;
+    private DataChannel metatrafficUnicastChannel;
 
     public RtpsNetworkInterface(
-            int domainId,
-            NetworkInterface networkIface,
-            int builtinEnpointsPortSupplier,
-            int userEndpointsPortSupplier) {
-        this.networkIface = networkIface;
-        ipAddress = getNetworkIfaceIp(networkIface);
-        defaultUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPortSupplier, ipAddress);
-        metatrafficUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtinEnpointsPortSupplier, ipAddress);
-        metatrafficMulticastLocator = Locator.createDefaultMulticastLocator(domainId, networkIface);
-    }
-
-    public RtpsNetworkInterface withBuiltinEndpointPort(int builtInEnpointsPort) {
-        metatrafficUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, builtInEnpointsPort, ipAddress);
-        return this;
-    }
-
-    public RtpsNetworkInterface withUserEndpointPort(int userEndpointsPort) {
-        defaultUnicastLocator =
-                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, userEndpointsPort, ipAddress);
-        return this;
+            DataChannel defaultUnicastChannel,
+            Locator defaultUnicastLocator,
+            DataChannel metatrafficUnicastChannel,
+            Locator metatrafficUnicastLocator) {
+        this.defaultUnicastChannel = defaultUnicastChannel;
+        this.defaultUnicastLocator = defaultUnicastLocator;
+        this.metatrafficUnicastChannel = metatrafficUnicastChannel;
+        this.metatrafficUnicastLocator = metatrafficUnicastLocator;
     }
 
     public Locator getLocalDefaultUnicastLocator() {
@@ -69,40 +54,23 @@ public class RtpsNetworkInterface {
         return metatrafficUnicastLocator;
     }
 
-    public Locator getLocalMetatrafficMulticastLocator() {
-        return metatrafficMulticastLocator;
-    }
-
-    public NetworkInterface getNetworkIface() {
-        return networkIface;
-    }
-
-    public InetAddress getLocalIpAddress() {
-        return ipAddress;
-    }
-
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("ipAddress", ipAddress);
         builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
         builder.append("defaultUnicastLocator", defaultUnicastLocator);
         return builder.toString();
-    }
-
-    private static InetAddress getNetworkIfaceIp(NetworkInterface networkIface) {
-        try {
-            return networkIface.getInterfaceAddresses().get(0).getAddress();
-        } catch (Exception e) {
-            throw new XRE("Error obtaining IP address for network interface %s", networkIface);
-        }
     }
 
     public OperatingEntities getOperatingEntities() {
         return operatingEntities;
     }
 
-    public String getName() {
-        return networkIface.getDisplayName();
+    public DataChannel getDefaultUnicastChannel() {
+        return defaultUnicastChannel;
+    }
+
+    public DataChannel getMetatrafficUnicastChannel() {
+        return metatrafficUnicastChannel;
     }
 }

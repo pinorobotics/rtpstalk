@@ -17,15 +17,10 @@
  */
 package pinorobotics.rtpstalk;
 
-import static java.util.stream.Collectors.toList;
-
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.function.Unchecked;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
@@ -43,7 +38,7 @@ public record RtpsTalkConfiguration(
         int startPort,
         Optional<Integer> builtInEnpointsPort,
         Optional<Integer> userEndpointsPort,
-        List<NetworkInterface> networkInterfaces,
+        Optional<NetworkInterface> networkInterface,
         int packetBufferSize,
         int domainId,
         GuidPrefix guidPrefix,
@@ -63,7 +58,7 @@ public record RtpsTalkConfiguration(
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("startPort", startPort);
-        builder.append("networkIfaces", networkInterfaces);
+        builder.append("networkIfaces", networkInterface);
         builder.append("packetBufferSize", packetBufferSize);
         builder.append("domainId", domainId);
         builder.append("guidPrefix", guidPrefix);
@@ -94,7 +89,7 @@ public record RtpsTalkConfiguration(
         public static final Executor DEFAULT_PUBLISHER_EXECUTOR = ForkJoinPool.commonPool();
         public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = Flow.defaultBufferSize();
 
-        private List<NetworkInterface> networkIfaces = listAllNetworkInterfaces();
+        private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
         private Optional<Integer> builtInEnpointsPort = Optional.empty();
         private Optional<Integer> userEndpointsPort = Optional.empty();
@@ -109,22 +104,19 @@ public record RtpsTalkConfiguration(
         private Executor publisherExecutor = DEFAULT_PUBLISHER_EXECUTOR;
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
 
-        public Builder networkInterfaces(List<NetworkInterface> networkIfaces) {
-            this.networkIfaces = networkIfaces;
+        public Builder networkInterfaces(NetworkInterface networkIface) {
+            this.networkIface = Optional.of(networkIface);
             return this;
         }
 
         /**
-         * List of network interfaces where <b>rtpstalk</b> will be working on. By default it is
-         * active on all network interfaces and it publishes and receives data from all of them.
-         * Users can limit <b>rtpstalk</b> traffic to local network by specifying only its loopback
-         * interface.
+         * Network interface where <b>rtpstalk</b> will be working on. By default it is active on
+         * all network interfaces and it publishes and receives data from all of them. Users can
+         * limit <b>rtpstalk</b> traffic to local network by specifying only its loopback interface.
          */
-        public Builder networkInterfaces(String... networkIfaces) {
-            this.networkIfaces =
-                    Arrays.stream(networkIfaces)
-                            .map(Unchecked.wrapApply(NetworkInterface::getByName))
-                            .collect(toList());
+        public Builder networkInterface(String networkIface) {
+            this.networkIface =
+                    Optional.of(Unchecked.get(() -> NetworkInterface.getByName(networkIface)));
             return this;
         }
 
@@ -195,7 +187,7 @@ public record RtpsTalkConfiguration(
                     startPort,
                     builtInEnpointsPort,
                     userEndpointsPort,
-                    networkIfaces,
+                    networkIface,
                     packetBufferSize,
                     domainId,
                     guidPrefix,
@@ -207,14 +199,6 @@ public record RtpsTalkConfiguration(
                     appEntityKey,
                     publisherExecutor,
                     publisherMaxBufferCapacity);
-        }
-
-        private static List<NetworkInterface> listAllNetworkInterfaces() {
-            try {
-                return NetworkInterface.networkInterfaces().collect(toList());
-            } catch (SocketException e) {
-                throw new RuntimeException("Error listing available network interfaces", e);
-            }
         }
     }
 

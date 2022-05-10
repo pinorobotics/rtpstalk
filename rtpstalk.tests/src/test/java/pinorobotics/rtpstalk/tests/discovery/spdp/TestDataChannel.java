@@ -17,9 +17,6 @@
  */
 package pinorobotics.rtpstalk.tests.discovery.spdp;
 
-import id.xfunction.function.Unchecked;
-import java.net.StandardProtocolFamily;
-import java.nio.channels.DatagramChannel;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -36,13 +33,8 @@ public class TestDataChannel extends DataChannel {
     private BlockingQueue<RtpsMessage> inputQueue = new LinkedBlockingQueue<>();
     private boolean blockReceiveForever;
 
-    protected TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
-        super(
-                new TracingToken("test"),
-                Unchecked.get(() -> DatagramChannel.open(StandardProtocolFamily.INET)),
-                null,
-                prefix,
-                0);
+    public TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
+        super(new TracingToken("test"), null, null, prefix, 0);
         this.blockReceiveForever = blockReceiveForever;
     }
 
@@ -74,4 +66,7 @@ public class TestDataChannel extends DataChannel {
     public BlockingQueue<RtpsMessage> getDataQueue() {
         return dataQueue;
     }
+
+    @Override
+    public void close() {}
 }

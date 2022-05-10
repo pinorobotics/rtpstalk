@@ -96,4 +96,8 @@ public class RtpsTalkClient implements AutoCloseable {
         serviceManager.close();
         logger.fine("Closed");
     }
+
+    public RtpsTalkConfiguration getConfiguration() {
+        return config;
+    }
 }

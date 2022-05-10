@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests.discovery.spdp;
 
 import java.io.IOException;
+import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,9 @@ public class TestDataChannelFactory extends DataChannelFactory {
     }
 
     @Override
-    public DataChannel bind(TracingToken token, Locator locator) throws IOException {
+    public DataChannel bindMulticast(
+            TracingToken tracingToken, NetworkInterface networkInterface, Locator locator)
+            throws IOException {
         return getOrCreateDataChannel(locator);
     }
 

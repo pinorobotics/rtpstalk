@@ -17,14 +17,11 @@
  */
 package pinorobotics.rtpstalk.messages;
 
-import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
-import java.util.Optional;
+import java.util.Objects;
 import pinorobotics.rtpstalk.discovery.spdp.PortNumberParameters;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -34,29 +31,19 @@ public class Locator {
     public static final Locator INVALID = createEmpty(LocatorKind.LOCATOR_KIND_INVALID);
 
     private LocatorKind kind;
-
     private int port;
-
     private InetAddress address;
-    private Optional<NetworkInterface> networkInterface = Optional.empty();
+    private InetSocketAddress socketAddress;
 
-    public Locator(
-            LocatorKind kind, int port, InetAddress address, NetworkInterface networkInterface) {
+    public Locator(LocatorKind kind, int port, InetAddress address) {
         this.kind = kind;
         this.port = port;
         this.address = address;
-        this.networkInterface = Optional.ofNullable(networkInterface);
+        socketAddress = new InetSocketAddress(address, port);
     }
 
-    public Locator(LocatorKind kind, int port, InetAddress address) {
-        this(kind, port, address, null);
-        Preconditions.isTrue(
-                !address.isMulticastAddress(),
-                "This constructor does not support multicast addresses");
-    }
-
-    public SocketAddress getSocketAddress() {
-        return new InetSocketAddress(address, port);
+    public InetSocketAddress getSocketAddress() {
+        return socketAddress;
     }
 
     @Override
@@ -68,14 +55,12 @@ public class Locator {
         return builder.toString();
     }
 
-    public static Locator createDefaultMulticastLocator(
-            int domainId, NetworkInterface networkInterface) {
+    public static Locator createDefaultMulticastLocator(int domainId) {
         try {
             return new Locator(
                     LocatorKind.LOCATOR_KIND_UDPv4,
                     PortNumberParameters.DEFAULT.getMultiCastPort(domainId),
-                    InetAddress.getByName("239.255.0.1"),
-                    networkInterface);
+                    InetAddress.getByName("239.255.0.1"));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -93,16 +78,25 @@ public class Locator {
         return address;
     }
 
-    /** Used in multicast locators */
-    public Optional<NetworkInterface> networkInterface() {
-        return networkInterface;
-    }
-
     public LocatorKind kind() {
         return kind;
     }
 
     public int port() {
         return port;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address, kind, port);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Locator other = (Locator) obj;
+        return Objects.equals(address, other.address) && kind == other.kind && port == other.port;
     }
 }

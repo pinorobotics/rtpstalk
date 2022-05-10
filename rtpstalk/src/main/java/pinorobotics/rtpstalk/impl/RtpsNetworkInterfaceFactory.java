@@ -17,40 +17,80 @@
  */
 package pinorobotics.rtpstalk.impl;
 
-import id.xfunction.net.FreePortIterator;
-import id.xfunction.net.FreePortIterator.Protocol;
+import id.xfunction.Preconditions;
+import id.xfunction.function.Unchecked;
+import id.xfunction.lang.XRE;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.LocatorKind;
+import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsNetworkInterfaceFactory {
-
     private RtpsTalkConfiguration config;
-    private Optional<Integer> builtInEnpointsPort = Optional.empty();
-    private Optional<Integer> userEndpointsPort = Optional.empty();
+    private DataChannelFactory channelFactory;
 
-    public RtpsNetworkInterfaceFactory(RtpsTalkConfiguration config) {
+    public RtpsNetworkInterfaceFactory(
+            RtpsTalkConfiguration config, DataChannelFactory channelFactory) {
         this.config = config;
+        this.channelFactory = channelFactory;
     }
 
-    public RtpsNetworkInterface createRtpsNetworkInterface(NetworkInterface iface) {
-        var portIterator = new FreePortIterator(config.startPort(), Protocol.UDP);
+    public RtpsNetworkInterface createRtpsNetworkInterface(TracingToken tracingToken)
+            throws IOException {
 
-        // looks like FASTRTPS does not support participant which runs on multiple network
-        // interfaces on different ports
-        // for example: lo 127.0.0.1 (7414, 7415), eth 172.17.0.2 (7412, 7413)
-        // in that case it will be sending messages to lo 127.0.0.1 (7412, 7413) which is wrong
-        // possibly it is expected or may be it is FASTRTPS bug but to make it work we
-        // disallow support of multiple network interfaces on different ports and assign them only
-        // once and for all network interfaces
-        if (builtInEnpointsPort.isEmpty())
-            builtInEnpointsPort =
-                    Optional.of(config.builtInEnpointsPort().orElseGet(() -> portIterator.next()));
-        if (userEndpointsPort.isEmpty())
-            userEndpointsPort =
-                    Optional.of(config.userEndpointsPort().orElseGet(() -> portIterator.next()));
+        var bindAddress =
+                config.networkInterface().map(RtpsNetworkInterfaceFactory::getNetworkIfaceIp);
+        var locatorAddress = bindAddress.orElseGet(this::decideLocatorAddress);
+
+        // Assign port numbers right before starting the services.
+        // It avoids situations when it is assigned too early and before it is
+        // effectively being used some other application already takes it.
+        // Mainly it is needed for local Locators like defaultUnicastLocator,
+        // metatrafficUnicastLocator.
+        var builtinDataChannel =
+                channelFactory.bind(tracingToken, bindAddress, config.builtInEnpointsPort());
+        var builtinLocator =
+                new Locator(
+                        LocatorKind.LOCATOR_KIND_UDPv4,
+                        builtinDataChannel.getLocalPort(),
+                        locatorAddress);
+        var userDataChannel =
+                channelFactory.bind(tracingToken, bindAddress, config.userEndpointsPort());
+        var userDataLocator =
+                new Locator(
+                        LocatorKind.LOCATOR_KIND_UDPv4,
+                        userDataChannel.getLocalPort(),
+                        locatorAddress);
+
         return new RtpsNetworkInterface(
-                config.domainId(), iface, builtInEnpointsPort.get(), userEndpointsPort.get());
+                userDataChannel, userDataLocator, builtinDataChannel, builtinLocator);
+    }
+
+    private static InetAddress getNetworkIfaceIp(NetworkInterface networkIface) {
+        try {
+            return networkIface.getInterfaceAddresses().get(0).getAddress();
+        } catch (Exception e) {
+            throw new XRE("Error obtaining IP address for network interface %s", networkIface);
+        }
+    }
+
+    private InetAddress decideLocatorAddress() {
+        var ifaces = InternalUtils.getInstance().listAllNetworkInterfaces();
+        Preconditions.isTrue(!ifaces.isEmpty(), "No network interfaces found");
+        NetworkInterface iface = null;
+        if (ifaces.size() == 1) {
+            iface = ifaces.get(0);
+        } else {
+            iface =
+                    ifaces.stream()
+                            .filter(ni -> Unchecked.getBoolean(() -> !ni.isLoopback()))
+                            .findFirst()
+                            .orElse(ifaces.get(0));
+        }
+        return getNetworkIfaceIp(iface);
     }
 }

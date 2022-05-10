@@ -39,6 +39,8 @@ import pinorobotics.rtpstalk.messages.RtpsMessage;
  * messages from it. Since one RTPS message can contain submessages which belong to different
  * readers it is reader responsibility to filter them out.
  *
+ * <p>Receiver listens only one particular port.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implements AutoCloseable {

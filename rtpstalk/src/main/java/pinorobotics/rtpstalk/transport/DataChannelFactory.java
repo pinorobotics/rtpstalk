@@ -17,10 +17,16 @@
  */
 package pinorobotics.rtpstalk.transport;
 
+import id.xfunction.Preconditions;
+import id.xfunction.net.FreeUdpPortIterator;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
+import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -35,40 +41,57 @@ public class DataChannelFactory {
     }
 
     /** Channel bind to local port */
-    public DataChannel bind(TracingToken tracingToken, Locator locator) throws IOException {
-        if (locator.address().isMulticastAddress()) {
-            var dataChannel =
-                    DatagramChannel.open(StandardProtocolFamily.INET)
-                            .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                            .bind(locator.getSocketAddress())
-                            .setOption(
-                                    StandardSocketOptions.IP_MULTICAST_IF,
-                                    locator.networkInterface().get());
-            dataChannel.join(locator.address(), locator.networkInterface().get());
-            return new DataChannel(
-                    tracingToken,
-                    dataChannel,
-                    locator.getSocketAddress(),
-                    config.guidPrefix(),
-                    config.packetBufferSize());
+    public DataChannel bindMulticast(
+            TracingToken tracingToken, NetworkInterface networkInterface, Locator locator)
+            throws IOException {
+        var socketAddress = locator.getSocketAddress();
+        Preconditions.isTrue(
+                socketAddress.getAddress().isMulticastAddress(), "Multicast address required");
+        var dataChannel =
+                DatagramChannel.open(StandardProtocolFamily.INET)
+                        .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                        .bind(socketAddress)
+                        .setOption(StandardSocketOptions.IP_MULTICAST_IF, networkInterface);
+        dataChannel.join(locator.address(), networkInterface);
+        return new DataChannel(
+                tracingToken,
+                dataChannel,
+                socketAddress,
+                config.guidPrefix(),
+                config.packetBufferSize());
+    }
+
+    /**
+     * Bind channel to local port
+     *
+     * @param address if empty then bind to all network interfaces
+     * @param port if empty then pick up first available
+     */
+    public DataChannel bind(
+            TracingToken tracingToken, Optional<InetAddress> address, Optional<Integer> port)
+            throws IOException {
+        DatagramChannel dataChannel = null;
+        if (port.isEmpty()) {
+            var portIterator = new FreeUdpPortIterator(config.startPort(), address);
+            dataChannel = portIterator.next();
         } else {
-            var dataChannel =
-                    DatagramChannel.open(StandardProtocolFamily.INET)
-                            .bind(locator.getSocketAddress());
-            return new DataChannel(
-                    tracingToken,
-                    dataChannel,
-                    locator.getSocketAddress(),
-                    config.guidPrefix(),
-                    config.packetBufferSize());
+            dataChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+            if (address.isPresent())
+                dataChannel.bind(new InetSocketAddress(address.get(), port.get()));
+            else dataChannel.bind(new InetSocketAddress(port.get()));
         }
+        return new DataChannel(
+                tracingToken,
+                dataChannel,
+                dataChannel.getLocalAddress(),
+                config.guidPrefix(),
+                config.packetBufferSize());
     }
 
     /** Remote channel */
     public DataChannel connect(TracingToken tracingToken, Locator locator) throws IOException {
-        if (locator.address().isMulticastAddress()) {
-            return bind(tracingToken, locator);
-        }
+        Preconditions.isTrue(
+                !locator.address().isMulticastAddress(), "Non multicast address required");
         return new DataChannel(
                 tracingToken,
                 DatagramChannel.open(StandardProtocolFamily.INET)

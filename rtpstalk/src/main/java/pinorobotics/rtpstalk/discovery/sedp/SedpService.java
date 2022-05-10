@@ -74,12 +74,9 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
 
     public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
-        tracingToken = new TracingToken(tracingToken, iface.getName());
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         logger.entering("start");
-        logger.fine(
-                "Starting SEDP service on {0} using following configuration: {1}",
-                iface.getName(), config);
+        logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
         metatrafficReceiver =
                 receiverFactory.newRtpsMessageReceiver(
                         new TracingToken(tracingToken, "SedpReceiver"));
@@ -101,8 +98,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
             metatrafficReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
                             config, tracingToken, iface.getOperatingEntities()));
-        metatrafficReceiver.start(
-                channelFactory.bind(tracingToken, iface.getLocalMetatrafficUnicastLocator()));
+        metatrafficReceiver.start(iface.getMetatrafficUnicastChannel());
         this.iface = iface;
         isStarted = true;
     }

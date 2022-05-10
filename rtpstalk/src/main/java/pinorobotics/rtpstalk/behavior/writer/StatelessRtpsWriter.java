@@ -38,9 +38,9 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
     private EntityId readerEntiyId;
 
     public StatelessRtpsWriter(
+            TracingToken tracingToken,
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
-            TracingToken tracingToken,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
         super(config, tracingToken, writerEntityId, ReliabilityKind.BEST_EFFORT, true);
@@ -56,5 +56,13 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
                         readerEntiyId,
                         getGuid().entityId);
         subscribe(sender);
+    }
+
+    public DataChannelFactory getChannelFactory() {
+        return channelFactory;
+    }
+
+    public EntityId getReaderEntiyId() {
+        return readerEntiyId;
     }
 }

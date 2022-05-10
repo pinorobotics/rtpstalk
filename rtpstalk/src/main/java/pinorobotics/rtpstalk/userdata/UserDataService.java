@@ -103,16 +103,14 @@ public class UserDataService implements AutoCloseable {
 
     public void start(TracingToken token, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
-        tracingToken = new TracingToken(token, iface.getName());
+        tracingToken = token;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
                         new TracingToken(tracingToken, "UserDataServiceReceiver"));
         logger.entering("start");
-        logger.fine(
-                "Starting user service on {0} using following configuration: {1}",
-                iface.getName(), config);
-        receiver.start(channelFactory.bind(token, iface.getLocalDefaultUnicastLocator()));
+        logger.fine("Starting user service on {0}", iface.getLocalDefaultUnicastLocator());
+        receiver.start(iface.getDefaultUnicastChannel());
         operatingEntities = iface.getOperatingEntities();
         isStarted = true;
     }

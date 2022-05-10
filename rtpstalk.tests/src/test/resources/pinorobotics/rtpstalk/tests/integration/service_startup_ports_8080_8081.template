@@ -1,0 +1,3 @@
+*.SedpService#* - Starting SEDP service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8080", "address": "/*" }
+*.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8081", "address": "/*" }
+*

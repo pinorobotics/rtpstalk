@@ -17,8 +17,11 @@
  */
 package pinorobotics.rtpstalk.transport;
 
+import id.xfunction.Preconditions;
+import id.xfunction.function.Unchecked;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
@@ -35,7 +38,7 @@ public class DataChannel implements AutoCloseable {
 
     private RtpsMessageReader reader = new RtpsMessageReader();
     private RtpsMessageWriter writer = new RtpsMessageWriter();
-    private DatagramChannel dataChannel;
+    private DatagramChannel datagramChannel;
     private int packetBufferSize;
     private GuidPrefix guidPrefix;
     private SocketAddress target;
@@ -43,11 +46,11 @@ public class DataChannel implements AutoCloseable {
 
     protected DataChannel(
             TracingToken tracingToken,
-            DatagramChannel dataChannel,
+            DatagramChannel datagramChannel,
             SocketAddress target,
             GuidPrefix guidPrefix,
             int packetBufferSize) {
-        this.dataChannel = dataChannel;
+        this.datagramChannel = datagramChannel;
         this.target = target;
         this.guidPrefix = guidPrefix;
         this.packetBufferSize = packetBufferSize;
@@ -58,7 +61,7 @@ public class DataChannel implements AutoCloseable {
     public RtpsMessage receive() throws Exception {
         while (true) {
             var buf = ByteBuffer.allocate(packetBufferSize);
-            dataChannel.receive(buf);
+            datagramChannel.receive(buf);
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
@@ -83,7 +86,7 @@ public class DataChannel implements AutoCloseable {
             writer.writeRtpsMessage(message, buf);
             buf.limit(buf.position());
             buf.rewind();
-            dataChannel.send(buf, target);
+            datagramChannel.send(buf, target);
         } catch (Throwable e) {
             logger.severe(e);
             return;
@@ -93,10 +96,23 @@ public class DataChannel implements AutoCloseable {
     @Override
     public void close() {
         try {
-            dataChannel.close();
+            datagramChannel.close();
         } catch (IOException e) {
             logger.severe(e);
         }
         logger.fine("Closed");
+    }
+
+    public int getLocalPort() {
+        Preconditions.isTrue(
+                Unchecked.getBoolean(
+                        () -> datagramChannel.getLocalAddress() instanceof InetSocketAddress),
+                "Inet socket required");
+        try {
+            var addr = (InetSocketAddress) datagramChannel.getLocalAddress();
+            return addr.getPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

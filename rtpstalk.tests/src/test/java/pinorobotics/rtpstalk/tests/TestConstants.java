@@ -20,9 +20,8 @@ package pinorobotics.rtpstalk.tests;
 import id.xfunction.XByte;
 import id.xfunction.function.Unchecked;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
@@ -48,6 +47,14 @@ public interface TestConstants {
     RtpsTalkConfiguration.Builder TEST_CONFIG_BUILDER =
             new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX);
     RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_BUILDER.build();
+
+    InetAddress TEST_ADDRESS = Unchecked.get(() -> InetAddress.getByName("11.1.1.1"));
+    Locator TEST_METATRAFFIC_UNICAST_LOCATOR =
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7412, TEST_ADDRESS);
+    Locator TEST_DEFAULT_UNICAST_LOCATOR =
+            new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7413, TEST_ADDRESS);
+    Locator TEST_DEFAULT_MULTICAST_LOCATOR =
+            Locator.createDefaultMulticastLocator(TestConstants.TEST_CONFIG.domainId());
 
     GuidPrefix TEST_REMOTE_GUID_PREFIX = new GuidPrefix(XByte.fromHex("010f70b7fb013df101000000"));
     InetAddress TEST_REMOTE_ADDRESS = Unchecked.get(() -> InetAddress.getByName("33.3.3.3"));
@@ -84,7 +91,6 @@ public interface TestConstants {
                             EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                             new SequenceNumber(1),
                             new SerializedPayload(new RawData(new byte[] {0x11, 0x22}))));
-    RtpsNetworkInterface TEST_NETWORK_IFACE =
-            new RtpsNetworkInterfaceFactory(TEST_CONFIG)
-                    .createRtpsNetworkInterface(TEST_CONFIG.networkInterfaces().get(0));
+    TestRtpsNetworkInterface TEST_NETWORK_IFACE = new TestRtpsNetworkInterface();
+    NetworkInterface LOOPBACK_NETWORK_IFACE = Unchecked.get(() -> NetworkInterface.getByName("lo"));
 }

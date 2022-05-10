@@ -19,11 +19,13 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
+import java.net.NetworkInterface;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
@@ -63,28 +65,32 @@ public class SpdpService implements AutoCloseable {
     public void start(
             TracingToken tracingToken,
             RtpsNetworkInterface iface,
+            NetworkInterface networkInterface,
             Subscriber<ParameterList> participantsSubscriber)
             throws Exception {
         Preconditions.isTrue(!isStarted, "Already started");
-        tracingToken = new TracingToken(tracingToken, iface.getName());
+        tracingToken = new TracingToken(tracingToken, networkInterface.getName());
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         logger.entering("start");
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
                         new TracingToken(tracingToken, getClass().getSimpleName()));
-        logger.fine(
-                "Starting SPDP service on {0} using following configuration: {1}",
-                iface.getName(), config);
+        logger.fine("Starting SPDP service on {0}", networkInterface.getName());
         reader =
                 new SpdpBuiltinParticipantReader(
                         config, tracingToken, config.guidPrefix(), iface.getOperatingEntities());
         reader.subscribe(participantsSubscriber);
+        Locator metatrafficMulticastLocator =
+                Locator.createDefaultMulticastLocator(config.domainId());
         var dataChannel =
-                channelFactory.bind(tracingToken, iface.getLocalMetatrafficMulticastLocator());
+                channelFactory.bindMulticast(
+                        tracingToken, networkInterface, metatrafficMulticastLocator);
         receiver.start(dataChannel);
         receiver.subscribe(reader);
-        writer = new SpdpBuiltinParticipantWriter(config, channelFactory, tracingToken);
-        writer.readerLocatorAdd(iface.getLocalMetatrafficMulticastLocator());
+        writer =
+                new SpdpBuiltinParticipantWriter(
+                        tracingToken, config, channelFactory, networkInterface);
+        writer.readerLocatorAdd(metatrafficMulticastLocator);
         writer.setSpdpDiscoveredParticipantData(
                 spdpDiscoveredDataFactory.createData(
                         config,
