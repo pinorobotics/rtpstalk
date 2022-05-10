@@ -66,45 +66,55 @@ public class RtpsTalkClientTests {
         tools.close();
     }
 
-    static Stream<List> dataProvider() {
+    record TestCase(RtpsTalkConfiguration config, boolean isSubscribeToFutureTopic, List<String> templates, List<Runnable> validators) {}
+    
+    static Stream<TestCase> dataProvider() {
         return Stream.of(
                 // 1
-                List.of(
+                new TestCase(
                         new RtpsTalkConfiguration.Builder()
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build(),
                         true,
-                        "service_startup.template",
+                        List.of("service_startup.template",
                         "spdp_close.template",
                         "service_startup_ports_8080_8081.template",
-                        "topic_manager_future_topic.template"),
+                        "topic_manager_future_topic.template"), List.of()),
                 // 2
-                List.of(
+                new TestCase(
                         new RtpsTalkConfiguration.Builder()
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        "service_startup.template",
+                        List.of("service_startup.template",
                         "spdp_close.template",
                         "service_startup_ports_8080_8081.template",
-                        "topic_manager.template"),
+                        "topic_manager.template"), List.of()),
                 // 3
-                List.of(
+                new TestCase(
+                        new RtpsTalkConfiguration.Builder()
+                        .networkInterface("lo")
+                                .builtinEnpointsPort(8080)
+                                .userEndpointsPort(8081)
+                                .build(),
+                        false,
+                        List.of("service_startup_loopback_iface.template",
+                        "topic_manager.template"), List.of(RtpsTalkClientTests::validateSpdpLoopbackIface)),
+                // 4
+                new TestCase(
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
-                        "service_startup.template",
+                        List.of("service_startup.template",
                         "spdp_close.template",
                         "service_startup_ports_default.template",
-                        "topic_manager.template"));
+                        "topic_manager.template"), List.of()));
     }
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_subscribe_happy(List testData) throws Exception {
-        var config = (RtpsTalkConfiguration) testData.get(0);
-        var isSubscribeToFutureTopic = (Boolean) testData.get(1);
+    public void test_subscribe_happy(TestCase testCase) throws Exception {
         var future = new CompletableFuture<String>();
         var printer =
                 new SimpleSubscriber<byte[]>() {
@@ -122,10 +132,10 @@ public class RtpsTalkClientTests {
                     }
                 };
 
-        client = new RtpsTalkClient(config);
+        client = new RtpsTalkClient(testCase.config);
 
         XProcess proc = null;
-        if (!isSubscribeToFutureTopic) {
+        if (!testCase.isSubscribeToFutureTopic) {
             proc = tools.runHelloWorldPublisher();
             // subscribe to dummy topic to cause client to start all services
             // that way client will discover HelloWorldPublisher topic but not subscribe to it yet
@@ -138,7 +148,7 @@ public class RtpsTalkClientTests {
                             .toMillis());
         }
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
-        if (isSubscribeToFutureTopic) proc = tools.runHelloWorldPublisher();
+        if (testCase.isSubscribeToFutureTopic) proc = tools.runHelloWorldPublisher();
 
         var dataReceived = future.get().toString();
         client.close();
@@ -154,12 +164,10 @@ public class RtpsTalkClientTests {
         XAsserts.assertMatches(
                 resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
-        for (int i = 2; i < testData.size(); i++) {
-            var resourceName = (String) testData.get(i);
-            System.out.println(resourceName);
-            XAsserts.assertMatches(
-                    resourceUtils.readResource(RtpsTalkClientTests.class, resourceName), log);
-        }
+        
+        testCase.templates.forEach(resourceName -> XAsserts.assertMatches(
+                    resourceUtils.readResource(RtpsTalkClientTests.class, resourceName), log));
+        testCase.validators.forEach(Runnable::run);
     }
 
     @Test
@@ -189,5 +197,11 @@ public class RtpsTalkClientTests {
         XAsserts.assertMatches(
                 resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
+    }
+    
+    private static void validateSpdpLoopbackIface() {
+        var log = LogUtils.readLogFile();
+        Assertions.assertTrue(log.contains("Starting SPDP service on lo"));
+        Assertions.assertFalse(log.contains("Starting SPDP service on eth0"));
     }
 }
