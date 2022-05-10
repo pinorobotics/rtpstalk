@@ -77,7 +77,8 @@ public class RtpsTalkClientTests {
                         true,
                         "service_startup.template",
                         "spdp_close.template",
-                        "service_startup_ports_8080_8081.template"),
+                        "service_startup_ports_8080_8081.template",
+                        "topic_manager_future_topic.template"),
                 // 2
                 List.of(
                         new RtpsTalkConfiguration.Builder()
@@ -87,14 +88,16 @@ public class RtpsTalkClientTests {
                         false,
                         "service_startup.template",
                         "spdp_close.template",
-                        "service_startup_ports_8080_8081.template"),
+                        "service_startup_ports_8080_8081.template",
+                        "topic_manager.template"),
                 // 3
                 List.of(
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
                         "service_startup.template",
                         "spdp_close.template",
-                        "service_startup_ports_default.template"));
+                        "service_startup_ports_default.template",
+                        "topic_manager.template"));
     }
 
     @ParameterizedTest

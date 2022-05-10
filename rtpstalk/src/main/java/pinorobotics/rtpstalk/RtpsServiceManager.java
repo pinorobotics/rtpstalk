@@ -32,6 +32,7 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -63,6 +64,7 @@ public class RtpsServiceManager implements AutoCloseable {
     private List<SpdpService> spdpServices = new ArrayList<>();
     private List<SedpService> sedpServices = new ArrayList<>();
     private List<UserDataService> userServices = new ArrayList<>();
+    private List<TopicPublicationsManager> topicManagers = new ArrayList<>();
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
@@ -108,6 +110,16 @@ public class RtpsServiceManager implements AutoCloseable {
             startSpdp(tracingToken, rtpsIface, participantsPublisher);
             userService.start(tracingToken, rtpsIface);
             userServices.add(userService);
+
+            var topicManager =
+                    new TopicPublicationsManager(
+                            tracingToken,
+                            config,
+                            rtpsIface,
+                            sedp.getSubscriptionsWriter(),
+                            userService);
+            sedp.getPublicationsReader().subscribe(topicManager);
+            topicManagers.add(topicManager);
         } catch (Exception e) {
             logger.severe("Failed to start one of the RTPS services", e);
         }
@@ -130,25 +142,11 @@ public class RtpsServiceManager implements AutoCloseable {
         }
     }
 
-    public void subscribe(
-            String topic, String type, Subscriber<RawData> subscriber, EntityId entityId) {
-        sedpServices.forEach(
-                sedp -> {
-                    sedp.getSubscriptionsWriter()
-                            .newChange(
-                                    createSubscriptionData(
-                                            topic,
-                                            type,
-                                            entityId,
-                                            sedp.getNetworkInterface()
-                                                    .getLocalDefaultUnicastLocator()));
-                });
+    public void subscribe(String topic, String type, Subscriber<RawData> subscriber) {
         var merge = new MergeProcessor<RawData>();
         merge.subscribe(subscriber);
-        userServices.forEach(
-                userService -> {
-                    userService.subscribe(entityId, merge.newSubscriber());
-                });
+        topicManagers.forEach(
+                topicManager -> topicManager.addSubscriber(topic, type, merge.newSubscriber()));
     }
 
     public void publish(String topic, String type, Publisher<RawData> publisher) {
@@ -178,26 +176,6 @@ public class RtpsServiceManager implements AutoCloseable {
         spdpServices.forEach(SpdpService::close);
         userServices.forEach(UserDataService::close);
         logger.fine("Closed");
-    }
-
-    private ParameterList createSubscriptionData(
-            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
-                        Map.entry(
-                                ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.guidPrefix(), entityId)),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
-        return new ParameterList(params);
     }
 
     private ParameterList createPublicationData(

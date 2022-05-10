@@ -25,8 +25,6 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
@@ -61,10 +59,9 @@ public class RtpsTalkClient implements AutoCloseable {
         if (!isStarted) {
             start();
         }
-        var entityId = new EntityId(config.appEntityKey(), EntityKind.READER_NO_KEY);
         var transformer = new TransformProcessor<>(RawData::getData);
         transformer.subscribe(subscriber);
-        serviceManager.subscribe(topic, type, transformer, entityId);
+        serviceManager.subscribe(topic, type, transformer);
     }
 
     public void publish(String topic, String type, Publisher<byte[]> publisher) {
