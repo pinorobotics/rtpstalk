@@ -17,15 +17,18 @@
  */
 package pinorobotics.rtpstalk.tests.discovery.spdp;
 
-import static pinorobotics.rtpstalk.tests.TestConstants.*;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_GUID_PREFIX;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_GUID_PREFIX;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR;
 
 import id.xfunction.ResourceUtils;
+import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,7 +100,7 @@ public class SpdpServiceTest {
         TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
         channelFactory.addChannel(
                 NETWORK_IFACE.getLocalMetatrafficMulticastLocator(), metatrafficChannel);
-        service.start(new TracingToken("test"), NETWORK_IFACE);
+        service.start(new TracingToken("test"), NETWORK_IFACE, new SimpleSubscriber<>());
         // we expect spdp publisher startup time no longer than 100 msec
         Thread.sleep(100);
         Assertions.assertEquals(1, metatrafficChannel.getDataQueue().size());
@@ -120,7 +123,7 @@ public class SpdpServiceTest {
                                 .build(),
                         channelFactory,
                         receiverFactory)) {
-            service.start(new TracingToken("test"), NETWORK_IFACE);
+            service.start(new TracingToken("test"), NETWORK_IFACE, new SimpleSubscriber<>());
             Thread.sleep(160);
             var channel =
                     channelFactory
@@ -136,26 +139,20 @@ public class SpdpServiceTest {
         var metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, false);
         channelFactory.addChannel(
                 NETWORK_IFACE.getLocalMetatrafficMulticastLocator(), metatrafficChannel);
-        CompletableFuture<ParameterList> future = new CompletableFuture<>();
-        service.start(new TracingToken("test"), NETWORK_IFACE);
-        service.getParticipantsPublisher()
-                .subscribe(
-                        new SimpleSubscriber<>() {
-                            @Override
-                            public void onNext(ParameterList item) {
-                                future.complete(item);
-                            }
-                        });
+        var collector = new CollectorSubscriber<ParameterList>(1);
+        service.start(new TracingToken("test"), NETWORK_IFACE, collector);
         metatrafficChannel.addInput(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_MESSAGE);
         var channel =
                 channelFactory
                         .getChannels()
                         .get(NETWORK_IFACE.getLocalMetatrafficMulticastLocator());
         Assertions.assertNotNull(channel);
-        var actual = future.get();
-        System.out.println(actual);
+        var participants = collector.getFuture().get();
+        System.out.println(participants);
+        Assertions.assertEquals(1, participants.size());
         Assertions.assertEquals(
-                TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA.toString(), actual.toString());
+                TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA.toString(),
+                participants.get(0).toString());
     }
 
     public static ParameterList createSpdpDiscoveredParticipantData(RtpsTalkConfiguration config) {

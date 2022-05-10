@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.discovery.spdp;
 
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
-import java.util.concurrent.Flow.Publisher;
+import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
@@ -60,7 +60,11 @@ public class SpdpService implements AutoCloseable {
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
     }
 
-    public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws Exception {
+    public void start(
+            TracingToken tracingToken,
+            RtpsNetworkInterface iface,
+            Subscriber<ParameterList> participantsSubscriber)
+            throws Exception {
         Preconditions.isTrue(!isStarted, "Already started");
         tracingToken = new TracingToken(tracingToken, iface.getName());
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
@@ -74,6 +78,7 @@ public class SpdpService implements AutoCloseable {
         reader =
                 new SpdpBuiltinParticipantReader(
                         config, tracingToken, config.guidPrefix(), iface.getOperatingEntities());
+        reader.subscribe(participantsSubscriber);
         var dataChannel =
                 channelFactory.bind(tracingToken, iface.getLocalMetatrafficMulticastLocator());
         receiver.start(dataChannel);
@@ -87,11 +92,6 @@ public class SpdpService implements AutoCloseable {
                         iface.getLocalDefaultUnicastLocator()));
         writer.start();
         isStarted = true;
-    }
-
-    public Publisher<ParameterList> getParticipantsPublisher() {
-        Preconditions.isTrue(isStarted, "Service not yet started");
-        return reader;
     }
 
     @Override

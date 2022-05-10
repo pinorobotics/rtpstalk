@@ -96,10 +96,13 @@ public class RtpsServiceManager implements AutoCloseable {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(iface);
 
             try {
-                spdp.start(tracingToken, rtpsIface);
-                spdpServices.add(spdp);
-                sedp.start(tracingToken, spdp.getParticipantsPublisher(), rtpsIface);
+                // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
+                // but SEDP is not subscribed to them yet (and since SPDP cache them it will
+                // not notify SEDP about them anymore)
+                sedp.start(tracingToken, rtpsIface);
                 sedpServices.add(sedp);
+                spdp.start(tracingToken, rtpsIface, sedp);
+                spdpServices.add(spdp);
                 userService.start(tracingToken, rtpsIface);
                 userServices.add(userService);
             } catch (Exception e) {
@@ -156,8 +159,8 @@ public class RtpsServiceManager implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
-        spdpServices.forEach(SpdpService::close);
         sedpServices.forEach(SedpService::close);
+        spdpServices.forEach(SpdpService::close);
         userServices.forEach(UserDataService::close);
         logger.fine("Closed");
     }

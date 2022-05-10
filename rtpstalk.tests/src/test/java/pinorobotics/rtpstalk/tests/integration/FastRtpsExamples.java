@@ -38,7 +38,7 @@ public class FastRtpsExamples implements AutoCloseable {
 
     @Override
     public void close() {
-        procs.forEach(proc -> proc.process().destroyForcibly());
+        procs.forEach(proc -> proc.destroyAllForcibly());
     }
 
     public XProcess runHelloWorldSubscriber() {

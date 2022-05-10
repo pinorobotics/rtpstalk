@@ -22,7 +22,6 @@ import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
@@ -73,11 +72,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
         this.receiverFactory = receiverFactory;
     }
 
-    public void start(
-            TracingToken tracingToken,
-            Publisher<ParameterList> participantsPublisher,
-            RtpsNetworkInterface iface)
-            throws IOException {
+    public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
         tracingToken = new TracingToken(tracingToken, iface.getName());
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
@@ -106,7 +101,6 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
             metatrafficReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
                             config, tracingToken, iface.getOperatingEntities()));
-        participantsPublisher.subscribe(this);
         metatrafficReceiver.start(
                 channelFactory.bind(tracingToken, iface.getLocalMetatrafficUnicastLocator()));
         this.iface = iface;
