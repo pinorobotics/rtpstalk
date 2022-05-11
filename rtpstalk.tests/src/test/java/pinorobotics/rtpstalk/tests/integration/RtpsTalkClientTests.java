@@ -27,6 +27,7 @@ import id.xfunction.lang.XThread;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
@@ -66,11 +67,12 @@ public class RtpsTalkClientTests {
         tools.close();
     }
 
-    record TestCase(
+    private record TestCase(
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
             List<String> templates,
-            List<Runnable> validators) {}
+            List<Runnable> validators,
+            Map<FastRtpsEnvironmentVariable, String> publisherParameters) {}
 
     static Stream<TestCase> dataProvider() {
         return Stream.of(
@@ -86,7 +88,8 @@ public class RtpsTalkClientTests {
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
                                 "topic_manager_future_topic.template"),
-                        List.of()),
+                        List.of(),
+                        Map.of()),
                 // 2
                 new TestCase(
                         new RtpsTalkConfiguration.Builder()
@@ -99,7 +102,8 @@ public class RtpsTalkClientTests {
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
                                 "topic_manager.template"),
-                        List.of()),
+                        List.of(),
+                        Map.of()),
                 // 3
                 new TestCase(
                         new RtpsTalkConfiguration.Builder()
@@ -111,7 +115,8 @@ public class RtpsTalkClientTests {
                         List.of(
                                 "service_startup_loopback_iface.template",
                                 "topic_manager.template"),
-                        List.of(RtpsTalkClientTests::validateSpdpLoopbackIface)),
+                        List.of(RtpsTalkClientTests::validateSpdpLoopbackIface),
+                        Map.of()),
                 // 4
                 new TestCase(
                         new RtpsTalkConfiguration.Builder().build(),
@@ -121,7 +126,23 @@ public class RtpsTalkClientTests {
                                 "spdp_close.template",
                                 "service_startup_ports_default.template",
                                 "topic_manager.template"),
-                        List.of()));
+                        List.of(),
+                        Map.of(
+                                FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                "TRANSIENT_LOCAL_DURABILITY_QOS")),
+                // 5
+                new TestCase(
+                        new RtpsTalkConfiguration.Builder().build(),
+                        false,
+                        List.of(
+                                "service_startup.template",
+                                "spdp_close.template",
+                                "service_startup_ports_default.template",
+                                "topic_manager.template"),
+                        List.of(),
+                        Map.of(
+                                FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                "VOLATILE_DURABILITY_QOS")));
     }
 
     @ParameterizedTest
@@ -148,7 +169,7 @@ public class RtpsTalkClientTests {
 
         XProcess proc = null;
         if (!testCase.isSubscribeToFutureTopic) {
-            proc = tools.runHelloWorldPublisher();
+            proc = tools.runHelloWorldPublisher(testCase.publisherParameters());
             // subscribe to dummy topic to cause client to start all services
             // that way client will discover HelloWorldPublisher topic but not subscribe to it yet
             client.subscribe("topic", "type", new SimpleSubscriber<byte[]>());
@@ -160,7 +181,8 @@ public class RtpsTalkClientTests {
                             .toMillis());
         }
         client.subscribe("HelloWorldTopic", "HelloWorld", printer);
-        if (testCase.isSubscribeToFutureTopic) proc = tools.runHelloWorldPublisher();
+        if (testCase.isSubscribeToFutureTopic)
+            proc = tools.runHelloWorldPublisher(testCase.publisherParameters());
 
         var dataReceived = future.get().toString();
         client.close();

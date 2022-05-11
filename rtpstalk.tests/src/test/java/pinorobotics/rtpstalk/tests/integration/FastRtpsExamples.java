@@ -17,10 +17,14 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
+import static java.util.stream.Collectors.toMap;
+
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /** @author lambdaprime intid@protonmail.com */
 public class FastRtpsExamples implements AutoCloseable {
@@ -28,7 +32,16 @@ public class FastRtpsExamples implements AutoCloseable {
     private List<XProcess> procs = new ArrayList<>();
 
     public XProcess runHelloWorldPublisher() {
-        var proc = new XExec("HelloWorldExample publisher").run();
+        return runHelloWorldPublisher(Map.of());
+    }
+
+    public XProcess runHelloWorldPublisher(Map<FastRtpsEnvironmentVariable, String> env) {
+        var variables =
+                env.entrySet().stream()
+                        .map(e -> Map.entry(e.getKey().getVariableName(), e.getValue()))
+                        .collect(toMap(Entry::getKey, Entry::getValue));
+        var proc =
+                new XExec("HelloWorldExample publisher").withEnvironmentVariables(variables).run();
         procs.add(proc);
         // When process writes to stdout it may get blocked until somebody
         // starts reading it. To avoid that we start reading immediately.
