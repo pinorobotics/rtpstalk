@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.messages;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId.Predefined;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -34,6 +35,10 @@ public class Guid {
     public Guid(GuidPrefix guidPrefix, EntityId entityId) {
         this.guidPrefix = guidPrefix;
         this.entityId = entityId;
+    }
+
+    public Guid(GuidPrefix guidPrefix, Predefined predefinedEntityId) {
+        this(guidPrefix, predefinedEntityId.getValue());
     }
 
     @Override

@@ -22,10 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Flow.Subscription;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.tests.TestConstants;
@@ -67,9 +69,24 @@ public class UserDataServiceTest {
                             throw new RuntimeException(throwable);
                         }
                     };
-            service.subscribe(EntityId.Predefined.ENTITYID_PARTICIPANT.getValue(), subscriber);
-            service.subscribe(EntityId.Predefined.ENTITYID_PARTICIPANT.getValue(), subscriber);
-            service.subscribe(EntityId.Predefined.ENTITYID_PARTICIPANT.getValue(), subscriber);
+            service.subscribe(
+                    List.of(),
+                    new Guid(
+                            TestConstants.TEST_REMOTE_GUID_PREFIX,
+                            EntityId.Predefined.ENTITYID_PARTICIPANT),
+                    subscriber);
+            service.subscribe(
+                    List.of(),
+                    new Guid(
+                            TestConstants.TEST_REMOTE_GUID_PREFIX,
+                            EntityId.Predefined.ENTITYID_PARTICIPANT),
+                    subscriber);
+            service.subscribe(
+                    List.of(),
+                    new Guid(
+                            TestConstants.TEST_REMOTE_GUID_PREFIX,
+                            EntityId.Predefined.ENTITYID_PARTICIPANT),
+                    subscriber);
             assertEquals(1, counters[0]);
             assertEquals(0, counters[1]);
             assertEquals(1, dataFactory.getReaders().get(0).getSubscribeCount());

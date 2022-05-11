@@ -66,8 +66,12 @@ public class RtpsTalkClientTests {
         tools.close();
     }
 
-    record TestCase(RtpsTalkConfiguration config, boolean isSubscribeToFutureTopic, List<String> templates, List<Runnable> validators) {}
-    
+    record TestCase(
+            RtpsTalkConfiguration config,
+            boolean isSubscribeToFutureTopic,
+            List<String> templates,
+            List<Runnable> validators) {}
+
     static Stream<TestCase> dataProvider() {
         return Stream.of(
                 // 1
@@ -77,10 +81,12 @@ public class RtpsTalkClientTests {
                                 .userEndpointsPort(8081)
                                 .build(),
                         true,
-                        List.of("service_startup.template",
-                        "spdp_close.template",
-                        "service_startup_ports_8080_8081.template",
-                        "topic_manager_future_topic.template"), List.of()),
+                        List.of(
+                                "service_startup.template",
+                                "spdp_close.template",
+                                "service_startup_ports_8080_8081.template",
+                                "topic_manager_future_topic.template"),
+                        List.of()),
                 // 2
                 new TestCase(
                         new RtpsTalkConfiguration.Builder()
@@ -88,28 +94,34 @@ public class RtpsTalkClientTests {
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        List.of("service_startup.template",
-                        "spdp_close.template",
-                        "service_startup_ports_8080_8081.template",
-                        "topic_manager.template"), List.of()),
+                        List.of(
+                                "service_startup.template",
+                                "spdp_close.template",
+                                "service_startup_ports_8080_8081.template",
+                                "topic_manager.template"),
+                        List.of()),
                 // 3
                 new TestCase(
                         new RtpsTalkConfiguration.Builder()
-                        .networkInterface("lo")
+                                .networkInterface("lo")
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        List.of("service_startup_loopback_iface.template",
-                        "topic_manager.template"), List.of(RtpsTalkClientTests::validateSpdpLoopbackIface)),
+                        List.of(
+                                "service_startup_loopback_iface.template",
+                                "topic_manager.template"),
+                        List.of(RtpsTalkClientTests::validateSpdpLoopbackIface)),
                 // 4
                 new TestCase(
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
-                        List.of("service_startup.template",
-                        "spdp_close.template",
-                        "service_startup_ports_default.template",
-                        "topic_manager.template"), List.of()));
+                        List.of(
+                                "service_startup.template",
+                                "spdp_close.template",
+                                "service_startup_ports_default.template",
+                                "topic_manager.template"),
+                        List.of()));
     }
 
     @ParameterizedTest
@@ -164,9 +176,12 @@ public class RtpsTalkClientTests {
         XAsserts.assertMatches(
                 resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
-        
-        testCase.templates.forEach(resourceName -> XAsserts.assertMatches(
-                    resourceUtils.readResource(RtpsTalkClientTests.class, resourceName), log));
+
+        testCase.templates.forEach(
+                resourceName ->
+                        XAsserts.assertMatches(
+                                resourceUtils.readResource(RtpsTalkClientTests.class, resourceName),
+                                log));
         testCase.validators.forEach(Runnable::run);
     }
 
@@ -198,7 +213,7 @@ public class RtpsTalkClientTests {
                 resourceUtils.readResourceAsList(RtpsTalkClientTests.class, "sedp_close.TEMPLATES"),
                 log);
     }
-    
+
     private static void validateSpdpLoopbackIface() {
         var log = LogUtils.readLogFile();
         Assertions.assertTrue(log.contains("Starting SPDP service on lo"));

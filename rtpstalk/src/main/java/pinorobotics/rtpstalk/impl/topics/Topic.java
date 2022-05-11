@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 
 /**
@@ -32,9 +33,11 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
  */
 public class Topic extends XObservable<SubscribeEvent> {
 
+    private record TopicPublisher(Locator writerUnicastLocator, Guid endpointGuid) {}
+
     private String name;
     private String type;
-    private List<Guid> discoveredPublishers = new ArrayList<>();
+    private List<TopicPublisher> discoveredPublishers = new ArrayList<>();
     private List<Subscriber<RawData>> applicationSubscribers = new ArrayList<>();
 
     public Topic(String name, String type) {
@@ -42,15 +45,25 @@ public class Topic extends XObservable<SubscribeEvent> {
         this.type = type;
     }
 
-    public void addPublisher(Guid endpointGuid) {
+    public void addPublisher(Locator writerUnicastLocator, Guid endpointGuid) {
         applicationSubscribers.stream()
-                .forEach(subscriber -> updateAll(new SubscribeEvent(endpointGuid, subscriber)));
-        discoveredPublishers.add(endpointGuid);
+                .forEach(
+                        subscriber ->
+                                updateAll(
+                                        new SubscribeEvent(
+                                                writerUnicastLocator, endpointGuid, subscriber)));
+        discoveredPublishers.add(new TopicPublisher(writerUnicastLocator, endpointGuid));
     }
 
     public void addSubscriber(Subscriber<RawData> subscriber) {
         discoveredPublishers.stream()
-                .forEach(guid -> updateAll(new SubscribeEvent(guid, subscriber)));
+                .forEach(
+                        publisher ->
+                                updateAll(
+                                        new SubscribeEvent(
+                                                publisher.writerUnicastLocator,
+                                                publisher.endpointGuid,
+                                                subscriber)));
         applicationSubscribers.add(subscriber);
     }
 

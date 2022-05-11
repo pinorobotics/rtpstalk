@@ -15,28 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.topics;
+package pinorobotics.rtpstalk.impl.utils;
 
-import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 
-/**
- * This event is triggered when there is a match between one of:
- *
- * <ul>
- *   <li>available remote topic publishers in the network and
- *   <li>user topic subscriber
- * </ul>
- *
- * @author aeon_flux aeon_flux@eclipso.ch
- */
-public record SubscribeEvent(
-        Locator writerUnicastLocator, Guid topicEndpointGuid, Subscriber<RawData> subscriber) {
+/** @author aeon_flux aeon_flux@eclipso.ch */
+public class GuidUtils {
 
-    @Override
-    public String toString() {
-        return topicEndpointGuid.toString();
+    public EntityId readerEntityId(Guid guid) {
+        return new EntityId(guid.entityId.entityKey, EntityKind.READER_NO_KEY);
     }
 }

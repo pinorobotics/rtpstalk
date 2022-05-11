@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
@@ -29,11 +30,11 @@ import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.utils.GuidUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -56,6 +57,7 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
     private RtpsNetworkInterface networkIface;
     private StatefullRtpsWriter<ParameterList> subscriptionsWriter;
     private UserDataService userService;
+    private GuidUtils guidUtils = new GuidUtils();
 
     public TopicPublicationsManager(
             TracingToken tracingToken,
@@ -96,13 +98,24 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
     @Override
     public void onNext(ParameterList pl) {
         var pubTopic = (String) pl.getParameters().get(ParameterId.PID_TOPIC_NAME);
+        Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
         var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
+        Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
+        var participantGuid = (Guid) pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
+        Preconditions.notNull(pubType, "Received subscription without PID_PARTICIPANT_GUID");
         var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
+        Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
+        var pubUnicastLocator = (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
+        Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
+        Preconditions.equals(
+                participantGuid.guidPrefix,
+                pubEndpointGuid.guidPrefix,
+                "Guid prefix missmatch for topic " + pubTopic);
         logger.fine(
                 "Discovered publisher for topic {0} type {1} with endpoint {2}",
                 pubTopic, pubType, pubEndpointGuid);
         var topic = createTopicIfMissing(pubTopic, pubType);
-        topic.addPublisher(pubEndpointGuid);
+        topic.addPublisher(pubUnicastLocator, pubEndpointGuid);
         subscription.request(1);
     }
 
@@ -111,17 +124,16 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
         topic.addListener(
                 subEvent -> {
                     logger.fine("New subscribe event {0}", subEvent);
-                    var entityId =
-                            new EntityId(
-                                    subEvent.endpointGuid().entityId.entityKey,
-                                    EntityKind.READER_NO_KEY);
                     subscriptionsWriter.newChange(
                             createSubscriptionData(
                                     topicName,
                                     topicType,
-                                    entityId,
+                                    guidUtils.readerEntityId(subEvent.topicEndpointGuid()),
                                     networkIface.getLocalDefaultUnicastLocator()));
-                    userService.subscribe(entityId, subEvent.subscriber());
+                    userService.subscribe(
+                            List.of(subEvent.writerUnicastLocator()),
+                            subEvent.topicEndpointGuid(),
+                            subEvent.subscriber());
                 });
         return topic;
     }

@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
@@ -29,6 +30,9 @@ import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.utils.GuidUtils;
+import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -49,6 +53,7 @@ public class UserDataService implements AutoCloseable {
     private TracingToken tracingToken;
     private DataObjectsFactory dataObjectsFactory;
     private RtpsMessageReceiverFactory receiverFactory;
+    private GuidUtils guidUtils = new GuidUtils();
 
     public UserDataService(
             RtpsTalkConfiguration config,
@@ -61,14 +66,19 @@ public class UserDataService implements AutoCloseable {
         this.receiverFactory = receiverFactory;
     }
 
-    public void subscribe(EntityId entityId, Subscriber<RawData> subscriber) {
+    public void subscribe(
+            List<Locator> remoteWriterDefaultUnicastLocators,
+            Guid remoteWriterEndpointGuid,
+            Subscriber<RawData> subscriber) {
         Preconditions.isTrue(isStarted, "User data service is not started");
+        var readerEntityId = guidUtils.readerEntityId(remoteWriterEndpointGuid);
         var reader =
                 readers.computeIfAbsent(
-                        entityId,
+                        readerEntityId,
                         eid ->
                                 dataObjectsFactory.newDataReader(
                                         config, tracingToken, operatingEntities, eid));
+        reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
         if (!reader.isSubscribed(subscriber)) reader.subscribe(subscriber);
         if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
