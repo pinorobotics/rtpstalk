@@ -25,7 +25,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * Uniquely identifies the Entity within the Participant
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class EntityId {
 
     public static final int SIZE = 3;

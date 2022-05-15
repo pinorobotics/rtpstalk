@@ -19,65 +19,60 @@ package pinorobotics.rtpstalk.structure;
 
 import id.xfunction.logging.XLogger;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class HistoryCache<D extends Payload> implements Iterable<CacheChange<D>> {
+public class HistoryCache<D extends Payload> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
-    private long seqNumMin = SequenceNumber.MIN.value;
-    private long seqNumMax = SequenceNumber.MIN.value;
 
-    /** The list of CacheChanges contained in the HistoryCache. */
-    private Map<Long, CacheChange<D>> changes = new LinkedHashMap<>();
+    /**
+     * The list of CacheChanges contained in the HistoryCache (see "8.2.2 The RTPS HistoryCache")
+     *
+     * <p>For Writers there is only one Writer which is adding changes to cache so there is only one
+     * {@link Guid} which is {@link Guid} of the writer to which this cache belongs.
+     *
+     * <p>For Readers we need to keep track of changes per each matched Writer. One reason for that
+     * is to tell matched Writers what changes are lost.
+     */
+    private Map<Guid, WriterChanges<D>> changes = new HashMap<>();
 
     /** @return true if this is a new change and it was added */
     public boolean addChange(CacheChange<D> change) {
-        boolean firstChange = changes.isEmpty();
-        if (changes.containsKey(change.getSequenceNumber())) {
+        var writerChanges = changes.get(change.getWriterGuid());
+        if (writerChanges != null && writerChanges.containsChange(change.getSequenceNumber())) {
             LOGGER.fine("Change already present in the cache, ignoring...");
             return false;
         }
-        changes.put(change.getSequenceNumber(), change);
-        updateSeqNums(change.getSequenceNumber(), firstChange);
+        if (writerChanges == null) {
+            writerChanges = new WriterChanges<>();
+            changes.put(change.getWriterGuid(), writerChanges);
+        }
+        writerChanges.addChange(change);
         LOGGER.fine("New change added into the cache");
         return true;
     }
 
-    private void updateSeqNums(long seqNum, boolean firstChange) {
-        if (firstChange) {
-            seqNumMin = seqNumMax = seqNum;
-        } else {
-            if (seqNumMin > seqNum) {
-                LOGGER.fine("Updating minimum sequence number");
-                seqNumMin = seqNum;
-            }
-            if (seqNumMax < seqNum) {
-                LOGGER.fine("Updating maximum sequence number");
-                seqNumMax = seqNum;
-            }
-        }
+    public Stream<CacheChange<D>> findAll(Guid writerGuid, Collection<Long> seqNums) {
+        var writerChanges = changes.get(writerGuid);
+        if (writerChanges == null) return Stream.of();
+        return writerChanges.findAll(seqNums);
     }
 
-    public long getSeqNumMin() {
-        return seqNumMin;
+    public long getSeqNumMin(Guid guid) {
+        var writerChanges = changes.get(guid);
+        if (writerChanges == null) return SequenceNumber.MIN.value;
+        return writerChanges.getSeqNumMin();
     }
 
-    public long getSeqNumMax() {
-        return seqNumMax;
-    }
-
-    @Override
-    public Iterator<CacheChange<D>> iterator() {
-        return changes.values().iterator();
-    }
-
-    public Stream<CacheChange<D>> findAll(Collection<Long> seqNums) {
-        return seqNums.stream().map(changes::get).filter(change -> change != null);
+    public long getSeqNumMax(Guid guid) {
+        var writerChanges = changes.get(guid);
+        if (writerChanges == null) return SequenceNumber.MIN.value;
+        return writerChanges.getSeqNumMax();
     }
 }

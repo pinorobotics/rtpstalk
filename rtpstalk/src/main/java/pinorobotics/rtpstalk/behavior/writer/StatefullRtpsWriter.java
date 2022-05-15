@@ -148,12 +148,12 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     }
 
     private void sendHeartbeat() {
-        var seqNumMin = historyCache.getSeqNumMin();
+        var seqNumMin = historyCache.getSeqNumMin(getGuid());
         if (seqNumMin <= 0) {
             logger.fine("Skipping heartbeat since history cache is empty");
             return;
         }
-        var seqNumMax = historyCache.getSeqNumMax();
+        var seqNumMax = historyCache.getSeqNumMax(getGuid());
         Preconditions.isLess(0, seqNumMax, "Negative sequence number");
         var heartbeat =
                 new RtpsHeartbeatMessageBuilder(
@@ -171,7 +171,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         if (requestedChanges.isEmpty()) return;
         var builder = new RtpsDataMessageBuilder(getGuid().guidPrefix);
         historyCache
-                .findAll(requestedChanges)
+                .findAll(getGuid(), requestedChanges)
                 .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));
         if (!builder.hasData()) return;
         // all interested ReaderProxy subscribed to this writer
