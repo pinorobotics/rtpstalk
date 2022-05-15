@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.integration;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public enum FastRtpsEnvironmentVariable {
+    TopicName,
     DurabilityQosPolicyKind;
 
     public String getVariableName() {

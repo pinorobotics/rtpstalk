@@ -64,4 +64,9 @@ public class FastRtpsExamples implements AutoCloseable {
         procs.add(proc);
         return proc;
     }
+
+    public XProcess runHelloWorldPublisher(
+            Map<FastRtpsEnvironmentVariable, String> publisherParameters, int numberOfPublishers) {
+        return null;
+    }
 }
