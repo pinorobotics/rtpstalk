@@ -34,7 +34,7 @@ import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.walk.Result;
-import pinorobotics.rtpstalk.structure.CacheChange;
+import pinorobotics.rtpstalk.structure.history.CacheChange;
 
 /**
  * Reliable Statefull RTPS reader.

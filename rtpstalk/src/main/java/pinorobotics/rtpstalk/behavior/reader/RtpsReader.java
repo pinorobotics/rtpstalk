@@ -38,9 +38,9 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.walk.Result;
 import pinorobotics.rtpstalk.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.messages.walk.RtpsSubmessagesWalker;
-import pinorobotics.rtpstalk.structure.CacheChange;
-import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
+import pinorobotics.rtpstalk.structure.history.CacheChange;
+import pinorobotics.rtpstalk.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 
 /**

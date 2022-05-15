@@ -32,7 +32,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.structure.CacheChange;
+import pinorobotics.rtpstalk.structure.history.CacheChange;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {

@@ -38,8 +38,8 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.structure.CacheChange;
-import pinorobotics.rtpstalk.structure.HistoryCache;
+import pinorobotics.rtpstalk.structure.history.CacheChange;
+import pinorobotics.rtpstalk.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 

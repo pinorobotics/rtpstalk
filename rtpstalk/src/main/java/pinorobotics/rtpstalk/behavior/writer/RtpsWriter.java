@@ -32,8 +32,8 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.structure.HistoryCache;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
+import pinorobotics.rtpstalk.structure.history.HistoryCache;
 
 /**
  * This writer does not cache changes in {@link HistoryCache} and sends them to readers directly
