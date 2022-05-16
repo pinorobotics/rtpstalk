@@ -34,6 +34,7 @@ import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
@@ -44,6 +45,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 public interface TestConstants {
 
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
+    EntityId TEST_READER_ENTITY_ID = new EntityId(1, EntityKind.READER_NO_KEY);
     RtpsTalkConfiguration.Builder TEST_CONFIG_BUILDER =
             new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX);
     RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_BUILDER.build();

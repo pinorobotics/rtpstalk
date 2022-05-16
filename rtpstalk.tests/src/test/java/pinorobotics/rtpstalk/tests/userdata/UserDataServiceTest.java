@@ -69,19 +69,22 @@ public class UserDataServiceTest {
                             throw new RuntimeException(throwable);
                         }
                     };
-            service.subscribe(
+            service.subscribeToRemoteWriter(
+                    TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
                     subscriber);
-            service.subscribe(
+            service.subscribeToRemoteWriter(
+                    TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
                     subscriber);
-            service.subscribe(
+            service.subscribeToRemoteWriter(
+                    TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -35,14 +36,12 @@ public class Topic extends XObservable<SubscribeEvent> {
 
     private record TopicPublisher(Locator writerUnicastLocator, Guid endpointGuid) {}
 
-    private String name;
-    private String type;
+    private TopicId topicId;
     private List<TopicPublisher> discoveredPublishers = new ArrayList<>();
     private List<Subscriber<RawData>> applicationSubscribers = new ArrayList<>();
 
-    public Topic(String name, String type) {
-        this.name = name;
-        this.type = type;
+    public Topic(TopicId topicId) {
+        this.topicId = topicId;
     }
 
     public void addPublisher(Locator writerUnicastLocator, Guid endpointGuid) {
@@ -67,15 +66,11 @@ public class Topic extends XObservable<SubscribeEvent> {
         applicationSubscribers.add(subscriber);
     }
 
-    public String getName() {
-        return name;
+    public boolean isMatches(TopicId topicId) {
+        return Objects.equals(this.topicId, topicId);
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public boolean isMatches(String name, String type) {
-        return Objects.equals(this.name, name) && Objects.equals(this.type, type);
+    public TopicId getTopicId() {
+        return topicId;
     }
 }

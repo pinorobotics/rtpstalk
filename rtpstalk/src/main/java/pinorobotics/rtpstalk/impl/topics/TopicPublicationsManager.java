@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.utils.GuidUtils;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -72,20 +73,16 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
-    public void addSubscriber(String topicName, String topicType, Subscriber<RawData> subscriber) {
-        logger.fine("Adding subscriber for topic {0} type {1}", topicName, topicType);
-        var topic = createTopicIfMissing(topicName, topicType);
+    public void addSubscriber(TopicId topicId, Subscriber<RawData> subscriber) {
+        logger.fine("Adding subscriber for topic id {0}", topicId);
+        var topic = createTopicIfMissing(topicId);
         topic.addSubscriber(subscriber);
     }
 
-    private Topic createTopicIfMissing(String topicName, String topicType) {
-        var topic =
-                topics.stream()
-                        .filter(t -> t.isMatches(topicName, topicType))
-                        .findAny()
-                        .orElse(null);
+    private Topic createTopicIfMissing(TopicId topicId) {
+        var topic = topics.stream().filter(t -> t.isMatches(topicId)).findAny().orElse(null);
         if (topic == null) {
-            topic = newTopic(topicName, topicType);
+            topic = newTopic(topicId);
             topics.add(topic);
         }
         return topic;
@@ -114,23 +111,31 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
         logger.fine(
                 "Discovered publisher for topic {0} type {1} with endpoint {2}",
                 pubTopic, pubType, pubEndpointGuid);
-        var topic = createTopicIfMissing(pubTopic, pubType);
+        var topic = createTopicIfMissing(new TopicId(pubTopic, pubType));
         topic.addPublisher(pubUnicastLocator, pubEndpointGuid);
         subscription.request(1);
     }
 
-    private Topic newTopic(String topicName, String topicType) {
-        var topic = new Topic(topicName, topicType);
+    private Topic newTopic(TopicId topicId) {
+        var topic = new Topic(topicId);
         topic.addListener(
                 subEvent -> {
-                    logger.fine("New subscribe event {0}", subEvent);
+                    logger.fine("New subscribe event for topic id {0}: {1}", topicId, subEvent);
+                    var operatingEntities = networkIface.getOperatingEntities();
+                    var readerEntityId =
+                            operatingEntities
+                                    .findReaderEntityId(topic.getTopicId())
+                                    .orElseGet(
+                                            () ->
+                                                    operatingEntities.assignNewReaderEntityId(
+                                                            topicId));
                     subscriptionsWriter.newChange(
                             createSubscriptionData(
-                                    topicName,
-                                    topicType,
-                                    guidUtils.readerEntityId(subEvent.topicEndpointGuid()),
+                                    topicId,
+                                    readerEntityId,
                                     networkIface.getLocalDefaultUnicastLocator()));
-                    userService.subscribe(
+                    userService.subscribeToRemoteWriter(
+                            readerEntityId,
                             List.of(subEvent.writerUnicastLocator()),
                             subEvent.topicEndpointGuid(),
                             subEvent.subscriber());
@@ -139,17 +144,17 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
     }
 
     private ParameterList createSubscriptionData(
-            String topicName, String typeName, EntityId entityId, Locator defaultUnicastLocator) {
+            TopicId topicId, EntityId readerEntityId, Locator defaultUnicastLocator) {
         var params =
                 List.<Entry<ParameterId, Object>>of(
                         Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
                         Map.entry(
                                 ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicName),
-                        Map.entry(ParameterId.PID_TYPE_NAME, typeName),
+                        Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
+                        Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
                         Map.entry(
                                 ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.guidPrefix(), entityId)),
+                                new Guid(config.guidPrefix(), readerEntityId)),
                         Map.entry(
                                 ParameterId.PID_PROTOCOL_VERSION,
                                 ProtocolVersion.Predefined.Version_2_3.getValue()),

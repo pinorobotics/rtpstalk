@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.messages.Duration;
@@ -146,7 +147,9 @@ public class RtpsServiceManager implements AutoCloseable {
         var merge = new MergeProcessor<RawData>();
         merge.subscribe(subscriber);
         topicManagers.forEach(
-                topicManager -> topicManager.addSubscriber(topic, type, merge.newSubscriber()));
+                topicManager ->
+                        topicManager.addSubscriber(
+                                new TopicId(topic, type), merge.newSubscriber()));
     }
 
     public void publish(String topic, String type, Publisher<RawData> publisher) {

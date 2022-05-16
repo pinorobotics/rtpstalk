@@ -108,7 +108,7 @@ public class RtpsTalkClientSubscribeTests {
                         Map.of()),
                 // 4
                 new TestCase(
-                        1,
+                        12,
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
                         List.of(

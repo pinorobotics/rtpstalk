@@ -18,28 +18,34 @@
 package pinorobotics.rtpstalk.behavior;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.XLogger;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.userdata.DataWriter;
 
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
+    private static final XLogger LOGGER = XLogger.getLogger(OperatingEntities.class);
     private Map<EntityId, StatefullRtpsWriter<?>> writers = new ConcurrentHashMap<>();
     private Map<EntityId, StatefullRtpsReader<?>> readers = new ConcurrentHashMap<>();
     private Map<String, DataWriter> topicNameToWriter = new ConcurrentHashMap<>();
+    private Map<TopicId, EntityId> readerEntityIds = new ConcurrentHashMap<>();
+    private int readerEntityIdCounter;
 
-    public void add(EntityId entityId, StatefullRtpsWriter<?> writer) {
+    public synchronized void add(EntityId entityId, StatefullRtpsWriter<?> writer) {
         Preconditions.isTrue(
                 !writers.containsKey(entityId), "Writer " + entityId + " already present");
         writers.put(entityId, writer);
     }
 
-    public void add(EntityId entityId, StatefullRtpsReader<?> reader) {
+    public synchronized void add(EntityId entityId, StatefullRtpsReader<?> reader) {
         Preconditions.isTrue(
                 !readers.containsKey(entityId), "Reader " + entityId + " already present");
         readers.put(entityId, reader);
@@ -63,5 +69,19 @@ public class OperatingEntities {
 
     public Optional<DataWriter> findWriter(String topicName) {
         return Optional.ofNullable(topicNameToWriter.get(topicName));
+    }
+
+    public Optional<EntityId> findReaderEntityId(TopicId topicId) {
+        return Optional.ofNullable(readerEntityIds.get(topicId));
+    }
+
+    public synchronized EntityId assignNewReaderEntityId(TopicId topicId) {
+        var entityId = readerEntityIds.get(topicId);
+        if (entityId == null) {
+            entityId = new EntityId(readerEntityIdCounter++, EntityKind.READER_NO_KEY);
+            LOGGER.fine("Assigning new reader entity id {0} to the topic {1}", entityId, topicId);
+            readerEntityIds.put(topicId, entityId);
+        }
+        return entityId;
     }
 }

@@ -30,7 +30,6 @@ import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.impl.utils.GuidUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -53,7 +52,6 @@ public class UserDataService implements AutoCloseable {
     private TracingToken tracingToken;
     private DataObjectsFactory dataObjectsFactory;
     private RtpsMessageReceiverFactory receiverFactory;
-    private GuidUtils guidUtils = new GuidUtils();
 
     public UserDataService(
             RtpsTalkConfiguration config,
@@ -66,12 +64,12 @@ public class UserDataService implements AutoCloseable {
         this.receiverFactory = receiverFactory;
     }
 
-    public void subscribe(
+    public void subscribeToRemoteWriter(
+            EntityId readerEntityId,
             List<Locator> remoteWriterDefaultUnicastLocators,
             Guid remoteWriterEndpointGuid,
             Subscriber<RawData> subscriber) {
         Preconditions.isTrue(isStarted, "User data service is not started");
-        var readerEntityId = guidUtils.readerEntityId(remoteWriterEndpointGuid);
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,
