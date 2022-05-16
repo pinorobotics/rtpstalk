@@ -75,7 +75,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
                                 "topic_manager_future_topic.template"),
-                        List.of(),
+                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 2
                 new TestCase(
@@ -90,7 +90,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
                                 "topic_manager.template"),
-                        List.of(),
+                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 3
                 new TestCase(
@@ -104,7 +104,9 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_startup_loopback_iface.template",
                                 "topic_manager.template"),
-                        List.of(RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
+                        List.of(
+                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
                         Map.of()),
                 // 4
                 new TestCase(
@@ -115,7 +117,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "service_startup.template",
                                 "spdp_close.template",
                                 "service_startup_ports_default.template"),
-                        List.of(),
+                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
                                 "TRANSIENT_LOCAL_DURABILITY_QOS")),
@@ -129,7 +131,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "spdp_close.template",
                                 "service_startup_ports_default.template",
                                 "topic_manager.template"),
-                        List.of(),
+                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
                                 "VOLATILE_DURABILITY_QOS")));
@@ -155,7 +157,7 @@ public class RtpsTalkClientPubSubPairsTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_publisher_subscriber_pairs(TestCase testCase) throws Exception {
+    public void test_subscriber_publisher_pairs(TestCase testCase) throws Exception {
         client = new RtpsTalkClient(testCase.config);
 
         List<String> topics =
@@ -211,11 +213,6 @@ public class RtpsTalkClientPubSubPairsTests {
                                         "HelloWorldExample_publisher"),
                                 proc.stdoutAsString()));
         var log = LogUtils.readLogFile();
-        XAsserts.assertMatches(
-                resourceUtils.readResourceAsList(
-                        RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES"),
-                log);
-
         testCase.templates.forEach(
                 resourceName ->
                         XAsserts.assertMatches(
@@ -223,6 +220,14 @@ public class RtpsTalkClientPubSubPairsTests {
                                         RtpsTalkClientPubSubPairsTests.class, resourceName),
                                 log));
         testCase.validators.forEach(Runnable::run);
+    }
+
+    private static void validateSedpClose() {
+        var log = LogUtils.readLogFile();
+        XAsserts.assertMatches(
+                resourceUtils.readResourceAsList(
+                        RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES"),
+                log);
     }
 
     private static void validateSpdpLoopbackIface() {
