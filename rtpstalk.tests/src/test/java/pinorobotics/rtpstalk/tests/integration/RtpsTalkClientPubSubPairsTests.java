@@ -46,7 +46,7 @@ import pinorobotics.rtpstalk.tests.XAsserts;
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsTalkClientSubscribeTests {
+public class RtpsTalkClientPubSubPairsTests {
 
     private static final ResourceUtils resourceUtils = new ResourceUtils();
     private FastRtpsExamples tools;
@@ -104,7 +104,7 @@ public class RtpsTalkClientSubscribeTests {
                         List.of(
                                 "service_startup_loopback_iface.template",
                                 "topic_manager.template"),
-                        List.of(RtpsTalkClientSubscribeTests::validateSpdpLoopbackIface),
+                        List.of(RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
                         Map.of()),
                 // 4
                 new TestCase(
@@ -198,7 +198,7 @@ public class RtpsTalkClientSubscribeTests {
                             .collect(joining("\n"));
             Assertions.assertEquals(
                     resourceUtils.readResource(
-                            RtpsTalkClientSubscribeTests.class, "HelloWorldTopic"),
+                            RtpsTalkClientPubSubPairsTests.class, "HelloWorldTopic"),
                     dataReceived);
         }
 
@@ -207,20 +207,20 @@ public class RtpsTalkClientSubscribeTests {
                 proc ->
                         Assertions.assertEquals(
                                 resourceUtils.readResource(
-                                        RtpsTalkClientSubscribeTests.class,
+                                        RtpsTalkClientPubSubPairsTests.class,
                                         "HelloWorldExample_publisher"),
                                 proc.stdoutAsString()));
         var log = LogUtils.readLogFile();
         XAsserts.assertMatches(
                 resourceUtils.readResourceAsList(
-                        RtpsTalkClientSubscribeTests.class, "sedp_close.TEMPLATES"),
+                        RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES"),
                 log);
 
         testCase.templates.forEach(
                 resourceName ->
                         XAsserts.assertMatches(
                                 resourceUtils.readResource(
-                                        RtpsTalkClientSubscribeTests.class, resourceName),
+                                        RtpsTalkClientPubSubPairsTests.class, resourceName),
                                 log));
         testCase.validators.forEach(Runnable::run);
     }
