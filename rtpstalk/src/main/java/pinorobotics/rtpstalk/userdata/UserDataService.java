@@ -77,7 +77,12 @@ public class UserDataService implements AutoCloseable {
                                 dataObjectsFactory.newDataReader(
                                         config, tracingToken, operatingEntities, eid));
         reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
-        if (!reader.isSubscribed(subscriber)) reader.subscribe(subscriber);
+        // when user subscribes to topic we always create new instance of transformer subscriber
+        // which means that it is never subscribed before and so this condition should be true
+        Preconditions.isTrue(
+                !reader.isSubscribed(subscriber),
+                "Subscriber already subscribed to the reader with entity id " + readerEntityId);
+        reader.subscribe(subscriber);
         if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
 
@@ -87,17 +92,18 @@ public class UserDataService implements AutoCloseable {
             EntityId readerEntityId,
             Publisher<RawData> publisher) {
         Preconditions.isTrue(isStarted, "User data service is not started");
+        Preconditions.isTrue(
+                !writers.containsKey(writerEntityId),
+                "Publisher for entity id " + writerEntityId + " already exist");
         var writer =
-                writers.computeIfAbsent(
+                dataObjectsFactory.newDataWriter(
+                        config,
+                        tracingToken,
+                        channelFactory,
+                        operatingEntities,
                         writerEntityId,
-                        eid ->
-                                dataObjectsFactory.newDataWriter(
-                                        config,
-                                        tracingToken,
-                                        channelFactory,
-                                        operatingEntities,
-                                        writerEntityId,
-                                        topic));
+                        topic);
+        writers.put(writerEntityId, writer);
         publisher.subscribe(writer);
         // to process ackNacks we create readers
         var reader =
@@ -106,7 +112,7 @@ public class UserDataService implements AutoCloseable {
                         eid ->
                                 dataObjectsFactory.newDataReader(
                                         config, tracingToken, operatingEntities, eid));
-        receiver.subscribe(reader);
+        if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
 
     public void start(TracingToken token, RtpsNetworkInterface iface) throws IOException {

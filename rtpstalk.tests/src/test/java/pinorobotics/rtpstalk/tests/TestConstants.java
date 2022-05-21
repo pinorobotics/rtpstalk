@@ -46,6 +46,7 @@ public interface TestConstants {
 
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
     EntityId TEST_READER_ENTITY_ID = new EntityId(1, EntityKind.READER_NO_KEY);
+    EntityId TEST_WRITER_ENTITY_ID = new EntityId(2, EntityKind.WRITER_NO_KEY);
     RtpsTalkConfiguration.Builder TEST_CONFIG_BUILDER =
             new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX);
     RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_BUILDER.build();

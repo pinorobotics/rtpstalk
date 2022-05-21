@@ -18,19 +18,24 @@
 package pinorobotics.rtpstalk.tests.userdata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import id.xfunction.PreconditionException;
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.TestRtpsNetworkInterface;
 import pinorobotics.rtpstalk.tests.discovery.spdp.TestDataChannelFactory;
 import pinorobotics.rtpstalk.tests.transport.TestRtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.userdata.UserDataService;
@@ -45,7 +50,7 @@ public class UserDataServiceTest {
                     .build();
 
     @Test
-    public void test_subscribe_only_once() throws IOException {
+    public void test_subscribe() throws IOException {
         var dataFactory = new TestDataObjectsFactory(true);
         var receiverFactory = new TestRtpsMessageReceiverFactory();
         try (var service =
@@ -55,20 +60,27 @@ public class UserDataServiceTest {
                         dataFactory,
                         receiverFactory); ) {
             var counters = new int[2];
-            service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
-            var subscriber =
-                    new SimpleSubscriber<RawData>() {
-                        @Override
-                        public void onSubscribe(Subscription subscription) {
-                            counters[0]++;
-                        }
+            class MySubscriber extends SimpleSubscriber<RawData> {
+                @Override
+                public void onSubscribe(Subscription subscription) {
+                    counters[0]++;
+                }
 
-                        @Override
-                        public void onError(Throwable throwable) {
-                            counters[1]++;
-                            throw new RuntimeException(throwable);
-                        }
-                    };
+                @Override
+                public void onError(Throwable throwable) {
+                    counters[1]++;
+                    throw new RuntimeException(throwable);
+                }
+            }
+            service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
+            service.subscribeToRemoteWriter(
+                    TestConstants.TEST_READER_ENTITY_ID,
+                    List.of(),
+                    new Guid(
+                            TestConstants.TEST_REMOTE_GUID_PREFIX,
+                            EntityId.Predefined.ENTITYID_PARTICIPANT),
+                    new MySubscriber());
+            var subscriber = new MySubscriber();
             service.subscribeToRemoteWriter(
                     TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),
@@ -76,23 +88,53 @@ public class UserDataServiceTest {
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
                     subscriber);
-            service.subscribeToRemoteWriter(
-                    TestConstants.TEST_READER_ENTITY_ID,
-                    List.of(),
-                    new Guid(
-                            TestConstants.TEST_REMOTE_GUID_PREFIX,
-                            EntityId.Predefined.ENTITYID_PARTICIPANT),
-                    subscriber);
-            service.subscribeToRemoteWriter(
-                    TestConstants.TEST_READER_ENTITY_ID,
-                    List.of(),
-                    new Guid(
-                            TestConstants.TEST_REMOTE_GUID_PREFIX,
-                            EntityId.Predefined.ENTITYID_PARTICIPANT),
-                    subscriber);
-            assertEquals(1, counters[0]);
+            assertThrows(
+                    PreconditionException.class,
+                    () ->
+                            service.subscribeToRemoteWriter(
+                                    TestConstants.TEST_READER_ENTITY_ID,
+                                    List.of(),
+                                    new Guid(
+                                            TestConstants.TEST_REMOTE_GUID_PREFIX,
+                                            EntityId.Predefined.ENTITYID_PARTICIPANT),
+                                    subscriber));
+            assertEquals(2, counters[0]);
             assertEquals(0, counters[1]);
-            assertEquals(1, dataFactory.getReaders().get(0).getSubscribeCount());
+            assertEquals(2, dataFactory.getReaders().get(0).getSubscribeCount());
+            assertEquals(1, receiverFactory.getReceivers().get(0).getSubscribeCount());
+        }
+    }
+
+    @Test
+    public void test_publish() throws IOException {
+        var dataFactory = new TestDataObjectsFactory(true);
+        var receiverFactory = new TestRtpsMessageReceiverFactory();
+        try (var service =
+                new UserDataService(
+                        CONFIG,
+                        new TestDataChannelFactory(CONFIG),
+                        dataFactory,
+                        receiverFactory); ) {
+            service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
+            service.publish(
+                    "testTopic",
+                    new EntityId(1, EntityKind.WRITER_NO_KEY),
+                    TestConstants.TEST_READER_ENTITY_ID,
+                    new SubmissionPublisher<RawData>());
+            var writerEntityId = new EntityId(2, EntityKind.WRITER_NO_KEY);
+            service.publish(
+                    "testTopic",
+                    writerEntityId,
+                    TestConstants.TEST_READER_ENTITY_ID,
+                    new SubmissionPublisher<RawData>());
+            assertThrows(
+                    PreconditionException.class,
+                    () ->
+                            service.publish(
+                                    "testTopic",
+                                    writerEntityId,
+                                    TestConstants.TEST_READER_ENTITY_ID,
+                                    new SubmissionPublisher<RawData>()));
             assertEquals(1, receiverFactory.getReceivers().get(0).getSubscribeCount());
         }
     }
