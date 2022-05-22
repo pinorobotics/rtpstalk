@@ -75,7 +75,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
-        operatingEntities.add(writerEntiyId, this);
+        operatingEntities.getWriters().add(this);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Writer. */
@@ -142,7 +142,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
 
     @Override
     public void close() {
-        operatingEntities.remove(getGuid().entityId);
+        operatingEntities.getWriters().remove(getGuid().entityId);
         executor.shutdown();
         super.close();
     }

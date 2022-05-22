@@ -119,14 +119,10 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
         topic.addListener(
                 subEvent -> {
                     logger.fine("New subscribe event for topic id {0}: {1}", topicId, subEvent);
-                    var operatingEntities = networkIface.getOperatingEntities();
+                    var readers = networkIface.getOperatingEntities().getReaders();
                     var readerEntityId =
-                            operatingEntities
-                                    .findReaderEntityId(topic.getTopicId())
-                                    .orElseGet(
-                                            () ->
-                                                    operatingEntities.assignNewReaderEntityId(
-                                                            topicId));
+                            readers.findEntityId(topic.getTopicId())
+                                    .orElseGet(() -> readers.assignNewEntityId(topicId));
                     subscriptionsWriter.newChange(
                             createSubscriptionData(
                                     topicId,

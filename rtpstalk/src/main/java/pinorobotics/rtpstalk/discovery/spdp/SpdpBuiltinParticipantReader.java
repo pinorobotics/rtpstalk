@@ -101,7 +101,8 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
                                                 .getValue());
                         for (var pair : writersToReaders.entrySet()) {
                             operatingEntities
-                                    .findStatefullWriter(pair.getKey())
+                                    .getWriters()
+                                    .find(pair.getKey())
                                     .ifPresent(
                                             writer ->
                                                     writer.matchedReaderRemove(

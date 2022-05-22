@@ -65,7 +65,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
                 ReliabilityKind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
-        operatingEntities.add(getGuid().entityId, this);
+        operatingEntities.getReaders().add(this);
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
@@ -106,7 +106,8 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
         var readerProxyOpt =
                 operatingEntities
-                        .findStatefullWriter(ackNack.writerId)
+                        .getWriters()
+                        .find(ackNack.writerId)
                         .flatMap(
                                 writer ->
                                         writer.matchedReaderLookup(
