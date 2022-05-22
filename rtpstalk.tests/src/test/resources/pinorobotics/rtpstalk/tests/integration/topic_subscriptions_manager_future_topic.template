@@ -1,0 +1,4 @@
+*.TopicSubscriptionsManager#* - Adding subscriber for topic id { "name": "HelloWorldTopic0", "type": "HelloWorld" }
+*.TopicSubscriptionsManager#* - Discovered publisher for topic HelloWorldTopic0 type HelloWorld with endpoint { "guidPrefix": { "value": "*" }, "entityId": "00000001:03" }
+*.TopicSubscriptionsManager#* - New subscribe event for topic id { "name": "HelloWorldTopic0", "type": "HelloWorld" }: { "guidPrefix": { "value": "*" }, "entityId": "00000001:03" }
+*

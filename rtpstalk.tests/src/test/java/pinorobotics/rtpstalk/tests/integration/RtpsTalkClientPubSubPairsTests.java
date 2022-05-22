@@ -74,7 +74,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "service_startup.template",
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
-                                "topic_manager_future_topic.template"),
+                                "topic_subscriptions_manager_future_topic.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 2
@@ -89,7 +89,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "service_startup.template",
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template",
-                                "topic_manager.template"),
+                                "topic_subscriptions_manager.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 3
@@ -103,7 +103,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         false,
                         List.of(
                                 "service_startup_loopback_iface.template",
-                                "topic_manager.template"),
+                                "topic_subscriptions_manager.template"),
                         List.of(
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
                                 RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
@@ -130,7 +130,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "service_startup.template",
                                 "spdp_close.template",
                                 "service_startup_ports_default.template",
-                                "topic_manager.template"),
+                                "topic_subscriptions_manager.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,

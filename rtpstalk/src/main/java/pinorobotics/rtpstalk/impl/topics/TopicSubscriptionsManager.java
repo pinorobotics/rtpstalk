@@ -31,7 +31,6 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.impl.utils.GuidUtils;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -50,7 +49,7 @@ import pinorobotics.rtpstalk.userdata.UserDataService;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
+public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
 
     private XLogger logger;
     private List<Topic> topics = new ArrayList<>();
@@ -58,9 +57,8 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
     private RtpsNetworkInterface networkIface;
     private StatefullRtpsWriter<ParameterList> subscriptionsWriter;
     private UserDataService userService;
-    private GuidUtils guidUtils = new GuidUtils();
 
-    public TopicPublicationsManager(
+    public TopicSubscriptionsManager(
             TracingToken tracingToken,
             RtpsTalkConfiguration config,
             RtpsNetworkInterface networkIface,
@@ -75,14 +73,14 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
 
     public void addSubscriber(TopicId topicId, Subscriber<RawData> subscriber) {
         logger.fine("Adding subscriber for topic id {0}", topicId);
-        var topic = createTopicIfMissing(topicId);
+        var topic = createTopicSubscriptionIfMissing(topicId);
         topic.addSubscriber(subscriber);
     }
 
-    private Topic createTopicIfMissing(TopicId topicId) {
+    private Topic createTopicSubscriptionIfMissing(TopicId topicId) {
         var topic = topics.stream().filter(t -> t.isMatches(topicId)).findAny().orElse(null);
         if (topic == null) {
-            topic = newTopic(topicId);
+            topic = newTopicSubscription(topicId);
             topics.add(topic);
         }
         return topic;
@@ -111,12 +109,12 @@ public class TopicPublicationsManager extends SimpleSubscriber<ParameterList> {
         logger.fine(
                 "Discovered publisher for topic {0} type {1} with endpoint {2}",
                 pubTopic, pubType, pubEndpointGuid);
-        var topic = createTopicIfMissing(new TopicId(pubTopic, pubType));
+        var topic = createTopicSubscriptionIfMissing(new TopicId(pubTopic, pubType));
         topic.addPublisher(pubUnicastLocator, pubEndpointGuid);
         subscription.request(1);
     }
 
-    private Topic newTopic(TopicId topicId) {
+    private Topic newTopicSubscription(TopicId topicId) {
         var topic = new Topic(topicId);
         topic.addListener(
                 subEvent -> {

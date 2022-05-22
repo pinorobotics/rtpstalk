@@ -33,7 +33,7 @@ import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
+import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -65,7 +65,7 @@ public class RtpsServiceManager implements AutoCloseable {
     private List<SpdpService> spdpServices = new ArrayList<>();
     private List<SedpService> sedpServices = new ArrayList<>();
     private List<UserDataService> userServices = new ArrayList<>();
-    private List<TopicPublicationsManager> topicManagers = new ArrayList<>();
+    private List<TopicSubscriptionsManager> topicManagers = new ArrayList<>();
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
@@ -113,7 +113,7 @@ public class RtpsServiceManager implements AutoCloseable {
             userServices.add(userService);
 
             var topicManager =
-                    new TopicPublicationsManager(
+                    new TopicSubscriptionsManager(
                             tracingToken,
                             config,
                             rtpsIface,
