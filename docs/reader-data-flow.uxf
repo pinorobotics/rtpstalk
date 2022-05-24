@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>144</y>
+      <x>387</x>
+      <y>36</y>
       <w>90</w>
       <h>27</h>
     </coordinates>
@@ -17,8 +17,8 @@
   <element>
     <id>Text</id>
     <coordinates>
-      <x>990</x>
-      <y>261</y>
+      <x>738</x>
+      <y>153</y>
       <w>117</w>
       <h>27</h>
     </coordinates>
@@ -29,13 +29,13 @@ style=wordwrap</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>450</x>
-      <y>387</y>
+      <x>198</x>
+      <y>279</y>
       <w>468</w>
       <h>45</h>
     </coordinates>
     <panel_attributes>*Receiver*
-listens network port
+listens userendpoint port
 valign=center
 </panel_attributes>
     <additional_attributes/>
@@ -43,8 +43,8 @@ valign=center
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>675</x>
-      <y>162</y>
+      <x>423</x>
+      <y>54</y>
       <w>108</w>
       <h>243</h>
     </coordinates>
@@ -55,20 +55,21 @@ Data channel</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>495</x>
-      <y>423</y>
-      <w>72</w>
-      <h>126</h>
+      <x>243</x>
+      <y>315</y>
+      <w>117</w>
+      <h>216</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-m2=submit</panel_attributes>
-    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+m2=submit
+RTPS message</panel_attributes>
+    <additional_attributes>10.0;220.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>495</x>
-      <y>711</y>
+      <x>243</x>
+      <y>693</y>
       <w>45</w>
       <h>81</h>
     </coordinates>
@@ -79,8 +80,8 @@ yes</panel_attributes>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>486</x>
-      <y>684</y>
+      <x>234</x>
+      <y>666</y>
       <w>36</w>
       <h>36</h>
     </coordinates>
@@ -91,8 +92,8 @@ type=decision</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>531</y>
+      <x>207</x>
+      <y>513</y>
       <w>90</w>
       <h>36</h>
     </coordinates>
@@ -102,8 +103,8 @@ type=decision</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>495</x>
-      <y>558</y>
+      <x>243</x>
+      <y>540</y>
       <w>144</w>
       <h>144</h>
     </coordinates>
@@ -115,8 +116,8 @@ entity id matches?</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>774</y>
+      <x>207</x>
+      <y>756</y>
       <w>90</w>
       <h>27</h>
     </coordinates>
@@ -126,8 +127,8 @@ entity id matches?</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>405</x>
-      <y>495</y>
+      <x>153</x>
+      <y>477</y>
       <w>198</w>
       <h>387</h>
     </coordinates>
@@ -141,20 +142,21 @@ topic id 1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>846</x>
-      <y>423</y>
-      <w>72</w>
-      <h>126</h>
+      <x>594</x>
+      <y>315</y>
+      <w>117</w>
+      <h>216</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-m2=submit</panel_attributes>
-    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+m2=submit
+RTPS message</panel_attributes>
+    <additional_attributes>10.0;220.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>846</x>
-      <y>711</y>
+      <x>594</x>
+      <y>693</y>
       <w>45</w>
       <h>81</h>
     </coordinates>
@@ -165,8 +167,8 @@ yes</panel_attributes>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>837</x>
-      <y>684</y>
+      <x>585</x>
+      <y>666</y>
       <w>36</w>
       <h>36</h>
     </coordinates>
@@ -177,8 +179,8 @@ type=decision</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>810</x>
-      <y>531</y>
+      <x>558</x>
+      <y>513</y>
       <w>90</w>
       <h>36</h>
     </coordinates>
@@ -188,8 +190,8 @@ type=decision</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>846</x>
-      <y>558</y>
+      <x>594</x>
+      <y>540</y>
       <w>144</w>
       <h>144</h>
     </coordinates>
@@ -201,8 +203,8 @@ entity id matches?</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>810</x>
-      <y>774</y>
+      <x>558</x>
+      <y>756</y>
       <w>90</w>
       <h>27</h>
     </coordinates>
@@ -212,8 +214,8 @@ entity id matches?</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>756</x>
-      <y>495</y>
+      <x>504</x>
+      <y>477</y>
       <w>198</w>
       <h>387</h>
     </coordinates>
@@ -221,15 +223,14 @@ entity id matches?</panel_attributes>
 valign=bottom
 *Reader*
 entity id N
-topic id N
-</panel_attributes>
+topic id N</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1017</x>
-      <y>135</y>
+      <x>765</x>
+      <y>27</y>
       <w>171</w>
       <h>27</h>
     </coordinates>

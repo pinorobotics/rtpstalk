@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>11</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>341</x>
+      <y>528</y>
+      <w>132</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>Sender
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>385</x>
+      <y>110</y>
+      <w>242</w>
+      <h>66</h>
+    </coordinates>
+    <panel_attributes>halign=center
+valign=bottom
+*Writer*
+entity id WX
+topic id 1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>495</x>
+      <y>165</y>
+      <w>143</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m2=submit
+RTPS message</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>539</x>
+      <y>528</y>
+      <w>132</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>Sender
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLSyncBarHorizontal</id>
+    <coordinates>
+      <x>330</x>
+      <y>341</y>
+      <w>352</w>
+      <h>22</h>
+    </coordinates>
+    <panel_attributes>lw=5
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>396</x>
+      <y>341</y>
+      <w>88</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+onNext</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>594</x>
+      <y>341</y>
+      <w>88</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+onNext</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>330</x>
+      <y>737</y>
+      <w>154</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>*Reader*
+entity id RY</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>528</x>
+      <y>737</y>
+      <w>154</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>*Reader*
+entity id RZ</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>396</x>
+      <y>550</y>
+      <w>132</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+Data channel</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>594</x>
+      <y>550</y>
+      <w>132</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+Data channel</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>220</x>
+      <y>484</y>
+      <w>550</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>matched
+readers</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
