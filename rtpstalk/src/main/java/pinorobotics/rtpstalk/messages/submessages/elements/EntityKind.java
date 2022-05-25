@@ -17,6 +17,11 @@
  */
 package pinorobotics.rtpstalk.messages.submessages.elements;
 
+import id.xfunction.Preconditions;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public enum EntityKind {
     BUILTIN_UNKNOWN(0xc0),
@@ -41,13 +46,21 @@ public enum EntityKind {
     WRITER_GROUP(0x08),
     READER_GROUP(0x09);
 
-    private int value;
+    private static final Map<Byte, EntityKind> MAP =
+            Arrays.stream(EntityKind.values()).collect(Collectors.toMap(k -> k.value, v -> v));
+    private byte value;
 
     private EntityKind(int value) {
-        this.value = value;
+        this.value = (byte) value;
     }
 
-    public int getValue() {
+    public byte getValue() {
         return value;
+    }
+
+    public static EntityKind valueOf(byte b) {
+        var kind = MAP.get(b);
+        Preconditions.notNull(kind, "Value " + b + " does not exist");
+        return kind;
     }
 }
