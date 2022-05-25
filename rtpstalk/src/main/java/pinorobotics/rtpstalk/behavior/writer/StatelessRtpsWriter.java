@@ -17,15 +17,12 @@
  */
 package pinorobotics.rtpstalk.behavior.writer;
 
-import java.io.IOException;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
-import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /**
  * Stateless RTPS writer (best-effort reliability).
@@ -46,16 +43,6 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
         super(config, tracingToken, writerEntityId, ReliabilityKind.BEST_EFFORT, true);
         this.channelFactory = channelFactory;
         this.readerEntiyId = readerEntiyId;
-    }
-
-    public void readerLocatorAdd(Locator locator) throws IOException {
-        var sender =
-                new RtpsMessageSender(
-                        getTracingToken(),
-                        channelFactory.connect(getTracingToken(), locator),
-                        readerEntiyId,
-                        getGuid().entityId);
-        subscribe(sender);
     }
 
     public DataChannelFactory getChannelFactory() {

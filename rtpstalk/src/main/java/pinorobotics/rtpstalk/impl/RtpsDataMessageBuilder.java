@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.ProtocolId;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
@@ -33,20 +34,28 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender.MessageBuilder;
 
 /** @author lambdaprime intid@protonmail.com */
-public class RtpsDataMessageBuilder implements RtpsMessageBuilder {
+public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
     private Map<Long, Payload> data = new HashMap<>();
     private Header header;
+    private Optional<GuidPrefix> readerGuidPrefix;
 
     public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix) {
+        this(writerGuidPrefix, null);
+    }
+
+    public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix, GuidPrefix readerGuidPrefix) {
         header =
                 new Header(
                         ProtocolId.Predefined.RTPS.getValue(),
                         ProtocolVersion.Predefined.Version_2_3.getValue(),
                         VendorId.Predefined.RTPSTALK.getValue(),
                         writerGuidPrefix);
+        this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
     }
 
     public void add(long seqNum, Payload payload) {
@@ -71,5 +80,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageBuilder {
 
     public boolean hasData() {
         return !data.isEmpty();
+    }
+
+    @Override
+    public GuidPrefix getReaderGuidPrefix() {
+        return readerGuidPrefix.orElseGet(() -> MessageBuilder.super.getReaderGuidPrefix());
     }
 }

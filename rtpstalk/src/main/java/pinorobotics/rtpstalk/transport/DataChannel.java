@@ -28,6 +28,7 @@ import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.transport.io.RtpsMessageReader;
@@ -77,8 +78,8 @@ public class DataChannel implements AutoCloseable {
         }
     }
 
-    public void send(RtpsMessage message) {
-        logger.fine("Outgoing RTPS message {0}", message);
+    public void send(Guid remoteReader, RtpsMessage message) {
+        logger.fine("Outgoing RTPS message for remote reader {0}: {1}", remoteReader, message);
         var buf = ByteBuffer.allocate(packetBufferSize);
         buf.rewind();
         buf.limit(buf.capacity());

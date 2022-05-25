@@ -169,7 +169,9 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private void sendRequested(ReaderProxy readerProxy) {
         var requestedChanges = readerProxy.requestedChanges();
         if (requestedChanges.isEmpty()) return;
-        var builder = new RtpsDataMessageBuilder(getGuid().guidPrefix);
+        var builder =
+                new RtpsDataMessageBuilder(
+                        getGuid().guidPrefix, readerProxy.getRemoteReaderGuid().guidPrefix);
         historyCache
                 .findAll(getGuid(), requestedChanges)
                 .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));

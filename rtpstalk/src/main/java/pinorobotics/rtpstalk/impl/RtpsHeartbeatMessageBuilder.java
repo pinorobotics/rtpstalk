@@ -28,9 +28,10 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /** @author lambdaprime intid@protonmail.com */
-public class RtpsHeartbeatMessageBuilder implements RtpsMessageBuilder {
+public class RtpsHeartbeatMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
     private Header header;
     private long seqNumMin;

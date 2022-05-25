@@ -26,7 +26,6 @@ import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
-import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityKind;
@@ -34,6 +33,7 @@ import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 import pinorobotics.rtpstalk.structure.history.HistoryCache;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /**
  * This writer does not cache changes in {@link HistoryCache} and sends them to readers directly
@@ -51,7 +51,8 @@ import pinorobotics.rtpstalk.structure.history.HistoryCache;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsWriter<D extends Payload> extends SubmissionPublisher<RtpsMessageBuilder>
+public class RtpsWriter<D extends Payload>
+        extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
 
     protected final XLogger logger;

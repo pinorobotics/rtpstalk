@@ -20,64 +20,87 @@ package pinorobotics.rtpstalk.transport;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
+import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
+import pinorobotics.rtpstalk.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.RtpsMessageBuilder;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
-public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageBuilder>
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ * @author lambdaprime intid@protonmail.com
+ */
+public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.MessageBuilder>
         implements AutoCloseable {
+
+    /**
+     * {@link RtpsWriter} and {@link RtpsReader} by their nature are {@link RtpsMessage} publishers.
+     * To keep them simple they don't keep track of all their subscribers. But because {@link
+     * RtpsMessage} may have some fields which require explicit note about its consumer (like reader
+     * entity id) we implement this interface which is populated by {@link RtpsWriter} and {@link
+     * RtpsReader} and later is used by their subscribers to instantiate {@link RtpsMessage}
+     * specific to their exact consumer.
+     */
+    public static interface MessageBuilder {
+
+        /**
+         * Reader to which this message will be sent. For example it is used by reliable writers to
+         * send heartbeats for particular reader.
+         */
+        default GuidPrefix getReaderGuidPrefix() {
+            return GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue();
+        }
+
+        RtpsMessage build(EntityId readerEntiyId, EntityId writerEntityId);
+    }
 
     private final XLogger logger;
     private DataChannel dataChannel;
     private Optional<InfoDestination> infoDstOpt = Optional.empty();
-    private EntityId readerEntiyId;
+    private Guid remoteReader;
     private EntityId writerEntityId;
 
-    /**
-     * @param remoteReader this is used by reliable writers to send heartbeats for particular
-     *     reader, for best-effort writers this can be null
-     */
     public RtpsMessageSender(
             TracingToken tracingToken,
             DataChannel dataChannel,
             Guid remoteReader,
             EntityId writerEntityId) {
-        this(tracingToken, dataChannel, remoteReader.entityId, writerEntityId);
+        this.dataChannel = dataChannel;
+        this.remoteReader = remoteReader;
+        this.writerEntityId = writerEntityId;
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         if (remoteReader != null)
             infoDstOpt = Optional.of(new InfoDestination(remoteReader.guidPrefix));
     }
 
-    public RtpsMessageSender(
-            TracingToken tracingToken,
-            DataChannel dataChannel,
-            EntityId readerEntiyId,
-            EntityId writerEntityId) {
-        this.dataChannel = dataChannel;
-        this.readerEntiyId = readerEntiyId;
-        this.writerEntityId = writerEntityId;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
-    }
-
     @Override
-    public void onNext(RtpsMessageBuilder messageBuilder) {
+    public void onNext(MessageBuilder messageBuilder) {
         logger.entering("onNext");
-        var message = messageBuilder.build(readerEntiyId, writerEntityId);
-        infoDstOpt.ifPresent(
-                infoDst -> {
-                    if (!(message.submessages[0] instanceof Heartbeat)) return;
-                    logger.fine("This is Heartbeat message, including InfoDestination into it");
-                    var submessages = new Submessage[2];
-                    submessages[0] = infoDst;
-                    submessages[1] = message.submessages[0];
-                    message.submessages = submessages;
-                });
-        dataChannel.send(message);
+        var guidPrefix = messageBuilder.getReaderGuidPrefix();
+        if (guidPrefix == GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue()
+                || guidPrefix.equals(remoteReader.guidPrefix)) {
+            var message = messageBuilder.build(remoteReader.entityId, writerEntityId);
+            infoDstOpt.ifPresent(
+                    infoDst -> {
+                        if (!(message.submessages[0] instanceof Heartbeat)) return;
+                        logger.fine("This is Heartbeat message, including InfoDestination into it");
+                        var submessages = new Submessage[2];
+                        submessages[0] = infoDst;
+                        submessages[1] = message.submessages[0];
+                        message.submessages = submessages;
+                    });
+            dataChannel.send(remoteReader, message);
+        } else {
+            logger.fine(
+                    "Not sending message since it belongs to different participant {0}",
+                    guidPrefix);
+        }
         subscription.request(1);
         logger.exiting("onNext");
     }

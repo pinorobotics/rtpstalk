@@ -28,8 +28,10 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
@@ -65,14 +67,15 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
         executor.scheduleWithFixedDelay(this, 0, rate.toMillis(), TimeUnit.MILLISECONDS);
     }
 
-    @Override
     public void readerLocatorAdd(Locator locator) throws IOException {
         var sender =
                 new RtpsMessageSender(
                         getTracingToken(),
                         getChannelFactory()
                                 .bindMulticast(getTracingToken(), networkInterface, locator),
-                        getReaderEntiyId(),
+                        new Guid(
+                                GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue(),
+                                getReaderEntiyId()),
                         getGuid().entityId);
         subscribe(sender);
     }

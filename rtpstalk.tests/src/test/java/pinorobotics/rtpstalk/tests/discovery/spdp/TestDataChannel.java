@@ -22,6 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.transport.DataChannel;
@@ -59,7 +60,7 @@ public class TestDataChannel extends DataChannel {
     }
 
     @Override
-    public void send(RtpsMessage message) {
+    public void send(Guid guid, RtpsMessage message) {
         dataQueue.add(message);
     }
 

@@ -121,7 +121,7 @@ public class WriterHeartbeatProcessor {
                         VendorId.Predefined.RTPSTALK.getValue(),
                         readerGuid.guidPrefix);
         var message = new RtpsMessage(header, submessages);
-        dataChannel.send(message);
+        dataChannel.send(writerGuid, message);
         lastHeartbeat = null;
     }
 
