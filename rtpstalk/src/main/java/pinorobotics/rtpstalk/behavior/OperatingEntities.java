@@ -22,13 +22,23 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.userdata.DataWriter;
 
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
-    private EntityRegistry<StatefullRtpsWriter<?>> writers = new EntityRegistry<>("RTPS Writers");
-    private EntityRegistry<StatefullRtpsReader<?>> readers = new EntityRegistry<>("RTPS Readers");
+    private EntityRegistry<StatefullRtpsWriter<?>> writers =
+            new EntityRegistry<>(
+                    new TracingToken("WRITERS"),
+                    EntityKind.WRITER_NO_KEY,
+                    EntityKind.BUILTIN_WRITER);
+    private EntityRegistry<StatefullRtpsReader<?>> readers =
+            new EntityRegistry<>(
+                    new TracingToken("READERS"),
+                    EntityKind.READER_NO_KEY,
+                    EntityKind.BUILTIN_READER);
     private Map<String, DataWriter> topicNameToWriter = new ConcurrentHashMap<>();
 
     public EntityRegistry<StatefullRtpsReader<?>> getReaders() {

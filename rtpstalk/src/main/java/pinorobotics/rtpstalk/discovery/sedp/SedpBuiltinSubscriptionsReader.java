@@ -64,7 +64,7 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
                 params.get(ParameterId.PID_PARTICIPANT_GUID), topicName, readerEndpointGuid);
         getOperatingEntities()
                 .findWriter(topicName)
-                .ifPresent(
+                .ifPresentOrElse(
                         writer -> {
                             if (params.get(ParameterId.PID_UNICAST_LOCATOR)
                                     instanceof Locator locator) {
@@ -75,7 +75,11 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
                                     logger.severe(e);
                                 }
                             }
-                        });
+                        },
+                        () ->
+                                logger.fine(
+                                        "There is no writer for such topic available, ignoring"
+                                                + " subscription"));
     }
 
     private boolean isValid(ParameterList pl) {

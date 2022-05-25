@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
@@ -42,7 +43,11 @@ import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /**
- * Receives all new discovered publications from {@link
+ *
+ *
+ * <h1>Subscribe to topic
+ *
+ * <p>Receives all new discovered publications from {@link
  * EntityId.Predefined#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR} reader and updates {@link
  * EntityId.Predefined#ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER} writer for those in which user
  * is interested in.
@@ -122,7 +127,10 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
                     var readers = networkIface.getOperatingEntities().getReaders();
                     var readerEntityId =
                             readers.findEntityId(topic.getTopicId())
-                                    .orElseGet(() -> readers.assignNewEntityId(topicId));
+                                    .orElseGet(
+                                            () ->
+                                                    readers.assignNewEntityId(
+                                                            topicId, EntityKind.READER_NO_KEY));
                     subscriptionsWriter.newChange(
                             createSubscriptionData(
                                     topicId,

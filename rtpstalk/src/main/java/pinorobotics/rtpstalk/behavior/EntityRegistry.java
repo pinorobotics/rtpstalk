@@ -19,10 +19,14 @@ package pinorobotics.rtpstalk.behavior;
 
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
@@ -30,20 +34,28 @@ import pinorobotics.rtpstalk.structure.RtpsEntity;
 /** @author lambdaprime intid@protonmail.com */
 public class EntityRegistry<E extends RtpsEntity> {
 
-    private static final XLogger LOGGER = XLogger.getLogger(EntityRegistry.class);
+    private XLogger logger;
     private Map<EntityId, E> entities = new ConcurrentHashMap<>();
     private Map<TopicId, EntityId> entityIds = new ConcurrentHashMap<>();
-    private int entityIdCounter;
-    private String name;
+    private int entityIdCounter = 1;
+    private EnumSet<EntityKind> kinds = EnumSet.noneOf(EntityKind.class);
 
-    public EntityRegistry(String name) {
-        this.name = name;
+    public EntityRegistry(TracingToken tracingToken, EntityKind... kinds) {
+        Arrays.stream(kinds).forEach(this.kinds::add);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     public synchronized void add(E entity) {
         var entityId = entity.getGuid().entityId;
+        var entityKind = EntityKind.valueOf(entityId.entityKind);
         Preconditions.isTrue(
-                !entities.containsKey(entityId), "Writer " + entityId + " already present");
+                kinds.contains(entityKind),
+                "Entity kind missmatch: registry "
+                        + kinds.toString()
+                        + ", new entity "
+                        + entityKind);
+        Preconditions.isTrue(
+                !entities.containsKey(entityId), "Entity " + entityId + " already present");
         entities.put(entityId, entity);
     }
 
@@ -59,13 +71,14 @@ public class EntityRegistry<E extends RtpsEntity> {
         return Optional.ofNullable(entityIds.get(topicId));
     }
 
-    public synchronized EntityId assignNewEntityId(TopicId topicId) {
+    public synchronized EntityId assignNewEntityId(TopicId topicId, EntityKind kind) {
+        Preconditions.isTrue(
+                kinds.contains(kind),
+                "Entity kind missmatch: registry " + kinds.toString() + ", new entity " + kind);
         var entityId = entityIds.get(topicId);
         if (entityId == null) {
-            entityId = new EntityId(entityIdCounter++, EntityKind.READER_NO_KEY);
-            LOGGER.fine(
-                    "Assigning new entity id {0} to the topic {1} in <{2}> registry",
-                    entityId, topicId, name);
+            entityId = new EntityId(entityIdCounter++, kind);
+            logger.fine("Assigning new entity id {0} to the topic {1}", entityId, topicId);
             entityIds.put(topicId, entityId);
         }
         return entityId;
