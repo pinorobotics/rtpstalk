@@ -17,14 +17,11 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
-import static java.util.stream.Collectors.joining;
-
 import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import java.io.IOException;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
@@ -66,11 +63,11 @@ public class RtpsTalkClientTests {
                 .readResourceAsStream(RtpsTalkClientTests.class, "HelloWorldTopic")
                 .map(XByte::fromHexPairs)
                 .forEach(publisher::submit);
-        var actual = proc.stdout().limit(8).collect(joining("\n"));
+        var actual = proc.stdoutAsString();
         System.out.println(actual);
         client.close();
 
-        Assertions.assertEquals(
+        XAsserts.assertMatches(
                 resourceUtils.readResource(
                         RtpsTalkClientTests.class, "HelloWorldExample_subscriber"),
                 actual);

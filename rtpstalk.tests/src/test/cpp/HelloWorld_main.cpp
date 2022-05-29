@@ -72,7 +72,7 @@ int main(int argc, char** argv)
                 HelloWorldSubscriber mysub;
                 if(mysub.init())
                 {
-                    mysub.run();
+                    mysub.run(5);
                 }
                 break;
             }

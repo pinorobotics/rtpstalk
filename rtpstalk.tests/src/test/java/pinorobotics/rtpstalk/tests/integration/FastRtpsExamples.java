@@ -62,6 +62,9 @@ public class FastRtpsExamples implements AutoCloseable {
     public XProcess runHelloWorldSubscriber() {
         var proc = new XExec(HELLOWORLDEXAMPLE_PATH, "subscriber").run();
         procs.add(proc);
+        // When process writes to stdout it may get blocked until somebody
+        // starts reading it. To avoid that we start reading immediately.
+        proc.flush(false);
         return proc;
     }
 }

@@ -57,7 +57,9 @@ bool HelloWorldSubscriber::init()
 
     cstr = getenv("RTPS_TopicName");
     Rparam.topic.topicName = cstr != NULL? cstr: "HelloWorldTopic";
-    
+
+    std::cout << "Using topic " << Rparam.topic.topicName << std::endl;
+
     Rparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
     Rparam.topic.historyQos.depth = 30;
     Rparam.topic.resourceLimitsQos.max_samples = 50;
