@@ -40,6 +40,7 @@ public enum ParameterId {
     PID_KEY_HASH(0x0070),
     PID_RELIABILITY(0x001a),
     PID_STATUS_INFO(0x0071),
+    PID_DESTINATION_ORDER(0x0025),
     PID_SENTINEL(0x0001);
 
     public static Map<Short, ParameterId> map = new HashMap<>();

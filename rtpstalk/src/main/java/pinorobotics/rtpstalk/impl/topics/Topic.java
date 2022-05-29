@@ -28,7 +28,9 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 
 /**
- * RTPS topic with all available remote publishers and local subscribers to it
+ * RTPS topic with all available remote publishers and local subscribers to it.
+ *
+ * <p>It is observable so it is possible to add listener to it and receive different events.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */

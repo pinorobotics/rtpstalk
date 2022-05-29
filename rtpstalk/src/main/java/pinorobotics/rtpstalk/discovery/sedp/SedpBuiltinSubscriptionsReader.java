@@ -24,6 +24,7 @@ import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -58,22 +59,22 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
         Map<ParameterId, ?> params = pl.params;
         var readerEndpointGuid = (Guid) params.get(ParameterId.PID_ENDPOINT_GUID);
         String topicName = (String) params.get(ParameterId.PID_TOPIC_NAME);
+        String topicType = (String) params.get(ParameterId.PID_TYPE_NAME);
+        Locator locator = (Locator) params.get(ParameterId.PID_UNICAST_LOCATOR);
+        var topicId = new TopicId(topicName, topicType);
         logger.fine(
                 "Remote participant {0} announced that it is subscribed to the topic {1} with"
-                        + " endpoint {2}",
-                params.get(ParameterId.PID_PARTICIPANT_GUID), topicName, readerEndpointGuid);
+                        + " its reader endpoint {2} and userdata unicast locator {3}",
+                params.get(ParameterId.PID_PARTICIPANT_GUID), topicId, readerEndpointGuid, locator);
         getOperatingEntities()
                 .findWriter(topicName)
                 .ifPresentOrElse(
                         writer -> {
-                            if (params.get(ParameterId.PID_UNICAST_LOCATOR)
-                                    instanceof Locator locator) {
-                                var unicast = List.of(locator);
-                                try {
-                                    writer.matchedReaderAdd(readerEndpointGuid, unicast);
-                                } catch (IOException e) {
-                                    logger.severe(e);
-                                }
+                            var unicast = List.of(locator);
+                            try {
+                                writer.matchedReaderAdd(readerEndpointGuid, unicast);
+                            } catch (IOException e) {
+                                logger.severe(e);
                             }
                         },
                         () ->

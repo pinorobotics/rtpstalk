@@ -32,6 +32,7 @@ import java.util.Optional;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
+import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
@@ -248,6 +249,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                     break;
                 case PID_RELIABILITY:
                     value = reader.read(ReliabilityQosPolicy.class);
+                    break;
+                case PID_DESTINATION_ORDER:
+                    value = reader.read(DestinationOrderQosPolicy.class);
                     break;
                 case PID_STATUS_INFO:
                     value = readStatusInfo();
