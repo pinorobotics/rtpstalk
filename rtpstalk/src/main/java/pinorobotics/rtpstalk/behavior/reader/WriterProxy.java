@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -42,7 +43,7 @@ public class WriterProxy {
     public WriterProxy(Guid readerGuid, Guid remoteWriterGuid, List<Locator> unicastLocatorList) {
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
-        this.unicastLocatorList = unicastLocatorList;
+        this.unicastLocatorList = List.copyOf(unicastLocatorList);
     }
 
     public void receivedChangeSet(long seqNum) {
@@ -90,10 +91,15 @@ public class WriterProxy {
     }
 
     public void lostChangesUpdate(long firstSN) {
-        for (var sn : changesFromWriter.keySet()) {
-            if (sn >= firstSN) continue;
-            changesFromWriter.remove(sn);
-        }
+        changesFromWriter =
+                changesFromWriter.entrySet().stream()
+                        .filter(e -> e.getKey() >= firstSN)
+                        .collect(
+                                Collectors.toMap(
+                                        Entry::getKey,
+                                        Entry::getValue,
+                                        (a, b) -> b,
+                                        LinkedHashMap::new));
     }
 
     /**
