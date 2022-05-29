@@ -29,18 +29,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
-import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
-import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
-import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
-import pinorobotics.rtpstalk.messages.Duration;
-import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Header;
-import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
 import pinorobotics.rtpstalk.messages.ProtocolId;
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Data;
@@ -57,7 +50,6 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.transport.io.exceptions.NotRtpsPacketException;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
@@ -214,29 +206,10 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_TOPIC_NAME:
                     value = readString();
                     break;
-                case PID_BUILTIN_ENDPOINT_SET:
-                    value = reader.read(BuiltinEndpointSet.class);
-                    break;
-                case PID_BUILTIN_ENDPOINT_QOS:
-                    value = reader.read(BuiltinEndpointQos.class);
-                    break;
-                case PID_PARTICIPANT_LEASE_DURATION:
-                    value = reader.read(Duration.class);
-                    break;
                 case PID_UNICAST_LOCATOR:
                 case PID_DEFAULT_UNICAST_LOCATOR:
                 case PID_METATRAFFIC_UNICAST_LOCATOR:
                     value = readLocator();
-                    break;
-                case PID_ENDPOINT_GUID:
-                case PID_PARTICIPANT_GUID:
-                    value = reader.read(Guid.class);
-                    break;
-                case PID_PROTOCOL_VERSION:
-                    value = reader.read(ProtocolVersion.class);
-                    break;
-                case PID_VENDORID:
-                    value = reader.read(VendorId.class);
                     break;
                 case PID_USER_DATA:
                     value = new UserDataQosPolicy(readSequence());
@@ -244,17 +217,20 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_EXPECTS_INLINE_QOS:
                     value = readBool();
                     break;
-                case PID_KEY_HASH:
-                    value = reader.read(KeyHash.class);
-                    break;
-                case PID_RELIABILITY:
-                    value = reader.read(ReliabilityQosPolicy.class);
-                    break;
-                case PID_DESTINATION_ORDER:
-                    value = reader.read(DestinationOrderQosPolicy.class);
-                    break;
                 case PID_STATUS_INFO:
                     value = readStatusInfo();
+                    break;
+                case PID_BUILTIN_ENDPOINT_SET:
+                case PID_BUILTIN_ENDPOINT_QOS:
+                case PID_PARTICIPANT_LEASE_DURATION:
+                case PID_ENDPOINT_GUID:
+                case PID_PARTICIPANT_GUID:
+                case PID_PROTOCOL_VERSION:
+                case PID_VENDORID:
+                case PID_KEY_HASH:
+                case PID_RELIABILITY:
+                case PID_DESTINATION_ORDER:
+                    value = reader.read(parameterId.getParameterClass());
                     break;
                 default:
                     throw new UnsupportedOperationException("Parameter id " + id);
