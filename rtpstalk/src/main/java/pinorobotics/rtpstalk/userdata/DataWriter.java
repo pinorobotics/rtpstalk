@@ -33,9 +33,7 @@ public class DataWriter extends StatefullRtpsWriter<RawData> {
             TracingToken tracingToken,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntityId,
-            String topic) {
+            EntityId writerEntityId) {
         super(config, channelFactory, operatingEntities, tracingToken, writerEntityId);
-        operatingEntities.add(topic, this);
     }
 }

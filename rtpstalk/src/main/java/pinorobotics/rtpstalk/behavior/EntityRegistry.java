@@ -83,4 +83,8 @@ public class EntityRegistry<E extends RtpsEntity> {
         }
         return entityId;
     }
+
+    public Optional<E> findEntity(TopicId topicId) {
+        return findEntityId(topicId).flatMap(this::find);
+    }
 }

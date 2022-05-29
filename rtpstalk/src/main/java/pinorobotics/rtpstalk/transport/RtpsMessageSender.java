@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.transport;
 
+import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
@@ -75,7 +76,7 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
         this.remoteReader = remoteReader;
         this.writerEntityId = writerEntityId;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
-        if (remoteReader != null)
+        if (remoteReader.guidPrefix != GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue())
             infoDstOpt = Optional.of(new InfoDestination(remoteReader.guidPrefix));
     }
 
@@ -90,6 +91,10 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
                     infoDst -> {
                         if (!(message.submessages[0] instanceof Heartbeat)) return;
                         logger.fine("This is Heartbeat message, including InfoDestination into it");
+                        Preconditions.equals(
+                                1,
+                                message.submessages.length,
+                                "Heartbeat messages may contain only one submessage");
                         var submessages = new Submessage[2];
                         submessages[0] = infoDst;
                         submessages[1] = message.submessages[0];

@@ -17,14 +17,10 @@
  */
 package pinorobotics.rtpstalk.behavior;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
 import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.userdata.DataWriter;
 
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
@@ -39,7 +35,6 @@ public class OperatingEntities {
                     new TracingToken("READERS"),
                     EntityKind.READER_NO_KEY,
                     EntityKind.BUILTIN_READER);
-    private Map<String, DataWriter> topicNameToWriter = new ConcurrentHashMap<>();
 
     public EntityRegistry<StatefullRtpsReader<?>> getReaders() {
         return readers;
@@ -47,13 +42,5 @@ public class OperatingEntities {
 
     public EntityRegistry<StatefullRtpsWriter<?>> getWriters() {
         return writers;
-    }
-
-    public void add(String topic, DataWriter writer) {
-        topicNameToWriter.put(topic, writer);
-    }
-
-    public Optional<DataWriter> findWriter(String topicName) {
-        return Optional.ofNullable(topicNameToWriter.get(topicName));
     }
 }

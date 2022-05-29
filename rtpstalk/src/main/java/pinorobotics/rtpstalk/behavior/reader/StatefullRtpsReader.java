@@ -104,26 +104,31 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     @Override
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
-        var readerProxyOpt =
-                operatingEntities
-                        .getWriters()
-                        .find(ackNack.writerId)
-                        .flatMap(
-                                writer ->
-                                        writer.matchedReaderLookup(
-                                                new Guid(guidPrefix, ackNack.readerId)));
-        if (readerProxyOpt.isEmpty()) {
+        var writerOpt = operatingEntities.getWriters().find(ackNack.writerId);
+        if (writerOpt.isPresent()) {
+            var readerGuid = new Guid(guidPrefix, ackNack.readerId);
+            var readerProxyOpt =
+                    writerOpt.flatMap(writer -> writer.matchedReaderLookup(readerGuid));
+            if (readerProxyOpt.isEmpty()) {
+                logger.fine(
+                        "No matched reader {0} for writer {1}, ignoring it...",
+                        readerGuid, ackNack.writerId);
+            } else {
+                logger.fine(
+                        "Processing acknack for writer {0} received from reader {1}",
+                        ackNack.writerId, readerGuid);
+                var readerProxy = readerProxyOpt.get();
+                var set = ackNack.readerSNState;
+                var base = set.bitmapBase.value;
+                var bitset = new IntBitSet(set.bitmap);
+                readerProxy.requestedChangesClear();
+                for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
+                    readerProxy.requestChange(base + i);
+                }
+            }
+        } else {
             logger.fine(
                     "Received AckNack for unknown writer {0}, ignoring it...", ackNack.writerId);
-        } else {
-            var readerProxy = readerProxyOpt.get();
-            var set = ackNack.readerSNState;
-            var base = set.bitmapBase.value;
-            var bitset = new IntBitSet(set.bitmap);
-            readerProxy.requestedChangesClear();
-            for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
-                readerProxy.requestChange(base + i);
-            }
         }
         return super.onAckNack(guidPrefix, ackNack);
     }

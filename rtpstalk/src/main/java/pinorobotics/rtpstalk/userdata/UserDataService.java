@@ -87,25 +87,17 @@ public class UserDataService implements AutoCloseable {
     }
 
     public void publish(
-            String topic,
-            EntityId writerEntityId,
-            EntityId readerEntityId,
-            Publisher<RawData> publisher) {
+            EntityId writerEntityId, EntityId readerEntityId, Publisher<RawData> publisher) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         Preconditions.isTrue(
                 !writers.containsKey(writerEntityId),
                 "Publisher for entity id " + writerEntityId + " already exist");
         var writer =
                 dataObjectsFactory.newDataWriter(
-                        config,
-                        tracingToken,
-                        channelFactory,
-                        operatingEntities,
-                        writerEntityId,
-                        topic);
+                        config, tracingToken, channelFactory, operatingEntities, writerEntityId);
         writers.put(writerEntityId, writer);
         publisher.subscribe(writer);
-        // to process ackNacks we create readers
+        // for heartbeat purposes (to process ackNacks) we create reader
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,

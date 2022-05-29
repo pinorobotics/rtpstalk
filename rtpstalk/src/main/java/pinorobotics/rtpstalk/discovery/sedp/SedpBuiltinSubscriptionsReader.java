@@ -67,7 +67,8 @@ public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<Paramete
                         + " its reader endpoint {2} and userdata unicast locator {3}",
                 params.get(ParameterId.PID_PARTICIPANT_GUID), topicId, readerEndpointGuid, locator);
         getOperatingEntities()
-                .findWriter(topicName)
+                .getWriters()
+                .findEntity(topicId)
                 .ifPresentOrElse(
                         writer -> {
                             var unicast = List.of(locator);

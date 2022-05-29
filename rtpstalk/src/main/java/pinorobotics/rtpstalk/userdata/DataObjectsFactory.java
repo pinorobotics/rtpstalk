@@ -39,9 +39,8 @@ public class DataObjectsFactory {
             TracingToken tracingToken,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntityId,
-            String topic) {
+            EntityId writerEntityId) {
         return new DataWriter(
-                config, tracingToken, channelFactory, operatingEntities, writerEntityId, topic);
+                config, tracingToken, channelFactory, operatingEntities, writerEntityId);
     }
 }

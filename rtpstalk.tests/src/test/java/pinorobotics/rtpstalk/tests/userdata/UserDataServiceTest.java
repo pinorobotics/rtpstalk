@@ -117,13 +117,11 @@ public class UserDataServiceTest {
                         receiverFactory); ) {
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
             service.publish(
-                    "testTopic",
                     new EntityId(1, EntityKind.WRITER_NO_KEY),
                     TestConstants.TEST_READER_ENTITY_ID,
                     new SubmissionPublisher<RawData>());
             var writerEntityId = new EntityId(2, EntityKind.WRITER_NO_KEY);
             service.publish(
-                    "testTopic",
                     writerEntityId,
                     TestConstants.TEST_READER_ENTITY_ID,
                     new SubmissionPublisher<RawData>());
@@ -131,7 +129,6 @@ public class UserDataServiceTest {
                     PreconditionException.class,
                     () ->
                             service.publish(
-                                    "testTopic",
                                     writerEntityId,
                                     TestConstants.TEST_READER_ENTITY_ID,
                                     new SubmissionPublisher<RawData>()));
