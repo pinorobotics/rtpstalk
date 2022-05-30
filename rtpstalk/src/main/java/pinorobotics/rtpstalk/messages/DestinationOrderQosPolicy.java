@@ -30,7 +30,11 @@ public class DestinationOrderQosPolicy {
     public int kind;
 
     public DestinationOrderQosPolicy() {
-        kind = Kind.BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS.ordinal();
+        this(Kind.BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS);
+    }
+
+    public DestinationOrderQosPolicy(Kind kind) {
+        this.kind = kind.ordinal();
     }
 
     @Override

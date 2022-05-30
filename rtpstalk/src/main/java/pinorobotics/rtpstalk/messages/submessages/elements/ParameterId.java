@@ -22,6 +22,7 @@ import java.util.Map;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
+import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
@@ -48,9 +49,17 @@ public enum ParameterId {
     PID_ENDPOINT_GUID(0x005a, Guid.class),
     PID_BUILTIN_ENDPOINT_QOS(0x0077, BuiltinEndpointQos.class),
     PID_KEY_HASH(0x0070, KeyHash.class),
+
+    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
     PID_RELIABILITY(0x001a, ReliabilityQosPolicy.class),
+
     PID_STATUS_INFO(0x0071, StatusInfo.class),
+
+    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
     PID_DESTINATION_ORDER(0x0025, DestinationOrderQosPolicy.class),
+
+    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
+    PID_DURABILITY(0x001d, DurabilityQosPolicy.class),
     PID_SENTINEL(0x0001, null);
 
     public static Map<Short, ParameterId> map = new HashMap<>();

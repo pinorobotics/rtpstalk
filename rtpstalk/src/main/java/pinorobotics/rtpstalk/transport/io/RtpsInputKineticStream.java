@@ -229,6 +229,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_VENDORID:
                 case PID_KEY_HASH:
                 case PID_RELIABILITY:
+                case PID_DURABILITY:
                 case PID_DESTINATION_ORDER:
                     value = reader.read(parameterId.getParameterClass());
                     break;

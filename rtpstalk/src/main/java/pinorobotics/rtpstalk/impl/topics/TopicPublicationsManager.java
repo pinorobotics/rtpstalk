@@ -30,6 +30,8 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
+import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -95,16 +97,26 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
                         Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
                         Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
                         Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
+                        Map.entry(ParameterId.PID_KEY_HASH, guid),
                         Map.entry(
                                 ParameterId.PID_PROTOCOL_VERSION,
                                 ProtocolVersion.Predefined.Version_2_3.getValue()),
                         Map.entry(
                                 ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
                         Map.entry(
+                                ParameterId.PID_DURABILITY,
+                                new DurabilityQosPolicy(
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
+                        Map.entry(
                                 ParameterId.PID_RELIABILITY,
                                 new ReliabilityQosPolicy(
                                         ReliabilityKind.RELIABLE,
-                                        Duration.Predefined.ZERO.getValue())));
+                                        Duration.Predefined.ZERO.getValue())),
+                        Map.entry(
+                                ParameterId.PID_DESTINATION_ORDER,
+                                new DestinationOrderQosPolicy(
+                                        DestinationOrderQosPolicy.Kind
+                                                .BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS)));
         return new ParameterList(params);
     }
 }
