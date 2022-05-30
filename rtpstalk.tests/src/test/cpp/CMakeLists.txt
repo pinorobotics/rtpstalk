@@ -33,14 +33,12 @@ if(NOT fastrtps_FOUND)
     find_package(fastrtps REQUIRED)
 endif()
 
-# Set C++11
+#Check C++11
 include(CheckCXXCompilerFlag)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
         CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     check_cxx_compiler_flag(-std=c++11 SUPPORTS_CXX11)
-    if(SUPPORTS_CXX11)
-        add_compile_options(-std=c++11)
-    else()
+    if(NOT SUPPORTS_CXX11)
         message(FATAL_ERROR "Compiler doesn't support C++11")
     endif()
 endif()
@@ -51,3 +49,5 @@ file(GLOB HELLOWORLD_EXAMPLE_SOURCES_CPP "*.cpp")
 
 add_executable(HelloWorldExample ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP})
 target_link_libraries(HelloWorldExample fastrtps fastcdr foonathan_memory)
+install(TARGETS HelloWorldExample
+    RUNTIME DESTINATION examples/C++/HelloWorldExample/${BIN_INSTALL_DIR})

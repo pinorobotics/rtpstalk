@@ -3,7 +3,7 @@ Tests for `rtpstalk` library.
 # Prereqs
 
 - Following network interfaces available in the system: lo, eth0
-- Fast-RTPS 1.9.4
+- Fast-DDS v2.1.1
 - compiled `rtpstalk` version of HelloWorldExample
 
 ## Setup Fast-RTPS
@@ -11,12 +11,12 @@ Tests for `rtpstalk` library.
 Build Fast-RTPS:
 
 ```bash
-git clone https://github.com/canonical/Fast-RTPS
-cd Fast-RTPS/
-git checkout v1.9.4
+git clone https://github.com/eProsima/Fast-DDS.git
+cd Fast-DDS/
+git checkout v2.1.1
 mkdir build
 cd build/
-cmake -DTHIRDPARTY=ON ..
+cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON ..
 make
 DESTDIR=$(pwd)/install make install
 ```
