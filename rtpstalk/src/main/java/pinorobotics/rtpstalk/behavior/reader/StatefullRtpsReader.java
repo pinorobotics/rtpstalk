@@ -26,7 +26,7 @@ import pinorobotics.rtpstalk.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
@@ -62,7 +62,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
                 config,
                 tracingToken,
                 new Guid(config.guidPrefix(), entityId),
-                ReliabilityKind.RELIABLE);
+                ReliabilityQosPolicy.Kind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
         operatingEntities.getReaders().add(this);

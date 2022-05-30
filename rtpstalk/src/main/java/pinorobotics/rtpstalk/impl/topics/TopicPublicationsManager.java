@@ -35,7 +35,6 @@ import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -110,7 +109,7 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
                         Map.entry(
                                 ParameterId.PID_RELIABILITY,
                                 new ReliabilityQosPolicy(
-                                        ReliabilityKind.RELIABLE,
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
                                         Duration.Predefined.ZERO.getValue())),
                         Map.entry(
                                 ParameterId.PID_DESTINATION_ORDER,

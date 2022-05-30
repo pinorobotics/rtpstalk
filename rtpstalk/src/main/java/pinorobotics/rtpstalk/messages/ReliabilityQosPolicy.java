@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.Objects;
 
 /**
  * If the RELIABILITY kind is set to RELIABLE, the write operation may block if the modification
@@ -31,21 +32,43 @@ import id.xfunction.XJsonStringBuilder;
  */
 public class ReliabilityQosPolicy {
 
+    public enum Kind {
+        UNKNOWN,
+        BEST_EFFORT,
+        RELIABLE;
+    }
+
     public int kind;
 
     public Duration maxBlockingTime;
 
-    public ReliabilityQosPolicy() {}
+    public ReliabilityQosPolicy() {
+        this(Kind.UNKNOWN, new Duration());
+    }
 
-    public ReliabilityQosPolicy(ReliabilityKind kind, Duration maxBlockingTime) {
-        this.kind = kind.getValue();
+    public ReliabilityQosPolicy(Kind kind, Duration maxBlockingTime) {
+        this.kind = kind.ordinal();
         this.maxBlockingTime = maxBlockingTime;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kind, maxBlockingTime);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        ReliabilityQosPolicy other = (ReliabilityQosPolicy) obj;
+        return kind == other.kind && Objects.equals(maxBlockingTime, other.maxBlockingTime);
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("kind", kind);
+        builder.append("kind", Kind.values()[kind].toString());
         builder.append("maxBlockingTime", maxBlockingTime);
         return builder.toString();
     }

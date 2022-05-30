@@ -28,7 +28,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.submessages.Data;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
@@ -72,7 +72,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
-    private ReliabilityKind reliabilityKind;
+    private ReliabilityQosPolicy.Kind reliabilityKind;
     private Optional<Subscription> subscription = Optional.empty();
     private TracingToken tracingToken;
 
@@ -80,7 +80,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
             RtpsTalkConfiguration config,
             TracingToken token,
             Guid readerGuid,
-            ReliabilityKind reliabilityKind) {
+            ReliabilityQosPolicy.Kind reliabilityKind) {
         super(config.publisherExecutor(), config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
@@ -99,7 +99,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         return guid;
     }
 
-    public ReliabilityKind getReliabilityKind() {
+    public ReliabilityQosPolicy.Kind getReliabilityKind() {
         return reliabilityKind;
     }
 

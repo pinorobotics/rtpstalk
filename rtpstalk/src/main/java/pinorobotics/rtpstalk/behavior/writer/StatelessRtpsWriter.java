@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.behavior.writer;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -40,7 +40,7 @@ public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
             DataChannelFactory channelFactory,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
-        super(config, tracingToken, writerEntityId, ReliabilityKind.BEST_EFFORT, true);
+        super(config, tracingToken, writerEntityId, ReliabilityQosPolicy.Kind.BEST_EFFORT, true);
         this.channelFactory = channelFactory;
         this.readerEntiyId = readerEntiyId;
     }

@@ -26,7 +26,7 @@ import pinorobotics.rtpstalk.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
@@ -51,7 +51,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
-                ReliabilityKind.BEST_EFFORT);
+                ReliabilityQosPolicy.Kind.BEST_EFFORT);
         this.operatingEntities = operatingEntities;
     }
 

@@ -28,7 +28,7 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
@@ -66,7 +66,7 @@ public class RtpsWriter<D extends Payload>
 
     public RtpsWriter(
             RtpsTalkConfiguration config, TracingToken tracingToken, EntityId writerEntiyId) {
-        this(config, tracingToken, writerEntiyId, ReliabilityKind.BEST_EFFORT, true);
+        this(config, tracingToken, writerEntiyId, ReliabilityQosPolicy.Kind.BEST_EFFORT, true);
     }
 
     /**
@@ -78,7 +78,7 @@ public class RtpsWriter<D extends Payload>
             RtpsTalkConfiguration config,
             TracingToken token,
             EntityId writerEntityId,
-            ReliabilityKind reliabilityKind,
+            ReliabilityQosPolicy.Kind reliabilityKind,
             boolean pushMode) {
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);

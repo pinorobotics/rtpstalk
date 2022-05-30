@@ -35,7 +35,7 @@ import pinorobotics.rtpstalk.impl.RtpsHeartbeatMessageBuilder;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityKind;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.structure.history.CacheChange;
@@ -71,7 +71,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
             OperatingEntities operatingEntities,
             TracingToken tracingToken,
             EntityId writerEntiyId) {
-        super(config, tracingToken, writerEntiyId, ReliabilityKind.RELIABLE, true);
+        super(config, tracingToken, writerEntiyId, ReliabilityQosPolicy.Kind.RELIABLE, true);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
