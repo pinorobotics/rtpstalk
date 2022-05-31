@@ -42,7 +42,12 @@ public class HistoryCache<D extends Payload> {
      */
     private Map<Guid, WriterChanges<D>> changes = new HashMap<>();
 
-    /** @return true if this is a new change and it was added */
+    /**
+     * Add change to the cache.
+     *
+     * @return true if this change was added and it has strictly increasing {@link Data#wirter} from
+     *     previous changes of the same Writer
+     */
     public boolean addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
         if (writerChanges != null && writerChanges.containsChange(change.getSequenceNumber())) {
@@ -53,8 +58,14 @@ public class HistoryCache<D extends Payload> {
             writerChanges = new WriterChanges<>();
             changes.put(change.getWriterGuid(), writerChanges);
         }
+        var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
         writerChanges.addChange(change);
         LOGGER.fine("New change added into the cache");
+        // 8.4.2.2.1 Writers must not send data out-of-order
+        if (isOutOfOrder) {
+            LOGGER.fine("Change is out-of-order");
+            return false;
+        }
         return true;
     }
 
