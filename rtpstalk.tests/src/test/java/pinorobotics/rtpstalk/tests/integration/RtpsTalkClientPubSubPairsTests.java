@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.joining;
 import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
-import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.lang.XProcess;
 import id.xfunction.lang.XThread;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -40,6 +40,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.tests.LogUtils;
+import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
@@ -57,6 +58,7 @@ public class RtpsTalkClientPubSubPairsTests {
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
             List<String> templates,
+            List<String> subscribeTestTemplates,
             List<Runnable> validators,
             Map<FastRtpsEnvironmentVariable, String> publisherParameters) {}
 
@@ -73,8 +75,8 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_startup.template",
                                 "spdp_close.template",
-                                "service_startup_ports_8080_8081.template",
-                                "topic_subscriptions_manager_future_topic.template"),
+                                "service_startup_ports_8080_8081.template"),
+                        List.of("topic_subscriptions_manager_future_topic.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 2
@@ -88,8 +90,8 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_startup.template",
                                 "spdp_close.template",
-                                "service_startup_ports_8080_8081.template",
-                                "topic_subscriptions_manager.template"),
+                                "service_startup_ports_8080_8081.template"),
+                        List.of("topic_subscriptions_manager.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of()),
                 // 3
@@ -101,9 +103,8 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        List.of(
-                                "service_startup_loopback_iface.template",
-                                "topic_subscriptions_manager.template"),
+                        List.of("service_startup_loopback_iface.template"),
+                        List.of("topic_subscriptions_manager.template"),
                         List.of(
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
                                 RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
@@ -111,12 +112,17 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 4
                 new TestCase(
                         12,
-                        new RtpsTalkConfiguration.Builder().build(),
+                        new RtpsTalkConfiguration.Builder()
+                                .guidPrefix(TestConstants.TEST_GUID_PREFIX)
+                                .builtinEnpointsPort(8080)
+                                .userEndpointsPort(8081)
+                                .build(),
                         false,
                         List.of(
                                 "service_startup.template",
                                 "spdp_close.template",
-                                "service_startup_ports_default.template"),
+                                "service_startup_ports_8080_8081.template"),
+                        List.of(),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
@@ -129,8 +135,8 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_startup.template",
                                 "spdp_close.template",
-                                "service_startup_ports_default.template",
-                                "topic_subscriptions_manager.template"),
+                                "service_startup_ports_default.template"),
+                        List.of("topic_subscriptions_manager.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
@@ -160,12 +166,9 @@ public class RtpsTalkClientPubSubPairsTests {
     public void test_subscriber_publisher_pairs(TestCase testCase) throws Exception {
         client = new RtpsTalkClient(testCase.config);
 
-        List<String> topics =
-                IntStream.range(0, testCase.numberOfPubSubPairs)
-                        .mapToObj(i -> "HelloWorldTopic" + i)
-                        .toList();
+        List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
         var procs = new ArrayList<XProcess>();
-        Runnable executor =
+        Runnable publishersRunner =
                 () -> {
                     for (var topic : topics) {
                         var vars = new HashMap<>(testCase.publisherParameters());
@@ -174,24 +177,20 @@ public class RtpsTalkClientPubSubPairsTests {
                     }
                 };
         if (!testCase.isSubscribeToFutureTopic) {
-            executor.run();
-            // subscribe to dummy topic to cause client to start all services
-            // that way client will discover HelloWorldPublisher topic but not subscribe to it yet
-            client.subscribe("topic", "type", new SimpleSubscriber<byte[]>());
-            // wait for next SPDP cycle
-            XThread.sleep(
-                    client.getConfiguration()
-                            .spdpDiscoveredParticipantDataPublishPeriod()
-                            .plusSeconds(1)
-                            .toMillis());
+            publishersRunner.run();
+            client.start();
+            waitNextSpdpCycle();
         }
         var subscribers =
                 Stream.generate(() -> new CollectorSubscriber<byte[]>(5))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
+
+        // subscribe all
         IntStream.range(0, testCase.numberOfPubSubPairs)
                 .forEach(i -> client.subscribe(topics.get(i), "HelloWorld", subscribers.get(i)));
-        if (testCase.isSubscribeToFutureTopic) executor.run();
+
+        if (testCase.isSubscribeToFutureTopic) publishersRunner.run();
 
         for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
             var dataReceived =
@@ -199,9 +198,7 @@ public class RtpsTalkClientPubSubPairsTests {
                             .map(XByte::toHexPairs)
                             .collect(joining("\n"));
             Assertions.assertEquals(
-                    resourceUtils.readResource(
-                            RtpsTalkClientPubSubPairsTests.class, "HelloWorldTopic"),
-                    dataReceived);
+                    resourceUtils.readResource(getClass(), "HelloWorldTopic"), dataReceived);
         }
 
         client.close();
@@ -209,17 +206,97 @@ public class RtpsTalkClientPubSubPairsTests {
                 proc ->
                         Assertions.assertEquals(
                                 resourceUtils.readResource(
-                                        RtpsTalkClientPubSubPairsTests.class,
-                                        "HelloWorldExample_publisher"),
+                                        getClass(), "HelloWorldExample_publisher"),
                                 proc.stdoutAsString()));
+
+        assertTemplates(testCase.templates);
+        assertTemplates(testCase.subscribeTestTemplates);
+        assertValidators(testCase.validators);
+    }
+
+    private void assertValidators(List<Runnable> validators) {
+        validators.forEach(Runnable::run);
+    }
+
+    private void assertTemplates(List<String> templates) {
         var log = LogUtils.readLogFile();
-        testCase.templates.forEach(
+        templates.forEach(
                 resourceName ->
                         XAsserts.assertMatches(
-                                resourceUtils.readResource(
-                                        RtpsTalkClientPubSubPairsTests.class, resourceName),
-                                log));
-        testCase.validators.forEach(Runnable::run);
+                                resourceUtils.readResource(getClass(), resourceName), log));
+    }
+
+    private List<String> generateTopicNames(int count) {
+        return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    public void test_publisher_subscriber_pairs(TestCase testCase) throws Exception {
+        client = new RtpsTalkClient(testCase.config);
+
+        int numberOfPubSubPairs = testCase.numberOfPubSubPairs;
+        List<String> topics = generateTopicNames(numberOfPubSubPairs);
+        var procs = new ArrayList<XProcess>();
+        Runnable subscribersRunner =
+                () -> {
+                    for (var topic : topics) {
+                        var vars = new HashMap<>(testCase.publisherParameters());
+                        vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
+                        procs.add(tools.runHelloWorldSubscriber(vars));
+                    }
+                };
+
+        if (testCase.isSubscribeToFutureTopic) {
+            subscribersRunner.run();
+            waitNextSpdpCycle();
+        }
+
+        var publishers =
+                IntStream.range(0, numberOfPubSubPairs)
+                        .mapToObj(
+                                i -> {
+                                    var publisher = new SubmissionPublisher<byte[]>();
+                                    client.publish(topics.get(i), "HelloWorld", publisher);
+                                    return publisher;
+                                })
+                        .toList();
+
+        if (!testCase.isSubscribeToFutureTopic) subscribersRunner.run();
+
+        var messagesToSubmit =
+                resourceUtils
+                        .readResourceAsStream(getClass(), "HelloWorldTopic")
+                        .map(XByte::fromHexPairs)
+                        .toList();
+        for (int i = 0; i < numberOfPubSubPairs; i++) {
+            var publisher = publishers.get(i);
+            messagesToSubmit.forEach(publisher::submit);
+        }
+
+        for (int i = 0; i < numberOfPubSubPairs; i++) {
+            var actual = procs.get(i).stdoutAsString();
+            System.out.println("Process for topic " + topics.get(i));
+            System.out.println(actual);
+            XAsserts.assertMatches(
+                    resourceUtils.readResource(getClass(), "HelloWorldExample_subscriber"), actual);
+        }
+
+        // close only after all subscribers received all data
+        client.close();
+
+        assertTemplates(testCase.templates);
+        assertValidators(testCase.validators);
+    }
+
+    private void waitNextSpdpCycle() {
+        // wait for next SPDP cycle
+        var publishPeriod =
+                client.getConfiguration()
+                        .spdpDiscoveredParticipantDataPublishPeriod()
+                        .plusSeconds(1)
+                        .toMillis();
+        XThread.sleep(publishPeriod);
     }
 
     private static void validateSedpClose() {

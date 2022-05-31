@@ -65,6 +65,9 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     @Override
     public RtpsMessage build(EntityId readerEntiyId, EntityId writerEntityId) {
         var submessages = new ArrayList<Submessage>();
+        // we do not timestamp data changes so we do not include InfoTimestamp per each Data
+        // submessage,
+        // instead we include InfoTimestamp per entire message and only once
         submessages.add(InfoTimestamp.now());
         data.entrySet().stream()
                 .map(

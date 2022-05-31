@@ -34,18 +34,10 @@ public class FastRtpsExamples implements AutoCloseable {
             Paths.get("").toAbsolutePath().resolve("bld/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
-    public XProcess runHelloWorldPublisher() {
-        return runHelloWorldPublisher(Map.of());
-    }
-
     public XProcess runHelloWorldPublisher(Map<FastRtpsEnvironmentVariable, String> env) {
-        var variables =
-                env.entrySet().stream()
-                        .map(e -> Map.entry(e.getKey().getVariableName(), e.getValue()))
-                        .collect(toMap(Entry::getKey, Entry::getValue));
         var proc =
                 new XExec(HELLOWORLDEXAMPLE_PATH, "publisher")
-                        .withEnvironmentVariables(variables)
+                        .withEnvironmentVariables(toStringKeys(env))
                         .run();
         procs.add(proc);
         // When process writes to stdout it may get blocked until somebody
@@ -54,13 +46,21 @@ public class FastRtpsExamples implements AutoCloseable {
         return proc;
     }
 
+    private Map<String, String> toStringKeys(Map<FastRtpsEnvironmentVariable, String> env) {
+        return env.entrySet().stream()
+                .collect(toMap(e -> e.getKey().getVariableName(), Entry::getValue));
+    }
+
     @Override
     public void close() {
         procs.forEach(proc -> proc.destroyAllForcibly());
     }
 
-    public XProcess runHelloWorldSubscriber() {
-        var proc = new XExec(HELLOWORLDEXAMPLE_PATH, "subscriber").run();
+    public XProcess runHelloWorldSubscriber(Map<FastRtpsEnvironmentVariable, String> env) {
+        var proc =
+                new XExec(HELLOWORLDEXAMPLE_PATH, "subscriber")
+                        .withEnvironmentVariables(toStringKeys(env))
+                        .run();
         procs.add(proc);
         // When process writes to stdout it may get blocked until somebody
         // starts reading it. To avoid that we start reading immediately.

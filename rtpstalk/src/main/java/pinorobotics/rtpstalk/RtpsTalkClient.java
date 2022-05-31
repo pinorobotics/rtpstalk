@@ -73,7 +73,23 @@ public class RtpsTalkClient implements AutoCloseable {
         publisher.subscribe(transformer);
     }
 
-    private void start() {
+    /**
+     * Starts all RTPS services which are required for communication with other RTPS participants.
+     * Among them:
+     *
+     * <ul>
+     *   <li>Simple Participant Discovery Protocol (SPDP)
+     *   <li>Simple Endpoint Discovery Protocol (SEDP)
+     *   <li>User data
+     *   <li>...
+     * </ul>
+     *
+     * <p><b>rtpstalk</b> client is lazy by default and starts all services automatically when user
+     * initiates some RTPS interactions.
+     *
+     * <p>Using this method users can start all services on demand.
+     */
+    public void start() {
         Preconditions.isTrue(!isStarted, "Already started");
         if (tracingToken == null) {
             tracingToken = new TracingToken("" + hashCode());

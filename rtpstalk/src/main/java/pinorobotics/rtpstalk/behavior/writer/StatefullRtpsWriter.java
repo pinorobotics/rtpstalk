@@ -42,6 +42,7 @@ import pinorobotics.rtpstalk.structure.history.CacheChange;
 import pinorobotics.rtpstalk.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
+import pinorobotics.rtpstalk.transport.RtpsMessageSender.MessageBuilder;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
@@ -147,19 +148,48 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
         super.close();
     }
 
+    @Override
+    protected void sendLastChangeToAllReaders() {
+        /**
+         * For reliable Writer we send changes only when Reader notifies that it lost them (through
+         * heartbeat-acknack interaction).
+         *
+         * <p>This is needed to satisfy "Writers must not send data out-of-order" requirement from
+         * "8.4.2.2 Required RTPS Writer Behavior".
+         *
+         * <p>If we would be sending changes immediately + by request, it can lead to messages being
+         * sent out-of-order:
+         *
+         * <p>- Changes in cache [c1, c2, c3] with the corresponding {@link Data#writerSN} -
+         * Received acknack from Reader saying that it lost [c1, c2, c3] - New change c4 was
+         * published and immediately sent to Reader - Lost changes [c1, c2, c3] sent to Reader
+         *
+         * <p>In this case Reader will receive messages out-of-order [c4, c1, c2, c3] and since c4
+         * will have greater {@link Data#writerSN} all previous will not be processed.
+         */
+    }
+
     private void sendHeartbeat() {
+        nextHeartbeatMessage()
+                .ifPresent(
+                        message -> {
+                            submit(message);
+                            logger.fine("Heartbeat submitted");
+                        });
+    }
+
+    private Optional<MessageBuilder> nextHeartbeatMessage() {
         var seqNumMin = historyCache.getSeqNumMin(getGuid());
         if (seqNumMin <= 0) {
             logger.fine("Skipping heartbeat since history cache is empty");
-            return;
+            return Optional.empty();
         }
         var seqNumMax = historyCache.getSeqNumMax(getGuid());
         Preconditions.isLess(0, seqNumMax, "Negative sequence number");
         var heartbeat =
                 new RtpsHeartbeatMessageBuilder(
                         getGuid().guidPrefix, seqNumMin, seqNumMax, heartbeatCount++);
-        submit(heartbeat);
-        logger.fine("Heartbeat submitted");
+        return Optional.of(heartbeat);
     }
 
     private void sendRequested() {

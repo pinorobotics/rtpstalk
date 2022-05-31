@@ -104,8 +104,12 @@ public class RtpsWriter<D extends Payload>
         lastChangeNumber++;
         lastMessage = new RtpsDataMessageBuilder(writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);
-        submit(lastMessage);
+        sendLastChangeToAllReaders();
         logger.exiting("newChange");
+    }
+
+    protected void sendLastChangeToAllReaders() {
+        submit(lastMessage);
     }
 
     @Override
