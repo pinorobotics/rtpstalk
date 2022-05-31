@@ -17,25 +17,13 @@
  */
 package pinorobotics.rtpstalk.tests;
 
-import id.xfunction.function.Unchecked;
-import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
-public class LogUtils {
+/** @author lambdaprime intid@protonmail.com */
+public class TestEvents {
 
-    public static final Path LOG_FILE =
-            XFiles.TEMP_FOLDER.map(p -> p.resolve("rtpstalk-test.log")).orElseThrow();
-
-    public static void setupLog() {
-        Unchecked.run(() -> Files.deleteIfExists(LOG_FILE));
-        // since we deleted the log file we need to reconfigure logger
-        XLogger.load("rtpstalk-test.properties");
-    }
-
-    public static String readLogFile() {
-        return Unchecked.get(() -> Files.readString(LOG_FILE));
+    public static void waitForDiscoveredPublisher(String topic) throws Exception {
+        XFiles.watchForStringInFile(LogUtils.LOG_FILE, "Discovered publisher for topic " + topic)
+                .get();
     }
 }

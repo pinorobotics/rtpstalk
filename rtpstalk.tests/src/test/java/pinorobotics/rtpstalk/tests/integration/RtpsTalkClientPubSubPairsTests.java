@@ -41,6 +41,7 @@ import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
@@ -179,7 +180,7 @@ public class RtpsTalkClientPubSubPairsTests {
         if (!testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
             client.start();
-            waitNextSpdpCycle();
+            TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
         }
         var subscribers =
                 Stream.generate(() -> new CollectorSubscriber<byte[]>(5))
@@ -249,7 +250,6 @@ public class RtpsTalkClientPubSubPairsTests {
 
         if (testCase.isSubscribeToFutureTopic) {
             subscribersRunner.run();
-            waitNextSpdpCycle();
         }
 
         var publishers =
