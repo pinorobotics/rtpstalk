@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
@@ -33,7 +33,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SedpBuiltinSubscriptionsReader extends StatefullRtpsReader<ParameterList> {
+public class SedpBuiltinSubscriptionsReader extends StatefullReliableRtpsReader<ParameterList> {
 
     public SedpBuiltinSubscriptionsReader(
             RtpsTalkConfiguration config,

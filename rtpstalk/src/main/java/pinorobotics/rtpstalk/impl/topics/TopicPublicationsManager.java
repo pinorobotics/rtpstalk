@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -50,7 +50,7 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
 
     private XLogger logger;
     private RtpsTalkConfiguration config;
-    private StatefullRtpsWriter<ParameterList> publicationWriter;
+    private StatefullReliableRtpsWriter<ParameterList> publicationWriter;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
 
@@ -58,7 +58,7 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
             TracingToken tracingToken,
             RtpsTalkConfiguration config,
             RtpsNetworkInterface networkIface,
-            StatefullRtpsWriter<ParameterList> publicationWriter,
+            StatefullReliableRtpsWriter<ParameterList> publicationWriter,
             UserDataService userService) {
         this.config = config;
         this.networkIface = networkIface;

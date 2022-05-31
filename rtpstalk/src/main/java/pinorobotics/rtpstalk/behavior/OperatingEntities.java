@@ -17,30 +17,30 @@
  */
 package pinorobotics.rtpstalk.behavior;
 
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 
 /** @author lambdaprime intid@protonmail.com */
 public class OperatingEntities {
 
-    private EntityRegistry<StatefullRtpsWriter<?>> writers =
+    private EntityRegistry<StatefullReliableRtpsWriter<?>> writers =
             new EntityRegistry<>(
                     new TracingToken("WRITERS"),
                     EntityKind.WRITER_NO_KEY,
                     EntityKind.BUILTIN_WRITER);
-    private EntityRegistry<StatefullRtpsReader<?>> readers =
+    private EntityRegistry<StatefullReliableRtpsReader<?>> readers =
             new EntityRegistry<>(
                     new TracingToken("READERS"),
                     EntityKind.READER_NO_KEY,
                     EntityKind.BUILTIN_READER);
 
-    public EntityRegistry<StatefullRtpsReader<?>> getReaders() {
+    public EntityRegistry<StatefullReliableRtpsReader<?>> getReaders() {
         return readers;
     }
 
-    public EntityRegistry<StatefullRtpsWriter<?>> getWriters() {
+    public EntityRegistry<StatefullReliableRtpsWriter<?>> getWriters() {
         return writers;
     }
 }

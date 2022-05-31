@@ -45,7 +45,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender.MessageBuilder;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
+public class StatefullReliableRtpsWriter<D extends Payload> extends RtpsWriter<D>
         implements Runnable, AutoCloseable {
 
     private ScheduledExecutorService executor =
@@ -66,7 +66,7 @@ public class StatefullRtpsWriter<D extends Payload> extends RtpsWriter<D>
     private DataChannelFactory channelFactory;
     private OperatingEntities operatingEntities;
 
-    public StatefullRtpsWriter(
+    public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,

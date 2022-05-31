@@ -37,7 +37,7 @@ import pinorobotics.rtpstalk.transport.RtpsMessageSender;
 
 /**
  * This writer does not cache changes in {@link HistoryCache} and sends them to readers directly
- * (although it is used in {@link StatefullRtpsWriter}).
+ * (although it is used in {@link StatefullReliableRtpsWriter}).
  *
  * <p>Data flow:
  *

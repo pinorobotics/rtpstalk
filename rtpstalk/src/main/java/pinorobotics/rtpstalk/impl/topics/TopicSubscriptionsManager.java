@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -60,14 +60,14 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
     private List<Topic> topics = new ArrayList<>();
     private RtpsTalkConfiguration config;
     private RtpsNetworkInterface networkIface;
-    private StatefullRtpsWriter<ParameterList> subscriptionsWriter;
+    private StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter;
     private UserDataService userService;
 
     public TopicSubscriptionsManager(
             TracingToken tracingToken,
             RtpsTalkConfiguration config,
             RtpsNetworkInterface networkIface,
-            StatefullRtpsWriter<ParameterList> subscriptionsWriter,
+            StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter,
             UserDataService userService) {
         this.config = config;
         this.networkIface = networkIface;

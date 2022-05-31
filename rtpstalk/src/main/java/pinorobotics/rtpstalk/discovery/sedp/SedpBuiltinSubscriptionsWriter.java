@@ -19,14 +19,14 @@ package pinorobotics.rtpstalk.discovery.sedp;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SedpBuiltinSubscriptionsWriter extends StatefullRtpsWriter<ParameterList> {
+public class SedpBuiltinSubscriptionsWriter extends StatefullReliableRtpsWriter<ParameterList> {
 
     public SedpBuiltinSubscriptionsWriter(
             RtpsTalkConfiguration config,

@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.behavior.liveliness;
 import id.xfunction.Preconditions;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
+import pinorobotics.rtpstalk.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
@@ -31,7 +31,7 @@ import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class BuiltinParticipantMessageReader extends StatefullRtpsReader<ParameterList> {
+public class BuiltinParticipantMessageReader extends StatefullReliableRtpsReader<ParameterList> {
 
     public BuiltinParticipantMessageReader(
             RtpsTalkConfiguration config,

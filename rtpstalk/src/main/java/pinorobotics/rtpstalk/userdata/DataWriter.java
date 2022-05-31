@@ -19,14 +19,14 @@ package pinorobotics.rtpstalk.userdata;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class DataWriter extends StatefullRtpsWriter<RawData> {
+public class DataWriter extends StatefullReliableRtpsWriter<RawData> {
 
     public DataWriter(
             RtpsTalkConfiguration config,

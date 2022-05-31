@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.liveliness.BuiltinParticipantMessageReader;
-import pinorobotics.rtpstalk.behavior.reader.StatefullRtpsReader;
-import pinorobotics.rtpstalk.behavior.writer.StatefullRtpsWriter;
+import pinorobotics.rtpstalk.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.TracingToken;
@@ -119,11 +119,11 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     @Override
     public void onComplete() {}
 
-    public StatefullRtpsReader<ParameterList> getPublicationsReader() {
+    public StatefullReliableRtpsReader<ParameterList> getPublicationsReader() {
         return publicationsReader;
     }
 
-    public StatefullRtpsReader<ParameterList> getSubscriptionsReader() {
+    public StatefullReliableRtpsReader<ParameterList> getSubscriptionsReader() {
         return subscriptionsReader;
     }
 
@@ -180,8 +180,8 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     private void configure(
             BuiltinEndpointSet availableRemoteEndpoints,
             GuidPrefix guidPrefix,
-            StatefullRtpsReader<ParameterList> reader,
-            StatefullRtpsWriter<ParameterList> writer,
+            StatefullReliableRtpsReader<ParameterList> reader,
+            StatefullReliableRtpsWriter<ParameterList> writer,
             Endpoint remoteEndpoint,
             List<Locator> unicast) {
         if (remoteEndpoint.getType() == EndpointType.READER) {
@@ -213,7 +213,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
         }
     }
 
-    public StatefullRtpsWriter<ParameterList> getSubscriptionsWriter() {
+    public StatefullReliableRtpsWriter<ParameterList> getSubscriptionsWriter() {
         return subscriptionsWriter;
     }
 

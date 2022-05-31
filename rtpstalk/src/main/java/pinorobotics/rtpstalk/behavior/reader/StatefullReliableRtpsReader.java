@@ -45,7 +45,7 @@ import pinorobotics.rtpstalk.structure.history.CacheChange;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
+public class StatefullReliableRtpsReader<D extends Payload> extends RtpsReader<D> {
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */
     private Map<Guid, WriterInfo> matchedWriters = new ConcurrentHashMap<>();
@@ -53,7 +53,7 @@ public class StatefullRtpsReader<D extends Payload> extends RtpsReader<D> {
     private RtpsTalkConfiguration config;
     private OperatingEntities operatingEntities;
 
-    public StatefullRtpsReader(
+    public StatefullReliableRtpsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             OperatingEntities operatingEntities,
