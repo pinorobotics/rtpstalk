@@ -40,9 +40,7 @@ public class FastRtpsExamples implements AutoCloseable {
                         .withEnvironmentVariables(toStringKeys(env))
                         .run();
         procs.add(proc);
-        // When process writes to stdout it may get blocked until somebody
-        // starts reading it. To avoid that we start reading immediately.
-        proc.flush(false);
+        proc.outputAsync(false);
         return proc;
     }
 
@@ -62,9 +60,7 @@ public class FastRtpsExamples implements AutoCloseable {
                         .withEnvironmentVariables(toStringKeys(env))
                         .run();
         procs.add(proc);
-        // When process writes to stdout it may get blocked until somebody
-        // starts reading it. To avoid that we start reading immediately.
-        proc.flush(false);
+        proc.outputAsync(false);
         return proc;
     }
 }

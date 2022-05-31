@@ -207,7 +207,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         Assertions.assertEquals(
                                 resourceUtils.readResource(
                                         getClass(), "HelloWorldExample_publisher"),
-                                proc.stdoutAsString()));
+                                proc.stdout()));
 
         assertTemplates(testCase.templates);
         assertTemplates(testCase.subscribeTestTemplates);
@@ -275,7 +275,7 @@ public class RtpsTalkClientPubSubPairsTests {
         }
 
         for (int i = 0; i < numberOfPubSubPairs; i++) {
-            var actual = procs.get(i).stdoutAsString();
+            var actual = procs.get(i).stdout();
             System.out.println("Process for topic " + topics.get(i));
             System.out.println(actual);
             XAsserts.assertMatches(
