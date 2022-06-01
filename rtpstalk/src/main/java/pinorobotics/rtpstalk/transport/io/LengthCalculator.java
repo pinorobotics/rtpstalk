@@ -50,10 +50,12 @@ import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class LengthCalculator {
@@ -175,11 +177,14 @@ public class LengthCalculator {
                             "Cannot calculate length for an unknown parameter id %s", id);
                 };
 
-        /*
-         * 9.4.2.11 ParameterList A ParameterList contains a list of Parameters,
-         * terminated with a sentinel. Each Parameter within the ParameterList starts
-         * aligned on a 4-byte boundary with respect to the start of the ParameterList.
-         */
+        @RtpsSpecReference(
+                paragraph = "9.4.2.11",
+                protocolVersion = Predefined.Version_2_3,
+                text =
+                        "ParameterList A ParameterList contains a list of Parameters, terminated"
+                                + " with a sentinel. Each Parameter within the ParameterList starts"
+                                + " aligned on a 4-byte boundary with respect to the start of the"
+                                + " ParameterList.")
         var padding = 0;
         if (len % 4 != 0) {
             padding = 4 - (len % 4);

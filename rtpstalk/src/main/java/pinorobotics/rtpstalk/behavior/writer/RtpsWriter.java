@@ -31,6 +31,8 @@ import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.structure.RtpsEntity;
 import pinorobotics.rtpstalk.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.transport.RtpsMessageSender;
@@ -71,9 +73,12 @@ public class RtpsWriter<D extends Payload>
 
     /**
      * @param pushMode Note that for a {@link ReliabilityKind#BEST_EFFORT} Writer, pushMode is true,
-     *     as there are no acknowledgments. Therefore, the Writer always pushes out data as it
-     *     becomes available (8.4.9.1.1)
+     *     as there are no acknowledgments.
      */
+    @RtpsSpecReference(
+            paragraph = "8.4.9.1.1",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Writer always pushes out data as it becomes available")
     public RtpsWriter(
             RtpsTalkConfiguration config,
             TracingToken token,

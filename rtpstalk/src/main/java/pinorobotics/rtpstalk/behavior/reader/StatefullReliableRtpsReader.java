@@ -33,7 +33,9 @@ import pinorobotics.rtpstalk.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.messages.walk.Result;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.structure.history.CacheChange;
 
 /**
@@ -85,10 +87,14 @@ public class StatefullReliableRtpsReader<D extends Payload> extends RtpsReader<D
         }
     }
 
+    @RtpsSpecReference(
+            paragraph = "8.3.7.5.5",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "However, if the FinalFlag is not set, then the Reader must send an AckNack"
+                            + " message")
     @Override
     public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
-        // However, if the FinalFlag is not set, then the Reader must send an AckNack
-        // message (8.3.7.5.5)
         if (!heartbeat.isFinal()) {
             var writerGuid = new Guid(guidPrefix, heartbeat.writerId);
             var writerInfo = matchedWriters.get(writerGuid);

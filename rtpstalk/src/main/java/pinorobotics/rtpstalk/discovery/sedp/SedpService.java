@@ -38,6 +38,8 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
@@ -45,10 +47,14 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 /**
  * Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
  * existence of another Participant described by the DiscoveredParticipantData participant_data. The
- * discovered Participant uses the SEDP (8.5.5.1 Discovery of a new remote Participant)
+ * discovered Participant uses the SEDP
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@RtpsSpecReference(
+        paragraph = "8.5.5.1",
+        protocolVersion = Predefined.Version_2_3,
+        text = "Discovery of a new remote Participant")
 public class SedpService extends SimpleSubscriber<ParameterList> implements AutoCloseable {
 
     private RtpsTalkConfiguration config;

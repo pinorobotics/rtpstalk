@@ -30,6 +30,8 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.StatusInfo;
 import pinorobotics.rtpstalk.messages.UserDataQosPolicy;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public enum ParameterId {
@@ -50,15 +52,24 @@ public enum ParameterId {
     PID_BUILTIN_ENDPOINT_QOS(0x0077, BuiltinEndpointQos.class),
     PID_KEY_HASH(0x0070, KeyHash.class),
 
-    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
+    @RtpsSpecReference(
+            paragraph = "8.7.2.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "DDS QoS Parameters that affect the wire protocol")
     PID_RELIABILITY(0x001a, ReliabilityQosPolicy.class),
 
     PID_STATUS_INFO(0x0071, StatusInfo.class),
 
-    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
+    @RtpsSpecReference(
+            paragraph = "8.7.2.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "DDS QoS Parameters that affect the wire protocol")
     PID_DESTINATION_ORDER(0x0025, DestinationOrderQosPolicy.class),
 
-    /** 8.7.2.2 DDS QoS Parameters that affect the wire protocol */
+    @RtpsSpecReference(
+            paragraph = "8.7.2.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "DDS QoS Parameters that affect the wire protocol")
     PID_DURABILITY(0x001d, DurabilityQosPolicy.class),
     PID_SENTINEL(0x0001, null);
 

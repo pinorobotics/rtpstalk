@@ -38,6 +38,8 @@ import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.structure.history.CacheChange;
 import pinorobotics.rtpstalk.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
@@ -148,14 +150,15 @@ public class StatefullReliableRtpsWriter<D extends Payload> extends RtpsWriter<D
         super.close();
     }
 
+    @RtpsSpecReference(
+            paragraph = "8.4.2.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Writers must not send data out-of-order")
     @Override
     protected void sendLastChangeToAllReaders() {
         /**
          * For reliable Writer we send changes only when Reader notifies that it lost them (through
          * heartbeat-acknack interaction).
-         *
-         * <p>This is needed to satisfy "Writers must not send data out-of-order" requirement from
-         * "8.4.2.2 Required RTPS Writer Behavior".
          *
          * <p>If we would be sending changes immediately + by request, it can lead to messages being
          * sent out-of-order:

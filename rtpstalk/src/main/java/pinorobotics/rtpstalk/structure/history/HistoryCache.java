@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class HistoryCache<D extends Payload> {
@@ -32,7 +34,7 @@ public class HistoryCache<D extends Payload> {
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
 
     /**
-     * The list of CacheChanges contained in the HistoryCache (see "8.2.2 The RTPS HistoryCache")
+     * The list of CacheChanges contained in the HistoryCache
      *
      * <p>For Writers there is only one Writer which is adding changes to cache so there is only one
      * {@link Guid} which is {@link Guid} of the writer to which this cache belongs.
@@ -40,6 +42,10 @@ public class HistoryCache<D extends Payload> {
      * <p>For Readers we need to keep track of changes per each matched Writer. One reason for that
      * is to tell matched Writers what changes are lost.
      */
+    @RtpsSpecReference(
+            paragraph = "8.2.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "The RTPS HistoryCache")
     private Map<Guid, WriterChanges<D>> changes = new HashMap<>();
 
     /**
@@ -48,6 +54,10 @@ public class HistoryCache<D extends Payload> {
      * @return true if this change was added and it has strictly increasing {@link Data#wirter} from
      *     previous changes of the same Writer
      */
+    @RtpsSpecReference(
+            paragraph = "8.4.2.2.1",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Writers must not send data out-of-order")
     public boolean addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
         if (writerChanges != null && writerChanges.containsChange(change.getSequenceNumber())) {
@@ -61,7 +71,6 @@ public class HistoryCache<D extends Payload> {
         var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
         writerChanges.addChange(change);
         LOGGER.fine("New change added into the cache");
-        // 8.4.2.2.1 Writers must not send data out-of-order
         if (isOutOfOrder) {
             LOGGER.fine("Change is out-of-order");
             return false;

@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 
 /**
  * If the RELIABILITY kind is set to RELIABLE, the write operation may block if the modification
@@ -26,10 +28,14 @@ import java.util.Objects;
  * be exceeded. Under these circumstances, the RELIABILITY max_blocking_time configures the maximum
  * time the write operation may block waiting for space to become available. If max_blocking_time
  * elapses before the DataWriter is able to store the modification without exceeding the limits, the
- * write operation will fail and return TIMEOUT (2.2.2.4.2.11 write)
+ * write operation will fail and return TIMEOUT
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@RtpsSpecReference(
+        paragraph = "2.2.2.4.2.11",
+        protocolVersion = Predefined.Version_2_3,
+        text = "write")
 public class ReliabilityQosPolicy {
 
     public enum Kind {

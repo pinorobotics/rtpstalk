@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 
 /**
  * SequenceNumberSet SubmessageElements are used as parts of several messages to provide binary
@@ -28,7 +30,10 @@ import id.xfunction.XJsonStringBuilder;
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class SequenceNumberSet {
 
-    /** First sequence number in the set, must be >= 1 (9.4.2.6 SequenceNumberSet) */
+    @RtpsSpecReference(
+            paragraph = "9.4.2.6",
+            protocolVersion = Predefined.Version_2_3,
+            text = "First sequence number in the set, must be >= 1")
     public SequenceNumber bitmapBase = new SequenceNumber(1);
 
     /** Number of bits in a set */

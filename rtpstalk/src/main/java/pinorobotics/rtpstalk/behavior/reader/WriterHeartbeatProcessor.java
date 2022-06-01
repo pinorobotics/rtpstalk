@@ -32,18 +32,23 @@ import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.transport.DataChannel;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
 /**
  * Combines multiple heartbeats into one AckNack
  *
- * <p>8.4.15.2 Efficient use of Gap and AckNack Submessages
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-/** @author aeon_flux aeon_flux@eclipso.ch */
+@RtpsSpecReference(
+        paragraph = "8.4.15.2",
+        protocolVersion = Predefined.Version_2_3,
+        text = "Efficient use of Gap and AckNack Submessages")
 public class WriterHeartbeatProcessor {
 
     private XLogger logger;
@@ -64,9 +69,13 @@ public class WriterHeartbeatProcessor {
     }
 
     /** Called when new Heartbeat received */
+    @RtpsSpecReference(
+            paragraph = "8.3.7.5.5",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "However, if the FinalFlag is not set, then the Reader must send an AckNack"
+                            + " message")
     public void addHeartbeat(Heartbeat heartbeat) {
-        // However, if the FinalFlag is not set, then the Reader must send an AckNack
-        // message (8.3.7.5.5)
         if (heartbeat.isFinal()) {
             logger.fine("Received final heartbeat, ignoring...");
             return;
