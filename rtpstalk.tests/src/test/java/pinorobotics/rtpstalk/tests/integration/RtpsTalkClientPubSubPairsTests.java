@@ -23,7 +23,6 @@ import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.lang.XProcess;
-import id.xfunction.lang.XThread;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -230,10 +229,7 @@ public class RtpsTalkClientPubSubPairsTests {
 
     private void assertTemplates(List<String> templates) {
         var log = LogUtils.readLogFile();
-        templates.forEach(
-                resourceName ->
-                        XAsserts.assertMatches(
-                                resourceUtils.readResource(getClass(), resourceName), log));
+        templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
     }
 
     private List<String> generateTopicNames(int count) {
@@ -319,22 +315,10 @@ public class RtpsTalkClientPubSubPairsTests {
         assertValidators(testCase.validators);
     }
 
-    private void waitNextSpdpCycle() {
-        // wait for next SPDP cycle
-        var publishPeriod =
-                client.getConfiguration()
-                        .spdpDiscoveredParticipantDataPublishPeriod()
-                        .plusSeconds(1)
-                        .toMillis();
-        XThread.sleep(publishPeriod);
-    }
-
     private static void validateSedpClose() {
         var log = LogUtils.readLogFile();
-        XAsserts.assertMatches(
-                resourceUtils.readResourceAsList(
-                        RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES"),
-                log);
+        XAsserts.assertMatchesAll(
+                RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES", log);
     }
 
     private static void validateSpdpLoopbackIface() {

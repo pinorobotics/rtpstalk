@@ -22,7 +22,6 @@ import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_DEFAULT_UNIC
 import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_GUID_PREFIX;
 import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR;
 
-import id.xfunction.ResourceUtils;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.util.EnumSet;
@@ -60,7 +59,6 @@ import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class SpdpServiceTest {
-    private static final ResourceUtils resourceUtils = new ResourceUtils();
     private static final RtpsTalkConfiguration CONFIG = TestConstants.TEST_CONFIG;
     private static final ParameterList TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA =
             createSpdpDiscoveredParticipantData(CONFIG);
@@ -109,8 +107,7 @@ public class SpdpServiceTest {
         Assertions.assertEquals(1, metatrafficChannel.getDataQueue().size());
         var message = metatrafficChannel.getDataQueue().peek().toString();
         System.out.println(message);
-        XAsserts.assertMatches(
-                resourceUtils.readResource(getClass(), "SpdpDiscoveredParticipantData"), message);
+        XAsserts.assertMatches(getClass(), "SpdpDiscoveredParticipantData", message);
     }
 
     @Test
