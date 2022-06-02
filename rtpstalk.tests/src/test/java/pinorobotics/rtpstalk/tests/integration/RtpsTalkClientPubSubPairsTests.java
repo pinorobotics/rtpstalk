@@ -25,6 +25,7 @@ import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.lang.XProcess;
 import id.xfunction.lang.XThread;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ public class RtpsTalkClientPubSubPairsTests {
 
     private record TestCase(
             int numberOfPubSubPairs,
+            int numberOfMessages,
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
             List<String> templates,
@@ -68,6 +70,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 1
                 new TestCase(
                         1,
+                        5,
                         new RtpsTalkConfiguration.Builder()
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
@@ -83,6 +86,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 2
                 new TestCase(
                         1,
+                        17,
                         new RtpsTalkConfiguration.Builder()
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
@@ -98,6 +102,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 3
                 new TestCase(
                         1,
+                        23,
                         new RtpsTalkConfiguration.Builder()
                                 .networkInterface("lo")
                                 .builtinEnpointsPort(8080)
@@ -113,6 +118,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 4
                 new TestCase(
                         12,
+                        5,
                         new RtpsTalkConfiguration.Builder()
                                 .guidPrefix(TestConstants.TEST_GUID_PREFIX)
                                 .builtinEnpointsPort(8080)
@@ -130,6 +136,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "TRANSIENT_LOCAL_DURABILITY_QOS")),
                 // 5
                 new TestCase(
+                        1,
                         1,
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
@@ -168,13 +175,19 @@ public class RtpsTalkClientPubSubPairsTests {
         client = new RtpsTalkClient(testCase.config);
 
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
+        var expectedData =
+                generateMessages(testCase.numberOfMessages).stream()
+                        .map(XByte::toHexPairs)
+                        .collect(joining("\n"));
         var procs = new ArrayList<XProcess>();
         Runnable publishersRunner =
                 () -> {
                     for (var topic : topics) {
                         var vars = new HashMap<>(testCase.publisherParameters());
                         vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
-                        procs.add(tools.runHelloWorldPublisher(vars));
+                        procs.add(
+                                tools.runHelloWorldExample(
+                                        vars, "publisher", "" + testCase.numberOfMessages));
                     }
                 };
         if (!testCase.isSubscribeToFutureTopic) {
@@ -183,7 +196,7 @@ public class RtpsTalkClientPubSubPairsTests {
             TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
         }
         var subscribers =
-                Stream.generate(() -> new CollectorSubscriber<byte[]>(5))
+                Stream.generate(() -> new CollectorSubscriber<byte[]>(testCase.numberOfMessages))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
 
@@ -198,17 +211,13 @@ public class RtpsTalkClientPubSubPairsTests {
                     subscribers.get(i).getFuture().get().stream()
                             .map(XByte::toHexPairs)
                             .collect(joining("\n"));
-            Assertions.assertEquals(
-                    resourceUtils.readResource(getClass(), "HelloWorldTopic"), dataReceived);
+            Assertions.assertEquals(expectedData, dataReceived);
         }
 
         client.close();
-        procs.forEach(
-                proc ->
-                        Assertions.assertEquals(
-                                resourceUtils.readResource(
-                                        getClass(), "HelloWorldExample_publisher"),
-                                proc.stdout()));
+
+        var expectedStdout = tools.generateExpectedPublisherStdout(testCase.numberOfMessages);
+        procs.forEach(proc -> Assertions.assertEquals(expectedStdout, proc.stdout()));
 
         assertTemplates(testCase.templates);
         assertTemplates(testCase.subscribeTestTemplates);
@@ -231,6 +240,27 @@ public class RtpsTalkClientPubSubPairsTests {
         return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
     }
 
+    private List<byte[]> generateMessages(int count) {
+        var out = new ArrayList<byte[]>();
+        var text = "HelloWorld";
+        for (int i = 1; i <= count; i++) {
+            var buf =
+                    ByteBuffer.allocate(
+                            // unsigned long index
+                            Integer.BYTES
+
+                                    // string message;
+                                    + Integer.BYTES // length
+                                    + text.length()
+                                    + 2 /*null byte + padding*/);
+            buf.putInt(Integer.reverseBytes(i));
+            buf.putInt(Integer.reverseBytes(text.length() + 1));
+            buf.put(text.getBytes());
+            out.add(buf.array());
+        }
+        return out;
+    }
+
     @ParameterizedTest
     @MethodSource("dataProvider")
     public void test_publisher_subscriber_pairs(TestCase testCase) throws Exception {
@@ -244,7 +274,9 @@ public class RtpsTalkClientPubSubPairsTests {
                     for (var topic : topics) {
                         var vars = new HashMap<>(testCase.publisherParameters());
                         vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
-                        procs.add(tools.runHelloWorldSubscriber(vars));
+                        procs.add(
+                                tools.runHelloWorldExample(
+                                        vars, "subscriber", "" + testCase.numberOfMessages));
                     }
                 };
 
@@ -264,22 +296,20 @@ public class RtpsTalkClientPubSubPairsTests {
 
         if (!testCase.isSubscribeToFutureTopic) subscribersRunner.run();
 
-        var messagesToSubmit =
-                resourceUtils
-                        .readResourceAsStream(getClass(), "HelloWorldTopic")
-                        .map(XByte::fromHexPairs)
-                        .toList();
+        var messagesToSubmit = generateMessages(testCase.numberOfMessages);
         for (int i = 0; i < numberOfPubSubPairs; i++) {
             var publisher = publishers.get(i);
             messagesToSubmit.forEach(publisher::submit);
         }
 
         for (int i = 0; i < numberOfPubSubPairs; i++) {
+            var topic = topics.get(i);
+            var expectedStdout =
+                    tools.generateExpectedSubscriberStdout(testCase.numberOfMessages, topic);
             var actual = procs.get(i).stdout();
-            System.out.println("Process for topic " + topics.get(i));
+            System.out.println("Process for topic " + topic);
             System.out.println(actual);
-            XAsserts.assertMatches(
-                    resourceUtils.readResource(getClass(), "HelloWorldExample_subscriber"), actual);
+            Assertions.assertEquals(expectedStdout, actual);
         }
 
         // close only after all subscribers received all data

@@ -48,6 +48,10 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[1],"subscriber")==0)
             type = 2;
+            if (argc >= 3)
+            {
+                count = atoi(argv[2]);
+            }
     }
     else
     {
@@ -72,7 +76,7 @@ int main(int argc, char** argv)
                 HelloWorldSubscriber mysub;
                 if(mysub.init())
                 {
-                    mysub.run(5);
+                    mysub.run(count);
                 }
                 break;
             }

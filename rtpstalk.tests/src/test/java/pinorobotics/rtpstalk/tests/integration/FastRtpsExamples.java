@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 /** @author lambdaprime intid@protonmail.com */
 public class FastRtpsExamples implements AutoCloseable {
@@ -34,11 +35,12 @@ public class FastRtpsExamples implements AutoCloseable {
             Paths.get("").toAbsolutePath().resolve("bld/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
-    public XProcess runHelloWorldPublisher(Map<FastRtpsEnvironmentVariable, String> env) {
-        var proc =
-                new XExec(HELLOWORLDEXAMPLE_PATH, "publisher")
-                        .withEnvironmentVariables(toStringKeys(env))
-                        .run();
+    public XProcess runHelloWorldExample(
+            Map<FastRtpsEnvironmentVariable, String> env, String... args) {
+        var argsList = new ArrayList<String>();
+        argsList.add(HELLOWORLDEXAMPLE_PATH);
+        argsList.addAll(List.of(args));
+        var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).run();
         procs.add(proc);
         proc.outputAsync(false);
         return proc;
@@ -54,13 +56,38 @@ public class FastRtpsExamples implements AutoCloseable {
         procs.forEach(proc -> proc.destroyAllForcibly());
     }
 
-    public XProcess runHelloWorldSubscriber(Map<FastRtpsEnvironmentVariable, String> env) {
-        var proc =
-                new XExec(HELLOWORLDEXAMPLE_PATH, "subscriber")
-                        .withEnvironmentVariables(toStringKeys(env))
-                        .run();
-        procs.add(proc);
-        proc.outputAsync(false);
-        return proc;
+    public String generateExpectedPublisherStdout(int count) {
+        var stdout = new StringBuilder();
+        stdout.append(
+                String.format(
+                        """
+                Starting\s
+                Publisher running %s samples.
+                Publisher matched
+                """,
+                        count));
+        IntStream.rangeClosed(1, count)
+                .forEach(
+                        i ->
+                                stdout.append(
+                                        String.format(
+                                                "Message: HelloWorld with index: %s SENT\n", i)));
+        return stdout.toString().trim();
+    }
+
+    public String generateExpectedSubscriberStdout(int count, String topicName) {
+        var stdout = new StringBuilder();
+        stdout.append(
+                String.format(
+                        """
+                Starting\s
+                Using topic %s
+                Subscriber running until %ssamples have been received
+                Subscriber matched
+                """,
+                        topicName, count));
+        IntStream.rangeClosed(1, count)
+                .forEach(i -> stdout.append(String.format("Message HelloWorld %s RECEIVED\n", i)));
+        return stdout.toString().trim();
     }
 }
