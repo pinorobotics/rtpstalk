@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.messages.DurabilityServiceQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.KeyHash;
@@ -71,6 +72,8 @@ public enum ParameterId {
             protocolVersion = Predefined.Version_2_3,
             text = "DDS QoS Parameters that affect the wire protocol")
     PID_DURABILITY(0x001d, DurabilityQosPolicy.class),
+
+    PID_DURABILITY_SERVICE(0x001e, DurabilityServiceQosPolicy.class),
     PID_SENTINEL(0x0001, null);
 
     public static Map<Short, ParameterId> map = new HashMap<>();

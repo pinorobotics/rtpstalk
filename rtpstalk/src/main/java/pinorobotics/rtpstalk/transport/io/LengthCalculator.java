@@ -25,8 +25,10 @@ import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.messages.ByteSequence;
 import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.messages.DurabilityServiceQosPolicy;
 import pinorobotics.rtpstalk.messages.Duration;
 import pinorobotics.rtpstalk.messages.Guid;
+import pinorobotics.rtpstalk.messages.HistoryQosPolicy;
 import pinorobotics.rtpstalk.messages.IntSequence;
 import pinorobotics.rtpstalk.messages.KeyHash;
 import pinorobotics.rtpstalk.messages.Locator;
@@ -103,6 +105,11 @@ public class LengthCalculator {
             return Integer.BYTES + getFixedLength(Duration.class);
         if (clazz == DestinationOrderQosPolicy.class) return Integer.BYTES;
         if (clazz == DurabilityQosPolicy.class) return Integer.BYTES;
+        if (clazz == DurabilityServiceQosPolicy.class)
+            return getFixedLength(Duration.class)
+                    + getFixedLength(HistoryQosPolicy.class)
+                    + Integer.BYTES * 4;
+        if (clazz == HistoryQosPolicy.class) return Integer.BYTES;
         if (clazz == KeyHash.class) return KeyHash.SIZE;
         if (clazz == Heartbeat.class)
             return getFixedLength(EntityId.class) * 2
@@ -172,6 +179,7 @@ public class LengthCalculator {
                             PID_BUILTIN_ENDPOINT_QOS,
                             PID_RELIABILITY,
                             PID_DURABILITY,
+                            PID_DURABILITY_SERVICE,
                             PID_DESTINATION_ORDER -> getFixedLength(id.getParameterClass());
                     default -> throw new XRE(
                             "Cannot calculate length for an unknown parameter id %s", id);
