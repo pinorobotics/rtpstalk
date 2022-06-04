@@ -52,10 +52,10 @@ public class RtpsServiceManager implements AutoCloseable {
     private boolean isStarted;
     private DataChannelFactory channelFactory;
     private List<SpdpService> spdpServices = new ArrayList<>();
-    private List<SedpService> sedpServices = new ArrayList<>();
-    private List<UserDataService> userServices = new ArrayList<>();
-    private List<TopicSubscriptionsManager> subscriptionsManagers = new ArrayList<>();
-    private List<TopicPublicationsManager> publicationsManagers = new ArrayList<>();
+    private SedpService sedpService;
+    private UserDataService userService;
+    private TopicSubscriptionsManager subscriptionsManager;
+    private TopicPublicationsManager publicationsManager;
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
@@ -86,8 +86,8 @@ public class RtpsServiceManager implements AutoCloseable {
         // for SEDP and User Data endpoints")
         try {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
-            var sedp = new SedpService(config, channelFactory, receiverFactory);
-            var userService =
+            sedpService = new SedpService(config, channelFactory, receiverFactory);
+            userService =
                     new UserDataService(
                             config, channelFactory, new DataObjectsFactory(), receiverFactory);
             var participantsPublisher = new MergeProcessor<ParameterList>();
@@ -95,31 +95,27 @@ public class RtpsServiceManager implements AutoCloseable {
             // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
             // but SEDP is not subscribed to them yet (and since SPDP cache them it will
             // not notify SEDP about them anymore)
-            sedp.start(tracingToken, rtpsIface);
-            sedpServices.add(sedp);
-            participantsPublisher.subscribe(sedp);
+            sedpService.start(tracingToken, rtpsIface);
+            participantsPublisher.subscribe(sedpService);
             startSpdp(tracingToken, rtpsIface, participantsPublisher);
             userService.start(tracingToken, rtpsIface);
-            userServices.add(userService);
 
-            var subscriptionsManager =
+            subscriptionsManager =
                     new TopicSubscriptionsManager(
                             tracingToken,
                             config,
                             rtpsIface,
-                            sedp.getSubscriptionsWriter(),
+                            sedpService.getSubscriptionsWriter(),
                             userService);
-            sedp.getPublicationsReader().subscribe(subscriptionsManager);
-            subscriptionsManagers.add(subscriptionsManager);
+            sedpService.getPublicationsReader().subscribe(subscriptionsManager);
 
-            var publicationsManager =
+            publicationsManager =
                     new TopicPublicationsManager(
                             tracingToken,
                             config,
                             rtpsIface,
-                            sedp.getPublicationsWriter(),
+                            sedpService.getPublicationsWriter(),
                             userService);
-            publicationsManagers.add(publicationsManager);
         } catch (Exception e) {
             logger.severe("Failed to start one of the RTPS services", e);
         }
@@ -143,25 +139,19 @@ public class RtpsServiceManager implements AutoCloseable {
     }
 
     public void subscribe(String topic, String type, Subscriber<RawData> subscriber) {
-        var merge = new MergeProcessor<RawData>();
-        merge.subscribe(subscriber);
-        subscriptionsManagers.forEach(
-                topicManager ->
-                        topicManager.addSubscriber(
-                                new TopicId(topic, type), merge.newSubscriber()));
+        subscriptionsManager.addSubscriber(new TopicId(topic, type), subscriber);
     }
 
     public void publish(String topic, String type, Publisher<RawData> publisher) {
-        publicationsManagers.forEach(
-                topicManager -> topicManager.addPublisher(new TopicId(topic, type), publisher));
+        publicationsManager.addPublisher(new TopicId(topic, type), publisher);
     }
 
     @Override
     public void close() {
         if (!isStarted) return;
-        sedpServices.forEach(SedpService::close);
+        sedpService.close();
         spdpServices.forEach(SpdpService::close);
-        userServices.forEach(UserDataService::close);
+        userService.close();
         logger.fine("Closed");
     }
 }
