@@ -37,6 +37,10 @@ public class TestDataObjectsFactory extends DataObjectsFactory {
     private Executor executor;
     private int maxBufferCapacity;
 
+    public TestDataObjectsFactory() {
+        this(true);
+    }
+
     public TestDataObjectsFactory(boolean isSameThreadExecutor) {
         this(
                 isSameThreadExecutor ? new SameThreadExecutorService() : ForkJoinPool.commonPool(),

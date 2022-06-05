@@ -20,36 +20,22 @@ package pinorobotics.rtpstalk.impl.topics;
 import id.xfunction.Preconditions;
 import id.xfunction.XObservable;
 import id.xfunction.logging.XLogger;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
-import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
-import pinorobotics.rtpstalk.messages.Duration;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /** @author lambdaprime intid@protonmail.com */
 public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
 
     private XLogger logger;
-    private RtpsTalkConfiguration config;
+    private SedpDataFactory dataFactory;
     private StatefullReliableRtpsWriter<ParameterList> publicationWriter;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
@@ -60,14 +46,15 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<ParameterList> publicationWriter,
             UserDataService userService) {
-        this.config = config;
+        this.dataFactory = new SedpDataFactory(config);
         this.networkIface = networkIface;
         this.publicationWriter = publicationWriter;
         this.userService = userService;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
-    public void addPublisher(TopicId topicId, Publisher<RawData> publisher) {
+    public void addPublisher(PublisherDetails publisher) {
+        var topicId = publisher.topicId();
         logger.fine("Adding new publisher for topic id {0}", topicId);
         var operatingEntities = networkIface.getOperatingEntities();
         var writers = operatingEntities.getWriters();
@@ -79,43 +66,12 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
                 operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
 
         publicationWriter.newChange(
-                createPublicationData(
-                        topicId, writerEntityId, networkIface.getLocalDefaultUnicastLocator()));
+                dataFactory.createPublicationData(
+                        topicId,
+                        writerEntityId,
+                        networkIface.getLocalDefaultUnicastLocator(),
+                        publisher.qosPolicy()));
 
-        userService.publish(writerEntityId, readerEntityId, publisher);
-    }
-
-    private ParameterList createPublicationData(
-            TopicId topicId, EntityId entityId, Locator defaultUnicastLocator) {
-        var guid = new Guid(config.guidPrefix(), entityId);
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
-                        Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
-                        Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
-                        Map.entry(ParameterId.PID_KEY_HASH, guid),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
-                        Map.entry(
-                                ParameterId.PID_DURABILITY,
-                                new DurabilityQosPolicy(
-                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
-                        Map.entry(
-                                ParameterId.PID_RELIABILITY,
-                                new ReliabilityQosPolicy(
-                                        ReliabilityQosPolicy.Kind.RELIABLE,
-                                        Duration.Predefined.ZERO.getValue())),
-                        Map.entry(
-                                ParameterId.PID_DESTINATION_ORDER,
-                                new DestinationOrderQosPolicy(
-                                        DestinationOrderQosPolicy.Kind
-                                                .BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS)));
-        return new ParameterList(params);
+        userService.publish(writerEntityId, readerEntityId, publisher.publisher());
     }
 }

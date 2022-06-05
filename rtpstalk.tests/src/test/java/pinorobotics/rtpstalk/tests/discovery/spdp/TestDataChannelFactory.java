@@ -25,6 +25,7 @@ import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.transport.DataChannel;
 import pinorobotics.rtpstalk.transport.DataChannelFactory;
 
@@ -33,6 +34,10 @@ public class TestDataChannelFactory extends DataChannelFactory {
 
     private RtpsTalkConfiguration config;
     private Map<Locator, TestDataChannel> channels = new HashMap<>();
+
+    public TestDataChannelFactory() {
+        this(TestConstants.TEST_CONFIG);
+    }
 
     public TestDataChannelFactory(RtpsTalkConfiguration config) {
         super(config);

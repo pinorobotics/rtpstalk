@@ -22,6 +22,7 @@ import id.xfunction.function.Unchecked;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
@@ -96,4 +97,5 @@ public interface TestConstants {
                             new SerializedPayload(new RawData(new byte[] {0x11, 0x22}))));
     TestRtpsNetworkInterface TEST_NETWORK_IFACE = new TestRtpsNetworkInterface();
     NetworkInterface LOOPBACK_NETWORK_IFACE = Unchecked.get(() -> NetworkInterface.getByName("lo"));
+    TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");
 }

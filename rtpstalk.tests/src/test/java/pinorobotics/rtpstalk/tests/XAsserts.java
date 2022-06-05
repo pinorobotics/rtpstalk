@@ -51,8 +51,8 @@ public class XAsserts {
 
     public static void assertEquals(
             Class<?> clazz, String resourceWithExpectedString, String actualString) {
-        var expectedString = resourceUtils.readResourceAsList(clazz, resourceWithExpectedString);
-        if (Objects.equals(expectedString, actualString))
+        var expectedString = resourceUtils.readResource(clazz, resourceWithExpectedString);
+        if (!Objects.equals(expectedString, actualString))
             throw new AssertionFailedError(
                     String.format("expected <%s>, actual text <%s>", expectedString, actualString),
                     expectedString,

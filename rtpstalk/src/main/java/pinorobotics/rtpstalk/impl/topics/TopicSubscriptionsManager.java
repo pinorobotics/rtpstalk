@@ -22,24 +22,20 @@ import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /**
@@ -57,8 +53,8 @@ import pinorobotics.rtpstalk.userdata.UserDataService;
 public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
 
     private XLogger logger;
+    private SedpDataFactory dataFactory;
     private List<Topic> topics = new ArrayList<>();
-    private RtpsTalkConfiguration config;
     private RtpsNetworkInterface networkIface;
     private StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter;
     private UserDataService userService;
@@ -69,16 +65,16 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter,
             UserDataService userService) {
-        this.config = config;
+        this.dataFactory = new SedpDataFactory(config);
         this.networkIface = networkIface;
         this.subscriptionsWriter = subscriptionsWriter;
         this.userService = userService;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
-    public void addSubscriber(TopicId topicId, Subscriber<RawData> subscriber) {
-        logger.fine("Adding subscriber for topic id {0}", topicId);
-        var topic = createTopicSubscriptionIfMissing(topicId);
+    public void addSubscriber(SubscriberDetails subscriber) {
+        logger.fine("Adding subscriber for topic id {0}", subscriber.topicId());
+        var topic = createTopicSubscriptionIfMissing(subscriber.topicId());
         topic.addSubscriber(subscriber);
     }
 
@@ -107,6 +103,13 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
         Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
         var pubUnicastLocator = (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
         Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
+        var reliabilityQosPolicy =
+                (ReliabilityQosPolicy)
+                        pl.getParameters()
+                                .getOrDefault(
+                                        ParameterId.PID_RELIABILITY,
+                                        ReliabilityQosPolicy.BEST_EFFORT);
+
         Preconditions.equals(
                 participantGuid.guidPrefix,
                 pubEndpointGuid.guidPrefix,
@@ -132,10 +135,11 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
                                                     readers.assignNewEntityId(
                                                             topicId, EntityKind.READER_NO_KEY));
                     subscriptionsWriter.newChange(
-                            createSubscriptionData(
+                            dataFactory.createSubscriptionData(
                                     topicId,
                                     readerEntityId,
-                                    networkIface.getLocalDefaultUnicastLocator()));
+                                    networkIface.getLocalDefaultUnicastLocator(),
+                                    subEvent.subscriber().qosPolicy()));
                     userService.subscribeToRemoteWriter(
                             readerEntityId,
                             List.of(subEvent.writerUnicastLocator()),
@@ -143,25 +147,5 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
                             subEvent.subscriber());
                 });
         return topic;
-    }
-
-    private ParameterList createSubscriptionData(
-            TopicId topicId, EntityId readerEntityId, Locator defaultUnicastLocator) {
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
-                        Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
-                        Map.entry(
-                                ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.guidPrefix(), readerEntityId)),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
-        return new ParameterList(params);
     }
 }

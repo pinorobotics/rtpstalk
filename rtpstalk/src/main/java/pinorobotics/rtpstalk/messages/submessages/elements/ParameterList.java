@@ -41,7 +41,7 @@ public class ParameterList implements SubmessageElement, Payload {
         entries.stream().forEach(e -> params.put(e.getKey(), e.getValue()));
     }
 
-    public Map<ParameterId, ?> getParameters() {
+    public Map<ParameterId, Object> getParameters() {
         return params;
     }
 

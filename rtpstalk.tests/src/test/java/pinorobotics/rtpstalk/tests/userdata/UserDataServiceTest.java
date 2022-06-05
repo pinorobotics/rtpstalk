@@ -29,6 +29,7 @@ import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
@@ -79,8 +80,8 @@ public class UserDataServiceTest {
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
-                    new MySubscriber());
-            var subscriber = new MySubscriber();
+                    new SubscriberDetails(null, new MySubscriber()));
+            var subscriber = new SubscriberDetails(null, new MySubscriber());
             service.subscribeToRemoteWriter(
                     TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),

@@ -21,11 +21,10 @@ import id.xfunction.XObservable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
 
 /**
  * RTPS topic with all available remote publishers and local subscribers to it.
@@ -40,7 +39,7 @@ public class Topic extends XObservable<SubscribeEvent> {
 
     private TopicId topicId;
     private List<TopicPublisher> discoveredPublishers = new ArrayList<>();
-    private List<Subscriber<RawData>> applicationSubscribers = new ArrayList<>();
+    private List<SubscriberDetails> applicationSubscribers = new ArrayList<>();
 
     public Topic(TopicId topicId) {
         this.topicId = topicId;
@@ -56,7 +55,7 @@ public class Topic extends XObservable<SubscribeEvent> {
         discoveredPublishers.add(new TopicPublisher(writerUnicastLocator, endpointGuid));
     }
 
-    public void addSubscriber(Subscriber<RawData> subscriber) {
+    public void addSubscriber(SubscriberDetails subscriber) {
         discoveredPublishers.stream()
                 .forEach(
                         publisher ->

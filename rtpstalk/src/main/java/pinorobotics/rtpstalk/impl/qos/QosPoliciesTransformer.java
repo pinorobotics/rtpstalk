@@ -15,27 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.topics;
+package pinorobotics.rtpstalk.impl.qos;
 
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 
-/**
- * This event is triggered when there is a match between one of:
- *
- * <ul>
- *   <li>available remote topic publishers in the network and
- *   <li>user topic subscriber
- * </ul>
- *
- * @author aeon_flux aeon_flux@eclipso.ch
- */
-public record SubscribeEvent(
-        Locator writerUnicastLocator, Guid topicEndpointGuid, SubscriberDetails subscriber) {
+/** @author lambdaprime intid@protonmail.com */
+public class QosPoliciesTransformer {
 
-    @Override
-    public String toString() {
-        return topicEndpointGuid.toString();
+    public ReliabilityQosPolicy.Kind toRtpsInternal(ReliabilityKind kind) {
+        return switch (kind) {
+            case BEST_EFFORT -> ReliabilityQosPolicy.Kind.BEST_EFFORT;
+            case RELIABLE -> ReliabilityQosPolicy.Kind.RELIABLE;
+        };
     }
 }

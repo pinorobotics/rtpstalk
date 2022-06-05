@@ -38,6 +38,9 @@ import pinorobotics.rtpstalk.spec.RtpsSpecReference;
         text = "write")
 public class ReliabilityQosPolicy {
 
+    public static final ReliabilityQosPolicy BEST_EFFORT =
+            new ReliabilityQosPolicy(Kind.BEST_EFFORT);
+
     public enum Kind {
         UNKNOWN,
         BEST_EFFORT,
@@ -49,12 +52,16 @@ public class ReliabilityQosPolicy {
     public Duration maxBlockingTime;
 
     public ReliabilityQosPolicy() {
-        this(Kind.UNKNOWN, new Duration());
+        this(Kind.UNKNOWN);
     }
 
     public ReliabilityQosPolicy(Kind kind, Duration maxBlockingTime) {
         this.kind = kind.ordinal();
         this.maxBlockingTime = maxBlockingTime;
+    }
+
+    public ReliabilityQosPolicy(Kind kind) {
+        this(kind, Duration.Predefined.ZERO.getValue());
     }
 
     @Override

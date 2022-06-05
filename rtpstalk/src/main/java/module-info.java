@@ -30,6 +30,10 @@ module rtpstalk {
     exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.impl to
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.topics to
+            rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.qos to
+            rtpstalk.tests;
     exports pinorobotics.rtpstalk.messages to
             id.kineticstreamer,
             rtpstalk.tests;
@@ -44,6 +48,8 @@ module rtpstalk {
     exports pinorobotics.rtpstalk.transport.io to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.discovery.spdp to
+            rtpstalk.tests;
+    exports pinorobotics.rtpstalk.discovery.sedp to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.behavior to
             rtpstalk.tests;
