@@ -31,7 +31,6 @@ import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.messages.Guid;
 import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
@@ -103,13 +102,6 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
         Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
         var pubUnicastLocator = (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
         Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
-        var reliabilityQosPolicy =
-                (ReliabilityQosPolicy)
-                        pl.getParameters()
-                                .getOrDefault(
-                                        ParameterId.PID_RELIABILITY,
-                                        ReliabilityQosPolicy.BEST_EFFORT);
-
         Preconditions.equals(
                 participantGuid.guidPrefix,
                 pubEndpointGuid.guidPrefix,

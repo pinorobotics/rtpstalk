@@ -19,7 +19,6 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import static java.util.stream.Collectors.joining;
 
-import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.lang.XProcess;
@@ -50,7 +49,6 @@ import pinorobotics.rtpstalk.tests.XAsserts;
  */
 public class RtpsTalkClientPubSubPairsTests {
 
-    private static final ResourceUtils resourceUtils = new ResourceUtils();
     private FastRtpsExamples tools;
     private RtpsTalkClient client;
 
