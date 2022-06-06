@@ -23,24 +23,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.Header;
 import pinorobotics.rtpstalk.messages.Locator;
 import pinorobotics.rtpstalk.messages.LocatorKind;
-import pinorobotics.rtpstalk.messages.ProtocolId;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.AckNack;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 /** @author lambdaprime intid@protonmail.com */
 public interface TestConstants {
@@ -66,35 +53,6 @@ public interface TestConstants {
             new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7012, TEST_REMOTE_ADDRESS);
     Locator TEST_REMOTE_DEFAULT_UNICAST_LOCATOR =
             new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7013, TEST_REMOTE_ADDRESS);
-
-    RtpsMessage TEST_MESSAGE_INFODST_ACKNACK =
-            new RtpsMessage(
-                    new Header(
-                            ProtocolId.Predefined.RTPS.getValue(),
-                            ProtocolVersion.Predefined.Version_2_3.getValue(),
-                            VendorId.Predefined.RTPSTALK.getValue(),
-                            TEST_GUID_PREFIX),
-                    new InfoDestination(TEST_REMOTE_GUID_PREFIX),
-                    new AckNack(
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
-                                    .getValue(),
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
-                                    .getValue(),
-                            new SequenceNumberSet(1, 9, 511),
-                            new Count()));
-    RtpsMessage TEST_MESSAGE_INFODST_DATA_PADDING =
-            new RtpsMessage(
-                    new Header(
-                            ProtocolId.Predefined.RTPS.getValue(),
-                            ProtocolVersion.Predefined.Version_2_3.getValue(),
-                            VendorId.Predefined.RTPSTALK.getValue(),
-                            TEST_GUID_PREFIX),
-                    new InfoDestination(TEST_REMOTE_GUID_PREFIX),
-                    new Data(
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
-                            new SequenceNumber(1),
-                            new SerializedPayload(new RawData(new byte[] {0x11, 0x22}))));
     TestRtpsNetworkInterface TEST_NETWORK_IFACE = new TestRtpsNetworkInterface();
     NetworkInterface LOOPBACK_NETWORK_IFACE = Unchecked.get(() -> NetworkInterface.getByName("lo"));
     TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");

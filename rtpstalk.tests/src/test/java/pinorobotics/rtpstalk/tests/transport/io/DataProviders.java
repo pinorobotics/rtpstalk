@@ -22,6 +22,23 @@ import static pinorobotics.rtpstalk.tests.TestConstants.*;
 import id.xfunction.ResourceUtils;
 import java.util.List;
 import java.util.stream.Stream;
+import pinorobotics.rtpstalk.messages.Header;
+import pinorobotics.rtpstalk.messages.ProtocolId;
+import pinorobotics.rtpstalk.messages.RtpsMessage;
+import pinorobotics.rtpstalk.messages.submessages.AckNack;
+import pinorobotics.rtpstalk.messages.submessages.Data;
+import pinorobotics.rtpstalk.messages.submessages.InfoDestination;
+import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.messages.submessages.RawData;
+import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.messages.submessages.elements.Count;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumberSet;
+import pinorobotics.rtpstalk.messages.submessages.elements.Timestamp;
+import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
 
 /** @author lambdaprime intid@protonmail.com */
 public class DataProviders {
@@ -32,9 +49,74 @@ public class DataProviders {
         return Stream.of(
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test1"),
-                        TEST_MESSAGE_INFODST_ACKNACK),
+                        new RtpsMessage(
+                                new Header(
+                                        ProtocolId.Predefined.RTPS.getValue(),
+                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                        VendorId.Predefined.RTPSTALK.getValue(),
+                                        TEST_GUID_PREFIX),
+                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                new AckNack(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
+                                                .getValue(),
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
+                                                .getValue(),
+                                        new SequenceNumberSet(1, 9, 511),
+                                        new Count()))),
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_submessages_padding"),
-                        TEST_MESSAGE_INFODST_DATA_PADDING));
+                        new RtpsMessage(
+                                new Header(
+                                        ProtocolId.Predefined.RTPS.getValue(),
+                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                        VendorId.Predefined.RTPSTALK.getValue(),
+                                        TEST_GUID_PREFIX),
+                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                new Data(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                                        new SequenceNumber(1),
+                                        new SerializedPayload(
+                                                new RawData(new byte[] {0x11, 0x22}))))),
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_multiple_data"),
+                        new RtpsMessage(
+                                new Header(
+                                        ProtocolId.Predefined.RTPS.getValue(),
+                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                        VendorId.Predefined.RTPSTALK.getValue(),
+                                        TEST_GUID_PREFIX),
+                                new InfoTimestamp(new Timestamp(1654495356, 0)),
+                                new Data(
+                                        new EntityId(0x12, EntityKind.READER_NO_KEY),
+                                        new EntityId(0x01, EntityKind.WRITER_NO_KEY),
+                                        new SequenceNumber(1),
+                                        new SerializedPayload(
+                                                new RawData(
+                                                        new byte[] {
+                                                            0x02, 0x00, 0x00, 0x00, 0x30, 0x00
+                                                        }))),
+                                new Data(
+                                        new EntityId(0x12, EntityKind.READER_NO_KEY),
+                                        new EntityId(0x01, EntityKind.WRITER_NO_KEY),
+                                        new SequenceNumber(2),
+                                        new SerializedPayload(
+                                                new RawData(
+                                                        new byte[] {
+                                                            0x02, 0x00, 0x00, 0x00, 0x31, 0x00
+                                                        }))),
+                                new Data(
+                                        new EntityId(0x12, EntityKind.READER_NO_KEY),
+                                        new EntityId(0x01, EntityKind.WRITER_NO_KEY),
+                                        new SequenceNumber(3),
+                                        new SerializedPayload(
+                                                new RawData(
+                                                        new byte[] {
+                                                            0x02, 0x00, 0x00, 0x00, 0x32, 0x00
+                                                        }))))));
     }
 }

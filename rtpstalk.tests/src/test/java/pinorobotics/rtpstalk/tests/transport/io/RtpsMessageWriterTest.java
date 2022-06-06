@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import id.xfunction.XByte;
 import id.xfunction.io.XInputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -44,6 +43,6 @@ public class RtpsMessageWriterTest {
         var actual = new byte[buf.limit()];
         buf.get(actual);
         System.out.println(XByte.toHexPairs(actual));
-        assertEquals(Arrays.toString(expected), Arrays.toString(actual));
+        assertEquals(XByte.toHexPairs(expected), XByte.toHexPairs(actual));
     }
 }
