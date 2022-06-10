@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk;
+package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.MergeProcessor;
@@ -24,15 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.PublisherDetails;
-import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.impl.RtpsNetworkInterfaceFactory;
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
-import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
 import pinorobotics.rtpstalk.messages.submessages.RawData;
