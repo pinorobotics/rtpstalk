@@ -56,7 +56,7 @@ public class SedpBuiltinSubscriptionsReader extends StatefullReliableRtpsReader<
 
     private void processSubscription(ParameterList pl) {
         if (!isValid(pl)) return;
-        Map<ParameterId, ?> params = pl.params;
+        Map<ParameterId, ?> params = pl.getParameters();
         var readerEndpointGuid = (Guid) params.get(ParameterId.PID_ENDPOINT_GUID);
         String topicName = (String) params.get(ParameterId.PID_TOPIC_NAME);
         String topicType = (String) params.get(ParameterId.PID_TYPE_NAME);
@@ -85,9 +85,9 @@ public class SedpBuiltinSubscriptionsReader extends StatefullReliableRtpsReader<
     }
 
     private boolean isValid(ParameterList pl) {
-        return pl.params.containsKey(ParameterId.PID_PARTICIPANT_GUID)
-                && pl.params.containsKey(ParameterId.PID_TOPIC_NAME)
-                && pl.params.containsKey(ParameterId.PID_ENDPOINT_GUID)
-                && pl.params.containsKey(ParameterId.PID_UNICAST_LOCATOR);
+        return pl.getParameters().containsKey(ParameterId.PID_PARTICIPANT_GUID)
+                && pl.getParameters().containsKey(ParameterId.PID_TOPIC_NAME)
+                && pl.getParameters().containsKey(ParameterId.PID_ENDPOINT_GUID)
+                && pl.getParameters().containsKey(ParameterId.PID_UNICAST_LOCATOR);
     }
 }

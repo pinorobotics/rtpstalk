@@ -17,7 +17,6 @@
  */
 package pinorobotics.rtpstalk.tests.transport.io;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -55,11 +54,11 @@ public class LengthCalculatorTest {
     }
 
     private static ParameterList createTestParameterList() {
-        var params = new LinkedHashMap<ParameterId, Object>();
+        var params = new ParameterList();
         params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
         params.put(ParameterId.PID_TOPIC_NAME, "long topic name");
         params.put(ParameterId.PID_PARTICIPANT_GUID, TEST_GUID_PUBLICATIONS_ANNOUNCER);
-        return new ParameterList(params);
+        return params;
     }
 
     @Test

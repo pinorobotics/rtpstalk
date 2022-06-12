@@ -25,6 +25,8 @@ public class SequenceNumber implements Comparable<SequenceNumber> {
 
     public static final SequenceNumber MIN = new SequenceNumber(0);
     public static final SequenceNumber MAX = new SequenceNumber(Long.MAX_VALUE);
+    public static final SequenceNumber SEQUENCENUMBER_UNKNOWN =
+            new SequenceNumber(0xffffffff00000000L);
 
     public long value;
 

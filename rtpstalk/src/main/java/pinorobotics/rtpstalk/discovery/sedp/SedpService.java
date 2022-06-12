@@ -134,7 +134,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     }
 
     private void configureEndpoints(ParameterList participantData) {
-        var guid = (Guid) participantData.params.get(ParameterId.PID_PARTICIPANT_GUID);
+        var guid = (Guid) participantData.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
         if (guid == null) {
             logger.warning("Received participant data without PID_PARTICIPANT_GUID");
             return;

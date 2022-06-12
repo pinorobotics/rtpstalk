@@ -58,7 +58,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     @Override
     protected boolean addChange(CacheChange<ParameterList> cacheChange) {
         if (!super.addChange(cacheChange)) return false;
-        if (cacheChange.getDataValue().params.get(ParameterId.PID_PARTICIPANT_GUID)
+        if (cacheChange.getDataValue().getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
                 instanceof Guid guid) {
             participants.put(guid, cacheChange.getDataValue());
         }

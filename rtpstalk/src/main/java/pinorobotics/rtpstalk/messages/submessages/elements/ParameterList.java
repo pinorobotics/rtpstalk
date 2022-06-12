@@ -19,9 +19,7 @@ package pinorobotics.rtpstalk.messages.submessages.elements;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import pinorobotics.rtpstalk.messages.submessages.Payload;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Predefined;
@@ -29,17 +27,9 @@ import pinorobotics.rtpstalk.messages.submessages.RepresentationIdentifier.Prede
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class ParameterList implements SubmessageElement, Payload {
 
-    public Map<ParameterId, Object> params = new LinkedHashMap<>();
+    private Map<ParameterId, Object> params = new LinkedHashMap<>();
 
     public ParameterList() {}
-
-    public ParameterList(LinkedHashMap<ParameterId, Object> params) {
-        this.params = params;
-    }
-
-    public ParameterList(List<Entry<ParameterId, Object>> entries) {
-        entries.stream().forEach(e -> params.put(e.getKey(), e.getValue()));
-    }
 
     public Map<ParameterId, Object> getParameters() {
         return params;
@@ -55,5 +45,9 @@ public class ParameterList implements SubmessageElement, Payload {
     @Override
     public Predefined getRepresentationIdentifier() {
         return RepresentationIdentifier.Predefined.PL_CDR_LE;
+    }
+
+    public void put(ParameterId parameterId, Object value) {
+        params.putIfAbsent(parameterId, value);
     }
 }

@@ -18,9 +18,6 @@
 package pinorobotics.rtpstalk.discovery.spdp;
 
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.messages.BuiltinEndpointSet;
@@ -53,24 +50,17 @@ public class SpdpDiscoveredParticipantDataFactory {
         // best-effort is not currently supported
         if (config.builtinEndpointQos() == EndpointQos.NONE)
             endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(
-                                ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                                metatrafficUnicastLocator),
-                        Map.entry(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
-                        Map.entry(
-                                ParameterId.PID_BUILTIN_ENDPOINT_SET,
-                                new BuiltinEndpointSet(endpointSet)),
-                        Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
-        return new ParameterList(params);
+        var params = new ParameterList();
+        params.put(
+                ParameterId.PID_PROTOCOL_VERSION,
+                ProtocolVersion.Predefined.Version_2_3.getValue());
+        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, metatrafficUnicastLocator);
+        params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator);
+        params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
+        params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
+        params.put(ParameterId.PID_ENTITY_NAME, "/");
+        return params;
     }
 }

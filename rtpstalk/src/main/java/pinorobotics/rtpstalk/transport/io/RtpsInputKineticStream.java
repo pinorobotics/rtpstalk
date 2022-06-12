@@ -26,7 +26,6 @@ import id.xfunction.logging.XLogger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
 import pinorobotics.rtpstalk.messages.ByteSequence;
@@ -188,7 +187,7 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     public ParameterList readParameterList() throws Exception {
         LOGGER.entering("readParameterList");
-        var params = new LinkedHashMap<ParameterId, Object>();
+        var paramList = new ParameterList();
         short id;
         while ((id = readShort()) != ParameterId.PID_SENTINEL.getValue()) {
             var parameterId = ParameterId.map.get(id);
@@ -239,12 +238,12 @@ class RtpsInputKineticStream implements InputKineticStream {
             }
             skip(len - (buf.position() - startPos));
             LOGGER.fine(parameterId + ": " + value);
-            params.putIfAbsent(parameterId, value);
+            paramList.put(parameterId, value);
         }
         // ignoring
         readShort();
         LOGGER.exiting("readParameterList");
-        return new ParameterList(params);
+        return paramList;
     }
 
     private void skip(int offset) {

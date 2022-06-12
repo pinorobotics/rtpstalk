@@ -18,7 +18,9 @@
 package pinorobotics.rtpstalk.messages.submessages;
 
 /**
- * Iface for everything that can be payload in RTPS submessage elements
+ * Iface for everything that can be payload in RTPS submessage elements.
+ *
+ * <p>All Payload classes are subject to (de)serialization.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */

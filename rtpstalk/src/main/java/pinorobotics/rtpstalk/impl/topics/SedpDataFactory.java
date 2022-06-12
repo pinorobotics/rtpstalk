@@ -17,9 +17,6 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
@@ -56,35 +53,31 @@ public class SedpDataFactory {
             Locator defaultUnicastLocator,
             PublisherQosPolicy qosPolicy) {
         var guid = new Guid(config.guidPrefix(), entityId);
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
-                        Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
-                        Map.entry(ParameterId.PID_ENDPOINT_GUID, guid),
-                        Map.entry(ParameterId.PID_KEY_HASH, guid),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()),
-                        Map.entry(
-                                ParameterId.PID_DURABILITY,
-                                new DurabilityQosPolicy(
-                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
-                        Map.entry(
-                                ParameterId.PID_RELIABILITY,
-                                new ReliabilityQosPolicy(
-                                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
-                                        Duration.Predefined.ZERO.getValue())),
-                        Map.entry(
-                                ParameterId.PID_DESTINATION_ORDER,
-                                new DestinationOrderQosPolicy(
-                                        DestinationOrderQosPolicy.Kind
-                                                .BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS)));
-        return new ParameterList(params);
+        var params = new ParameterList();
+        params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_TOPIC_NAME, topicId.name());
+        params.put(ParameterId.PID_TYPE_NAME, topicId.type());
+        params.put(ParameterId.PID_ENDPOINT_GUID, guid);
+        params.put(ParameterId.PID_KEY_HASH, guid);
+        params.put(
+                ParameterId.PID_PROTOCOL_VERSION,
+                ProtocolVersion.Predefined.Version_2_3.getValue());
+        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
+        params.put(
+                ParameterId.PID_DURABILITY,
+                new DurabilityQosPolicy(DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
+        params.put(
+                ParameterId.PID_RELIABILITY,
+                new ReliabilityQosPolicy(
+                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
+                        Duration.Predefined.ZERO.getValue()));
+        params.put(
+                ParameterId.PID_DESTINATION_ORDER,
+                new DestinationOrderQosPolicy(
+                        DestinationOrderQosPolicy.Kind
+                                .BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS));
+        return params;
     }
 
     public ParameterList createSubscriptionData(
@@ -92,26 +85,21 @@ public class SedpDataFactory {
             EntityId readerEntityId,
             Locator defaultUnicastLocator,
             SubscriberQosPolicy qosPolicy) {
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid()),
-                        Map.entry(ParameterId.PID_TOPIC_NAME, topicId.name()),
-                        Map.entry(ParameterId.PID_TYPE_NAME, topicId.type()),
-                        Map.entry(
-                                ParameterId.PID_ENDPOINT_GUID,
-                                new Guid(config.guidPrefix(), readerEntityId)),
-                        Map.entry(
-                                ParameterId.PID_RELIABILITY,
-                                new ReliabilityQosPolicy(
-                                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
-                                        Duration.Predefined.ZERO.getValue())),
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue()));
-        return new ParameterList(params);
+        var params = new ParameterList();
+        params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_TOPIC_NAME, topicId.name());
+        params.put(ParameterId.PID_TYPE_NAME, topicId.type());
+        params.put(ParameterId.PID_ENDPOINT_GUID, new Guid(config.guidPrefix(), readerEntityId));
+        params.put(
+                ParameterId.PID_RELIABILITY,
+                new ReliabilityQosPolicy(
+                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
+                        Duration.Predefined.ZERO.getValue()));
+        params.put(
+                ParameterId.PID_PROTOCOL_VERSION,
+                ProtocolVersion.Predefined.Version_2_3.getValue());
+        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
+        return params;
     }
 }

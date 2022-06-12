@@ -25,9 +25,6 @@ import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_METATRAFFIC_
 import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -169,29 +166,23 @@ public class SpdpServiceTest {
                         Endpoint.PARTICIPANT_SECURE_READER,
                         Endpoint.SECURE_SUBSCRIPTION_READER,
                         Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
-        var params =
-                List.<Entry<ParameterId, Object>>of(
-                        Map.entry(
-                                ParameterId.PID_PROTOCOL_VERSION,
-                                ProtocolVersion.Predefined.Version_2_3.getValue()),
-                        Map.entry(
-                                ParameterId.PID_VENDORID, VendorId.Predefined.FASTRTPS.getValue()),
-                        Map.entry(
-                                ParameterId.PID_PARTICIPANT_GUID,
-                                new Guid(
-                                        TEST_REMOTE_GUID_PREFIX,
-                                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue())),
-                        Map.entry(
-                                ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                                TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR),
-                        Map.entry(
-                                ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
-                                TEST_REMOTE_DEFAULT_UNICAST_LOCATOR),
-                        Map.entry(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20)),
-                        Map.entry(
-                                ParameterId.PID_BUILTIN_ENDPOINT_SET,
-                                new BuiltinEndpointSet(endpointSet)),
-                        Map.entry(ParameterId.PID_ENTITY_NAME, "/"));
-        return new ParameterList(params);
+        var params = new ParameterList();
+        params.put(
+                ParameterId.PID_PROTOCOL_VERSION,
+                ProtocolVersion.Predefined.Version_2_3.getValue());
+        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.FASTRTPS.getValue());
+        params.put(
+                ParameterId.PID_PARTICIPANT_GUID,
+                new Guid(
+                        TEST_REMOTE_GUID_PREFIX,
+                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()));
+        params.put(
+                ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
+                TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR);
+        params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, TEST_REMOTE_DEFAULT_UNICAST_LOCATOR);
+        params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
+        params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
+        params.put(ParameterId.PID_ENTITY_NAME, "/");
+        return params;
     }
 }
