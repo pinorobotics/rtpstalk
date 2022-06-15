@@ -80,7 +80,7 @@ public class EntityId {
     public EntityId() {}
 
     public EntityId(int entityKey, EntityKind entityKind) {
-        this(entityKey, (byte) entityKind.getValue());
+        this(entityKey, entityKind.getValue());
     }
 
     public EntityId(int entityKey, byte entityKind) {
