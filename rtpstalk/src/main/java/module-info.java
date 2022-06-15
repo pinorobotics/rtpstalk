@@ -34,29 +34,29 @@ module rtpstalk {
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.qos to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.messages to
+    exports pinorobotics.rtpstalk.impl.spec.messages to
             id.kineticstreamer,
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.messages.submessages to
+    exports pinorobotics.rtpstalk.impl.spec.messages.submessages to
             id.kineticstreamer,
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.messages.submessages.elements to
+    exports pinorobotics.rtpstalk.impl.spec.messages.submessages.elements to
             id.kineticstreamer,
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.transport to
+    exports pinorobotics.rtpstalk.impl.spec.transport to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.transport.io to
+    exports pinorobotics.rtpstalk.impl.spec.transport.io to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.discovery.spdp to
+    exports pinorobotics.rtpstalk.impl.spec.discovery.spdp to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.discovery.sedp to
+    exports pinorobotics.rtpstalk.impl.spec.discovery.sedp to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.behavior to
+    exports pinorobotics.rtpstalk.impl.spec.behavior to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.behavior.reader to
+    exports pinorobotics.rtpstalk.impl.spec.behavior.reader to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.structure.history to
+    exports pinorobotics.rtpstalk.impl.spec.structure.history to
             rtpstalk.tests;
-    exports pinorobotics.rtpstalk.userdata to
+    exports pinorobotics.rtpstalk.impl.spec.userdata to
             rtpstalk.tests;
 }

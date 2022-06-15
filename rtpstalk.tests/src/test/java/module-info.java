@@ -19,7 +19,7 @@
  * @author lambdaprime intid@protonmail.com
  */
 open module rtpstalk.tests {
-    exports pinorobotics.rtpstalk.tests.transport.io;
+    exports pinorobotics.rtpstalk.tests.spec.transport.io;
 
     requires rtpstalk;
     requires id.kineticstreamer;

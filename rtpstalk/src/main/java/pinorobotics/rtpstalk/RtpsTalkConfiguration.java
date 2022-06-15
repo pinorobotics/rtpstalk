@@ -25,10 +25,10 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ForkJoinPool;
-import pinorobotics.rtpstalk.messages.BuiltinEndpointQos.EndpointQos;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

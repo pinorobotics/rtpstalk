@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests;
 import static pinorobotics.rtpstalk.tests.TestConstants.TEST_GUID_PREFIX;
 
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.tests.discovery.spdp.TestDataChannel;
+import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannel;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class TestRtpsNetworkInterface extends RtpsNetworkInterface {

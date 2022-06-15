@@ -25,16 +25,16 @@ import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.discovery.sedp.SedpService;
-import pinorobotics.rtpstalk.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpService;
+import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
+import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.transport.DataChannelFactory;
-import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
-import pinorobotics.rtpstalk.userdata.DataObjectsFactory;
-import pinorobotics.rtpstalk.userdata.UserDataService;
 
 /**
  * Responsible for starting and managing RTPS services for each network interface specified in

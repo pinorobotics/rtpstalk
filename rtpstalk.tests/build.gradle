@@ -44,7 +44,7 @@ jacocoTestCoverageVerification {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude:  [
-                'pinorobotics/rtpstalk/transport/io/exceptions/*',
+                'pinorobotics/rtpstalk/impl/spec/transport/io/exceptions/*',
                 'pinorobotics/rtpstalk/exceptions/*',
             ])
         }))

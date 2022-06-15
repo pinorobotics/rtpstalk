@@ -18,9 +18,9 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
-import pinorobotics.rtpstalk.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.transport.DataChannel;
+import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 
 /**
  * Placeholder for all RTPS endpoints which are available on a certain network interface.

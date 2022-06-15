@@ -23,11 +23,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
 /** @author lambdaprime intid@protonmail.com */
 public interface TestConstants {

@@ -18,8 +18,8 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
 /**
  * This event is triggered when there is a match between one of:

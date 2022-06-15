@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.qos;
 
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
 /** @author lambdaprime intid@protonmail.com */
 public class QosPoliciesTransformer {

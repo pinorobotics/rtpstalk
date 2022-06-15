@@ -23,19 +23,19 @@ import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.userdata.UserDataService;
+import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /**
  *

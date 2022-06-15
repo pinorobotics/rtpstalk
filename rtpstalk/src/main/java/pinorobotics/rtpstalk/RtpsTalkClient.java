@@ -25,9 +25,9 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsServiceManager;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
-import pinorobotics.rtpstalk.transport.DataChannelFactory;
-import pinorobotics.rtpstalk.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsTalkClient implements AutoCloseable {

@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.LocatorKind;
-import pinorobotics.rtpstalk.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class RtpsNetworkInterfaceFactory {

@@ -22,17 +22,17 @@ import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.impl.qos.QosPoliciesTransformer;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
-import pinorobotics.rtpstalk.messages.DestinationOrderQosPolicy;
-import pinorobotics.rtpstalk.messages.DurabilityQosPolicy;
-import pinorobotics.rtpstalk.messages.Duration;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
-import pinorobotics.rtpstalk.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.Duration;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * @author lambdaprime intid@protonmail.com

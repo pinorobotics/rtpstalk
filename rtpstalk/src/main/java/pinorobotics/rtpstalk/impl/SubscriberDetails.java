@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.impl;
 
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
-import pinorobotics.rtpstalk.messages.submessages.RawData;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 
 /** @author lambdaprime intid@protonmail.com */
 public record SubscriberDetails(

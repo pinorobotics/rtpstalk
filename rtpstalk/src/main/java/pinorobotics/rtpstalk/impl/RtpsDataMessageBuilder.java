@@ -21,21 +21,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import pinorobotics.rtpstalk.messages.Header;
-import pinorobotics.rtpstalk.messages.ProtocolId;
-import pinorobotics.rtpstalk.messages.RtpsMessage;
-import pinorobotics.rtpstalk.messages.submessages.Data;
-import pinorobotics.rtpstalk.messages.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.messages.submessages.Payload;
-import pinorobotics.rtpstalk.messages.submessages.SerializedPayload;
-import pinorobotics.rtpstalk.messages.submessages.Submessage;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.messages.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.messages.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.transport.RtpsMessageSender;
-import pinorobotics.rtpstalk.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
+import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
+import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
 
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {

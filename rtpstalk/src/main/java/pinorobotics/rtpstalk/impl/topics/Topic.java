@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.messages.Guid;
-import pinorobotics.rtpstalk.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
 /**
  * RTPS topic with all available remote publishers and local subscribers to it.

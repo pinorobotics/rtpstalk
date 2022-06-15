@@ -21,24 +21,24 @@ import id.xfunction.concurrent.flow.SameThreadSubmissionPublisher;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.discovery.sedp.SedpBuiltinPublicationsWriter;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.SedpDataFactory;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.XAsserts;
-import pinorobotics.rtpstalk.tests.discovery.spdp.TestDataChannelFactory;
-import pinorobotics.rtpstalk.tests.transport.TestRtpsMessageReceiverFactory;
-import pinorobotics.rtpstalk.tests.userdata.TestDataObjectsFactory;
-import pinorobotics.rtpstalk.userdata.UserDataService;
+import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
+import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.tests.spec.userdata.TestDataObjectsFactory;
 
 /** @author lambdaprime intid@protonmail.com */
 public class TopicSubscriptionsManagerTest {

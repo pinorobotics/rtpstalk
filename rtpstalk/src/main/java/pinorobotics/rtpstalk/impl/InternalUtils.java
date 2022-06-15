@@ -23,7 +23,7 @@ import id.xfunction.logging.XLogger;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.List;
-import pinorobotics.rtpstalk.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class InternalUtils {
