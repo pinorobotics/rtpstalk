@@ -27,14 +27,13 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * Responsible for starting and managing RTPS services for each network interface specified in
@@ -86,7 +85,7 @@ public class RtpsServiceManager implements AutoCloseable {
             userService =
                     new UserDataService(
                             config, channelFactory, new DataObjectsFactory(), receiverFactory);
-            var participantsPublisher = new MergeProcessor<ParameterList>();
+            var participantsPublisher = new MergeProcessor<RtpsTalkParameterListMessage>();
 
             // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
             // but SEDP is not subscribed to them yet (and since SPDP cache them it will
@@ -121,7 +120,7 @@ public class RtpsServiceManager implements AutoCloseable {
     private void startSpdp(
             TracingToken tracingToken,
             RtpsNetworkInterface rtpsIface,
-            MergeProcessor<ParameterList> participantsPublisher)
+            MergeProcessor<RtpsTalkParameterListMessage> participantsPublisher)
             throws Exception {
         var networkInterfaces =
                 config.networkInterface()
@@ -134,12 +133,12 @@ public class RtpsServiceManager implements AutoCloseable {
         }
     }
 
-    public void subscribe(String topic, String type, Subscriber<RawData> subscriber) {
+    public void subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
         subscriptionsManager.addSubscriber(
                 new SubscriberDetails(new TopicId(topic, type), subscriber));
     }
 
-    public void publish(String topic, String type, Publisher<RawData> publisher) {
+    public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
         publicationsManager.addPublisher(new PublisherDetails(new TopicId(topic, type), publisher));
     }
 

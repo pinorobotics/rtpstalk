@@ -24,11 +24,11 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /** @author lambdaprime intid@protonmail.com */
@@ -36,7 +36,7 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
 
     private XLogger logger;
     private SedpDataFactory dataFactory;
-    private StatefullReliableRtpsWriter<ParameterList> publicationWriter;
+    private StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
 
@@ -44,7 +44,7 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
             TracingToken tracingToken,
             RtpsTalkConfiguration config,
             RtpsNetworkInterface networkIface,
-            StatefullReliableRtpsWriter<ParameterList> publicationWriter,
+            StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter,
             UserDataService userService) {
         this.dataFactory = new SedpDataFactory(config);
         this.networkIface = networkIface;
@@ -66,11 +66,12 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
                 operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
 
         publicationWriter.newChange(
-                dataFactory.createPublicationData(
-                        topicId,
-                        writerEntityId,
-                        networkIface.getLocalDefaultUnicastLocator(),
-                        publisher.qosPolicy()));
+                new RtpsTalkParameterListMessage(
+                        dataFactory.createPublicationData(
+                                topicId,
+                                writerEntityId,
+                                networkIface.getLocalDefaultUnicastLocator(),
+                                publisher.qosPolicy())));
 
         userService.publish(writerEntityId, readerEntityId, publisher.publisher());
     }

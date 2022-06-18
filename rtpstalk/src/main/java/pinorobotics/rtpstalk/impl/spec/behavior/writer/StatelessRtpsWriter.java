@@ -20,16 +20,16 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
  * Stateless RTPS writer (best-effort reliability).
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class StatelessRtpsWriter<D extends Payload> extends RtpsWriter<D> {
+public class StatelessRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D> {
 
     private DataChannelFactory channelFactory;
     private EntityId readerEntiyId;

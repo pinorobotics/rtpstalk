@@ -125,6 +125,7 @@ public class LengthCalculator {
             return Short.BYTES * 2
                     + getFixedLength(EntityId.class) * 2
                     + getFixedLength(SequenceNumber.class)
+                    + calculateUserParameterListLength(d.inlineQos)
                     + calculateLength(d.serializedPayload);
         if (obj instanceof SerializedPayload p)
             return getFixedLength(SerializedPayloadHeader.class) + calculateLength(p.payload);
@@ -185,6 +186,10 @@ public class LengthCalculator {
                             "Cannot calculate length for an unknown parameter id %s", id);
                 };
 
+        return len + calculateParameterListValuePadding(len);
+    }
+
+    private int calculateParameterListValuePadding(int len) {
         @RtpsSpecReference(
                 paragraph = "9.4.2.11",
                 protocolVersion = Predefined.Version_2_3,
@@ -197,6 +202,20 @@ public class LengthCalculator {
         if (len % 4 != 0) {
             padding = 4 - (len % 4);
         }
-        return len + padding;
+        return padding;
+    }
+
+    private int calculateUserParameterListLength(ParameterList parameterList) {
+        var params = parameterList.getUserParameters();
+        if (params.isEmpty()) return 0;
+        return Short.BYTES /* param id */
+                + Short.BYTES /* length */
+                + calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
+                + params.entrySet().stream().mapToInt(this::calculateUserParameterLength).sum();
+    }
+
+    public int calculateUserParameterLength(Entry<Short, byte[]> param) {
+        var len = param.getValue().length;
+        return len + calculateParameterListValuePadding(len);
     }
 }

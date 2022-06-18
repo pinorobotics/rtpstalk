@@ -28,17 +28,27 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdenti
 public class ParameterList implements SubmessageElement, Payload {
 
     private Map<ParameterId, Object> params = new LinkedHashMap<>();
+    private Map<Short, byte[]> userParams = new LinkedHashMap<>();
 
     public ParameterList() {}
 
+    public ParameterList(Map<Short, byte[]> userParams) {
+        this.userParams = userParams;
+    }
+
     public Map<ParameterId, Object> getParameters() {
         return params;
+    }
+
+    public Map<Short, byte[]> getUserParameters() {
+        return userParams;
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("params", params);
+        builder.append("userParams", userParams);
         return builder.toString();
     }
 
@@ -49,5 +59,9 @@ public class ParameterList implements SubmessageElement, Payload {
 
     public void put(ParameterId parameterId, Object value) {
         params.putIfAbsent(parameterId, value);
+    }
+
+    public void put(short parameterId, byte[] value) {
+        userParams.putIfAbsent(parameterId, value);
     }
 }

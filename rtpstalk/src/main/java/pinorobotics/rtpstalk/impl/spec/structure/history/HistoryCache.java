@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class HistoryCache<D extends Payload> {
+public class HistoryCache<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
 

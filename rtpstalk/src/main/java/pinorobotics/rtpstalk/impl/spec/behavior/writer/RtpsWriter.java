@@ -30,12 +30,12 @@ import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
  * This writer does not cache changes in {@link HistoryCache} and sends them to readers directly
@@ -53,7 +53,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsWriter<D extends Payload>
+public class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
 

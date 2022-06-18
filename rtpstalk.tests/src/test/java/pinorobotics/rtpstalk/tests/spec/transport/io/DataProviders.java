@@ -21,6 +21,7 @@ import static pinorobotics.rtpstalk.tests.TestConstants.*;
 
 import id.xfunction.ResourceUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
@@ -34,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
@@ -82,6 +84,27 @@ public class DataProviders {
                                         new SequenceNumber(1),
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x11, 0x22}))))),
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_inlineqos"),
+                        new RtpsMessage(
+                                new Header(
+                                        ProtocolId.Predefined.RTPS.getValue(),
+                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                        VendorId.Predefined.RTPSTALK.getValue(),
+                                        TEST_GUID_PREFIX),
+                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                new Data(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                                        new SequenceNumber(1),
+                                        new ParameterList(
+                                                Map.of(
+                                                        (short) 0x800f,
+                                                        new byte[] {0x30, 0x31, 0x32, 0x33})),
+                                        new SerializedPayload(
+                                                new RawData(new byte[] {0x10, 0x11}))))),
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_multiple_data"),
                         new RtpsMessage(

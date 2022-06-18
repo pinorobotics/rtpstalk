@@ -21,12 +21,12 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class DataWriter extends StatefullReliableRtpsWriter<RawData> {
+public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage> {
 
     public DataWriter(
             RtpsTalkConfiguration config,

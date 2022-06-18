@@ -19,13 +19,13 @@ package pinorobotics.rtpstalk.impl;
 
 import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /** @author lambdaprime intid@protonmail.com */
 public record PublisherDetails(
-        TopicId topicId, PublisherQosPolicy qosPolicy, Publisher<RawData> publisher) {
+        TopicId topicId, PublisherQosPolicy qosPolicy, Publisher<RtpsTalkDataMessage> publisher) {
 
-    public PublisherDetails(TopicId topicId, Publisher<RawData> subscriber) {
+    public PublisherDetails(TopicId topicId, Publisher<RtpsTalkDataMessage> subscriber) {
         this(topicId, new PublisherQosPolicy.Builder().build(), subscriber);
     }
 }

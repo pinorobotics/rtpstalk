@@ -18,15 +18,16 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /** @author lambdaprime intid@protonmail.com */
-public class SedpBuiltinPublicationsWriter extends StatefullReliableRtpsWriter<ParameterList> {
+public class SedpBuiltinPublicationsWriter
+        extends StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> {
 
     public SedpBuiltinPublicationsWriter(
             RtpsTalkConfiguration config,

@@ -25,6 +25,7 @@ import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.liveliness.BuiltinParticipantMessageReader;
@@ -55,7 +56,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
         paragraph = "8.5.5.1",
         protocolVersion = Predefined.Version_2_3,
         text = "Discovery of a new remote Participant")
-public class SedpService extends SimpleSubscriber<ParameterList> implements AutoCloseable {
+public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
+        implements AutoCloseable {
 
     private RtpsTalkConfiguration config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
@@ -110,9 +112,9 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     }
 
     @Override
-    public void onNext(ParameterList participantData) {
+    public void onNext(RtpsTalkParameterListMessage participantDataMessage) {
         logger.entering("onNext");
-        configureEndpoints(participantData);
+        configureEndpoints(participantDataMessage.parameterList());
         subscription.request(1);
         logger.exiting("onNext");
     }
@@ -125,11 +127,11 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     @Override
     public void onComplete() {}
 
-    public StatefullReliableRtpsReader<ParameterList> getPublicationsReader() {
+    public StatefullReliableRtpsReader<RtpsTalkParameterListMessage> getPublicationsReader() {
         return publicationsReader;
     }
 
-    public StatefullReliableRtpsReader<ParameterList> getSubscriptionsReader() {
+    public StatefullReliableRtpsReader<RtpsTalkParameterListMessage> getSubscriptionsReader() {
         return subscriptionsReader;
     }
 
@@ -186,8 +188,8 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
     private void configure(
             BuiltinEndpointSet availableRemoteEndpoints,
             GuidPrefix guidPrefix,
-            StatefullReliableRtpsReader<ParameterList> reader,
-            StatefullReliableRtpsWriter<ParameterList> writer,
+            StatefullReliableRtpsReader<RtpsTalkParameterListMessage> reader,
+            StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> writer,
             Endpoint remoteEndpoint,
             List<Locator> unicast) {
         if (remoteEndpoint.getType() == EndpointType.READER) {
@@ -219,7 +221,7 @@ public class SedpService extends SimpleSubscriber<ParameterList> implements Auto
         }
     }
 
-    public StatefullReliableRtpsWriter<ParameterList> getSubscriptionsWriter() {
+    public StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> getSubscriptionsWriter() {
         return subscriptionsWriter;
     }
 

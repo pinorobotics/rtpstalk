@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -33,7 +34,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SedpBuiltinSubscriptionsReader extends StatefullReliableRtpsReader<ParameterList> {
+public class SedpBuiltinSubscriptionsReader
+        extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
 
     public SedpBuiltinSubscriptionsReader(
             RtpsTalkConfiguration config,
@@ -45,10 +47,10 @@ public class SedpBuiltinSubscriptionsReader extends StatefullReliableRtpsReader<
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
         subscribe(
-                new SimpleSubscriber<ParameterList>() {
+                new SimpleSubscriber<RtpsTalkParameterListMessage>() {
                     @Override
-                    public void onNext(ParameterList pl) {
-                        processSubscription(pl);
+                    public void onNext(RtpsTalkParameterListMessage message) {
+                        processSubscription(message.parameterList());
                         subscription.request(1);
                     }
                 });

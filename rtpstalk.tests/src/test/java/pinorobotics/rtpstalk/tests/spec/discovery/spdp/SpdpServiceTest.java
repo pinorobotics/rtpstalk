@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
@@ -136,7 +137,7 @@ public class SpdpServiceTest {
     public void test_new_participant_discovery() throws Exception {
         var metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, false);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
-        var collector = new CollectorSubscriber<ParameterList>(1);
+        var collector = new CollectorSubscriber<RtpsTalkParameterListMessage>(1);
         service.start(
                 new TracingToken("test"),
                 TestConstants.TEST_NETWORK_IFACE,
@@ -150,7 +151,8 @@ public class SpdpServiceTest {
         System.out.println(participants);
         Assertions.assertEquals(1, participants.size());
         Assertions.assertEquals(
-                TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA.toString(),
+                new RtpsTalkParameterListMessage(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA)
+                        .toString(),
                 participants.get(0).toString());
     }
 

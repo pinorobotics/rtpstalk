@@ -23,12 +23,17 @@ import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 
@@ -67,12 +72,16 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             // The PSM aligns each Submessage on a 32-bit boundary with respect
             // to the start of the Message (9.4 Mapping of the RTPS Messages)
             // To satisfy RTPS requirement we may need to add padding
-            while (buf.position() % 4 != 0) writeByte((byte) 0);
+            align(4);
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             if (a[i] instanceof Data data) writeData(data);
             else writer.write(a[i]);
         }
+    }
+
+    private void align(int blockSize) throws Exception {
+        while (buf.position() % blockSize != 0) writeByte((byte) 0);
     }
 
     @Override
@@ -167,23 +176,52 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     public void writeData(Data data) throws Exception {
         LOGGER.entering("writeData");
         writer.write(data);
+        writeParameterList(data.inlineQos);
         writer.write(data.serializedPayload);
         LOGGER.exiting("writeData");
     }
 
     public void writeParameterList(ParameterList pl) throws Exception {
         LOGGER.entering("writeParameterList");
+        writeParameterList(
+                pl.getUserParameters(),
+                k -> k,
+                e -> LengthCalculator.getInstance().calculateUserParameterLength(e));
+        writeParameterList(
+                pl.getParameters(),
+                k -> k.getValue(),
+                e -> LengthCalculator.getInstance().calculateParameterValueLength(e));
+        LOGGER.exiting("writeParameterList");
+    }
+
+    @RtpsSpecReference(
+            paragraph = "9.4.2.11",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "ParameterList A ParameterList contains a list of Parameters, terminated"
+                            + " with a sentinel. Each Parameter within the ParameterList starts"
+                            + " aligned on a 4-byte boundary with respect to the start of the"
+                            + " ParameterList.")
+    public <K, V> void writeParameterList(
+            Map<K, V> parameterList,
+            Function<K, Short> paramIdMapper,
+            Function<Entry<K, V>, Integer> lenCalculator)
+            throws Exception {
+        LOGGER.entering("writeParameterList");
+        if (parameterList.isEmpty()) return;
         var paramListStart = buf.position();
-        for (var param : pl.getParameters().entrySet()) {
+        for (var param : parameterList.entrySet()) {
+            var len = lenCalculator.apply(param);
             Preconditions.isTrue(
                     (buf.position() - paramListStart) % 4 == 0,
                     "Invalid param alignment: " + param.getKey());
-            writeShort(param.getKey().getValue());
-            var len = LengthCalculator.getInstance().calculateParameterValueLength(param);
-            writeShort((short) len);
+            writeShort(paramIdMapper.apply(param.getKey()));
+            writeShort(len.shortValue());
             var endPos = buf.position() + len;
             if (param.getValue() instanceof Locator locator) writeLocator(locator);
             else writer.write(param.getValue());
+
+            // pad rest with zeros
             while (buf.position() < endPos) writeByte((byte) 0);
         }
         writeShort(ParameterId.PID_SENTINEL.getValue());

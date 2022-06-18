@@ -24,9 +24,9 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
@@ -66,7 +66,7 @@ public class SpdpService implements AutoCloseable {
             TracingToken tracingToken,
             RtpsNetworkInterface iface,
             NetworkInterface networkInterface,
-            Subscriber<ParameterList> participantsSubscriber)
+            Subscriber<RtpsTalkParameterListMessage> participantsSubscriber)
             throws Exception {
         Preconditions.isTrue(!isStarted, "Already started");
         tracingToken = new TracingToken(tracingToken, networkInterface.getName());
@@ -91,11 +91,12 @@ public class SpdpService implements AutoCloseable {
                 new SpdpBuiltinParticipantWriter(
                         tracingToken, config, channelFactory, networkInterface);
         writer.readerLocatorAdd(metatrafficMulticastLocator);
-        writer.setSpdpDiscoveredParticipantData(
-                spdpDiscoveredDataFactory.createData(
-                        config,
-                        iface.getLocalMetatrafficUnicastLocator(),
-                        iface.getLocalDefaultUnicastLocator()));
+        writer.setSpdpDiscoveredParticipantDataMessage(
+                new RtpsTalkParameterListMessage(
+                        spdpDiscoveredDataFactory.createData(
+                                config,
+                                iface.getLocalMetatrafficUnicastLocator(),
+                                iface.getLocalDefaultUnicastLocator())));
         writer.start();
         isStarted = true;
     }

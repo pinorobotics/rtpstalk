@@ -25,6 +25,7 @@ import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
@@ -34,7 +35,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /**
@@ -49,20 +49,20 @@ import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
+public class TopicSubscriptionsManager extends SimpleSubscriber<RtpsTalkParameterListMessage> {
 
     private XLogger logger;
     private SedpDataFactory dataFactory;
     private List<Topic> topics = new ArrayList<>();
     private RtpsNetworkInterface networkIface;
-    private StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter;
+    private StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter;
     private UserDataService userService;
 
     public TopicSubscriptionsManager(
             TracingToken tracingToken,
             RtpsTalkConfiguration config,
             RtpsNetworkInterface networkIface,
-            StatefullReliableRtpsWriter<ParameterList> subscriptionsWriter,
+            StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
             UserDataService userService) {
         this.dataFactory = new SedpDataFactory(config);
         this.networkIface = networkIface;
@@ -91,7 +91,8 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
      * EntityId.Predefined#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR} endpoint
      */
     @Override
-    public void onNext(ParameterList pl) {
+    public void onNext(RtpsTalkParameterListMessage message) {
+        var pl = message.parameterList();
         var pubTopic = (String) pl.getParameters().get(ParameterId.PID_TOPIC_NAME);
         Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
         var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
@@ -127,11 +128,12 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<ParameterList> {
                                                     readers.assignNewEntityId(
                                                             topicId, EntityKind.READER_NO_KEY));
                     subscriptionsWriter.newChange(
-                            dataFactory.createSubscriptionData(
-                                    topicId,
-                                    readerEntityId,
-                                    networkIface.getLocalDefaultUnicastLocator(),
-                                    subEvent.subscriber().qosPolicy()));
+                            new RtpsTalkParameterListMessage(
+                                    dataFactory.createSubscriptionData(
+                                            topicId,
+                                            readerEntityId,
+                                            networkIface.getLocalDefaultUnicastLocator(),
+                                            subEvent.subscriber().qosPolicy())));
                     userService.subscribeToRemoteWriter(
                             readerEntityId,
                             List.of(subEvent.writerUnicastLocator()),

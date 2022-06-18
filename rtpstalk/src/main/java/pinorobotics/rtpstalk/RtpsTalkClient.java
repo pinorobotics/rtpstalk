@@ -18,18 +18,20 @@
 package pinorobotics.rtpstalk;
 
 import id.xfunction.Preconditions;
-import id.xfunction.concurrent.flow.TransformProcessor;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsServiceManager;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RtpsTalkClient implements AutoCloseable {
 
     private XLogger logger;
@@ -56,22 +58,18 @@ public class RtpsTalkClient implements AutoCloseable {
         tracingToken = new TracingToken(clientName);
     }
 
-    public void subscribe(String topic, String type, Subscriber<byte[]> subscriber) {
+    public void subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
         if (!isStarted) {
             start();
         }
-        var transformer = new TransformProcessor<>(RawData::getData);
-        transformer.subscribe(subscriber);
-        serviceManager.subscribe(topic, type, transformer);
+        serviceManager.subscribe(topic, type, subscriber);
     }
 
-    public void publish(String topic, String type, Publisher<byte[]> publisher) {
+    public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
         if (!isStarted) {
             start();
         }
-        var transformer = new TransformProcessor<byte[], RawData>(RawData::new);
-        serviceManager.publish(topic, type, transformer);
-        publisher.subscribe(transformer);
+        serviceManager.publish(topic, type, publisher);
     }
 
     /**

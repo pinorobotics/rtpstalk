@@ -38,6 +38,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
@@ -174,6 +175,7 @@ public class RtpsTalkClientPubSubPairsTests {
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
         var expectedData =
                 generateMessages(testCase.numberOfMessages).stream()
+                        .map(RtpsTalkDataMessage::data)
                         .map(XByte::toHexPairs)
                         .collect(joining("\n"));
         var procs = new ArrayList<XProcess>();
@@ -193,7 +195,10 @@ public class RtpsTalkClientPubSubPairsTests {
             TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
         }
         var subscribers =
-                Stream.generate(() -> new CollectorSubscriber<byte[]>(testCase.numberOfMessages))
+                Stream.generate(
+                                () ->
+                                        new CollectorSubscriber<RtpsTalkDataMessage>(
+                                                testCase.numberOfMessages))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
 
@@ -206,6 +211,7 @@ public class RtpsTalkClientPubSubPairsTests {
         for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
             var dataReceived =
                     subscribers.get(i).getFuture().get().stream()
+                            .map(RtpsTalkDataMessage::data)
                             .map(XByte::toHexPairs)
                             .collect(joining("\n"));
             Assertions.assertEquals(expectedData, dataReceived);
@@ -234,8 +240,8 @@ public class RtpsTalkClientPubSubPairsTests {
         return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
     }
 
-    private List<byte[]> generateMessages(int count) {
-        var out = new ArrayList<byte[]>();
+    private List<RtpsTalkDataMessage> generateMessages(int count) {
+        var out = new ArrayList<RtpsTalkDataMessage>();
         var text = "HelloWorld";
         for (int i = 1; i <= count; i++) {
             var buf =
@@ -250,7 +256,7 @@ public class RtpsTalkClientPubSubPairsTests {
             buf.putInt(Integer.reverseBytes(i));
             buf.putInt(Integer.reverseBytes(text.length() + 1));
             buf.put(text.getBytes());
-            out.add(buf.array());
+            out.add(new RtpsTalkDataMessage(buf.array()));
         }
         return out;
     }
@@ -282,7 +288,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 IntStream.range(0, numberOfPubSubPairs)
                         .mapToObj(
                                 i -> {
-                                    var publisher = new SubmissionPublisher<byte[]>();
+                                    var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
                                     client.publish(topics.get(i), "HelloWorld", publisher);
                                     return publisher;
                                 })

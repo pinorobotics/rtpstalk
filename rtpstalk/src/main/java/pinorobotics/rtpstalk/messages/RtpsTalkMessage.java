@@ -15,19 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl;
+package pinorobotics.rtpstalk.messages;
 
-import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
-import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+/** @author aeon_flux aeon_flux@eclipso.ch */
+public interface RtpsTalkMessage {
 
-/** @author lambdaprime intid@protonmail.com */
-public record SubscriberDetails(
-        TopicId topicId,
-        SubscriberQosPolicy qosPolicy,
-        Subscriber<RtpsTalkDataMessage> subscriber) {
-
-    public SubscriberDetails(TopicId topicId, Subscriber<RtpsTalkDataMessage> subscriber) {
-        this(topicId, new SubscriberQosPolicy.Builder().build(), subscriber);
-    }
+    Parameters inlineQos();
 }

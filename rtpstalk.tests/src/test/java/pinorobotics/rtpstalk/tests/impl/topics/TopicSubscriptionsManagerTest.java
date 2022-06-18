@@ -21,6 +21,7 @@ import id.xfunction.concurrent.flow.SameThreadSubmissionPublisher;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
@@ -29,7 +30,6 @@ import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.SedpDataFactory;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
@@ -53,7 +53,7 @@ public class TopicSubscriptionsManagerTest {
                                 channelFactory,
                                 new TestDataObjectsFactory(),
                                 new TestRtpsMessageReceiverFactory());
-                var publisher = new SameThreadSubmissionPublisher<ParameterList>()) {
+                var publisher = new SameThreadSubmissionPublisher<RtpsTalkParameterListMessage>()) {
             service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
             var publicationsWriter =
                     new SedpBuiltinPublicationsWriter(
@@ -83,7 +83,7 @@ public class TopicSubscriptionsManagerTest {
                                             .getValue(),
                                     TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR,
                                     new PublisherQosPolicy(ReliabilityKind.RELIABLE));
-            publisher.submit(remoteWriterPubData);
+            publisher.submit(new RtpsTalkParameterListMessage(remoteWriterPubData));
             var subData =
                     publicationsWriter
                             .getWriterCache()

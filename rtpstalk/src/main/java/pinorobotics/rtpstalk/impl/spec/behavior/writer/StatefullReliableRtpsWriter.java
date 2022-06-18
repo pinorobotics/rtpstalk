@@ -37,7 +37,6 @@ import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
@@ -45,9 +44,10 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class StatefullReliableRtpsWriter<D extends Payload> extends RtpsWriter<D>
+public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D>
         implements Runnable, AutoCloseable {
 
     private ScheduledExecutorService executor =

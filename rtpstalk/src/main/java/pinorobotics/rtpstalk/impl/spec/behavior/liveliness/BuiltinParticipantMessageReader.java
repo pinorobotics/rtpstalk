@@ -19,19 +19,20 @@ package pinorobotics.rtpstalk.impl.spec.behavior.liveliness;
 
 import id.xfunction.Preconditions;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /**
  * Reliable liveliness reader
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class BuiltinParticipantMessageReader extends StatefullReliableRtpsReader<ParameterList> {
+public class BuiltinParticipantMessageReader
+        extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
 
     public BuiltinParticipantMessageReader(
             RtpsTalkConfiguration config,

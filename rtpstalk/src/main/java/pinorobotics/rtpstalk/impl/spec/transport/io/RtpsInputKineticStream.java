@@ -21,13 +21,14 @@ import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.Preconditions;
 import id.xfunction.XByte;
+import id.xfunction.function.ThrowingBiConsumer;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -47,6 +48,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
@@ -185,65 +187,98 @@ class RtpsInputKineticStream implements InputKineticStream {
         return a;
     }
 
+    public ParameterList readUserParameterList() throws Exception {
+        LOGGER.entering("readParameterList");
+        var paramList = new ParameterList();
+        readParameterList(
+                (id, paramLen) -> {
+                    var value = new byte[paramLen];
+                    readByteArray(value);
+                    LOGGER.fine(
+                            "{0}: byte array length {1}", Short.toUnsignedInt(id), value.length);
+                    paramList.put(id, value);
+                });
+        LOGGER.exiting("readParameterList");
+        return paramList;
+    }
+
     public ParameterList readParameterList() throws Exception {
         LOGGER.entering("readParameterList");
         var paramList = new ParameterList();
+        readParameterList(
+                (id, paramLen) -> {
+                    var parameterId = ParameterId.map.get(id);
+                    if (parameterId == null) {
+                        LOGGER.fine("Unknown parameter {0}, ignoring...", Short.toUnsignedInt(id));
+                        return;
+                    }
+                    Object value = null;
+                    switch (parameterId) {
+                        case PID_ENTITY_NAME:
+                        case PID_TYPE_NAME:
+                        case PID_TOPIC_NAME:
+                            value = readString();
+                            break;
+                        case PID_UNICAST_LOCATOR:
+                        case PID_DEFAULT_UNICAST_LOCATOR:
+                        case PID_METATRAFFIC_UNICAST_LOCATOR:
+                            value = readLocator();
+                            break;
+                        case PID_USER_DATA:
+                            value = new UserDataQosPolicy(readSequence());
+                            break;
+                        case PID_EXPECTS_INLINE_QOS:
+                            value = readBool();
+                            break;
+                        case PID_STATUS_INFO:
+                            value = readStatusInfo();
+                            break;
+                        case PID_BUILTIN_ENDPOINT_SET:
+                        case PID_BUILTIN_ENDPOINT_QOS:
+                        case PID_PARTICIPANT_LEASE_DURATION:
+                        case PID_ENDPOINT_GUID:
+                        case PID_PARTICIPANT_GUID:
+                        case PID_PROTOCOL_VERSION:
+                        case PID_VENDORID:
+                        case PID_KEY_HASH:
+                        case PID_RELIABILITY:
+                        case PID_DURABILITY:
+                        case PID_DURABILITY_SERVICE:
+                        case PID_DESTINATION_ORDER:
+                            value = reader.read(parameterId.getParameterClass());
+                            break;
+                        default:
+                            throw new UnsupportedOperationException("Parameter id " + id);
+                    }
+                    LOGGER.fine(parameterId + ": " + value);
+                    paramList.put(parameterId, value);
+                });
+        LOGGER.exiting("readParameterList");
+        return paramList;
+    }
+
+    @RtpsSpecReference(
+            paragraph = "9.4.2.11",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "ParameterList A ParameterList contains a list of Parameters, terminated"
+                            + " with a sentinel. Each Parameter within the ParameterList starts"
+                            + " aligned on a 4-byte boundary with respect to the start of the"
+                            + " ParameterList.")
+    private void readParameterList(ThrowingBiConsumer<Short, Short, Exception> parameterReader)
+            throws Exception {
+        LOGGER.entering("readParameterList");
         short id;
         while ((id = readShort()) != ParameterId.PID_SENTINEL.getValue()) {
-            var parameterId = ParameterId.map.get(id);
             var len = readShort();
             var startPos = buf.position();
-            if (parameterId == null) {
-                LOGGER.fine("Unknown parameter {0}, ignoring...", Short.toUnsignedInt(id));
-                skip(len);
-                continue;
-            }
-            Object value = null;
-            switch (parameterId) {
-                case PID_ENTITY_NAME:
-                case PID_TYPE_NAME:
-                case PID_TOPIC_NAME:
-                    value = readString();
-                    break;
-                case PID_UNICAST_LOCATOR:
-                case PID_DEFAULT_UNICAST_LOCATOR:
-                case PID_METATRAFFIC_UNICAST_LOCATOR:
-                    value = readLocator();
-                    break;
-                case PID_USER_DATA:
-                    value = new UserDataQosPolicy(readSequence());
-                    break;
-                case PID_EXPECTS_INLINE_QOS:
-                    value = readBool();
-                    break;
-                case PID_STATUS_INFO:
-                    value = readStatusInfo();
-                    break;
-                case PID_BUILTIN_ENDPOINT_SET:
-                case PID_BUILTIN_ENDPOINT_QOS:
-                case PID_PARTICIPANT_LEASE_DURATION:
-                case PID_ENDPOINT_GUID:
-                case PID_PARTICIPANT_GUID:
-                case PID_PROTOCOL_VERSION:
-                case PID_VENDORID:
-                case PID_KEY_HASH:
-                case PID_RELIABILITY:
-                case PID_DURABILITY:
-                case PID_DURABILITY_SERVICE:
-                case PID_DESTINATION_ORDER:
-                    value = reader.read(parameterId.getParameterClass());
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Parameter id " + id);
-            }
+            parameterReader.accept(id, len);
+
             skip(len - (buf.position() - startPos));
-            LOGGER.fine(parameterId + ": " + value);
-            paramList.put(parameterId, value);
         }
         // ignoring
         readShort();
         LOGGER.exiting("readParameterList");
-        return paramList;
     }
 
     private void skip(int offset) {
@@ -260,20 +295,23 @@ class RtpsInputKineticStream implements InputKineticStream {
         var data = reader.read(Data.class);
         if (data.isInlineQos()) {
             LOGGER.warning("Reading InlineQos");
-            data.inlineQos = Optional.of(readParameterList());
+            data.inlineQos = readUserParameterList();
         }
         if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {
             var payloadHeader = reader.read(SerializedPayloadHeader.class);
             LOGGER.fine("payloadHeader: {0}", payloadHeader);
+            var representationId = payloadHeader.representation_identifier.findPredefined();
+            if (representationId.isEmpty())
+                throw new XRuntimeException(
+                        "Unknown representation identifier %s", representationId);
             Payload payload =
-                    switch (payloadHeader.representation_identifier.findPredefined().get()) {
+                    switch (representationId.get()) {
                         case PL_CDR_LE -> readParameterList();
                         case CDR_LE -> readRawData(
                                 data.submessageHeader.submessageLength
                                         - (buf.position() - dataSubmessageStart));
-                        default -> throw new XRuntimeException(
-                                "Unknown representation identifier %s",
-                                payloadHeader.representation_identifier);
+                        default -> throw new UnsupportedOperationException(
+                                "Representation identifier " + representationId.get());
                     };
             LOGGER.fine("payload: {0}", payload);
             data.serializedPayload = new SerializedPayload(payloadHeader, payload);
@@ -288,6 +326,10 @@ class RtpsInputKineticStream implements InputKineticStream {
         return new RawData(a);
     }
 
+    private void align(int blockSize) throws Exception {
+        while (buf.position() % blockSize != 0) readByte();
+    }
+
     private Submessage[] readSubmessages() throws Exception {
         LOGGER.entering("readSubmessages");
         var submessages = new ArrayList<Submessage>();
@@ -296,7 +338,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             // The PSM aligns each Submessage on a 32-bit boundary with respect
             // to the start of the Message (9.4 Mapping of the RTPS Messages)
             // Skip padding if any
-            while (buf.position() % 4 != 0) readByte();
+            align(4);
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             // peek submessage type

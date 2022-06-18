@@ -18,14 +18,15 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SedpBuiltinPublicationsReader extends StatefullReliableRtpsReader<ParameterList> {
+public class SedpBuiltinPublicationsReader
+        extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
 
     public SedpBuiltinPublicationsReader(
             RtpsTalkConfiguration config,

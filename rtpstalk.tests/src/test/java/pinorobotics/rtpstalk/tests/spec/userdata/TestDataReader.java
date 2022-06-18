@@ -22,9 +22,9 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
 public class TestDataReader extends DataReader {
@@ -42,7 +42,7 @@ public class TestDataReader extends DataReader {
     }
 
     @Override
-    public void subscribe(Subscriber<? super RawData> subscriber) {
+    public void subscribe(Subscriber<? super RtpsTalkDataMessage> subscriber) {
         super.subscribe(subscriber);
         subscribeCount++;
     }

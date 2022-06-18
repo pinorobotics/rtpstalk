@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import java.util.List;
-import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -57,7 +56,7 @@ public class Data extends Submessage {
      * Present only if the InlineQosFlag is set in the header. Contains QoS that may affect the
      * interpretation of the message
      */
-    public transient Optional<ParameterList> inlineQos = Optional.empty();
+    public transient ParameterList inlineQos = new ParameterList();
 
     public transient SerializedPayload serializedPayload;
 
@@ -72,9 +71,27 @@ public class Data extends Submessage {
     }
 
     public Data(
+            EntityId.Predefined readerId,
+            EntityId.Predefined writerId,
+            SequenceNumber writerSN,
+            ParameterList inlineQos,
+            SerializedPayload serializedPayload) {
+        this(readerId.getValue(), writerId.getValue(), writerSN, inlineQos, serializedPayload);
+    }
+
+    public Data(
             EntityId readerId,
             EntityId writerId,
             SequenceNumber writerSN,
+            SerializedPayload serializedPayload) {
+        this(readerId, writerId, writerSN, new ParameterList(), serializedPayload);
+    }
+
+    public Data(
+            EntityId readerId,
+            EntityId writerId,
+            SequenceNumber writerSN,
+            ParameterList inlineQos,
             SerializedPayload serializedPayload) {
         this.octetsToInlineQos =
                 (short)
@@ -84,11 +101,14 @@ public class Data extends Submessage {
         this.readerId = readerId;
         this.writerId = writerId;
         this.writerSN = writerSN;
+        this.inlineQos = inlineQos;
         this.serializedPayload = serializedPayload;
+        var flags = 0b100 | RtpsTalkConfiguration.ENDIANESS_BIT;
+        if (!inlineQos.getUserParameters().isEmpty()) flags |= 2;
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.DATA.getValue(),
-                        0b100 | RtpsTalkConfiguration.ENDIANESS_BIT,
+                        flags,
                         LengthCalculator.getInstance().calculateLength(this));
     }
 
@@ -130,6 +150,7 @@ public class Data extends Submessage {
             "readerId", readerId,
             "writerId", writerId,
             "writerSN", writerSN,
+            "inlineQos", inlineQos,
             "serializedPayload", serializedPayload
         };
     }

@@ -22,11 +22,11 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /** @author lambdaprime intid@protonmail.com */
-public class WriterChanges<D extends Payload> {
+public class WriterChanges<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterChanges.class);
     private long seqNumMin;

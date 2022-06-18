@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
@@ -35,7 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
+public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
 
     private Map<Guid, ParameterList> participants = new HashMap<>();
     private OperatingEntities operatingEntities;
@@ -56,11 +57,12 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<ParameterList> {
     }
 
     @Override
-    protected boolean addChange(CacheChange<ParameterList> cacheChange) {
+    protected boolean addChange(CacheChange<RtpsTalkParameterListMessage> cacheChange) {
         if (!super.addChange(cacheChange)) return false;
-        if (cacheChange.getDataValue().getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
+        var parameterList = cacheChange.getDataValue().parameterList();
+        if (parameterList.getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
                 instanceof Guid guid) {
-            participants.put(guid, cacheChange.getDataValue());
+            participants.put(guid, parameterList);
         }
         return true;
     }

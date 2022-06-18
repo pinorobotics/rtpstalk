@@ -26,25 +26,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterList>
+public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkParameterListMessage>
         implements Runnable, AutoCloseable {
 
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(
                     new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
-    private ParameterList data;
+    private RtpsTalkParameterListMessage message;
     private Duration rate;
     private NetworkInterface networkInterface;
 
@@ -80,21 +80,21 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<ParameterL
         subscribe(sender);
     }
 
-    public void setSpdpDiscoveredParticipantData(ParameterList data) {
-        LOGGER.fine("Setting SpdpDiscoveredParticipantData {0}", data);
-        this.data = data;
+    public void setSpdpDiscoveredParticipantDataMessage(RtpsTalkParameterListMessage message) {
+        LOGGER.fine("Setting SpdpDiscoveredParticipantData {0}", message.parameterList());
+        this.message = message;
     }
 
     @Override
     public void run() {
         if (executor.isShutdown()) return;
-        if (data == null) {
+        if (message == null) {
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
             return;
         }
         switch ((int) getLastChangeNumber()) {
             case 0:
-                newChange(data);
+                newChange(message);
                 break;
             case 1:
                 repeatLastChange();

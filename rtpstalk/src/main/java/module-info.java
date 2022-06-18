@@ -28,6 +28,7 @@ module rtpstalk {
     requires id.kineticstreamer;
 
     exports pinorobotics.rtpstalk;
+    exports pinorobotics.rtpstalk.messages;
     exports pinorobotics.rtpstalk.impl to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.topics to

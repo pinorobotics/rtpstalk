@@ -32,11 +32,11 @@ import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /** @author lambdaprime intid@protonmail.com */
 public class UserDataService implements AutoCloseable {
@@ -88,7 +88,9 @@ public class UserDataService implements AutoCloseable {
     }
 
     public void publish(
-            EntityId writerEntityId, EntityId readerEntityId, Publisher<RawData> publisher) {
+            EntityId writerEntityId,
+            EntityId readerEntityId,
+            Publisher<RtpsTalkDataMessage> publisher) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         Preconditions.isTrue(
                 !writers.containsKey(writerEntityId),

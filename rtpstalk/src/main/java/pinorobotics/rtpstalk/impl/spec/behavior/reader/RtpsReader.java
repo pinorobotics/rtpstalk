@@ -26,15 +26,14 @@ import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
@@ -42,6 +41,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
  * Stateless RTPS endpoint reader (best-effort reliability) which can be subscribed to {@link
@@ -63,7 +63,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
+public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
     protected final XLogger logger;
@@ -75,6 +75,7 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
     private ReliabilityQosPolicy.Kind reliabilityKind;
     private Optional<Subscription> subscription = Optional.empty();
     private TracingToken tracingToken;
+    private RtpsDataPackager<D> packager = new RtpsDataPackager<>();
 
     public RtpsReader(
             RtpsTalkConfiguration config,
@@ -108,13 +109,14 @@ public class RtpsReader<D extends Payload> extends SubmissionPublisher<D>
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
         if (d.serializedPayload != null) {
-            addChange(
-                    new CacheChange<>(
-                            writerGuid, d.writerSN.value, (D) d.serializedPayload.payload));
+            packager.extractMessage(d)
+                    .ifPresent(
+                            message ->
+                                    addChange(
+                                            new CacheChange<>(
+                                                    writerGuid, d.writerSN.value, message)));
         }
-        d.inlineQos
-                .map(ParameterList::getParameters)
-                .ifPresent(pl -> processInlineQos(writerGuid, pl));
+        processInlineQos(writerGuid, d.inlineQos.getParameters());
         return Result.CONTINUE;
     }
 

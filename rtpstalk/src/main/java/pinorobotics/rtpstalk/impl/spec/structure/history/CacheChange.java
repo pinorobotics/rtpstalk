@@ -20,10 +20,10 @@ package pinorobotics.rtpstalk.impl.spec.structure.history;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /** @author aeon_flux aeon_flux@eclipso.ch */
-public class CacheChange<D extends Payload> {
+public class CacheChange<D extends RtpsTalkMessage> {
 
     private Guid writerGuid;
     private long sequenceNumber;
@@ -58,6 +58,7 @@ public class CacheChange<D extends Payload> {
         return Objects.hash(sequenceNumber, writerGuid);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

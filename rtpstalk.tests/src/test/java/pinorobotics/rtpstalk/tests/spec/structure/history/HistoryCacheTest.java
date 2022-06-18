@@ -20,10 +20,10 @@ package pinorobotics.rtpstalk.tests.spec.structure.history;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
 /** @author lambdaprime intid@protonmail.com */
@@ -31,14 +31,18 @@ public class HistoryCacheTest {
 
     @Test
     public void test_out_of_order() {
-        var cache = new HistoryCache<>();
+        var cache = new HistoryCache<RtpsTalkDataMessage>();
         var guid =
                 new Guid(
                         TestConstants.TEST_GUID_PREFIX,
                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
-        Assertions.assertEquals(true, cache.addChange(new CacheChange<Payload>(guid, 1, null)));
-        Assertions.assertEquals(true, cache.addChange(new CacheChange<Payload>(guid, 3, null)));
-        Assertions.assertEquals(false, cache.addChange(new CacheChange<Payload>(guid, 2, null)));
-        Assertions.assertEquals(false, cache.addChange(new CacheChange<Payload>(guid, 3, null)));
+        Assertions.assertEquals(
+                true, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 1, null)));
+        Assertions.assertEquals(
+                true, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
+        Assertions.assertEquals(
+                false, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 2, null)));
+        Assertions.assertEquals(
+                false, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
     }
 }

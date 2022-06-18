@@ -32,10 +32,10 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestRtpsNetworkInterface;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -61,7 +61,7 @@ public class UserDataServiceTest {
                         dataFactory,
                         receiverFactory); ) {
             var counters = new int[2];
-            class MySubscriber extends SimpleSubscriber<RawData> {
+            class MySubscriber extends SimpleSubscriber<RtpsTalkDataMessage> {
                 @Override
                 public void onSubscribe(Subscription subscription) {
                     counters[0]++;
@@ -120,19 +120,19 @@ public class UserDataServiceTest {
             service.publish(
                     new EntityId(1, EntityKind.WRITER_NO_KEY),
                     TestConstants.TEST_READER_ENTITY_ID,
-                    new SubmissionPublisher<RawData>());
+                    new SubmissionPublisher<RtpsTalkDataMessage>());
             var writerEntityId = new EntityId(2, EntityKind.WRITER_NO_KEY);
             service.publish(
                     writerEntityId,
                     TestConstants.TEST_READER_ENTITY_ID,
-                    new SubmissionPublisher<RawData>());
+                    new SubmissionPublisher<RtpsTalkDataMessage>());
             assertThrows(
                     PreconditionException.class,
                     () ->
                             service.publish(
                                     writerEntityId,
                                     TestConstants.TEST_READER_ENTITY_ID,
-                                    new SubmissionPublisher<RawData>()));
+                                    new SubmissionPublisher<RtpsTalkDataMessage>()));
             assertEquals(1, receiverFactory.getReceivers().get(0).getSubscribeCount());
         }
     }

@@ -24,25 +24,23 @@ import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /** @author lambdaprime intid@protonmail.com */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
-    private Map<Long, Payload> data = new HashMap<>();
+    private Map<Long, RtpsTalkMessage> data = new HashMap<>();
     private Header header;
     private Optional<GuidPrefix> readerGuidPrefix;
+    private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
 
     public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix) {
         this(writerGuidPrefix, null);
@@ -58,7 +56,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
     }
 
-    public void add(long seqNum, Payload payload) {
+    public void add(long seqNum, RtpsTalkMessage payload) {
         data.put(seqNum, payload);
     }
 
@@ -69,15 +67,11 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         // submessage,
         // instead we include InfoTimestamp per entire message and only once
         submessages.add(InfoTimestamp.now());
-        data.entrySet().stream()
-                .map(
-                        entry ->
-                                new Data(
-                                        readerEntiyId,
-                                        writerEntityId,
-                                        new SequenceNumber(entry.getKey()),
-                                        new SerializedPayload(entry.getValue())))
-                .forEach(submessages::add);
+        for (var e : data.entrySet()) {
+            var seqNum = e.getKey();
+            submessages.add(
+                    packager.packMessage(readerEntiyId, writerEntityId, seqNum, e.getValue()));
+        }
         return new RtpsMessage(header, submessages);
     }
 

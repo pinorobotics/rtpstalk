@@ -31,12 +31,12 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
+import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
  * Reliable Statefull RTPS reader.
@@ -47,7 +47,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class StatefullReliableRtpsReader<D extends Payload> extends RtpsReader<D> {
+public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends RtpsReader<D> {
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */
     private Map<Guid, WriterInfo> matchedWriters = new ConcurrentHashMap<>();
