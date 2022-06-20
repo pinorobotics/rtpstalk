@@ -49,11 +49,11 @@ public class DataChannel implements AutoCloseable {
             TracingToken tracingToken,
             DatagramChannel datagramChannel,
             SocketAddress target,
-            GuidPrefix guidPrefix,
+            byte[] guidPrefix,
             int packetBufferSize) {
         this.datagramChannel = datagramChannel;
         this.target = target;
-        this.guidPrefix = guidPrefix;
+        this.guidPrefix = new GuidPrefix(guidPrefix);
         this.packetBufferSize = packetBufferSize;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }

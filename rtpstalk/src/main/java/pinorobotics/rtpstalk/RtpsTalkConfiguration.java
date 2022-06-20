@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk;
 
+import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.function.Unchecked;
 import java.net.NetworkInterface;
@@ -41,7 +42,7 @@ public record RtpsTalkConfiguration(
         Optional<NetworkInterface> networkInterface,
         int packetBufferSize,
         int domainId,
-        GuidPrefix guidPrefix,
+        byte[] guidPrefix,
         Guid localParticpantGuid,
         EndpointQos builtinEndpointQos,
         Duration leaseDuration,
@@ -61,7 +62,7 @@ public record RtpsTalkConfiguration(
         builder.append("networkIfaces", networkInterface);
         builder.append("packetBufferSize", packetBufferSize);
         builder.append("domainId", domainId);
-        builder.append("guidPrefix", guidPrefix);
+        builder.append("guidPrefix", XByte.toHex(guidPrefix));
         builder.append("builtinEndpointQos", builtinEndpointQos);
         builder.append("leaseDuration", leaseDuration);
         builder.append("localParticpantGuid", localParticpantGuid);
@@ -190,7 +191,7 @@ public record RtpsTalkConfiguration(
                     networkIface,
                     packetBufferSize,
                     domainId,
-                    guidPrefix,
+                    guidPrefix.value,
                     new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),
                     builtinEndpointQos,
                     leaseDuration,

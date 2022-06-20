@@ -41,6 +41,10 @@ public class Guid {
         this(guidPrefix, predefinedEntityId.getValue());
     }
 
+    public Guid(byte[] guidPrefix, EntityId entityId) {
+        this(new GuidPrefix(guidPrefix), entityId);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(entityId, guidPrefix);

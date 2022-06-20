@@ -35,6 +35,10 @@ public class TestDataChannel extends DataChannel {
     private boolean blockReceiveForever;
 
     public TestDataChannel(GuidPrefix prefix, boolean blockReceiveForever) {
+        this(prefix.value, blockReceiveForever);
+    }
+
+    public TestDataChannel(byte[] prefix, boolean blockReceiveForever) {
         super(new TracingToken("test"), null, null, prefix, 0);
         this.blockReceiveForever = blockReceiveForever;
     }

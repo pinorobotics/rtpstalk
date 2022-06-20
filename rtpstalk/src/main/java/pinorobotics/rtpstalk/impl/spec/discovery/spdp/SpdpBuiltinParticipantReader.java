@@ -44,7 +44,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     public SpdpBuiltinParticipantReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
-            GuidPrefix guidPrefix,
+            byte[] guidPrefix,
             OperatingEntities operatingEntities) {
         super(
                 config,
