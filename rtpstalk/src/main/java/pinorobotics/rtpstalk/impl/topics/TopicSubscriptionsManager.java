@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -72,15 +73,28 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<RtpsTalkParamete
     }
 
     public void addSubscriber(SubscriberDetails subscriber) {
-        logger.fine("Adding subscriber for topic id {0}", subscriber.topicId());
-        var topic = createTopicSubscriptionIfMissing(subscriber.topicId());
+        var topicId = subscriber.topicId();
+        logger.fine("Adding subscriber for topic id {0}", topicId);
+        var topic = createTopicIfMissing(topicId);
+        if (!topic.hasSubscribers()) {
+            var readerEntityId = announceTopicSubscription(topicId, subscriber.qosPolicy());
+            topic.addListener(
+                    subEvent -> {
+                        logger.fine("New subscribe event for topic id {0}: {1}", topicId, subEvent);
+                        userService.subscribeToRemoteWriter(
+                                readerEntityId,
+                                List.of(subEvent.writerUnicastLocator()),
+                                subEvent.topicEndpointGuid(),
+                                subEvent.subscriber());
+                    });
+        }
         topic.addSubscriber(subscriber);
     }
 
-    private Topic createTopicSubscriptionIfMissing(TopicId topicId) {
+    private Topic createTopicIfMissing(TopicId topicId) {
         var topic = topics.stream().filter(t -> t.isMatches(topicId)).findAny().orElse(null);
         if (topic == null) {
-            topic = newTopicSubscription(topicId);
+            topic = new Topic(topicId);
             topics.add(topic);
         }
         return topic;
@@ -110,36 +124,25 @@ public class TopicSubscriptionsManager extends SimpleSubscriber<RtpsTalkParamete
         logger.fine(
                 "Discovered publisher for topic {0} type {1} with endpoint {2}",
                 pubTopic, pubType, pubEndpointGuid);
-        var topic = createTopicSubscriptionIfMissing(new TopicId(pubTopic, pubType));
+        var topicId = new TopicId(pubTopic, pubType);
+        var topic = createTopicIfMissing(topicId);
         topic.addPublisher(pubUnicastLocator, pubEndpointGuid);
         subscription.request(1);
     }
 
-    private Topic newTopicSubscription(TopicId topicId) {
-        var topic = new Topic(topicId);
-        topic.addListener(
-                subEvent -> {
-                    logger.fine("New subscribe event for topic id {0}: {1}", topicId, subEvent);
-                    var readers = networkIface.getOperatingEntities().getReaders();
-                    var readerEntityId =
-                            readers.findEntityId(topic.getTopicId())
-                                    .orElseGet(
-                                            () ->
-                                                    readers.assignNewEntityId(
-                                                            topicId, EntityKind.READER_NO_KEY));
-                    subscriptionsWriter.newChange(
-                            new RtpsTalkParameterListMessage(
-                                    dataFactory.createSubscriptionData(
-                                            topicId,
-                                            readerEntityId,
-                                            networkIface.getLocalDefaultUnicastLocator(),
-                                            subEvent.subscriber().qosPolicy())));
-                    userService.subscribeToRemoteWriter(
-                            readerEntityId,
-                            List.of(subEvent.writerUnicastLocator()),
-                            subEvent.topicEndpointGuid(),
-                            subEvent.subscriber());
-                });
-        return topic;
+    private EntityId announceTopicSubscription(TopicId topicId, SubscriberQosPolicy qosPolicy) {
+        var readers = networkIface.getOperatingEntities().getReaders();
+        var readerEntityId =
+                readers.findEntityId(topicId)
+                        .orElseGet(
+                                () -> readers.assignNewEntityId(topicId, EntityKind.READER_NO_KEY));
+        subscriptionsWriter.newChange(
+                new RtpsTalkParameterListMessage(
+                        dataFactory.createSubscriptionData(
+                                topicId,
+                                readerEntityId,
+                                networkIface.getLocalDefaultUnicastLocator(),
+                                qosPolicy)));
+        return readerEntityId;
     }
 }

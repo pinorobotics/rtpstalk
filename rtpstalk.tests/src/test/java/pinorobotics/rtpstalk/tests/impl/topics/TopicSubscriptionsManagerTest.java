@@ -25,13 +25,9 @@ import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
-import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
-import pinorobotics.rtpstalk.impl.topics.SedpDataFactory;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
@@ -43,6 +39,15 @@ import pinorobotics.rtpstalk.tests.spec.userdata.TestDataObjectsFactory;
 /** @author lambdaprime intid@protonmail.com */
 public class TopicSubscriptionsManagerTest {
 
+    /**
+     * We expect to send SubscriptionData immediately when new subscriber is registered.
+     *
+     * <ul>
+     *   <li>create and register new subscriber with {@link TopicSubscriptionsManager}
+     *   <li>test that {@link TopicSubscriptionsManager} sent proper SubscriptionData
+     *   <li>announce new publisher available
+     * </ul>
+     */
     @Test
     public void test_createSubscriptionData() throws Exception {
         LogUtils.setupLog();
@@ -75,15 +80,6 @@ public class TopicSubscriptionsManagerTest {
                             topicId,
                             new SubscriberQosPolicy.Builder().build(),
                             new SimpleSubscriber<>()));
-            var remoteWriterPubData =
-                    new SedpDataFactory(TestConstants.TEST_CONFIG)
-                            .createPublicationData(
-                                    topicId,
-                                    EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER
-                                            .getValue(),
-                                    TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR,
-                                    new PublisherQosPolicy(ReliabilityKind.RELIABLE));
-            publisher.submit(new RtpsTalkParameterListMessage(remoteWriterPubData));
             var subData =
                     publicationsWriter
                             .getWriterCache()

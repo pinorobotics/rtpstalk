@@ -74,4 +74,8 @@ public class Topic extends XObservable<SubscribeEvent> {
     public TopicId getTopicId() {
         return topicId;
     }
+
+    public boolean hasSubscribers() {
+        return !applicationSubscribers.isEmpty();
+    }
 }
