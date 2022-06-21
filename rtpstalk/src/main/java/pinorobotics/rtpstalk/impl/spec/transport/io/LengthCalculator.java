@@ -77,7 +77,7 @@ public class LengthCalculator {
 
     // TODO add all to HashMap to avoid recalculations
     public int getFixedLengthInternal(Class<?> clazz) {
-        if (clazz == EntityId.class) return EntityId.SIZE + 1;
+        if (clazz == EntityId.class) return Integer.BYTES;
         if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
         if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
         if (clazz == Timestamp.class) return Integer.BYTES * 2;

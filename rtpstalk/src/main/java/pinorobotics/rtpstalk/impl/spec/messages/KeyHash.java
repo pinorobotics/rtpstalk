@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
+import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
@@ -39,12 +40,9 @@ public class KeyHash implements Sequence {
 
     public KeyHash(Guid guid) {
         value = new byte[SIZE];
-        System.arraycopy(guid.guidPrefix.value, 0, value, 0, guid.guidPrefix.value.length);
-        int pos = guid.guidPrefix.value.length;
-        value[pos++] = (byte) ((guid.entityId.entityKey & 0x00ff0000) >> 16);
-        value[pos++] = (byte) ((guid.entityId.entityKey & 0x0000ff00) >> 8);
-        value[pos++] = (byte) (guid.entityId.entityKey & 0x000000ff);
-        value[pos++] = guid.entityId.entityKind;
+        var buf = ByteBuffer.wrap(value);
+        buf.put(guid.guidPrefix.value);
+        buf.putInt(guid.entityId.value);
     }
 
     public Guid asGuid() {

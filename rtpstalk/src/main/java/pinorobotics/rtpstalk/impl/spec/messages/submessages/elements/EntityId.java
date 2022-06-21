@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public class EntityId {
 
-    public static final int SIZE = 3;
-
     public static enum Predefined {
         ENTITYID_PARTICIPANT(new EntityId(0x000001, BUILTIN_PARTICIPANT)),
         ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(0x000002, BUILTIN_WRITER)),
@@ -73,9 +71,7 @@ public class EntityId {
         }
     }
 
-    public int entityKey;
-
-    public byte entityKind;
+    public int value;
 
     public EntityId() {}
 
@@ -84,17 +80,12 @@ public class EntityId {
     }
 
     public EntityId(int entityKey, byte entityKind) {
-        this.entityKey = entityKey;
-        this.entityKind = entityKind;
+        this.value = (entityKey << 8) | Byte.toUnsignedInt(entityKind);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Objects.hash(entityKey);
-        result = prime * result + Objects.hash(entityKind);
-        return result;
+        return Objects.hash(value);
     }
 
     @Override
@@ -103,7 +94,7 @@ public class EntityId {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         EntityId other = (EntityId) obj;
-        return entityKey == other.entityKey && entityKind == other.entityKind;
+        return value == other.value;
     }
 
     @Override
@@ -112,6 +103,10 @@ public class EntityId {
         if (predefined != null) {
             return predefined.name();
         }
-        return XByte.toHex(entityKey) + ":" + XByte.toHex(entityKind);
+        return XByte.toHex(value);
+    }
+
+    public byte entityKind() {
+        return (byte) (value & 0x000000ff);
     }
 }

@@ -277,10 +277,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     public void writeEntityId(EntityId entiyId) throws Exception {
         LOGGER.entering("writeEntityId");
-        writeByte((byte) (entiyId.entityKey >> 16));
-        writeByte((byte) (entiyId.entityKey >> 8));
-        writeByte((byte) entiyId.entityKey);
-        writeByte(entiyId.entityKind);
+        buf.putInt(entiyId.value);
         LOGGER.exiting("writeEntityId");
     }
 

@@ -47,7 +47,7 @@ public class EntityRegistry<E extends RtpsEntity> {
 
     public synchronized void add(E entity) {
         var entityId = entity.getGuid().entityId;
-        var entityKind = EntityKind.valueOf(entityId.entityKind);
+        var entityKind = EntityKind.valueOf(entityId.entityKind());
         Preconditions.isTrue(
                 kinds.contains(entityKind),
                 "Entity kind missmatch: registry "
