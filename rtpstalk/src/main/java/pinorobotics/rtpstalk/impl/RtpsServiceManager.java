@@ -27,6 +27,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
@@ -133,8 +134,9 @@ public class RtpsServiceManager implements AutoCloseable {
         }
     }
 
-    public void subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
-        subscriptionsManager.addSubscriber(
+    public EntityId subscribe(
+            String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
+        return subscriptionsManager.addSubscriber(
                 new SubscriberDetails(new TopicId(topic, type), subscriber));
     }
 

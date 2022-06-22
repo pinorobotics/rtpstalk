@@ -58,11 +58,12 @@ public class RtpsTalkClient implements AutoCloseable {
         tracingToken = new TracingToken(clientName);
     }
 
-    public void subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
+    public int subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
         if (!isStarted) {
             start();
         }
-        serviceManager.subscribe(topic, type, subscriber);
+        var entityId = serviceManager.subscribe(topic, type, subscriber);
+        return entityId.value;
     }
 
     public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {

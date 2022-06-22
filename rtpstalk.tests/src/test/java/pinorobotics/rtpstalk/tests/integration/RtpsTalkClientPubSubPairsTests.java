@@ -25,6 +25,7 @@ import id.xfunction.lang.XProcess;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
@@ -203,8 +206,16 @@ public class RtpsTalkClientPubSubPairsTests {
                         .toList();
 
         // subscribe all
-        IntStream.range(0, testCase.numberOfPubSubPairs)
-                .forEach(i -> client.subscribe(topics.get(i), "HelloWorld", subscribers.get(i)));
+        var entityIds =
+                IntStream.range(0, testCase.numberOfPubSubPairs)
+                        .map(i -> client.subscribe(topics.get(i), "HelloWorld", subscribers.get(i)))
+                        .toArray();
+
+        if (!testCase.isSubscribeToFutureTopic) {
+            // there is no ordering in topics discovering so entityId assignments
+            // are at random and we sort them
+            Arrays.sort(entityIds);
+        }
 
         if (testCase.isSubscribeToFutureTopic) publishersRunner.run();
 
@@ -225,6 +236,12 @@ public class RtpsTalkClientPubSubPairsTests {
         assertTemplates(testCase.templates);
         assertTemplates(testCase.subscribeTestTemplates);
         assertValidators(testCase.validators);
+
+        System.out.println(Arrays.toString(entityIds));
+        for (int i = 0; i < entityIds.length; i++) {
+            var entityId = new EntityId(i + 1, EntityKind.READER_NO_KEY);
+            Assertions.assertEquals(entityId.value, entityIds[i]);
+        }
     }
 
     private void assertValidators(List<Runnable> validators) {

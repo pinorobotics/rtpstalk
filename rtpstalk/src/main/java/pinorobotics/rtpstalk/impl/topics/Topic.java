@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
  * RTPS topic with all available remote publishers and local subscribers to it.
@@ -40,9 +41,11 @@ public class Topic extends XObservable<SubscribeEvent> {
     private TopicId topicId;
     private List<TopicPublisher> discoveredPublishers = new ArrayList<>();
     private List<SubscriberDetails> applicationSubscribers = new ArrayList<>();
+    private EntityId readerEntityId;
 
-    public Topic(TopicId topicId) {
+    public Topic(TopicId topicId, EntityId readerEntityId) {
         this.topicId = topicId;
+        this.readerEntityId = readerEntityId;
     }
 
     public void addPublisher(Locator writerUnicastLocator, Guid endpointGuid) {
@@ -77,5 +80,9 @@ public class Topic extends XObservable<SubscribeEvent> {
 
     public boolean hasSubscribers() {
         return !applicationSubscribers.isEmpty();
+    }
+
+    public EntityId getReaderEntityId() {
+        return readerEntityId;
     }
 }
