@@ -35,7 +35,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
 
     private Map<Guid, ParameterList> participants = new HashMap<>();

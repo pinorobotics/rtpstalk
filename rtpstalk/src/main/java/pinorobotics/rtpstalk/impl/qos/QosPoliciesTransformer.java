@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.qos;
 
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class QosPoliciesTransformer {
 
     public ReliabilityQosPolicy.Kind toRtpsInternal(ReliabilityKind kind) {

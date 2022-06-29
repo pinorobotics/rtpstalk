@@ -25,7 +25,9 @@ import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWrit
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class SedpBuiltinPublicationsWriter
         extends StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> {
 

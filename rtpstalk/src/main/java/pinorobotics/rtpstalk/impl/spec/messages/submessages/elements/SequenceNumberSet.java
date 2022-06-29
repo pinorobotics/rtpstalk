@@ -27,7 +27,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
  * information about individual sequence numbers within a range. The sequence numbers represented in
  * the SequenceNumberSet are limited to belong to an interval with a range no bigger than 256.
  */
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SequenceNumberSet {
 
     @RtpsSpecReference(

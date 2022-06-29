@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class HistoryQosPolicy {
 
     public enum Kind {

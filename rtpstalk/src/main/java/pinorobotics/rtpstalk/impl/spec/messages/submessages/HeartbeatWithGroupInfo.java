@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 import pinorobotics.rtpstalk.impl.spec.messages.GroupDigest;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class HeartbeatWithGroupInfo extends Heartbeat {
 
     /**

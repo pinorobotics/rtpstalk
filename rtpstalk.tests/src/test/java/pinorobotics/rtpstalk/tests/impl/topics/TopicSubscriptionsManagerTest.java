@@ -36,7 +36,9 @@ import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.tests.spec.userdata.TestDataObjectsFactory;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class TopicSubscriptionsManagerTest {
 
     /**
@@ -45,7 +47,6 @@ public class TopicSubscriptionsManagerTest {
      * <ul>
      *   <li>create and register new subscriber with {@link TopicSubscriptionsManager}
      *   <li>test that {@link TopicSubscriptionsManager} sent proper SubscriptionData
-     *   <li>announce new publisher available
      * </ul>
      */
     @Test

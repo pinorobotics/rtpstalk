@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io.exceptions;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class NotRtpsPacketException extends Exception {
 
     private static final long serialVersionUID = 1L;

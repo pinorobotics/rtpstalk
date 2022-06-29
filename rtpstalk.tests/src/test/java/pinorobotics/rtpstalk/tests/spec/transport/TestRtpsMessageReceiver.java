@@ -22,7 +22,9 @@ import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class TestRtpsMessageReceiver extends RtpsMessageReceiver {
 
     private int subscribeCount;

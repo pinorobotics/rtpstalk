@@ -28,7 +28,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class HistoryCache<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);

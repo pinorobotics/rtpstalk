@@ -22,7 +22,9 @@ import java.util.Objects;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class CacheChange<D extends RtpsTalkMessage> {
 
     private Guid writerGuid;

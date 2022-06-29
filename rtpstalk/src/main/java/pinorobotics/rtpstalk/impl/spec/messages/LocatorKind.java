@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 import java.util.HashMap;
 import java.util.Map;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public enum LocatorKind {
     LOCATOR_KIND_INVALID(-1),
     LOCATOR_KIND_RESERVED(0),

@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.spec.transport;
 
 import pinorobotics.rtpstalk.impl.TracingToken;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class RtpsMessageReceiverFactory {
 
     public RtpsMessageReceiver newRtpsMessageReceiver(TracingToken token) {

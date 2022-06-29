@@ -17,5 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.spec.behavior.reader;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class TestStatefullReliableRtpsReader {}

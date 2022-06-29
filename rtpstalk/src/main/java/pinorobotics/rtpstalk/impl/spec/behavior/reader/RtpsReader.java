@@ -125,7 +125,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         var isAdded = cache.addChange(cacheChange);
         if (isAdded) {
             logger.fine("Submitting new change to subscribers");
-            submit(cacheChange.getDataValue());
+            if (!isClosed()) submit(cacheChange.getDataValue());
         }
         logger.exiting("addChange");
         return isAdded;

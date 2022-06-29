@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.messages;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements RtpsTalkMessage {
 
     public RtpsTalkDataMessage(byte[] data) {

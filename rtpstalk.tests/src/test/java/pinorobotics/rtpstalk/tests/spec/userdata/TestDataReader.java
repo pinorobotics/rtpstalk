@@ -26,7 +26,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class TestDataReader extends DataReader {
 
     private int subscribeCount;

@@ -29,7 +29,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
  *
  * <p>Each method accepts guidPrefix which is taken from the header of the RTPS message itself.
  */
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public interface RtpsSubmessageVisitor {
 
     default Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {

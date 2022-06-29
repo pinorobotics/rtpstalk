@@ -28,7 +28,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class RtpsNetworkInterfaceFactory {
     private RtpsTalkConfiguration config;
     private DataChannelFactory channelFactory;

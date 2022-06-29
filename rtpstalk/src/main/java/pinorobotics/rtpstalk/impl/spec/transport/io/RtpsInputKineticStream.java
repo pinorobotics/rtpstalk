@@ -53,7 +53,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 class RtpsInputKineticStream implements InputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
@@ -294,7 +296,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                         + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
         var data = reader.read(Data.class);
         if (data.isInlineQos()) {
-            LOGGER.warning("Reading InlineQos");
+            LOGGER.fine("Reading InlineQos");
             data.inlineQos = readUserParameterList();
         }
         if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {

@@ -28,7 +28,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class LengthCalculatorTest {
 
     private static final Guid TEST_GUID_PUBLICATIONS_ANNOUNCER =

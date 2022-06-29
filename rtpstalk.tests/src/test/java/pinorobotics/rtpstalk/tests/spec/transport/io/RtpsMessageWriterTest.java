@@ -29,7 +29,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RtpsMessageWriterTest {
 
     @ParameterizedTest

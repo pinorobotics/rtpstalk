@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class DurabilityServiceQosPolicy {
 
     public Duration serviceCleanupDelay;

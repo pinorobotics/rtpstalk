@@ -17,5 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public interface SubmessageElement {}

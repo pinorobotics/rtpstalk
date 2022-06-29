@@ -29,7 +29,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class TestDataChannelFactory extends DataChannelFactory {
 
     private RtpsTalkConfiguration config;

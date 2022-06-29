@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.qos;
 
 import id.xfunction.XJsonStringBuilder;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public record SubscriberQosPolicy(ReliabilityKind reliabilityKind) {
 
     @Override

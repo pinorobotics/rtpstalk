@@ -21,7 +21,9 @@ import java.util.concurrent.Flow.Publisher;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public record PublisherDetails(
         TopicId topicId, PublisherQosPolicy qosPolicy, Publisher<RtpsTalkDataMessage> publisher) {
 

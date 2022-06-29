@@ -34,7 +34,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class DataChannel implements AutoCloseable {
 
     private RtpsMessageReader reader = new RtpsMessageReader();
@@ -58,7 +60,9 @@ public class DataChannel implements AutoCloseable {
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
-    /** @throws AsynchronousCloseException if channel was closed during read */
+    /**
+     * @throws AsynchronousCloseException if channel was closed during read
+     */
     public RtpsMessage receive() throws Exception {
         while (true) {
             var buf = ByteBuffer.allocate(packetBufferSize);

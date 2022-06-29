@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.spec;
 
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public @interface RtpsSpecReference {
 
     ProtocolVersion.Predefined protocolVersion();

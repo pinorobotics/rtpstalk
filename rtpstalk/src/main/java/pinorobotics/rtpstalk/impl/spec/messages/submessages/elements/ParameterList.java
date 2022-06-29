@@ -24,7 +24,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class ParameterList implements SubmessageElement, Payload {
 
     private Map<ParameterId, Object> params = new LinkedHashMap<>();

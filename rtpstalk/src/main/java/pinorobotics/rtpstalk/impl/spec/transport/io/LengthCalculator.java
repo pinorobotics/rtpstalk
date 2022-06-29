@@ -59,7 +59,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class LengthCalculator {
 
     private static LengthCalculator calculator = new LengthCalculator();

@@ -25,7 +25,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.UnsupportedProtocolVersion;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class RtpsMessageReader {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsMessageReader.class);

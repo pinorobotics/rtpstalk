@@ -24,7 +24,9 @@ import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SedpBuiltinPublicationsReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
 

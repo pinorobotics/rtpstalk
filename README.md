@@ -26,6 +26,5 @@ dependencies {
 
 # Contributors
 
-xxxxxxxx
-ros2 run demo_nodes_cpp talker
-ros2 run demo_nodes_cpp listener
+aeon_flux <aeon_flux@eclipso.ch>
+lambdaprime <intid@protonmail.com>

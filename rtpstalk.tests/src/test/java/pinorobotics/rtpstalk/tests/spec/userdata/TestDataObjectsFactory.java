@@ -30,7 +30,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class TestDataObjectsFactory extends DataObjectsFactory {
 
     private List<TestDataReader> dataReaders = new ArrayList<>();

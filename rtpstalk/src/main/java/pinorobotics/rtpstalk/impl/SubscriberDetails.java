@@ -21,7 +21,9 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public record SubscriberDetails(
         TopicId topicId,
         SubscriberQosPolicy qosPolicy,

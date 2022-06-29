@@ -22,7 +22,9 @@ import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsRead
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class OperatingEntities {
 
     private EntityRegistry<StatefullReliableRtpsWriter<?>> writers =

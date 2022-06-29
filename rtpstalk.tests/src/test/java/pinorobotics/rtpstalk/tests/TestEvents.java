@@ -21,7 +21,9 @@ import id.xfunction.lang.XThread;
 import id.xfunction.nio.file.XFiles;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class TestEvents {
 
     public static void waitForDiscoveredPublisher(String topic) throws Exception {

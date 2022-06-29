@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class InfoDestination extends Submessage {
 
     /**

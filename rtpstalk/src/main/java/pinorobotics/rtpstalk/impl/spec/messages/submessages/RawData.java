@@ -21,7 +21,9 @@ import id.xfunction.XJson;
 import id.xfunction.XUtils;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class RawData implements Payload {
 
     public byte[] data;

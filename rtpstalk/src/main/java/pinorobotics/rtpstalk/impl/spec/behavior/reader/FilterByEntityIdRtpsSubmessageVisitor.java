@@ -25,7 +25,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisitor {
 
     private EntityId readerEntityId;

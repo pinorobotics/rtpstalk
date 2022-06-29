@@ -38,7 +38,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class UserDataService implements AutoCloseable {
 
     private XLogger logger;

@@ -23,7 +23,9 @@ import id.xfunction.nio.file.XFiles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class LogUtils {
 
     public static final Path LOG_FILE =

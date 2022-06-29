@@ -34,7 +34,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
     private Map<Long, RtpsTalkMessage> data = new HashMap<>();

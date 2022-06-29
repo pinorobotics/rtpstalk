@@ -21,7 +21,9 @@ import java.util.List;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class InfoTimestamp extends Submessage {
 
     public Timestamp timestamp;

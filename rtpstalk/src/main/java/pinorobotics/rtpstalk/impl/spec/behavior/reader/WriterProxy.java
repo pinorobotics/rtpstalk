@@ -29,7 +29,9 @@ import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class WriterProxy {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterProxy.class);

@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SubmessageHeader {
 
     /** Identifies the kind of Submessage. */

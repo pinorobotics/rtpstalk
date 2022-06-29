@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class FastRtpsExamples implements AutoCloseable {
 
     private static final String HELLOWORLDEXAMPLE_PATH =

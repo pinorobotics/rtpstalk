@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SequenceNumber implements Comparable<SequenceNumber> {
 
     public static final SequenceNumber MIN = new SequenceNumber(0);

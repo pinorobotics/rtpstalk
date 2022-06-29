@@ -23,7 +23,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class Guid {
 
     public GuidPrefix guidPrefix;

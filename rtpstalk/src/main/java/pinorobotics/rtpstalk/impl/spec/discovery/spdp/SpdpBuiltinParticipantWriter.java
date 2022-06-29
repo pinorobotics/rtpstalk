@@ -36,7 +36,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkParameterListMessage>
         implements Runnable, AutoCloseable {
 

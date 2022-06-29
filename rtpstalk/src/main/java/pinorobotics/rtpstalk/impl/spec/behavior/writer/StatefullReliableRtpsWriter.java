@@ -46,7 +46,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D>
         implements Runnable, AutoCloseable {
 

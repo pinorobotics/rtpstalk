@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import org.opentest4j.AssertionFailedError;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class XAsserts {
 
     private static final ResourceUtils resourceUtils = new ResourceUtils();

@@ -24,7 +24,9 @@ import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsRead
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class DataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage> {
 
     protected DataReader(

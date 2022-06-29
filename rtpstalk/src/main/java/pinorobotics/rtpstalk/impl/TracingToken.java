@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class TracingToken {
 
     private static final String DELIM = "-";

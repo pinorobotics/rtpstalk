@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.qos;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public enum ReliabilityKind {
     BEST_EFFORT,
     RELIABLE

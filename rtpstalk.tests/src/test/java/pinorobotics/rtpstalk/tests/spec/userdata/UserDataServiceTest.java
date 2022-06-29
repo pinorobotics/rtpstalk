@@ -41,7 +41,9 @@ import pinorobotics.rtpstalk.tests.TestRtpsNetworkInterface;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class UserDataServiceTest {
 
     private static final RtpsTalkConfiguration CONFIG =

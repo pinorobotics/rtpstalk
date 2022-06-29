@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public record TopicId(String name, String type) {
 
     @Override

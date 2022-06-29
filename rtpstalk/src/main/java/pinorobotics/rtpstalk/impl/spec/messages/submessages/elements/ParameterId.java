@@ -34,7 +34,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public enum ParameterId {
     PID_ENTITY_NAME(0x0062, String.class),
     PID_BUILTIN_ENDPOINT_SET(0x0058, BuiltinEndpointSet.class),

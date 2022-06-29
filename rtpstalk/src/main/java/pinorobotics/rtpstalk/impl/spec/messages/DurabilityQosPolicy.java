@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import java.util.Objects;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class DurabilityQosPolicy {
 
     /**

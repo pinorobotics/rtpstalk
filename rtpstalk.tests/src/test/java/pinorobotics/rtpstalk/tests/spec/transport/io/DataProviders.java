@@ -42,7 +42,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class DataProviders {
 
     private static final ResourceUtils resourceUtils = new ResourceUtils();

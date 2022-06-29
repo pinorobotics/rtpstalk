@@ -30,7 +30,9 @@ import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);

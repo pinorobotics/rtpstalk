@@ -27,7 +27,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 
-/** @author lambdaprime intid@protonmail.com */
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class TestDataChannel extends DataChannel {
 
     private BlockingQueue<RtpsMessage> dataQueue = new LinkedBlockingQueue<>();

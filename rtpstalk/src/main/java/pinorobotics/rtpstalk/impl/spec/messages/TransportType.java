@@ -18,7 +18,9 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 /** identifying the kind of transport */
-/** @author aeon_flux aeon_flux@eclipso.ch */
+/**
+ * @author aeon_flux aeon_flux@eclipso.ch
+ */
 public enum TransportType {
     LOCATOR_KIND_INVALID(-1),
     LOCATOR_KIND_RESERVED(0),
