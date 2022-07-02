@@ -20,11 +20,19 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
 /**
+ * Current implementation of ReaderProxy does not store {@link CacheChange} changes since they
+ * already present in {@link HistoryCache}. Instead it relies on highestSeqNumSent to track the
+ * changes for each reader separately.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class ReaderProxy implements AutoCloseable {
@@ -33,6 +41,14 @@ public class ReaderProxy implements AutoCloseable {
     private List<Locator> unicastLocatorList;
     private Set<Long> requestedchangesForReader = new LinkedHashSet<>();
     private RtpsMessageSender sender;
+
+    @RtpsSpecReference(
+            paragraph = "8.4.15.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The highestSeqNumSent would record the highest value of the\n"
+                            + "sequence number of any CacheChange sent to the ReaderProxy.")
+    private long highestSeqNumSent;
 
     public ReaderProxy(
             Guid remoteReaderGuid, List<Locator> unicastLocatorList, RtpsMessageSender sender) {
@@ -75,6 +91,18 @@ public class ReaderProxy implements AutoCloseable {
      */
     public void requestChange(long seqNum) {
         requestedchangesForReader.add(seqNum);
+    }
+
+    /**
+     * All sequence numbers up to the one prior to given sequence number are confirmed as received
+     * by the reader.
+     */
+    public void ackedChanges(long seqNum) {
+        highestSeqNumSent = seqNum;
+    }
+
+    public long getHighestSeqNumSent() {
+        return highestSeqNumSent;
     }
 
     public RtpsMessageSender getSender() {

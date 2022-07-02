@@ -36,6 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
  */
 public record RtpsTalkConfiguration(
         int startPort,
+        int historyCacheMaxSize,
         Optional<Integer> builtInEnpointsPort,
         Optional<Integer> userEndpointsPort,
         Optional<NetworkInterface> networkInterface,
@@ -67,6 +68,7 @@ public record RtpsTalkConfiguration(
         builder.append("localParticpantGuid", localParticpantGuid);
         builder.append("builtInEnpointsPort", builtInEnpointsPort);
         builder.append("userEndpointsPort", userEndpointsPort);
+        builder.append("historyCacheMaxSize", historyCacheMaxSize);
         return builder.toString();
     }
 
@@ -86,6 +88,8 @@ public record RtpsTalkConfiguration(
          */
         public static final int DEFAULT_START_PORT = 7412;
 
+        public static final int DEFAULT_HISTORY_CACHE_MAX_SIZE = 100;
+
         public static final Executor DEFAULT_PUBLISHER_EXECUTOR = Executors.newCachedThreadPool();
         public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = 32;
 
@@ -103,6 +107,7 @@ public record RtpsTalkConfiguration(
         private Duration spdpDiscoveredParticipantDataPublishPeriod = Duration.ofSeconds(5);
         private Executor publisherExecutor = DEFAULT_PUBLISHER_EXECUTOR;
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
+        private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
 
         public Builder networkInterfaces(NetworkInterface networkIface) {
             this.networkIface = Optional.of(networkIface);
@@ -155,6 +160,11 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        public Builder historyCacheMaxSize(int historyCacheMaxSize) {
+            this.historyCacheMaxSize = historyCacheMaxSize;
+            return this;
+        }
+
         public Builder guidPrefix(GuidPrefix guidPrefix) {
             this.guidPrefix = guidPrefix;
             return this;
@@ -185,6 +195,7 @@ public record RtpsTalkConfiguration(
         public RtpsTalkConfiguration build() {
             return new RtpsTalkConfiguration(
                     startPort,
+                    historyCacheMaxSize,
                     builtInEnpointsPort,
                     userEndpointsPort,
                     networkIface,

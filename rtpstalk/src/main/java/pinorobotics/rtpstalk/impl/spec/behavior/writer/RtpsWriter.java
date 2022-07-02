@@ -114,6 +114,11 @@ public class RtpsWriter<D extends RtpsTalkMessage>
         logger.exiting("newChange");
     }
 
+    protected void request() {
+        logger.fine("Requesting next message from the local publisher");
+        subscriptionOpt.get().request(1);
+    }
+
     protected void sendLastChangeToAllReaders() {
         submit(lastMessage);
     }
@@ -133,7 +138,7 @@ public class RtpsWriter<D extends RtpsTalkMessage>
     @Override
     public void onNext(D item) {
         newChange(item);
-        subscriptionOpt.get().request(1);
+        request();
     }
 
     @Override

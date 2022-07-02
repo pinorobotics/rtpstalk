@@ -63,6 +63,18 @@ public class WriterChanges<D extends RtpsTalkMessage> {
         return seqNumMax;
     }
 
+    public void removeAllBelow(long seqNum) {
+        if (seqNum > seqNumMax) {
+            seqNumMin = seqNumMax = seqNum;
+            changes.clear();
+            return;
+        }
+        for (long i = seqNumMin; i < seqNum; i++) {
+            changes.remove(i);
+            seqNumMin = i;
+        }
+    }
+
     public boolean containsChange(long sequenceNumber) {
         return changes.containsKey(sequenceNumber);
     }
@@ -75,5 +87,9 @@ public class WriterChanges<D extends RtpsTalkMessage> {
 
     public Stream<CacheChange<D>> findAll(Collection<Long> seqNums) {
         return seqNums.stream().map(changes::get).filter(change -> change != null);
+    }
+
+    public int getNumberOfChanges() {
+        return changes.size();
     }
 }

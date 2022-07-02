@@ -69,6 +69,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private int heartbeatCount;
     private DataChannelFactory channelFactory;
     private OperatingEntities operatingEntities;
+    private int historyCacheMaxSize;
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
@@ -80,6 +81,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
+        this.historyCacheMaxSize = config.historyCacheMaxSize();
         operatingEntities.getWriters().add(this);
     }
 
@@ -125,6 +127,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             logger.warning("Trying to remove unknwon matched reader {0}, ignoring...", remoteGuid);
         } else {
             reader.close();
+            cleanupCache();
             logger.info("Matched reader {0} is removed", remoteGuid);
         }
     }
@@ -140,9 +143,22 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             if (executor.isShutdown()) return;
             sendRequested();
             sendHeartbeat();
+            cleanupCache();
         } catch (Exception e) {
             logger.severe("Writer heartbeat error", e);
         }
+    }
+
+    private void cleanupCache() {
+        var oldestSeqNum =
+                matchedReaders.values().stream()
+                        .mapToLong(ReaderProxy::getHighestSeqNumSent)
+                        .min()
+                        .orElse(0);
+        // we delete only what all readers acked, if any of the
+        // readers did not acked anything we return
+        if (oldestSeqNum == 0) return;
+        historyCache.removeAllBelow(oldestSeqNum);
     }
 
     @Override
@@ -150,6 +166,11 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         operatingEntities.getWriters().remove(getGuid().entityId);
         executor.shutdown();
         super.close();
+    }
+
+    @Override
+    protected void request() {
+        if (historyCache.getNumberOfChanges(getGuid()) < historyCacheMaxSize) super.request();
     }
 
     @RtpsSpecReference(
