@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport;
 
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 
 /**
@@ -24,7 +25,8 @@ import pinorobotics.rtpstalk.impl.TracingToken;
  */
 public class RtpsMessageReceiverFactory {
 
-    public RtpsMessageReceiver newRtpsMessageReceiver(TracingToken token) {
-        return new RtpsMessageReceiver(token);
+    public RtpsMessageReceiver newRtpsMessageReceiver(
+            RtpsTalkConfiguration config, TracingToken token) {
+        return new RtpsMessageReceiver(config, token);
     }
 }

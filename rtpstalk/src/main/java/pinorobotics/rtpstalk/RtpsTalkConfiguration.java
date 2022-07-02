@@ -24,8 +24,7 @@ import java.net.NetworkInterface;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -87,8 +86,8 @@ public record RtpsTalkConfiguration(
          */
         public static final int DEFAULT_START_PORT = 7412;
 
-        public static final Executor DEFAULT_PUBLISHER_EXECUTOR = ForkJoinPool.commonPool();
-        public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = Flow.defaultBufferSize();
+        public static final Executor DEFAULT_PUBLISHER_EXECUTOR = Executors.newCachedThreadPool();
+        public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = 32;
 
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;

@@ -87,7 +87,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
         metatrafficReceiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        new TracingToken(tracingToken, "SedpReceiver"));
+                        config, new TracingToken(tracingToken, "SedpReceiver"));
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config, tracingToken, channelFactory, iface.getOperatingEntities());

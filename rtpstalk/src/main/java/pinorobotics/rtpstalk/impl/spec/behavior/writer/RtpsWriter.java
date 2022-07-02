@@ -85,6 +85,7 @@ public class RtpsWriter<D extends RtpsTalkMessage>
             EntityId writerEntityId,
             ReliabilityQosPolicy.Kind reliabilityKind,
             boolean pushMode) {
+        super(config.publisherExecutor(), config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);

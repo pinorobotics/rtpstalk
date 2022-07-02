@@ -21,6 +21,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -30,7 +31,7 @@ public class TestRtpsMessageReceiver extends RtpsMessageReceiver {
     private int subscribeCount;
 
     public TestRtpsMessageReceiver(TracingToken token) {
-        super(token);
+        super(TestConstants.TEST_CONFIG, token);
     }
 
     @Override

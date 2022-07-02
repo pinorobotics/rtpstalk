@@ -76,7 +76,7 @@ public class SpdpService implements AutoCloseable {
         logger.entering("start");
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        new TracingToken(tracingToken, getClass().getSimpleName()));
+                        config, new TracingToken(tracingToken, getClass().getSimpleName()));
         logger.fine("Starting SPDP service on {0}", networkInterface.getName());
         reader =
                 new SpdpBuiltinParticipantReader(

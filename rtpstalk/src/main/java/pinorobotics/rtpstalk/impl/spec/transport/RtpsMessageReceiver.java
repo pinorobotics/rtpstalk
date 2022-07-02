@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
@@ -50,7 +51,8 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     private boolean isClosed;
     private DataChannel dataChannel;
 
-    protected RtpsMessageReceiver(TracingToken tracingToken) {
+    protected RtpsMessageReceiver(RtpsTalkConfiguration config, TracingToken tracingToken) {
+        super(config.publisherExecutor(), config.publisherMaxBufferSize());
         executor =
                 Executors.newSingleThreadExecutor(new NamedThreadFactory(tracingToken.toString()));
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);

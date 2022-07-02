@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.spec.transport;
 
 import java.util.ArrayList;
 import java.util.List;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
@@ -30,7 +31,8 @@ public class TestRtpsMessageReceiverFactory extends RtpsMessageReceiverFactory {
     private List<TestRtpsMessageReceiver> receivers = new ArrayList<>();
 
     @Override
-    public RtpsMessageReceiver newRtpsMessageReceiver(TracingToken token) {
+    public RtpsMessageReceiver newRtpsMessageReceiver(
+            RtpsTalkConfiguration config, TracingToken token) {
         var receiver = new TestRtpsMessageReceiver(token);
         receivers.add(receiver);
         return receiver;

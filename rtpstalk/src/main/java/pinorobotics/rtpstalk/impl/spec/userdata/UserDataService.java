@@ -118,7 +118,7 @@ public class UserDataService implements AutoCloseable {
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        new TracingToken(tracingToken, "UserDataServiceReceiver"));
+                        config, new TracingToken(tracingToken, "UserDataServiceReceiver"));
         logger.entering("start");
         logger.fine("Starting user service on {0}", iface.getLocalDefaultUnicastLocator());
         receiver.start(iface.getDefaultUnicastChannel());
