@@ -38,6 +38,12 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);
 
     public Optional<D> extractMessage(Data d) {
+        var inlineQos = d.inlineQos;
+        if (d.serializedPayload == null) {
+            if (inlineQos.isEmpty()) return Optional.empty();
+            // there is no payload in this message except inlineQos
+            return Optional.of((D) new RtpsTalkParameterListMessage(inlineQos));
+        }
         var representationId =
                 d.serializedPayload.serializedPayloadHeader.representation_identifier;
         var representationOpt =
@@ -50,18 +56,18 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                     representationId);
             return Optional.empty();
         }
-        var inlineQos = new Parameters(d.inlineQos.getUserParameters());
+        var userParams = new Parameters(inlineQos.getUserParameters());
         switch (representationOpt.get()) {
             case CDR_LE:
                 return Optional.of(
                         (D)
                                 new RtpsTalkDataMessage(
-                                        inlineQos, ((RawData) d.serializedPayload.payload).data));
+                                        userParams, ((RawData) d.serializedPayload.payload).data));
             case PL_CDR_LE:
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(
-                                        inlineQos, (ParameterList) d.serializedPayload.payload));
+                                        userParams, (ParameterList) d.serializedPayload.payload));
             default:
                 {
                     LOGGER.warning(

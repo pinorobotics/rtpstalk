@@ -63,7 +63,11 @@ public class ParameterList implements SubmessageElement, Payload {
         params.putIfAbsent(parameterId, value);
     }
 
-    public void put(short parameterId, byte[] value) {
+    public void putUserParameter(short parameterId, byte[] value) {
         userParams.putIfAbsent(parameterId, value);
+    }
+
+    public boolean isEmpty() {
+        return params.isEmpty() && userParams.isEmpty();
     }
 }

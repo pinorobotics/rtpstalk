@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.nio.file.XFiles;
+import java.util.regex.Pattern;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 
 /**
@@ -26,15 +27,19 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 public class TestEvents {
 
     public static Guid waitForDiscoveredPublisher(String topic) throws Exception {
-        var line =
-                XFiles.watchForLineInFile(
-                                LogUtils.LOG_FILE,
-                                ".*Discovered publisher for topic " + topic + ".*")
-                        .get();
+        var regexp =
+                Pattern.compile(".*Discovered publisher for topic " + topic + ".*")
+                        .asMatchPredicate();
+        var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp).get();
         line =
                 line.replaceAll(
                         ".*\"guidPrefix\": . .value.: \"(.*)\" ., .entityId.: \"(.*)\".*", "$1 $2");
         var a = line.split(" ");
         return new Guid(a[0], a[1]);
+    }
+
+    public static void waitForDisposedParticipant(Guid participant) throws Exception {
+        var str = "Writer marked participant " + participant.toString() + " as disposed";
+        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str)).get();
     }
 }

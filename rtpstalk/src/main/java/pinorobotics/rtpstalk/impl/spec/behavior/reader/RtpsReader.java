@@ -19,7 +19,6 @@ package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
@@ -33,7 +32,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
@@ -108,15 +107,12 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     public Result onData(GuidPrefix guidPrefix, Data d) {
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
-        if (d.serializedPayload != null) {
-            packager.extractMessage(d)
-                    .ifPresent(
-                            message ->
-                                    addChange(
-                                            new CacheChange<>(
-                                                    writerGuid, d.writerSN.value, message)));
-        }
-        processInlineQos(writerGuid, d.inlineQos.getParameters());
+        packager.extractMessage(d)
+                .ifPresent(
+                        message -> {
+                            addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
+                            if (!d.inlineQos.isEmpty()) processInlineQos(writerGuid, d.inlineQos);
+                        });
         return Result.CONTINUE;
     }
 
@@ -162,7 +158,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     @Override
     public void onComplete() {}
 
-    protected void processInlineQos(Guid writer, Map<ParameterId, ?> params) {
+    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
         // empty
     }
 

@@ -233,6 +233,8 @@ public class RtpsTalkClientPubSubPairsTests {
             Assertions.assertEquals(expectedData, dataReceived);
         }
 
+        TestEvents.waitForDisposedParticipant(
+                new Guid(publisher.guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT));
         client.close();
 
         var expectedStdout = tools.generateExpectedPublisherStdout(testCase.numberOfMessages);

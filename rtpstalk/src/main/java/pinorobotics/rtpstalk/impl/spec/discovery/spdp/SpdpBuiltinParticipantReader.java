@@ -78,7 +78,10 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     }
 
     @Override
-    protected void processInlineQos(Guid writer, Map<ParameterId, ?> params) {
+    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
+        var params = inlineQos.getParameters();
+        if (params.isEmpty()) return;
+        logger.fine("Processing inlineQos");
         processStatusInfo(writer, params);
     }
 
@@ -88,7 +91,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                 if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
                     var guid = keyHash.asGuid();
                     if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(guid.entityId)) {
-                        logger.fine("Writer marked participant {} as disposed", guid);
+                        logger.fine("Writer marked participant {0} as disposed", guid);
                         var writersToReaders =
                                 Map.of(
                                         EntityId.Predefined
