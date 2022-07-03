@@ -21,6 +21,7 @@ import static pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Enti
 
 import id.xfunction.XByte;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -80,7 +81,15 @@ public class EntityId {
     }
 
     public EntityId(int entityKey, byte entityKind) {
-        this.value = (entityKey << 8) | Byte.toUnsignedInt(entityKind);
+        this((entityKey << 8) | Byte.toUnsignedInt(entityKind));
+    }
+
+    public EntityId(int value) {
+        this.value = value;
+    }
+
+    public EntityId(String entityId) {
+        this(HexFormat.fromHexDigits(entityId));
     }
 
     @Override

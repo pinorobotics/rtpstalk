@@ -47,6 +47,10 @@ public class Guid {
         this(new GuidPrefix(guidPrefix), entityId);
     }
 
+    public Guid(String guidPrefix, String entityId) {
+        this(new GuidPrefix(guidPrefix), new EntityId(entityId));
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(entityId, guidPrefix);

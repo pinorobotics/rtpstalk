@@ -65,6 +65,10 @@ public class GuidPrefix implements SubmessageElement {
         value = buf.array();
     }
 
+    public GuidPrefix(String guidPrefix) {
+        this(XByte.fromHex(guidPrefix));
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;

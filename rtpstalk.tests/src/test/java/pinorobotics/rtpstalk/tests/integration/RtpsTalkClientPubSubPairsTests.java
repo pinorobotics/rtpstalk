@@ -39,6 +39,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -192,10 +193,11 @@ public class RtpsTalkClientPubSubPairsTests {
                                         vars, "publisher", "" + testCase.numberOfMessages));
                     }
                 };
+        Guid publisher = null;
         if (!testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
             client.start();
-            TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
+            publisher = TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
         }
         var subscribers =
                 Stream.generate(
@@ -217,7 +219,10 @@ public class RtpsTalkClientPubSubPairsTests {
             Arrays.sort(entityIds);
         }
 
-        if (testCase.isSubscribeToFutureTopic) publishersRunner.run();
+        if (testCase.isSubscribeToFutureTopic) {
+            publishersRunner.run();
+            publisher = TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
+        }
 
         for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
             var dataReceived =
