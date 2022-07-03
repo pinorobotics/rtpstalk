@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import pinorobotics.rtpstalk.impl.InternalUtils;
+import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
@@ -34,29 +36,33 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
  */
 public class WriterProxy {
 
-    private static final XLogger LOGGER = XLogger.getLogger(WriterProxy.class);
-
     private Guid readerGuid;
     private Guid remoteWriterGuid;
     private List<Locator> unicastLocatorList;
     private Map<Long, ChangeFromWriterStatusKind> changesFromWriter = new LinkedHashMap<>();
     private long seqNumMax = 0;
+    private XLogger logger;
 
-    public WriterProxy(Guid readerGuid, Guid remoteWriterGuid, List<Locator> unicastLocatorList) {
+    public WriterProxy(
+            TracingToken tracingToken,
+            Guid readerGuid,
+            Guid remoteWriterGuid,
+            List<Locator> unicastLocatorList) {
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
+        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
     public void receivedChangeSet(long seqNum) {
         if (changesFromWriter.get(seqNum) == RECEIVED) {
-            LOGGER.fine("Change already present in the cache, ignoring...");
+            logger.fine("Change already present in the cache, ignoring...");
             return;
         }
         changesFromWriter.put(seqNum, RECEIVED);
-        LOGGER.fine("New change added into the cache");
+        logger.fine("New change added into the cache");
         if (seqNumMax < seqNum) {
-            LOGGER.fine("Updating maximum sequence number");
+            logger.fine("Updating maximum sequence number to {0}", seqNum);
             seqNumMax = seqNum;
         }
     }

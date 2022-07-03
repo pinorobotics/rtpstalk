@@ -69,7 +69,7 @@ public class RtpsNetworkInterfaceFactory {
                         locatorAddress);
 
         return new RtpsNetworkInterface(
-                userDataChannel, userDataLocator, builtinDataChannel, builtinLocator);
+                tracingToken, userDataChannel, userDataLocator, builtinDataChannel, builtinLocator);
     }
 
     private static InetAddress getNetworkIfaceIp(NetworkInterface networkIface) {

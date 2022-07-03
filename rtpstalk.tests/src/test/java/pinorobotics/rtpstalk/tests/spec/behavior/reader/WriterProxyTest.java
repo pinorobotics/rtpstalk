@@ -35,6 +35,7 @@ public class WriterProxyTest {
     public void test_equals() {
         var wp =
                 new WriterProxy(
+                        TestConstants.TEST_TRACING_TOKEN,
                         new Guid(
                                 TestConstants.TEST_GUID_PREFIX,
                                 EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),

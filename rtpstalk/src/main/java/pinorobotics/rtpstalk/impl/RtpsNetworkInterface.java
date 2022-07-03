@@ -31,11 +31,12 @@ public class RtpsNetworkInterface {
 
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
-    private OperatingEntities operatingEntities = new OperatingEntities();
+    private OperatingEntities operatingEntities;
     private DataChannel defaultUnicastChannel;
     private DataChannel metatrafficUnicastChannel;
 
     public RtpsNetworkInterface(
+            TracingToken tracingToken,
             DataChannel defaultUnicastChannel,
             Locator defaultUnicastLocator,
             DataChannel metatrafficUnicastChannel,
@@ -44,6 +45,7 @@ public class RtpsNetworkInterface {
         this.defaultUnicastLocator = defaultUnicastLocator;
         this.metatrafficUnicastChannel = metatrafficUnicastChannel;
         this.metatrafficUnicastLocator = metatrafficUnicastLocator;
+        operatingEntities = new OperatingEntities(tracingToken);
     }
 
     public Locator getLocalDefaultUnicastLocator() {

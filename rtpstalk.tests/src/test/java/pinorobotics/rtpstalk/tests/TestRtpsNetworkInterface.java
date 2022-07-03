@@ -29,6 +29,7 @@ public class TestRtpsNetworkInterface extends RtpsNetworkInterface {
 
     public TestRtpsNetworkInterface() {
         super(
+                TestConstants.TEST_TRACING_TOKEN,
                 new TestDataChannel(TEST_GUID_PREFIX, true),
                 TestConstants.TEST_DEFAULT_UNICAST_LOCATOR,
                 new TestDataChannel(TEST_GUID_PREFIX, true),

@@ -71,7 +71,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
-        var proxy = new WriterProxy(getGuid(), remoteGuid, unicast);
+        var proxy = new WriterProxy(getTracingToken(), getGuid(), remoteGuid, unicast);
         logger.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(
                 proxy.getRemoteWriterGuid(),

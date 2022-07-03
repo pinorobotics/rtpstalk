@@ -27,16 +27,21 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
  */
 public class OperatingEntities {
 
-    private EntityRegistry<StatefullReliableRtpsWriter<?>> writers =
-            new EntityRegistry<>(
-                    new TracingToken("WRITERS"),
-                    EntityKind.WRITER_NO_KEY,
-                    EntityKind.BUILTIN_WRITER);
-    private EntityRegistry<StatefullReliableRtpsReader<?>> readers =
-            new EntityRegistry<>(
-                    new TracingToken("READERS"),
-                    EntityKind.READER_NO_KEY,
-                    EntityKind.BUILTIN_READER);
+    private EntityRegistry<StatefullReliableRtpsWriter<?>> writers;
+    private EntityRegistry<StatefullReliableRtpsReader<?>> readers;
+
+    public OperatingEntities(TracingToken tracingToken) {
+        writers =
+                new EntityRegistry<>(
+                        new TracingToken(tracingToken, "WRITERS"),
+                        EntityKind.WRITER_NO_KEY,
+                        EntityKind.BUILTIN_WRITER);
+        readers =
+                new EntityRegistry<>(
+                        new TracingToken(tracingToken, "READERS"),
+                        EntityKind.READER_NO_KEY,
+                        EntityKind.BUILTIN_READER);
+    }
 
     public EntityRegistry<StatefullReliableRtpsReader<?>> getReaders() {
         return readers;
