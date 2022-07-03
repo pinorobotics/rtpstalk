@@ -38,7 +38,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
                             .build());
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         client.close();
     }
 

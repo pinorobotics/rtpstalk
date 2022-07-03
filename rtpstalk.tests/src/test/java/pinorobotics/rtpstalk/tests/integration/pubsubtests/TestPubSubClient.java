@@ -24,4 +24,7 @@ public interface TestPubSubClient extends AutoCloseable {
     void subscribe(String topic, Subscriber<String> subscriber);
 
     void publish(String topic, Publisher<String> publisher);
+
+    @Override
+    void close();
 }
