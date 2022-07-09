@@ -51,4 +51,12 @@ public class InternalUtils {
             throw new RuntimeException("Error listing available network interfaces", e);
         }
     }
+
+    public int padding(int len, int blockSize) {
+        var padding = 0;
+        if (len % blockSize != 0) {
+            padding = blockSize - (len % 4);
+        }
+        return padding;
+    }
 }

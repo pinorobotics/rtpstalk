@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
@@ -71,19 +72,30 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     private void writeSubmessages(Submessage[] a) throws Exception {
         for (int i = 0; i < a.length; i++) {
-            // The PSM aligns each Submessage on a 32-bit boundary with respect
-            // to the start of the Message (9.4 Mapping of the RTPS Messages)
-            // To satisfy RTPS requirement we may need to add padding
-            align(4);
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             if (a[i] instanceof Data data) writeData(data);
             else writer.write(a[i]);
+
+            // The PSM aligns each Submessage on a 32-bit boundary with respect
+            // to the start of the Message (9.4 Mapping of the RTPS Messages)
+            // To satisfy RTPS requirement we may need to add padding
+            align(4);
         }
     }
 
+    @RtpsSpecReference(
+            paragraph = "9.4.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
+                            + " of the Message")
     private void align(int blockSize) throws Exception {
-        while (buf.position() % blockSize != 0) writeByte((byte) 0);
+        var pos = buf.position();
+        var padding = InternalUtils.getInstance().padding(pos, 4);
+        for (int i = 0; i < padding; i++) {
+            writeByte((byte) 0);
+        }
     }
 
     @Override

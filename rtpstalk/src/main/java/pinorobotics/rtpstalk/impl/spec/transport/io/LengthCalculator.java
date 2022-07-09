@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.transport.io;
 import id.xfunction.lang.XRE;
 import java.util.Map;
 import java.util.Map.Entry;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
@@ -124,11 +125,12 @@ public class LengthCalculator {
         var len = getFixedLengthInternal(obj.getClass());
         if (len != -1) return len;
         if (obj instanceof Data d)
-            return Short.BYTES * 2
-                    + getFixedLength(EntityId.class) * 2
-                    + getFixedLength(SequenceNumber.class)
-                    + calculateUserParameterListLength(d.inlineQos)
-                    + calculateLength(d.serializedPayload);
+            return calculateSubmessagePadding(
+                    Short.BYTES * 2
+                            + getFixedLength(EntityId.class) * 2
+                            + getFixedLength(SequenceNumber.class)
+                            + calculateUserParameterListLength(d.inlineQos)
+                            + calculateLength(d.serializedPayload));
         if (obj instanceof SerializedPayload p)
             return getFixedLength(SerializedPayloadHeader.class) + calculateLength(p.payload);
         if (obj instanceof ParameterList pl)
@@ -188,23 +190,29 @@ public class LengthCalculator {
                             "Cannot calculate length for an unknown parameter id %s", id);
                 };
 
-        return len + calculateParameterListValuePadding(len);
+        return calculateParameterListValuePadding(len);
     }
 
+    @RtpsSpecReference(
+            paragraph = "9.4.2.11",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "ParameterList A ParameterList contains a list of Parameters, terminated"
+                            + " with a sentinel. Each Parameter within the ParameterList starts"
+                            + " aligned on a 4-byte boundary with respect to the start of the"
+                            + " ParameterList.")
     private int calculateParameterListValuePadding(int len) {
-        @RtpsSpecReference(
-                paragraph = "9.4.2.11",
-                protocolVersion = Predefined.Version_2_3,
-                text =
-                        "ParameterList A ParameterList contains a list of Parameters, terminated"
-                                + " with a sentinel. Each Parameter within the ParameterList starts"
-                                + " aligned on a 4-byte boundary with respect to the start of the"
-                                + " ParameterList.")
-        var padding = 0;
-        if (len % 4 != 0) {
-            padding = 4 - (len % 4);
-        }
-        return padding;
+        return len + InternalUtils.getInstance().padding(len, 4);
+    }
+
+    @RtpsSpecReference(
+            paragraph = "9.4.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
+                            + " of the Message")
+    private int calculateSubmessagePadding(int len) {
+        return len + InternalUtils.getInstance().padding(len, 4);
     }
 
     private int calculateUserParameterListLength(ParameterList parameterList) {
@@ -218,6 +226,6 @@ public class LengthCalculator {
 
     public int calculateUserParameterLength(Entry<Short, byte[]> param) {
         var len = param.getValue().length;
-        return len + calculateParameterListValuePadding(len);
+        return calculateParameterListValuePadding(len);
     }
 }

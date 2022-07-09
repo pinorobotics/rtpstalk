@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
@@ -310,8 +311,16 @@ class RtpsInputKineticStream implements InputKineticStream {
         return new RawData(a);
     }
 
-    private void align(int blockSize) throws Exception {
-        while (buf.position() % blockSize != 0) readByte();
+    @RtpsSpecReference(
+            paragraph = "9.4.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
+                            + " of the Message")
+    private void align() throws Exception {
+        var pos = buf.position();
+        var padding = InternalUtils.getInstance().padding(pos, 4);
+        buf.position(pos + padding);
     }
 
     private Submessage[] readSubmessages() throws Exception {
@@ -319,10 +328,8 @@ class RtpsInputKineticStream implements InputKineticStream {
         var submessages = new ArrayList<Submessage>();
         while (buf.hasRemaining()) {
 
-            // The PSM aligns each Submessage on a 32-bit boundary with respect
-            // to the start of the Message (9.4 Mapping of the RTPS Messages)
             // Skip padding if any
-            align(4);
+            align();
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             // peek submessage type

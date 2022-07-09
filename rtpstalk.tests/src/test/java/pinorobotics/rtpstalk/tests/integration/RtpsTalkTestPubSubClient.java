@@ -50,7 +50,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     }
 
     private String extractString(RtpsTalkDataMessage message) {
-        return new String(message.data());
+        return new String(message.data()).trim();
     }
 
     private RtpsTalkDataMessage packString(String message) {
