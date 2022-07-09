@@ -29,6 +29,10 @@ public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements 
         this(Parameters.EMPTY, data);
     }
 
+    public RtpsTalkDataMessage(String data) {
+        this(data.getBytes());
+    }
+
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);

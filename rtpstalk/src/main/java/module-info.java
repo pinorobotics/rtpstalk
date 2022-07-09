@@ -56,6 +56,8 @@ module rtpstalk {
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.spec.behavior.reader to
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.spec.behavior.writer to
+            rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.spec.structure.history to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.spec.userdata to

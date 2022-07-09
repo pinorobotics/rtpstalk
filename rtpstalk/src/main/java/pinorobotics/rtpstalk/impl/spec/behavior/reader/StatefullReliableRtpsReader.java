@@ -127,6 +127,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 var set = ackNack.readerSNState;
                 var base = set.bitmapBase.value;
                 var bitset = new IntBitSet(set.bitmap);
+                readerProxy.ackedChanges(set.bitmapBase.value);
                 readerProxy.requestedChangesClear();
                 for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
                     readerProxy.requestChange(base + i);

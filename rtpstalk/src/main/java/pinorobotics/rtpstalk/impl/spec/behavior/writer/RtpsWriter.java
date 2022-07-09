@@ -116,7 +116,7 @@ public class RtpsWriter<D extends RtpsTalkMessage>
 
     protected void request() {
         logger.fine("Requesting next message from the local publisher");
-        subscriptionOpt.get().request(1);
+        subscriptionOpt.ifPresent(sub -> sub.request(1));
     }
 
     protected void sendLastChangeToAllReaders() {

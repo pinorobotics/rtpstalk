@@ -117,7 +117,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
         subscribe(proxy.getSender());
         if (numOfReaders == 0) {
-            executor.scheduleWithFixedDelay(this, 0, heartbeatPeriod.toSeconds(), TimeUnit.SECONDS);
+            executor.scheduleWithFixedDelay(
+                    this, 0, heartbeatPeriod.toMillis(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -159,6 +160,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         // readers did not acked anything we return
         if (oldestSeqNum == 0) return;
         historyCache.removeAllBelow(oldestSeqNum);
+        request();
     }
 
     @Override
