@@ -17,9 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -39,7 +39,7 @@ public class ReaderProxy implements AutoCloseable {
 
     private Guid remoteReaderGuid;
     private List<Locator> unicastLocatorList;
-    private Set<Long> requestedchangesForReader = new LinkedHashSet<>();
+    private Set<Long> requestedchangesForReader = ConcurrentHashMap.newKeySet();
     private RtpsMessageSender sender;
 
     @RtpsSpecReference(
@@ -71,12 +71,12 @@ public class ReaderProxy implements AutoCloseable {
     }
 
     /**
-     * Returns the subset of changes for the {@link ReaderProxy} that have status REQUESTED. This
+     * Returns sorted list of changes for the {@link ReaderProxy} that have status REQUESTED. This
      * represents the set of changes that were requested by the RTPS Reader represented by the
      * {@link ReaderProxy} using an ACKNACK Message.
      */
-    public Set<Long> requestedChanges() {
-        return requestedchangesForReader;
+    public List<Long> requestedChanges() {
+        return requestedchangesForReader.stream().sorted().toList();
     }
 
     /** */

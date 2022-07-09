@@ -18,8 +18,8 @@
 package pinorobotics.rtpstalk.impl.spec.structure.history;
 
 import id.xfunction.logging.XLogger;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -81,7 +81,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         return true;
     }
 
-    public Stream<CacheChange<D>> findAll(Guid writerGuid, Collection<Long> seqNums) {
+    public Stream<CacheChange<D>> findAll(Guid writerGuid, List<Long> seqNums) {
         var writerChanges = changes.get(writerGuid);
         if (writerChanges == null) return Stream.of();
         return writerChanges.findAll(seqNums);

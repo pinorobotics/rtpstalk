@@ -17,8 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl;
 
+import id.xfunction.Preconditions;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
@@ -39,10 +40,11 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
-    private Map<Long, RtpsTalkMessage> data = new HashMap<>();
+    private Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
     private Header header;
     private Optional<GuidPrefix> readerGuidPrefix;
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
+    private long lastSeqNum;
 
     public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix) {
         this(writerGuidPrefix, null);
@@ -59,7 +61,9 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     }
 
     public void add(long seqNum, RtpsTalkMessage payload) {
+        Preconditions.isLess(lastSeqNum, seqNum, "Change is out of order");
         data.put(seqNum, payload);
+        lastSeqNum = seqNum;
     }
 
     @Override

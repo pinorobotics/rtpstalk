@@ -104,7 +104,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 // 3
                 new TestCase(
                         1,
-                        23,
+                        50,
                         new RtpsTalkConfiguration.Builder()
                                 .networkInterface("lo")
                                 .builtinEnpointsPort(8080)

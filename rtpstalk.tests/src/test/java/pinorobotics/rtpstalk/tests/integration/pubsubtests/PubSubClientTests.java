@@ -17,9 +17,11 @@
  */
 package pinorobotics.rtpstalk.tests.integration.pubsubtests;
 
+import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Supplier;
@@ -53,8 +55,7 @@ public abstract class PubSubClientTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_publish_forever(TestCase testCase)
-            throws InterruptedException, ExecutionException {
+    public void test_publish_forever(TestCase testCase) throws Exception {
         try (var subscriberClient = testCase.clientFactory.get();
                 var publisherClient = testCase.clientFactory.get(); ) {
             var future = new CompletableFuture<String>();
@@ -80,6 +81,50 @@ public abstract class PubSubClientTests {
                                 }
                             });
             Assertions.assertEquals(data, future.get());
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    public void test_publish_order(TestCase testCase) throws Exception {
+        try (var subscriberClient = testCase.clientFactory.get();
+                var publisherClient = testCase.clientFactory.get(); ) {
+            var future = new CompletableFuture<List<Integer>>();
+            String topic = "/testTopic1";
+            var publisher = new SubmissionPublisher<String>(new SameThreadExecutorService(), 1);
+            publisherClient.publish(topic, publisher);
+            subscriberClient.subscribe(
+                    topic,
+                    new SimpleSubscriber<String>() {
+                        List<Integer> data = new ArrayList<>();
+
+                        @Override
+                        public void onNext(String item) {
+                            System.out.println(item);
+                            data.add(Integer.parseInt(item));
+                            if (data.size() == 50) {
+                                getSubscription().get().cancel();
+                                future.complete(data);
+                            } else {
+                                getSubscription().get().request(1);
+                            }
+                        }
+                    });
+            ForkJoinPool.commonPool()
+                    .execute(
+                            () -> {
+                                int c = 0;
+                                while (!future.isDone()) {
+                                    var msg = "" + c++;
+                                    System.out.println("          " + msg);
+                                    publisher.submit(msg);
+                                }
+                            });
+            var received = future.get();
+            var start = received.get(0);
+            for (int i = 0; i < received.size(); i++) {
+                Assertions.assertEquals(start + i, received.get(i));
+            }
         }
     }
 }
