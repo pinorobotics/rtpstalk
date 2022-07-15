@@ -19,12 +19,14 @@ package pinorobotics.rtpstalk.tests.integration.pubsubtests;
 
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.lang.XThread;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -50,6 +52,51 @@ public abstract class PubSubClientTests {
             publisherClient.publish(topic, publisher);
             while (publisher.offer(data, null) >= 0)
                 ;
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    public void test_multiple_subscribers_same_topic(TestCase testCase) throws Exception {
+        var maxNumOfMessages = 15;
+        class MySubscriber extends SimpleSubscriber<String> {
+            List<String> received = new ArrayList<>();
+            CompletableFuture<Void> future = new CompletableFuture<>();
+
+            @Override
+            public void onNext(String item) {
+                System.out.println(item);
+                received.add(item);
+                if (received.size() == maxNumOfMessages) {
+                    getSubscription().get().cancel();
+                    future.complete(null);
+                } else {
+                    getSubscription().get().request(1);
+                }
+            }
+        }
+        try (var subscriberClient = testCase.clientFactory.get();
+                var publisherClient = testCase.clientFactory.get(); ) {
+            String topic = "testTopic1";
+            var publisher = new SubmissionPublisher<String>();
+            publisherClient.publish(topic, publisher);
+            var subscribers = Stream.generate(MySubscriber::new).limit(3).toList();
+            subscribers.forEach(sub -> subscriberClient.subscribe(topic, sub));
+            var expected = new ArrayList<>();
+            ForkJoinPool.commonPool()
+                    .execute(
+                            () -> {
+                                int c = 0;
+                                while (expected.size() < maxNumOfMessages) {
+                                    var data = "hello " + c++;
+                                    expected.add(data);
+                                    publisher.submit(data);
+                                }
+                            });
+            for (var sub : subscribers) {
+                sub.future.get();
+                Assertions.assertEquals(expected, sub.received);
+            }
         }
     }
 
@@ -125,6 +172,34 @@ public abstract class PubSubClientTests {
             for (int i = 0; i < received.size(); i++) {
                 Assertions.assertEquals(start + i, received.get(i));
             }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    public void test_publish_single_message(TestCase testCase) throws Exception {
+        try (var subscriberClient = testCase.clientFactory.get();
+                var publisherClient = testCase.clientFactory.get(); ) {
+            var future = new CompletableFuture<String>();
+            String topic = "testTopic1";
+            var publisher = new SubmissionPublisher<String>();
+            String data = "hello";
+            publisherClient.publish(topic, publisher);
+            subscriberClient.subscribe(
+                    topic,
+                    new SimpleSubscriber<String>() {
+                        @Override
+                        public void onNext(String item) {
+                            System.out.println(item);
+                            getSubscription().get().cancel();
+                            future.complete(data);
+                        }
+                    });
+            // wait so that subscriber get time to register with ROS
+            XThread.sleep(1000);
+            publisher.submit(data);
+            future.get();
+            Assertions.assertEquals(data, future.get());
         }
     }
 }
