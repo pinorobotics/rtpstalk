@@ -26,11 +26,15 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
  */
 public class TestEvents {
 
-    public static Guid waitForDiscoveredPublisher(String topic) throws Exception {
+    public static Guid waitForDiscoveredActor(String topic, String actorType) throws Exception {
         var regexp =
-                Pattern.compile(".*Discovered publisher for topic " + topic + ".*")
+                Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
                         .asMatchPredicate();
         var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp).get();
+        return extractGuid(line);
+    }
+
+    private static Guid extractGuid(String line) {
         line =
                 line.replaceAll(
                         ".*\"guidPrefix\": . .value.: \"(.*)\" ., .entityId.: \"(.*)\".*", "$1 $2");

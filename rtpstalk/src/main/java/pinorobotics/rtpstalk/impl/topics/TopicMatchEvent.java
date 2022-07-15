@@ -17,7 +17,6 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
@@ -31,11 +30,11 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record SubscribeEvent(
-        Locator writerUnicastLocator, Guid topicEndpointGuid, SubscriberDetails subscriber) {
+public record TopicMatchEvent<A>(
+        Locator remoteUnicastLocator, Guid remoteEndpointGuid, A localActor) {
 
     @Override
     public String toString() {
-        return topicEndpointGuid.toString();
+        return remoteEndpointGuid.toString();
     }
 }

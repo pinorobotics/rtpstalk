@@ -15,21 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl;
+package pinorobotics.rtpstalk.impl.topics;
 
-import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
-import pinorobotics.rtpstalk.impl.topics.ActorDetails;
-import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.impl.TopicId;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record SubscriberDetails(
-        TopicId topicId, SubscriberQosPolicy qosPolicy, Subscriber<RtpsTalkDataMessage> subscriber)
-        implements ActorDetails {
+public interface ActorDetails {
 
-    public SubscriberDetails(TopicId topicId, Subscriber<RtpsTalkDataMessage> subscriber) {
-        this(topicId, new SubscriberQosPolicy.Builder().build(), subscriber);
+    enum Type {
+        Subscriber,
+        Publisher
     }
+
+    TopicId topicId();
 }

@@ -193,11 +193,11 @@ public class RtpsTalkClientPubSubPairsTests {
                                         vars, "publisher", "" + testCase.numberOfMessages));
                     }
                 };
-        Guid publisher = null;
+        Guid publisherGuid = null;
         if (!testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
             client.start();
-            publisher = TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
+            publisherGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Publisher");
         }
         var subscribers =
                 Stream.generate(
@@ -221,7 +221,7 @@ public class RtpsTalkClientPubSubPairsTests {
 
         if (testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
-            publisher = TestEvents.waitForDiscoveredPublisher("HelloWorldTopic0");
+            publisherGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Publisher");
         }
 
         for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
@@ -234,7 +234,7 @@ public class RtpsTalkClientPubSubPairsTests {
         }
 
         TestEvents.waitForDisposedParticipant(
-                new Guid(publisher.guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT));
+                new Guid(publisherGuid.guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT));
         client.close();
 
         var expectedStdout = tools.generateExpectedPublisherStdout(testCase.numberOfMessages);

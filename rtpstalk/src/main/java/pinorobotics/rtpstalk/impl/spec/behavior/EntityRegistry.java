@@ -86,6 +86,11 @@ public class EntityRegistry<E extends RtpsEntity> {
         return entityId;
     }
 
+    public EntityId assignEntityIdIfAbsent(TopicId topicId, EntityKind kind) {
+        return findEntityId(topicId)
+                .orElseGet(() -> assignNewEntityId(topicId, EntityKind.READER_NO_KEY));
+    }
+
     public Optional<E> findEntity(TopicId topicId) {
         return findEntityId(topicId).flatMap(this::find);
     }

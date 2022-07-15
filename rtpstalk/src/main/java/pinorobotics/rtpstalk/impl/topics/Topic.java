@@ -21,53 +21,55 @@ import id.xfunction.XObservable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
- * RTPS topic with all available remote publishers and local subscribers to it.
+ * RTPS topic with all available remote and local actors to it.
  *
- * <p>It is observable so it is possible to add listener to it and receive different events.
+ * <p>Actors can be topic readers and writers.
+ *
+ * <p>It is observable so it is possible to add listener to it and receive events when there is a
+ * match between local and remote actors (means they both belong to same topic)
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Topic extends XObservable<SubscribeEvent> {
+public class Topic<A> extends XObservable<TopicMatchEvent<A>> {
 
-    private record TopicPublisher(Locator writerUnicastLocator, Guid endpointGuid) {}
+    private record TopicRemoteActor(Locator writerUnicastLocator, Guid endpointGuid) {}
 
     private TopicId topicId;
-    private List<TopicPublisher> discoveredPublishers = new ArrayList<>();
-    private List<SubscriberDetails> applicationSubscribers = new ArrayList<>();
-    private EntityId readerEntityId;
+    private List<TopicRemoteActor> remoteActors = new ArrayList<>();
+    private List<A> localActors = new ArrayList<>();
+    private EntityId localTopicEntityId;
 
     public Topic(TopicId topicId, EntityId readerEntityId) {
         this.topicId = topicId;
-        this.readerEntityId = readerEntityId;
+        this.localTopicEntityId = readerEntityId;
     }
 
-    public void addPublisher(Locator writerUnicastLocator, Guid endpointGuid) {
-        applicationSubscribers.stream()
+    public void addRemoteActor(Locator writerUnicastLocator, Guid endpointGuid) {
+        localActors.stream()
                 .forEach(
                         subscriber ->
                                 updateAll(
-                                        new SubscribeEvent(
+                                        new TopicMatchEvent<>(
                                                 writerUnicastLocator, endpointGuid, subscriber)));
-        discoveredPublishers.add(new TopicPublisher(writerUnicastLocator, endpointGuid));
+        remoteActors.add(new TopicRemoteActor(writerUnicastLocator, endpointGuid));
     }
 
-    public void addSubscriber(SubscriberDetails subscriber) {
-        discoveredPublishers.stream()
+    public void addLocalActor(A localActor) {
+        remoteActors.stream()
                 .forEach(
-                        publisher ->
+                        remoteActor ->
                                 updateAll(
-                                        new SubscribeEvent(
-                                                publisher.writerUnicastLocator,
-                                                publisher.endpointGuid,
-                                                subscriber)));
-        applicationSubscribers.add(subscriber);
+                                        new TopicMatchEvent<>(
+                                                remoteActor.writerUnicastLocator,
+                                                remoteActor.endpointGuid,
+                                                localActor)));
+        localActors.add(localActor);
     }
 
     public boolean isMatches(TopicId topicId) {
@@ -78,11 +80,11 @@ public class Topic extends XObservable<SubscribeEvent> {
         return topicId;
     }
 
-    public boolean hasSubscribers() {
-        return !applicationSubscribers.isEmpty();
+    public boolean hasLocalActors() {
+        return !localActors.isEmpty();
     }
 
-    public EntityId getReaderEntityId() {
-        return readerEntityId;
+    public EntityId getLocalTopicEntityId() {
+        return localTopicEntityId;
     }
 }

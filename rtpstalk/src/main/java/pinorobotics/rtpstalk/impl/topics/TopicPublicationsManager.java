@@ -18,29 +18,34 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.Preconditions;
-import id.xfunction.XObservable;
 import id.xfunction.logging.XLogger;
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Consumer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
+public class TopicPublicationsManager extends AbstractTopicManager<PublisherDetails> {
 
     private XLogger logger;
     private SedpDataFactory dataFactory;
-    private StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
+    private OperatingEntities operatingEntities;
 
     public TopicPublicationsManager(
             TracingToken tracingToken,
@@ -48,33 +53,87 @@ public class TopicPublicationsManager extends XObservable<SubscribeEvent> {
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter,
             UserDataService userService) {
+        super(tracingToken, publicationWriter, ActorDetails.Type.Publisher);
         this.dataFactory = new SedpDataFactory(config);
         this.networkIface = networkIface;
-        this.publicationWriter = publicationWriter;
+        operatingEntities = networkIface.getOperatingEntities();
         this.userService = userService;
         logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
     }
 
-    public void addPublisher(PublisherDetails publisher) {
-        var topicId = publisher.topicId();
-        logger.fine("Adding new publisher for topic id {0}", topicId);
-        var operatingEntities = networkIface.getOperatingEntities();
-        var writers = operatingEntities.getWriters();
+    @Override
+    public EntityId addLocalActor(PublisherDetails actor) {
+        var topicId = actor.topicId();
         Preconditions.isTrue(
-                !writers.findEntityId(topicId).isPresent(),
-                "Writer for topic " + topicId + " already present");
-        EntityId writerEntityId = writers.assignNewEntityId(topicId, EntityKind.WRITER_NO_KEY);
+                !findTopicById(topicId).map(Topic::hasLocalActors).orElse(false),
+                "Only one local writer per topic " + topicId + " allowed");
+        var topic = createTopic(topicId);
         EntityId readerEntityId =
                 operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
+        // until user publisher is registered it may discard any submitted messages
+        // to avoid losing them we register publisher here and not during match event
+        userService.publish(topic.getLocalTopicEntityId(), readerEntityId, actor.publisher());
+        var writerEntityId = super.addLocalActor(actor);
+        Preconditions.equals(
+                writerEntityId,
+                topic.getLocalTopicEntityId(),
+                "Same local topic with different entity ids");
+        return writerEntityId;
+    }
 
-        publicationWriter.newChange(
-                new RtpsTalkParameterListMessage(
-                        dataFactory.createPublicationData(
-                                topicId,
-                                writerEntityId,
-                                networkIface.getLocalDefaultUnicastLocator(),
-                                publisher.qosPolicy())));
+    @Override
+    protected Consumer<TopicMatchEvent<PublisherDetails>> createListener(
+            Topic<PublisherDetails> topic) {
+        return subEvent -> {
+            var topicId = topic.getTopicId();
+            logger.fine(
+                    "New match event between local publisher and remote subscriber for topic id"
+                        + " {0}, subscriber endpoint is {1} and userdata unicast locator is {2}",
+                    topicId, subEvent.remoteEndpointGuid(), subEvent.remoteUnicastLocator());
+            var writer = operatingEntities.getWriters().findEntity(topicId).orElse(null);
+            if (writer == null) {
+                EntityId readerEntityId =
+                        operatingEntities
+                                .getReaders()
+                                .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
+                userService.publish(
+                        topic.getLocalTopicEntityId(),
+                        readerEntityId,
+                        subEvent.localActor().publisher());
+                writer =
+                        operatingEntities
+                                .getWriters()
+                                .findEntity(topic.getTopicId())
+                                .orElseThrow(
+                                        () ->
+                                                new RuntimeException(
+                                                        "Could not register local data writer for"
+                                                                + " topic "
+                                                                + topicId));
+            }
+            var unicast = List.of(subEvent.remoteUnicastLocator());
+            try {
+                writer.matchedReaderAdd(subEvent.remoteEndpointGuid(), unicast);
+            } catch (IOException e) {
+                logger.severe(e);
+            }
+        };
+    }
 
-        userService.publish(writerEntityId, readerEntityId, publisher.publisher());
+    @Override
+    protected Topic<PublisherDetails> createTopic(TopicId topicId) {
+        EntityId writerEntityId =
+                operatingEntities.getWriters().assignNewEntityId(topicId, EntityKind.WRITER_NO_KEY);
+        return new Topic<>(topicId, writerEntityId);
+    }
+
+    @Override
+    protected ParameterList createAnnouncementData(
+            PublisherDetails actor, Topic<PublisherDetails> topic) {
+        return dataFactory.createPublicationData(
+                topic.getTopicId(),
+                topic.getLocalTopicEntityId(),
+                networkIface.getLocalDefaultUnicastLocator(),
+                actor.qosPolicy());
     }
 }

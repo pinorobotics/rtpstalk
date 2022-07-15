@@ -76,7 +76,7 @@ public class TopicSubscriptionsManagerTest {
                             service);
             publisher.subscribe(manager);
             var topicId = new TopicId("testTopic", "testType");
-            manager.addSubscriber(
+            manager.addLocalActor(
                     new SubscriberDetails(
                             topicId,
                             new SubscriberQosPolicy.Builder().build(),

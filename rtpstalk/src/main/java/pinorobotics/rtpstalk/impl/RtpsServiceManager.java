@@ -112,6 +112,7 @@ public class RtpsServiceManager implements AutoCloseable {
                             rtpsIface,
                             sedpService.getPublicationsWriter(),
                             userService);
+            sedpService.getSubscriptionsReader().subscribe(publicationsManager);
         } catch (Exception e) {
             logger.severe("Failed to start one of the RTPS services", e);
         }
@@ -136,12 +137,13 @@ public class RtpsServiceManager implements AutoCloseable {
 
     public EntityId subscribe(
             String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
-        return subscriptionsManager.addSubscriber(
+        return subscriptionsManager.addLocalActor(
                 new SubscriberDetails(new TopicId(topic, type), subscriber));
     }
 
     public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
-        publicationsManager.addPublisher(new PublisherDetails(new TopicId(topic, type), publisher));
+        publicationsManager.addLocalActor(
+                new PublisherDetails(new TopicId(topic, type), publisher));
     }
 
     @Override

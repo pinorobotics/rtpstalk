@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Flow.Publisher;
+import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -70,9 +70,8 @@ public class UserDataService implements AutoCloseable {
             EntityId readerEntityId,
             List<Locator> remoteWriterDefaultUnicastLocators,
             Guid remoteWriterEndpointGuid,
-            SubscriberDetails subscriberDetails) {
+            Subscriber<RtpsTalkDataMessage> subscriber) {
         Preconditions.isTrue(isStarted, "User data service is not started");
-        var subscriber = subscriberDetails.subscriber();
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,
