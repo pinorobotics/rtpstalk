@@ -118,4 +118,8 @@ public class EntityId {
     public byte entityKind() {
         return (byte) (value & 0x000000ff);
     }
+
+    public byte entityKey() {
+        return (byte) (value >> 8);
+    }
 }

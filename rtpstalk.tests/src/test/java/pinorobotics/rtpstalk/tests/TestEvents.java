@@ -46,4 +46,9 @@ public class TestEvents {
         var str = "Writer marked participant " + participant.toString() + " as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str)).get();
     }
+
+    public static void waitForDisposedSubscriber(Guid reader) throws Exception {
+        var str = "Reader " + reader + " marked subscription as disposed";
+        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str)).get();
+    }
 }

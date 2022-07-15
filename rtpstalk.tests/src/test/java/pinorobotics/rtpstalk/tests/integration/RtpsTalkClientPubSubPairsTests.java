@@ -304,8 +304,13 @@ public class RtpsTalkClientPubSubPairsTests {
                     }
                 };
 
+        Guid readerGuid = null;
         if (testCase.isSubscribeToFutureTopic) {
             subscribersRunner.run();
+            // start client to do discovery of subscriber before the actual publisher will
+            // be available
+            client.start();
+            readerGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Subscriber");
         }
 
         var publishers =
@@ -318,7 +323,10 @@ public class RtpsTalkClientPubSubPairsTests {
                                 })
                         .toList();
 
-        if (!testCase.isSubscribeToFutureTopic) subscribersRunner.run();
+        if (!testCase.isSubscribeToFutureTopic) {
+            subscribersRunner.run();
+            readerGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Subscriber");
+        }
 
         var messagesToSubmit = generateMessages(testCase.numberOfMessages);
         for (int i = 0; i < numberOfPubSubPairs; i++) {
@@ -335,6 +343,8 @@ public class RtpsTalkClientPubSubPairsTests {
             System.out.println(actual);
             Assertions.assertEquals(expectedStdout, actual);
         }
+
+        TestEvents.waitForDisposedSubscriber(readerGuid);
 
         // close only after all subscribers received all data
         client.close();

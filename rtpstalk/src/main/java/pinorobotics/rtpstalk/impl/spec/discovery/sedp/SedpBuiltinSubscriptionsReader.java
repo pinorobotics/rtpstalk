@@ -17,18 +17,27 @@
  */
 package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
+import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
+import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SedpBuiltinSubscriptionsReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
+    private OperatingEntities operatingEntities;
+
     public SedpBuiltinSubscriptionsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
@@ -38,5 +47,31 @@ public class SedpBuiltinSubscriptionsReader
                 tracingToken,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
+        this.operatingEntities = operatingEntities;
+    }
+
+    @Override
+    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
+        var params = inlineQos.getParameters();
+        if (params.isEmpty()) return;
+        logger.fine("Processing inlineQos");
+        processStatusInfo(writer, params);
+    }
+
+    private void processStatusInfo(Guid writerGuid, Map<ParameterId, ?> params) {
+        if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
+            if (info.isDisposed()) {
+                if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
+                    var readerGuid = keyHash.asGuid();
+                    logger.fine("Reader {0} marked subscription as disposed", readerGuid);
+                    var writerEntityId =
+                            new EntityId(readerGuid.entityId.entityKey(), EntityKind.WRITER_NO_KEY);
+                    operatingEntities
+                            .getWriters()
+                            .find(writerEntityId)
+                            .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
+                }
+            }
+        }
     }
 }
