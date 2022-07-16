@@ -24,6 +24,7 @@ open module rtpstalk.tests {
     requires rtpstalk;
     requires id.kineticstreamer;
     requires id.xfunction;
+    requires pubsubtests;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
 }

@@ -17,13 +17,13 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
+import id.pubsubtests.TestPubSubClient;
 import id.xfunction.concurrent.flow.TransformProcessor;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
-import pinorobotics.rtpstalk.tests.integration.pubsubtests.TestPubSubClient;
 
 /**
  * @author lambdaprime intid@protonmail.com

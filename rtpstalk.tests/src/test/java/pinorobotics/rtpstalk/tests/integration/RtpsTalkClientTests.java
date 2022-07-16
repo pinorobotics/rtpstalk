@@ -17,11 +17,11 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
+import id.pubsubtests.PubSubClientTests;
 import java.io.IOException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import pinorobotics.rtpstalk.tests.LogUtils;
-import pinorobotics.rtpstalk.tests.integration.pubsubtests.PubSubClientTests;
 
 /**
  * @author lambdaprime intid@protonmail.com
