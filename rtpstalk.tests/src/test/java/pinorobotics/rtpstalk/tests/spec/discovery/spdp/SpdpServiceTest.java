@@ -24,6 +24,7 @@ import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_METATRAFFIC_
 
 import id.xfunction.concurrent.flow.CollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -139,7 +140,7 @@ public class SpdpServiceTest {
     public void test_new_participant_discovery() throws Exception {
         var metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, false);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
-        var collector = new CollectorSubscriber<RtpsTalkParameterListMessage>(1);
+        var collector = new CollectorSubscriber<>(new ArrayList<RtpsTalkParameterListMessage>(), 1);
         service.start(
                 new TracingToken("test"),
                 TestConstants.TEST_NETWORK_IFACE,

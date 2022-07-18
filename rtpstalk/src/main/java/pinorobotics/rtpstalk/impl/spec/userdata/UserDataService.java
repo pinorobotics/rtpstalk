@@ -79,12 +79,13 @@ public class UserDataService implements AutoCloseable {
                                 dataObjectsFactory.newDataReader(
                                         config, tracingToken, operatingEntities, eid));
         reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
-        // when user subscribes to topic we always create new instance of transformer subscriber
-        // which means that it is never subscribed before and so this condition should be true
-        Preconditions.isTrue(
-                !reader.isSubscribed(subscriber),
-                "Subscriber already subscribed to the reader with entity id " + readerEntityId);
-        reader.subscribe(subscriber);
+        if (reader.isSubscribed(subscriber)) {
+            // this happens when there are several publishers for same topic
+            // since subscriber already subscribed to DataReader we don't
+            // subscribe it
+        } else {
+            reader.subscribe(subscriber);
+        }
         if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
 

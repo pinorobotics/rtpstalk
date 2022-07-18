@@ -90,16 +90,6 @@ public class UserDataServiceTest {
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
                     subscriber);
-            assertThrows(
-                    PreconditionException.class,
-                    () ->
-                            service.subscribeToRemoteWriter(
-                                    TestConstants.TEST_READER_ENTITY_ID,
-                                    List.of(),
-                                    new Guid(
-                                            TestConstants.TEST_REMOTE_GUID_PREFIX,
-                                            EntityId.Predefined.ENTITYID_PARTICIPANT),
-                                    subscriber));
             assertEquals(2, counters[0]);
             assertEquals(0, counters[1]);
             assertEquals(2, dataFactory.getReaders().get(0).getSubscribeCount());

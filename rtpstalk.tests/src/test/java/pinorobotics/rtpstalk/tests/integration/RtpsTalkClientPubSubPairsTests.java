@@ -202,7 +202,8 @@ public class RtpsTalkClientPubSubPairsTests {
         var subscribers =
                 Stream.generate(
                                 () ->
-                                        new CollectorSubscriber<RtpsTalkDataMessage>(
+                                        new CollectorSubscriber<>(
+                                                new ArrayList<RtpsTalkDataMessage>(),
                                                 testCase.numberOfMessages))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
