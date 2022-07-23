@@ -55,7 +55,7 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
         // AckNack submessages as readerId have remote readerId which acknowledges
         // the data and not local readerId to which submessage should be delivered
-        // For that reason we does not filter AckNack submessages
+        // For that reason we does not filter AckNack submessages here
         return nextVisitor.onAckNack(guidPrefix, ackNack);
     }
 }

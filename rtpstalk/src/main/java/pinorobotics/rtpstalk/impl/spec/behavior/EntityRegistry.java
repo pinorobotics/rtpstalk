@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
@@ -93,5 +94,9 @@ public class EntityRegistry<E extends RtpsEntity> {
 
     public Optional<E> findEntity(TopicId topicId) {
         return findEntityId(topicId).flatMap(this::find);
+    }
+
+    public Collection<E> getEntities() {
+        return entities.values();
     }
 }

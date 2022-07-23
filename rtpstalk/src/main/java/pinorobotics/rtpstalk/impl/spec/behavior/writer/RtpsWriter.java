@@ -153,9 +153,17 @@ public class RtpsWriter<D extends RtpsTalkMessage>
 
     @Override
     public void close() {
-        subscriptionOpt.ifPresent(Subscription::cancel);
+        cancelSubscription();
         super.close();
         logger.fine("Closed");
+    }
+
+    /**
+     * Unsubscribe from the publisher this writer subscribed to. Mostly the publisher is user
+     * publisher which emits changes to be sent by the writer.
+     */
+    protected void cancelSubscription() {
+        subscriptionOpt.ifPresent(Subscription::cancel);
     }
 
     public TracingToken getTracingToken() {

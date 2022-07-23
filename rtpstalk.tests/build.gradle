@@ -26,6 +26,7 @@ jacoco {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+
     testLogging {
         events "started", "failed"
     }

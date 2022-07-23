@@ -26,38 +26,44 @@ import java.util.stream.Collectors;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public enum EntityKind {
-    BUILTIN_UNKNOWN(0xc0),
-    BUILTIN_PARTICIPANT(0xc1),
-    BUILTIN_WRITER(0xc2),
-    BUILTIN_WRITER_NO_KEY(0xc3),
-    BUILTIN_READER(0xc7),
-    BUILTIN_READER_NO_KEY(0xc4),
-    BUILTIN_WRITER_GROUP(0xc8),
-    BUILTIN_READER_GROUP(0xc9),
+    BUILTIN_UNKNOWN(0xc0, true),
+    BUILTIN_PARTICIPANT(0xc1, true),
+    BUILTIN_WRITER(0xc2, true),
+    BUILTIN_WRITER_NO_KEY(0xc3, true),
+    BUILTIN_READER(0xc7, true),
+    BUILTIN_READER_NO_KEY(0xc4, true),
+    BUILTIN_WRITER_GROUP(0xc8, true),
+    BUILTIN_READER_GROUP(0xc9, true),
 
-    UNKNOWN(0x00),
-    WRITER(0x02),
+    UNKNOWN(0x00, true),
+    WRITER(0x02, false),
 
     /**
      * Enumeration used to distinguish whether a Topic has defined some fields within to be used as
      * the key that identifies data-instances within the Topic.
      */
-    WRITER_NO_KEY(0x03),
-    READER_NO_KEY(0x04),
-    READER(0x07),
-    WRITER_GROUP(0x08),
-    READER_GROUP(0x09);
+    WRITER_NO_KEY(0x03, false),
+    READER_NO_KEY(0x04, false),
+    READER(0x07, false),
+    WRITER_GROUP(0x08, true),
+    READER_GROUP(0x09, true);
 
     private static final Map<Byte, EntityKind> MAP =
             Arrays.stream(EntityKind.values()).collect(Collectors.toMap(k -> k.value, v -> v));
     private byte value;
+    private boolean isBuiltin;
 
-    private EntityKind(int value) {
+    private EntityKind(int value, boolean isBuiltin) {
+        this.isBuiltin = isBuiltin;
         this.value = (byte) value;
     }
 
     public byte getValue() {
         return value;
+    }
+
+    public boolean isBuiltin() {
+        return isBuiltin;
     }
 
     public static EntityKind valueOf(byte b) {

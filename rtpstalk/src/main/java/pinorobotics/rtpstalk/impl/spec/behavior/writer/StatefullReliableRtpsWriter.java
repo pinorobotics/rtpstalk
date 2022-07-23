@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
+import id.xfunction.lang.XThread;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
@@ -134,7 +135,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         } else {
             reader.close();
             cleanupCache();
-            logger.info("Matched reader {0} is removed", remoteGuid);
+            logger.fine("Matched reader {0} is removed", remoteGuid);
         }
     }
 
@@ -170,6 +171,20 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     @Override
     public void close() {
+        cancelSubscription();
+        var numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
+        boolean isBuiltin = getGuid().entityId.isBuiltin();
+        while (!isBuiltin && numOfPendingChanges != 0) {
+            if (matchedReaders.isEmpty()) {
+                logger.fine(
+                        "Discarding pending changes since there is no matched readers available");
+                break;
+            }
+            logger.fine("Waiting for {0} pending changes to be sent", numOfPendingChanges);
+            XThread.sleep(heartbeatPeriod.toMillis());
+            numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
+        }
+        super.close();
         operatingEntities.getWriters().remove(getGuid().entityId);
         executor.shutdown();
         writerReader.getSubscription().ifPresent(s -> s.cancel());

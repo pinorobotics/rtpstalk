@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
+import java.util.function.Predicate;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
@@ -122,8 +123,12 @@ public class UserDataService implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
+        // close non builtin writers before builtin one
+        Predicate<DataWriter> isBuiltin = w -> w.getGuid().entityId.isBuiltin();
+        writers.values().stream().filter(isBuiltin.negate()).forEach(DataWriter::close);
+        writers.values().stream().filter(isBuiltin).forEach(DataWriter::close);
         receiver.close();
+        // close DataReader only after all pending changes in DataWriter were sent
         readers.values().forEach(DataReader::close);
-        writers.values().forEach(DataWriter::close);
     }
 }

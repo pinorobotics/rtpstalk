@@ -122,4 +122,8 @@ public class EntityId {
     public byte entityKey() {
         return (byte) (value >> 8);
     }
+
+    public boolean isBuiltin() {
+        return EntityKind.valueOf(entityKind()).isBuiltin();
+    }
 }

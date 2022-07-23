@@ -112,6 +112,10 @@ public class StatefullReliableRtpsWriterTest {
 
             while (writer.getWriterCache().getNumberOfChanges(writerGuid) > 1)
                 XThread.sleep(millis);
+
+            // there is still last change with seqNum == count, so we remove the reader
+            // this will test that writer would be able to discard messages and close
+            writer.matchedReaderRemove(readerGuid);
         }
     }
 }

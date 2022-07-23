@@ -149,9 +149,9 @@ public class RtpsServiceManager implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
-        sedpService.close();
         spdpServices.forEach(SpdpService::close);
         userService.close();
+        sedpService.close();
         logger.fine("Closed");
     }
 }

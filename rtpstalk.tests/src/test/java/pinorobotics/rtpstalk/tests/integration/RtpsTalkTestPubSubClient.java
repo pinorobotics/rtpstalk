@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests.integration;
 
 import id.pubsubtests.TestPubSubClient;
+import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.TransformProcessor;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
@@ -63,7 +64,8 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
     @Override
     public void publish(String topic, Publisher<String> publisher) {
-        var transformer = new TransformProcessor<>(this::packString);
+        var transformer =
+                new TransformProcessor<>(this::packString, new SameThreadExecutorService(), 1);
         publisher.subscribe(transformer);
         client.publish(topic, asType(topic), transformer);
     }

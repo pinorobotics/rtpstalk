@@ -27,7 +27,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
@@ -64,12 +63,20 @@ public class SedpBuiltinSubscriptionsReader
                 if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
                     var readerGuid = keyHash.asGuid();
                     logger.fine("Reader {0} marked subscription as disposed", readerGuid);
-                    var writerEntityId =
-                            new EntityId(readerGuid.entityId.entityKey(), EntityKind.WRITER_NO_KEY);
-                    operatingEntities
-                            .getWriters()
-                            .find(writerEntityId)
-                            .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
+                    boolean isRemoved = false;
+                    for (var writer : operatingEntities.getWriters().getEntities()) {
+                        if (writer.matchedReaderLookup(readerGuid).isPresent()) {
+                            writer.matchedReaderRemove(readerGuid);
+                            isRemoved = true;
+                            break;
+                        }
+                    }
+                    if (!isRemoved) {
+                        logger.fine(
+                                "Reader {0} does not match any of the available writers, ignoring"
+                                        + " it...",
+                                readerGuid);
+                    }
                 }
             }
         }
