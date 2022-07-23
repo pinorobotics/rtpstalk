@@ -17,7 +17,6 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
-import id.xfunction.util.IntBitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +28,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -106,38 +104,6 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             }
         }
         return super.onHeartbeat(guidPrefix, heartbeat);
-    }
-
-    @Override
-    public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
-        var writerOpt = operatingEntities.getWriters().find(ackNack.writerId);
-        if (writerOpt.isPresent()) {
-            var readerGuid = new Guid(guidPrefix, ackNack.readerId);
-            var readerProxyOpt =
-                    writerOpt.flatMap(writer -> writer.matchedReaderLookup(readerGuid));
-            if (readerProxyOpt.isEmpty()) {
-                logger.fine(
-                        "No matched reader {0} for writer {1}, ignoring it...",
-                        readerGuid, ackNack.writerId);
-            } else {
-                logger.fine(
-                        "Processing acknack for writer {0} received from reader {1}",
-                        ackNack.writerId, readerGuid);
-                var readerProxy = readerProxyOpt.get();
-                var set = ackNack.readerSNState;
-                var base = set.bitmapBase.value;
-                var bitset = new IntBitSet(set.bitmap);
-                readerProxy.ackedChanges(set.bitmapBase.value);
-                readerProxy.requestedChangesClear();
-                for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
-                    readerProxy.requestChange(base + i);
-                }
-            }
-        } else {
-            logger.fine(
-                    "Received AckNack for unknown writer {0}, ignoring it...", ackNack.writerId);
-        }
-        return super.onAckNack(guidPrefix, ackNack);
     }
 
     @Override

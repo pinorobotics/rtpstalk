@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -37,6 +38,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
@@ -70,6 +72,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private DataChannelFactory channelFactory;
     private OperatingEntities operatingEntities;
     private int historyCacheMaxSize;
+    private WriterRtpsReader<D> writerReader;
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
@@ -83,6 +86,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         this.heartbeatPeriod = config.heartbeatPeriod();
         this.historyCacheMaxSize = config.historyCacheMaxSize();
         operatingEntities.getWriters().add(this);
+        // for heartbeat purposes (to process ackNacks) we create reader
+        writerReader = new WriterRtpsReader<>(getTracingToken(), this);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Writer. */
@@ -167,6 +172,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     public void close() {
         operatingEntities.getWriters().remove(getGuid().entityId);
         executor.shutdown();
+        writerReader.getSubscription().ifPresent(s -> s.cancel());
         super.close();
     }
 
@@ -237,5 +243,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         // all interested ReaderProxy subscribed to this writer
         submit(builder);
         logger.fine("Submitted {0} requested changes", requestedChanges.size());
+    }
+
+    public Subscriber<RtpsMessage> getWriterReader() {
+        return writerReader;
     }
 }

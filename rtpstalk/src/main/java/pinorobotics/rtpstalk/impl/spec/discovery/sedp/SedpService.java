@@ -91,9 +91,11 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config, tracingToken, channelFactory, iface.getOperatingEntities());
+        metatrafficReceiver.subscribe(subscriptionsWriter.getWriterReader());
         publicationsWriter =
                 new SedpBuiltinPublicationsWriter(
                         config, tracingToken, channelFactory, iface.getOperatingEntities());
+        metatrafficReceiver.subscribe(publicationsWriter.getWriterReader());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(
                         config, tracingToken, iface.getOperatingEntities());

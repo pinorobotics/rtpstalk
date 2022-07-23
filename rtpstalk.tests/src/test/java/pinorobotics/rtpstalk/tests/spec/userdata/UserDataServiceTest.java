@@ -124,7 +124,7 @@ public class UserDataServiceTest {
                                     writerEntityId,
                                     TestConstants.TEST_READER_ENTITY_ID,
                                     new SubmissionPublisher<RtpsTalkDataMessage>()));
-            assertEquals(1, receiverFactory.getReceivers().get(0).getSubscribeCount());
+            assertEquals(2, receiverFactory.getReceivers().get(0).getSubscribeCount());
         }
     }
 }

@@ -102,14 +102,7 @@ public class UserDataService implements AutoCloseable {
                         config, tracingToken, channelFactory, operatingEntities, writerEntityId);
         writers.put(writerEntityId, writer);
         publisher.subscribe(writer);
-        // for heartbeat purposes (to process ackNacks) we create reader
-        var reader =
-                readers.computeIfAbsent(
-                        readerEntityId,
-                        eid ->
-                                dataObjectsFactory.newDataReader(
-                                        config, tracingToken, operatingEntities, eid));
-        if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
+        receiver.subscribe(writer.getWriterReader());
     }
 
     public void start(TracingToken token, RtpsNetworkInterface iface) throws IOException {

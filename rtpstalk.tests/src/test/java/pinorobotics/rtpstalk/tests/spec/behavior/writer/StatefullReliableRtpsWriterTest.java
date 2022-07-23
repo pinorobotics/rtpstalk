@@ -26,14 +26,18 @@ import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
-import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
+import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -66,15 +70,13 @@ public class StatefullReliableRtpsWriterTest {
                                 operatingEntities,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 writerGuid.entityId);
-                var reader =
-                        new StatefullReliableRtpsReader<>(
-                                config,
-                                TestConstants.TEST_TRACING_TOKEN,
-                                operatingEntities,
-                                readerGuid.entityId);
                 var publisher =
                         new SubmissionPublisher<RtpsTalkDataMessage>(
-                                new SameThreadExecutorService(), 1)) {
+                                new SameThreadExecutorService(), 1);
+                var receiver =
+                        new SubmissionPublisher<RtpsMessage>(
+                                new SameThreadExecutorService(), 1); ) {
+            receiver.subscribe(writer.getWriterReader());
             publisher.subscribe(writer);
             publisher.submit(new RtpsTalkDataMessage("hello"));
             count++;
@@ -91,14 +93,22 @@ public class StatefullReliableRtpsWriterTest {
                             writerGuid.entityId,
                             new SequenceNumberSet(count, 0),
                             new Count(count));
-            reader.onAckNack(writerGuid.guidPrefix, ackNack);
+            var message =
+                    new RtpsMessage(
+                            new Header(
+                                    ProtocolId.Predefined.RTPS.getValue(),
+                                    ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                    VendorId.Predefined.FASTRTPS.getValue(),
+                                    writerGuid.guidPrefix),
+                            ackNack);
+            receiver.submit(message);
 
             for (int i = 0; i < 5; i++) {
                 publisher.submit(new RtpsTalkDataMessage("hello"));
                 count++;
             }
             ackNack.readerSNState = new SequenceNumberSet(count, 0);
-            reader.onAckNack(writerGuid.guidPrefix, ackNack);
+            receiver.submit(message);
 
             while (writer.getWriterCache().getNumberOfChanges(writerGuid) > 1)
                 XThread.sleep(millis);
