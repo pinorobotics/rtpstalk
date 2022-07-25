@@ -18,15 +18,14 @@
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
@@ -86,7 +85,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Reader. */

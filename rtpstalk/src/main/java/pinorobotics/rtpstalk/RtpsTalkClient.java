@@ -18,12 +18,11 @@
 package pinorobotics.rtpstalk;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsServiceManager;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -94,7 +93,7 @@ public class RtpsTalkClient implements AutoCloseable {
         if (tracingToken == null) {
             tracingToken = new TracingToken("" + hashCode());
         }
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         serviceManager.startAll(tracingToken);

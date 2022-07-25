@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
-import static pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind.*;
+import static pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind.BUILTIN_PARTICIPANT;
+import static pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind.BUILTIN_READER;
+import static pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind.BUILTIN_WRITER;
 
 import id.xfunction.XByte;
 import java.util.Arrays;

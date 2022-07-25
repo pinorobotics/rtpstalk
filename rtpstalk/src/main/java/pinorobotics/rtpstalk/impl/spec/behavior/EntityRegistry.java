@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.behavior;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,9 +26,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
@@ -45,7 +44,7 @@ public class EntityRegistry<E extends RtpsEntity> {
 
     public EntityRegistry(TracingToken tracingToken, EntityKind... kinds) {
         Arrays.stream(kinds).forEach(this.kinds::add);
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     public synchronized void add(E entity) {

@@ -17,12 +17,11 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
 import java.io.IOException;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
@@ -65,7 +64,7 @@ public class WriterHeartbeatProcessor {
         this.tracingToken = tracingToken;
         this.writerProxy = writerProxy;
         dataChannelFactory = new DataChannelFactory(config);
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     /** Called when new Heartbeat received */

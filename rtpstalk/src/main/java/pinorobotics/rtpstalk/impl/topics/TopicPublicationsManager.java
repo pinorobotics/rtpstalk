@@ -18,17 +18,16 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -58,7 +57,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
         this.networkIface = networkIface;
         operatingEntities = networkIface.getOperatingEntities();
         this.userService = userService;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     @Override

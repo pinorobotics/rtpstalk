@@ -19,15 +19,14 @@ package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -53,7 +52,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             ActorDetails.Type actorsType) {
         this.announcementsWriter = subscriptionsWriter;
         this.actorsType = actorsType;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     public EntityId addLocalActor(A actor) {

@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.Preconditions;
 import id.xfunction.function.Unchecked;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,8 +27,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -57,7 +56,7 @@ public class DataChannel implements AutoCloseable {
         this.target = target;
         this.guidPrefix = new GuidPrefix(guidPrefix);
         this.packetBufferSize = packetBufferSize;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     /**

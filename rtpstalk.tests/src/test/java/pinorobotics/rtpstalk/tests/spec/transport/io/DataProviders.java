@@ -17,8 +17,6 @@
  */
 package pinorobotics.rtpstalk.tests.spec.transport.io;
 
-import static pinorobotics.rtpstalk.tests.TestConstants.*;
-
 import id.xfunction.ResourceUtils;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +39,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Timestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -58,8 +57,8 @@ public class DataProviders {
                                         ProtocolId.Predefined.RTPS.getValue(),
                                         ProtocolVersion.Predefined.Version_2_3.getValue(),
                                         VendorId.Predefined.RTPSTALK.getValue(),
-                                        TEST_GUID_PREFIX),
-                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                        TestConstants.TEST_GUID_PREFIX),
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new AckNack(
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
@@ -76,8 +75,8 @@ public class DataProviders {
                                         ProtocolId.Predefined.RTPS.getValue(),
                                         ProtocolVersion.Predefined.Version_2_3.getValue(),
                                         VendorId.Predefined.RTPSTALK.getValue(),
-                                        TEST_GUID_PREFIX),
-                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                        TestConstants.TEST_GUID_PREFIX),
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
@@ -93,8 +92,8 @@ public class DataProviders {
                                         ProtocolId.Predefined.RTPS.getValue(),
                                         ProtocolVersion.Predefined.Version_2_3.getValue(),
                                         VendorId.Predefined.RTPSTALK.getValue(),
-                                        TEST_GUID_PREFIX),
-                                new InfoDestination(TEST_REMOTE_GUID_PREFIX),
+                                        TestConstants.TEST_GUID_PREFIX),
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
@@ -114,7 +113,7 @@ public class DataProviders {
                                         ProtocolId.Predefined.RTPS.getValue(),
                                         ProtocolVersion.Predefined.Version_2_3.getValue(),
                                         VendorId.Predefined.RTPSTALK.getValue(),
-                                        TEST_GUID_PREFIX),
+                                        TestConstants.TEST_GUID_PREFIX),
                                 new InfoTimestamp(new Timestamp(1654495356, 0)),
                                 new Data(
                                         new EntityId(0x12, EntityKind.READER_NO_KEY),

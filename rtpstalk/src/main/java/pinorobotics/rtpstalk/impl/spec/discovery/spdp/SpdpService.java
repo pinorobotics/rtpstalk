@@ -18,14 +18,13 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.net.NetworkInterface;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
@@ -72,7 +71,7 @@ public class SpdpService implements AutoCloseable {
             throws Exception {
         Preconditions.isTrue(!isStarted, "Already started");
         tracingToken = new TracingToken(tracingToken, networkInterface.getName());
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         receiver =
                 receiverFactory.newRtpsMessageReceiver(

@@ -17,13 +17,13 @@
  */
 package pinorobotics.rtpstalk.tests.spec.discovery.spdp;
 
+import id.xfunction.logging.TracingToken;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;

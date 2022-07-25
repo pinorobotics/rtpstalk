@@ -18,10 +18,9 @@
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
@@ -43,7 +42,7 @@ public class WriterRtpsReader<D extends RtpsTalkMessage> extends SimpleSubscribe
 
     public WriterRtpsReader(TracingToken tracingToken, StatefullReliableRtpsWriter<D> writer) {
         this.writer = writer;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     @Override

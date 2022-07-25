@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests.integration;
 import static java.util.stream.Collectors.joining;
 
 import id.xfunction.XByte;
-import id.xfunction.concurrent.flow.CollectorSubscriber;
+import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -202,7 +202,7 @@ public class RtpsTalkClientPubSubPairsTests {
         var subscribers =
                 Stream.generate(
                                 () ->
-                                        new CollectorSubscriber<>(
+                                        new FixedCollectorSubscriber<>(
                                                 new ArrayList<RtpsTalkDataMessage>(),
                                                 testCase.numberOfMessages))
                         .limit(testCase.numberOfPubSubPairs)

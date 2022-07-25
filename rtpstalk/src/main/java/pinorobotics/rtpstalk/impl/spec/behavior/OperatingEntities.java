@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior;
 
-import pinorobotics.rtpstalk.impl.TracingToken;
+import id.xfunction.logging.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;

@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
+import id.xfunction.logging.TracingToken;
 import java.util.List;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -24,7 +25,6 @@ import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;

@@ -19,10 +19,10 @@ package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.XByte;
 import id.xfunction.function.Unchecked;
+import id.xfunction.logging.TracingToken;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;

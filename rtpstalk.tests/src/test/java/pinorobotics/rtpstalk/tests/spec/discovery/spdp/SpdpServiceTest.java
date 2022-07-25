@@ -17,13 +17,9 @@
  */
 package pinorobotics.rtpstalk.tests.spec.discovery.spdp;
 
-import static pinorobotics.rtpstalk.tests.TestConstants.TEST_GUID_PREFIX;
-import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR;
-import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_GUID_PREFIX;
-import static pinorobotics.rtpstalk.tests.TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR;
-
-import id.xfunction.concurrent.flow.CollectorSubscriber;
+import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.logging.TracingToken;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
@@ -69,7 +64,7 @@ public class SpdpServiceTest {
                             ProtocolId.Predefined.RTPS.getValue(),
                             ProtocolVersion.Predefined.Version_2_3.getValue(),
                             VendorId.Predefined.FASTRTPS.getValue(),
-                            TEST_REMOTE_GUID_PREFIX),
+                            TestConstants.TEST_REMOTE_GUID_PREFIX),
                     new InfoTimestamp(new Timestamp(112233, 0)),
                     new Data(
                             EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR,
@@ -96,7 +91,8 @@ public class SpdpServiceTest {
 
     @Test
     public void test_publisher_happy() throws Exception {
-        TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
+        TestDataChannel metatrafficChannel =
+                new TestDataChannel(TestConstants.TEST_GUID_PREFIX, true);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
         service.start(
                 new TracingToken("test"),
@@ -113,7 +109,8 @@ public class SpdpServiceTest {
 
     @Test
     public void test_publisher_rate() throws Exception {
-        TestDataChannel metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, true);
+        TestDataChannel metatrafficChannel =
+                new TestDataChannel(TestConstants.TEST_GUID_PREFIX, true);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
         try (var service =
                 new SpdpService(
@@ -138,9 +135,10 @@ public class SpdpServiceTest {
 
     @Test
     public void test_new_participant_discovery() throws Exception {
-        var metatrafficChannel = new TestDataChannel(TEST_GUID_PREFIX, false);
+        var metatrafficChannel = new TestDataChannel(TestConstants.TEST_GUID_PREFIX, false);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
-        var collector = new CollectorSubscriber<>(new ArrayList<RtpsTalkParameterListMessage>(), 1);
+        var collector =
+                new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkParameterListMessage>(), 1);
         service.start(
                 new TracingToken("test"),
                 TestConstants.TEST_NETWORK_IFACE,
@@ -179,12 +177,14 @@ public class SpdpServiceTest {
         params.put(
                 ParameterId.PID_PARTICIPANT_GUID,
                 new Guid(
-                        TEST_REMOTE_GUID_PREFIX,
+                        TestConstants.TEST_REMOTE_GUID_PREFIX,
                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()));
         params.put(
                 ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR);
-        params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, TEST_REMOTE_DEFAULT_UNICAST_LOCATOR);
+                TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR);
+        params.put(
+                ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
+                TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR);
         params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
         params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
         params.put(ParameterId.PID_ENTITY_NAME, "/");

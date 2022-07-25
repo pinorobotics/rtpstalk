@@ -19,10 +19,9 @@ package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -75,7 +74,7 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
         this.dataChannel = dataChannel;
         this.remoteReader = remoteReader;
         this.writerEntityId = writerEntityId;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         if (remoteReader.guidPrefix != GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue())
             infoDstOpt = Optional.of(new InfoDestination(remoteReader.guidPrefix));
     }

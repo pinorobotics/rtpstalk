@@ -19,14 +19,13 @@ package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
@@ -82,7 +81,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
 
     public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
         metatrafficReceiver =

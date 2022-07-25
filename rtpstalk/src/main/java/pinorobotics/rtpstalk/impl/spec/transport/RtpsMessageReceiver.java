@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;
@@ -27,8 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 
 /**
@@ -55,7 +54,7 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
         super(config.publisherExecutor(), config.publisherMaxBufferSize());
         executor =
                 Executors.newSingleThreadExecutor(new NamedThreadFactory(tracingToken.toString()));
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     public void start(DataChannel dataChannel) throws IOException {

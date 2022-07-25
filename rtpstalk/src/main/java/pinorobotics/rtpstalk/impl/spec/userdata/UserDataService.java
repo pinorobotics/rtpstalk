@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.userdata;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,9 +28,7 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Predicate;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -109,7 +108,7 @@ public class UserDataService implements AutoCloseable {
     public void start(TracingToken token, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
         tracingToken = token;
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
                         config, new TracingToken(tracingToken, "UserDataServiceReceiver"));

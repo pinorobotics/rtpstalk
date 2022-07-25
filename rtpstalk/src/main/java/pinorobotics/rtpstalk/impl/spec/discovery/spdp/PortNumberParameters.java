@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
-import static pinorobotics.rtpstalk.impl.spec.messages.TrafficType.*;
+import static pinorobotics.rtpstalk.impl.spec.messages.TrafficType.DISCOVERY;
 
 import pinorobotics.rtpstalk.impl.spec.messages.TrafficType;
 

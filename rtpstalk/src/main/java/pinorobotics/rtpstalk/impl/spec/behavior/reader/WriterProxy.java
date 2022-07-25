@@ -17,8 +17,10 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
-import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterStatusKind.*;
+import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterStatusKind.MISSING;
+import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterStatusKind.RECEIVED;
 
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,8 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-import pinorobotics.rtpstalk.impl.InternalUtils;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
@@ -51,7 +51,7 @@ public class WriterProxy {
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     public void receivedChangeSet(long seqNum) {

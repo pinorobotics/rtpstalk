@@ -18,15 +18,15 @@
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
-import pinorobotics.rtpstalk.impl.TracingToken;
+import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -88,7 +88,7 @@ public class RtpsWriter<D extends RtpsTalkMessage>
         super(config.publisherExecutor(), config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     /**

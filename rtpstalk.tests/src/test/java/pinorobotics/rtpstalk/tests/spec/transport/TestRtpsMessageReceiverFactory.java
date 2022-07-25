@@ -17,10 +17,10 @@
  */
 package pinorobotics.rtpstalk.tests.spec.transport;
 
+import id.xfunction.logging.TracingToken;
 import java.util.ArrayList;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 

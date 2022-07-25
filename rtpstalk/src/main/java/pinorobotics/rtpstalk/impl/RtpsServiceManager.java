@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.MergeProcessor;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class RtpsServiceManager implements AutoCloseable {
 
     public void startAll(TracingToken tracingToken) {
         Preconditions.isTrue(!isStarted, "All services already started");
-        logger = InternalUtils.getInstance().getLogger(getClass(), tracingToken);
+        logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
 

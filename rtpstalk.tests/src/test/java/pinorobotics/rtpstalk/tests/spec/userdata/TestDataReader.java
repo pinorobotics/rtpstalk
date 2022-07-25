@@ -17,10 +17,10 @@
  */
 package pinorobotics.rtpstalk.tests.spec.userdata;
 
+import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;

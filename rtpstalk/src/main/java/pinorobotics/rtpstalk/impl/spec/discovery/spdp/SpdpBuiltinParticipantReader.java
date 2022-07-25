@@ -17,12 +17,12 @@
  */
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
+import id.xfunction.logging.TracingToken;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;

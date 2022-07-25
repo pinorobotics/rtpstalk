@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.net.FreeUdpPortIterator;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -28,7 +29,6 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 
 /**

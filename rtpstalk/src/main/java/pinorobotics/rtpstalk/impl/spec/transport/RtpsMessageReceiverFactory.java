@@ -17,8 +17,8 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport;
 
+import id.xfunction.logging.TracingToken;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.TracingToken;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
