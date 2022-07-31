@@ -129,6 +129,7 @@ public class RtpsServiceManager implements AutoCloseable {
                 config.networkInterface()
                         .map(List::of)
                         .orElseGet(() -> InternalUtils.getInstance().listAllNetworkInterfaces());
+        Preconditions.isTrue(!networkInterfaces.isEmpty(), "No network interfaces found");
         for (var iface : networkInterfaces) {
             var spdp = new SpdpService(config, channelFactory, receiverFactory);
             spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());

@@ -17,17 +17,20 @@
  */
 package pinorobotics.rtpstalk.impl;
 
-import static java.util.stream.Collectors.toList;
-
+import id.xfunction.logging.XLogger;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class InternalUtils {
 
+    private static final XLogger LOGGER = XLogger.getLogger(InternalUtils.class);
     private static final InternalUtils INSTANCE = new InternalUtils();
 
     public static InternalUtils getInstance() {
@@ -36,7 +39,24 @@ public class InternalUtils {
 
     public List<NetworkInterface> listAllNetworkInterfaces() {
         try {
-            return NetworkInterface.networkInterfaces().collect(toList());
+            return NetworkInterface.networkInterfaces()
+                    .filter(
+                            p -> {
+                                try {
+                                    var hasIpv4 =
+                                            p.inetAddresses()
+                                                    .filter(isIpv4())
+                                                    .findAny()
+                                                    .isPresent();
+                                    return p.isUp() && hasIpv4;
+                                } catch (SocketException e) {
+                                    LOGGER.severe(
+                                            "Error reading network interface " + p.getDisplayName(),
+                                            e);
+                                }
+                                return false;
+                            })
+                    .toList();
         } catch (SocketException e) {
             throw new RuntimeException("Error listing available network interfaces", e);
         }
@@ -48,5 +68,9 @@ public class InternalUtils {
             padding = blockSize - (len % 4);
         }
         return padding;
+    }
+
+    public static Predicate<InetAddress> isIpv4() {
+        return addr -> addr instanceof Inet4Address;
     }
 }

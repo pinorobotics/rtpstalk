@@ -24,6 +24,7 @@ import id.xfunction.logging.TracingToken;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.function.Supplier;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
@@ -74,10 +75,16 @@ public class RtpsNetworkInterfaceFactory {
     }
 
     private static InetAddress getNetworkIfaceIp(NetworkInterface networkIface) {
+        Supplier<XRE> exc =
+                () -> new XRE("Error obtaining IP address for network interface %s", networkIface);
         try {
-            return networkIface.getInterfaceAddresses().get(0).getAddress();
+            return networkIface
+                    .inetAddresses()
+                    .filter(InternalUtils.isIpv4())
+                    .findFirst()
+                    .orElseThrow(exc);
         } catch (Exception e) {
-            throw new XRE("Error obtaining IP address for network interface %s", networkIface);
+            throw exc.get();
         }
     }
 

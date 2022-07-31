@@ -17,11 +17,13 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
+import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.PortNumberParameters;
 
 /**
@@ -38,6 +40,9 @@ public class Locator {
     private InetSocketAddress socketAddress;
 
     public Locator(LocatorKind kind, int port, InetAddress address) {
+        if (kind == LocatorKind.LOCATOR_KIND_UDPv4)
+            Preconditions.isTrue(
+                    InternalUtils.isIpv4().test(address), "Non IPv4 address " + address);
         this.kind = kind;
         this.port = port;
         this.address = address;

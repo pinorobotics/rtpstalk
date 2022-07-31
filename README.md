@@ -1,6 +1,4 @@
-**rtpstalk** - Java module to 
-
-Supports RTPS 2.3
+**rtpstalk** - Java client for RTPS (Real-time Publish-Subscribe) protocol.
 
 # Requirements
 

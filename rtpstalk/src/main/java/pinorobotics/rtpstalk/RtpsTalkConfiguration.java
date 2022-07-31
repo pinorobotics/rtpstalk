@@ -109,7 +109,10 @@ public record RtpsTalkConfiguration(
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
 
-        public Builder networkInterfaces(NetworkInterface networkIface) {
+        /**
+         * @see #networkInterface(String)
+         */
+        public Builder networkInterface(NetworkInterface networkIface) {
             this.networkIface = Optional.of(networkIface);
             return this;
         }
@@ -118,6 +121,8 @@ public record RtpsTalkConfiguration(
          * Network interface where <b>rtpstalk</b> will be working on. By default it is active on
          * all network interfaces and it publishes and receives data from all of them. Users can
          * limit <b>rtpstalk</b> traffic to local network by specifying only its loopback interface.
+         *
+         * <p><b>rtpstalk</b> currently supports only network interfaces with IPv4 addresses.
          */
         public Builder networkInterface(String networkIface) {
             this.networkIface =
