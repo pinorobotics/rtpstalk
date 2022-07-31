@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.userdata;
 
 import id.xfunction.logging.TracingToken;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
@@ -32,8 +33,9 @@ public class DataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage>
     protected DataReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             OperatingEntities operatingEntities,
             EntityId entityId) {
-        super(config, tracingToken, operatingEntities, entityId);
+        super(config, tracingToken, publisherExecutor, operatingEntities, entityId);
     }
 }

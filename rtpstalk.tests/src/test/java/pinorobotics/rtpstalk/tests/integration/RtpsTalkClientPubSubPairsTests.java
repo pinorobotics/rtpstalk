@@ -81,6 +81,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_startup.template",
                                 "spdp_close.template",
+                                "service_close.template",
                                 "service_startup_ports_8080_8081.template"),
                         List.of("topic_subscriptions_manager_future_topic.template"),
                         List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),

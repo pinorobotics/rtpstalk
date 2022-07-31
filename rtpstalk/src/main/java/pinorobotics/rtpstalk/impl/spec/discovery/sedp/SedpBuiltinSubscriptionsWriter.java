@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import id.xfunction.logging.TracingToken;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -34,13 +35,15 @@ public class SedpBuiltinSubscriptionsWriter
     public SedpBuiltinSubscriptionsWriter(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities) {
         super(
                 config,
+                tracingToken,
+                publisherExecutor,
                 channelFactory,
                 operatingEntities,
-                tracingToken,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER.getValue());
     }
 }

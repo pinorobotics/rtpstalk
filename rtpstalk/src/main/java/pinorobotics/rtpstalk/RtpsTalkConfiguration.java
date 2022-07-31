@@ -23,8 +23,9 @@ import id.xfunction.function.Unchecked;
 import java.net.NetworkInterface;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -49,7 +50,7 @@ public record RtpsTalkConfiguration(
         Duration heartbeatPeriod,
         Duration spdpDiscoveredParticipantDataPublishPeriod,
         int appEntityKey,
-        Executor publisherExecutor,
+        Optional<ExecutorService> publisherExecutor,
         int publisherMaxBufferSize) {
 
     /** E=0 means big-endian, E=1 means little-endian. */
@@ -69,6 +70,7 @@ public record RtpsTalkConfiguration(
         builder.append("builtInEnpointsPort", builtInEnpointsPort);
         builder.append("userEndpointsPort", userEndpointsPort);
         builder.append("historyCacheMaxSize", historyCacheMaxSize);
+        builder.append("publisherExecutor", publisherExecutor);
         return builder.toString();
     }
 
@@ -90,7 +92,8 @@ public record RtpsTalkConfiguration(
 
         public static final int DEFAULT_HISTORY_CACHE_MAX_SIZE = 100;
 
-        public static final Executor DEFAULT_PUBLISHER_EXECUTOR = Executors.newCachedThreadPool();
+        public static final Supplier<ExecutorService> DEFAULT_PUBLISHER_EXECUTOR =
+                () -> Executors.newCachedThreadPool();
         public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = 32;
 
         private Optional<NetworkInterface> networkIface = Optional.empty();
@@ -105,7 +108,7 @@ public record RtpsTalkConfiguration(
         private Duration leaseDuration = Duration.ofSeconds(20);
         private Duration heartbeatPeriod = Duration.ofSeconds(1);
         private Duration spdpDiscoveredParticipantDataPublishPeriod = Duration.ofSeconds(5);
-        private Executor publisherExecutor = DEFAULT_PUBLISHER_EXECUTOR;
+        private Optional<ExecutorService> publisherExecutor = Optional.empty();
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
 
@@ -130,8 +133,15 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
-        public Builder publisherExecutor(Executor publisherExecutor) {
-            this.publisherExecutor = publisherExecutor;
+        /**
+         * {@link ExecutorService} which will be used by all <b>rtpstalk</b> internal publishers.
+         *
+         * <p>By default each instance of client will use {@link ExecutorService} provided by {@link
+         * DEFAULT_PUBLISHER_EXECUTOR} This method allows to set custom {@link ExecutorService}. In
+         * that case {@link ExecutorService} should be managed by the user and terminated properly.
+         */
+        public Builder publisherExecutor(ExecutorService publisherExecutor) {
+            this.publisherExecutor = Optional.of(publisherExecutor);
             return this;
         }
 

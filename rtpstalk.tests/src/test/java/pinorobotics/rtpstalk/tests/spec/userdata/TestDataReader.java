@@ -40,7 +40,7 @@ public class TestDataReader extends DataReader {
             EntityId entityId,
             Executor executor,
             int maxBufferCapacity) {
-        super(config, tracingToken, operatingEntities, entityId);
+        super(config, tracingToken, executor, operatingEntities, entityId);
     }
 
     @Override

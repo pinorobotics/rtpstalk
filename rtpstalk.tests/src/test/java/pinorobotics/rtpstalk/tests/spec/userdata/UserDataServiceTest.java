@@ -58,6 +58,7 @@ public class UserDataServiceTest {
         try (var service =
                 new UserDataService(
                         CONFIG,
+                        TestConstants.TEST_PUBLISHER_EXECUTOR,
                         new TestDataChannelFactory(CONFIG),
                         dataFactory,
                         receiverFactory); ) {
@@ -104,6 +105,7 @@ public class UserDataServiceTest {
         try (var service =
                 new UserDataService(
                         CONFIG,
+                        TestConstants.TEST_PUBLISHER_EXECUTOR,
                         new TestDataChannelFactory(CONFIG),
                         dataFactory,
                         receiverFactory); ) {

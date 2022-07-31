@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Predicate;
@@ -54,13 +55,16 @@ public class UserDataService implements AutoCloseable {
     private TracingToken tracingToken;
     private DataObjectsFactory dataObjectsFactory;
     private RtpsMessageReceiverFactory receiverFactory;
+    private Executor publisherExecutor;
 
     public UserDataService(
             RtpsTalkConfiguration config,
+            Executor publisherExecutor,
             DataChannelFactory channelFactory,
             DataObjectsFactory dataObjectsfactory,
             RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
+        this.publisherExecutor = publisherExecutor;
         this.channelFactory = channelFactory;
         this.dataObjectsFactory = dataObjectsfactory;
         this.receiverFactory = receiverFactory;
@@ -77,7 +81,11 @@ public class UserDataService implements AutoCloseable {
                         readerEntityId,
                         eid ->
                                 dataObjectsFactory.newDataReader(
-                                        config, tracingToken, operatingEntities, eid));
+                                        config,
+                                        tracingToken,
+                                        publisherExecutor,
+                                        operatingEntities,
+                                        eid));
         reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
         if (reader.isSubscribed(subscriber)) {
             // this happens when there are several publishers for same topic
@@ -99,7 +107,12 @@ public class UserDataService implements AutoCloseable {
                 "Publisher for entity id " + writerEntityId + " already exist");
         var writer =
                 dataObjectsFactory.newDataWriter(
-                        config, tracingToken, channelFactory, operatingEntities, writerEntityId);
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        channelFactory,
+                        operatingEntities,
+                        writerEntityId);
         writers.put(writerEntityId, writer);
         publisher.subscribe(writer);
         receiver.subscribe(writer.getWriterReader());
@@ -111,7 +124,9 @@ public class UserDataService implements AutoCloseable {
         logger = XLogger.getLogger(getClass(), tracingToken);
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        config, new TracingToken(tracingToken, "UserDataServiceReceiver"));
+                        config,
+                        new TracingToken(tracingToken, "UserDataServiceReceiver"),
+                        publisherExecutor);
         logger.entering("start");
         logger.fine("Starting user service on {0}", iface.getLocalDefaultUnicastLocator());
         receiver.start(iface.getDefaultUnicastChannel());

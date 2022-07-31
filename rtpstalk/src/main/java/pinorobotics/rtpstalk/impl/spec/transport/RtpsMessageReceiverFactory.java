@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.logging.TracingToken;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 
 /**
@@ -26,7 +27,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 public class RtpsMessageReceiverFactory {
 
     public RtpsMessageReceiver newRtpsMessageReceiver(
-            RtpsTalkConfiguration config, TracingToken token) {
-        return new RtpsMessageReceiver(config, token);
+            RtpsTalkConfiguration config, TracingToken token, Executor publisherExecutor) {
+        return new RtpsMessageReceiver(config, token, publisherExecutor);
     }
 }

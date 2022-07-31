@@ -81,7 +81,12 @@ public class SpdpServiceTest {
         LogUtils.setupLog();
         channelFactory = new TestDataChannelFactory(CONFIG);
         receiverFactory = new RtpsMessageReceiverFactory();
-        service = new SpdpService(CONFIG, channelFactory, receiverFactory);
+        service =
+                new SpdpService(
+                        CONFIG,
+                        TestConstants.TEST_PUBLISHER_EXECUTOR,
+                        channelFactory,
+                        receiverFactory);
     }
 
     @AfterEach
@@ -118,6 +123,7 @@ public class SpdpServiceTest {
                                 .spdpDiscoveredParticipantDataPublishPeriod(
                                         java.time.Duration.ofMillis(50))
                                 .build(),
+                        TestConstants.TEST_PUBLISHER_EXECUTOR,
                         channelFactory,
                         receiverFactory)) {
             service.start(

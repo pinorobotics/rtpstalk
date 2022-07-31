@@ -23,6 +23,7 @@ import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.time.Duration;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,13 +52,15 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
     private NetworkInterface networkInterface;
 
     public SpdpBuiltinParticipantWriter(
-            TracingToken tracingToken,
             RtpsTalkConfiguration config,
+            TracingToken tracingToken,
+            Executor publisherExecutor,
             DataChannelFactory channelFactory,
             NetworkInterface networkInterface) {
         super(
-                tracingToken,
                 config,
+                tracingToken,
+                publisherExecutor,
                 channelFactory,
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());

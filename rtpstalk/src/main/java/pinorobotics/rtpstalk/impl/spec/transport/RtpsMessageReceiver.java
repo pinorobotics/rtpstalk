@@ -23,6 +23,7 @@ import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
@@ -50,8 +51,9 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
     private boolean isClosed;
     private DataChannel dataChannel;
 
-    protected RtpsMessageReceiver(RtpsTalkConfiguration config, TracingToken tracingToken) {
-        super(config.publisherExecutor(), config.publisherMaxBufferSize());
+    protected RtpsMessageReceiver(
+            RtpsTalkConfiguration config, TracingToken tracingToken, Executor publisherExecutor) {
+        super(publisherExecutor, config.publisherMaxBufferSize());
         executor =
                 Executors.newSingleThreadExecutor(new NamedThreadFactory(tracingToken.toString()));
         logger = XLogger.getLogger(getClass(), tracingToken);

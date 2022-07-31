@@ -58,6 +58,7 @@ public class TestDataObjectsFactory extends DataObjectsFactory {
     public DataReader newDataReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             OperatingEntities operatingEntities,
             EntityId eid) {
         var reader =

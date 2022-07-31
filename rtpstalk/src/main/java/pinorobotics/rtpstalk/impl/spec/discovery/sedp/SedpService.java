@@ -23,6 +23,7 @@ import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
@@ -69,13 +70,16 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     private RtpsNetworkInterface iface;
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
+    private Executor publisherExecutor;
 
     public SedpService(
             RtpsTalkConfiguration config,
+            Executor publisherExecutor,
             DataChannelFactory channelFactory,
             RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
+        this.publisherExecutor = publisherExecutor;
         this.receiverFactory = receiverFactory;
     }
 
@@ -86,27 +90,35 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
         metatrafficReceiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        config, new TracingToken(tracingToken, "SedpReceiver"));
+                        config, new TracingToken(tracingToken, "SedpReceiver"), publisherExecutor);
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
-                        config, tracingToken, channelFactory, iface.getOperatingEntities());
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        channelFactory,
+                        iface.getOperatingEntities());
         metatrafficReceiver.subscribe(subscriptionsWriter.getWriterReader());
         publicationsWriter =
                 new SedpBuiltinPublicationsWriter(
-                        config, tracingToken, channelFactory, iface.getOperatingEntities());
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        channelFactory,
+                        iface.getOperatingEntities());
         metatrafficReceiver.subscribe(publicationsWriter.getWriterReader());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(
-                        config, tracingToken, iface.getOperatingEntities());
+                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
         metatrafficReceiver.subscribe(subscriptionsReader);
         publicationsReader =
                 new SedpBuiltinPublicationsReader(
-                        config, tracingToken, iface.getOperatingEntities());
+                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
         metatrafficReceiver.subscribe(publicationsReader);
         if (config.builtinEndpointQos() == EndpointQos.NONE)
             metatrafficReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
-                            config, tracingToken, iface.getOperatingEntities()));
+                            config, tracingToken, publisherExecutor, iface.getOperatingEntities()));
         metatrafficReceiver.start(iface.getMetatrafficUnicastChannel());
         this.iface = iface;
         isStarted = true;

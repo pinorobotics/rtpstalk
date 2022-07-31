@@ -21,6 +21,7 @@ import id.xfunction.logging.TracingToken;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -56,11 +57,13 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     public StatefullReliableRtpsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             OperatingEntities operatingEntities,
             EntityId entityId) {
         super(
                 config,
                 tracingToken,
+                publisherExecutor,
                 new Guid(config.guidPrefix(), entityId),
                 ReliabilityQosPolicy.Kind.RELIABLE);
         this.config = config;

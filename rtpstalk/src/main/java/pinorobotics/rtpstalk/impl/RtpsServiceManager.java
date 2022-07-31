@@ -19,12 +19,15 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.MergeProcessor;
+import id.xfunction.lang.XRE;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpService;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
@@ -56,6 +59,7 @@ public class RtpsServiceManager implements AutoCloseable {
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
+    private ExecutorService publisherExecutor;
 
     public RtpsServiceManager(
             RtpsTalkConfiguration config,
@@ -73,6 +77,10 @@ public class RtpsServiceManager implements AutoCloseable {
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
 
+        publisherExecutor =
+                config.publisherExecutor()
+                        .orElseGet(RtpsTalkConfiguration.Builder.DEFAULT_PUBLISHER_EXECUTOR);
+
         // looks like FASTRTPS does not support participant which runs on multiple network
         // interfaces on different ports
         // for example: lo 127.0.0.1 (7414, 7415), eth 172.17.0.2 (7412, 7413)
@@ -83,10 +91,15 @@ public class RtpsServiceManager implements AutoCloseable {
         // for SEDP and User Data endpoints")
         try {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
-            sedpService = new SedpService(config, channelFactory, receiverFactory);
+            sedpService =
+                    new SedpService(config, publisherExecutor, channelFactory, receiverFactory);
             userService =
                     new UserDataService(
-                            config, channelFactory, new DataObjectsFactory(), receiverFactory);
+                            config,
+                            publisherExecutor,
+                            channelFactory,
+                            new DataObjectsFactory(),
+                            receiverFactory);
             var participantsPublisher = new MergeProcessor<RtpsTalkParameterListMessage>();
 
             // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
@@ -131,7 +144,7 @@ public class RtpsServiceManager implements AutoCloseable {
                         .orElseGet(() -> InternalUtils.getInstance().listAllNetworkInterfaces());
         Preconditions.isTrue(!networkInterfaces.isEmpty(), "No network interfaces found");
         for (var iface : networkInterfaces) {
-            var spdp = new SpdpService(config, channelFactory, receiverFactory);
+            var spdp = new SpdpService(config, publisherExecutor, channelFactory, receiverFactory);
             spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());
             spdpServices.add(spdp);
         }
@@ -154,6 +167,21 @@ public class RtpsServiceManager implements AutoCloseable {
         spdpServices.forEach(SpdpService::close);
         userService.close();
         sedpService.close();
+        // if publisherExecutor is set it is managed by the user, otherwise it
+        // is managed by us and we should shut it down
+        if (config.publisherExecutor().isEmpty()) {
+            logger.fine("Closing publisherExecutor");
+            publisherExecutor.shutdown();
+            try {
+                if (!publisherExecutor.awaitTermination(1, TimeUnit.MINUTES)) {
+                    throw new XRE("Timeout waiting publisher executor service to shutdown");
+                }
+            } catch (InterruptedException e) {
+                logger.severe("Error on close", e);
+            }
+        } else {
+            logger.fine("Not closing publisherExecutor as it is managed by the user");
+        }
         logger.fine("Closed");
     }
 }

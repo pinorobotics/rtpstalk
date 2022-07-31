@@ -66,9 +66,10 @@ public class StatefullReliableRtpsWriterTest {
         try (var writer =
                         new StatefullReliableRtpsWriter<>(
                                 config,
+                                TestConstants.TEST_TRACING_TOKEN,
+                                TestConstants.TEST_PUBLISHER_EXECUTOR,
                                 new TestDataChannelFactory(config),
                                 operatingEntities,
-                                TestConstants.TEST_TRACING_TOKEN,
                                 writerGuid.entityId);
                 var publisher =
                         new SubmissionPublisher<RtpsTalkDataMessage>(

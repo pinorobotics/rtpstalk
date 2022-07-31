@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
@@ -67,8 +68,17 @@ public class RtpsWriter<D extends RtpsTalkMessage>
     private TracingToken tracingToken;
 
     public RtpsWriter(
-            RtpsTalkConfiguration config, TracingToken tracingToken, EntityId writerEntiyId) {
-        this(config, tracingToken, writerEntiyId, ReliabilityQosPolicy.Kind.BEST_EFFORT, true);
+            RtpsTalkConfiguration config,
+            TracingToken tracingToken,
+            Executor publisherExecutor,
+            EntityId writerEntiyId) {
+        this(
+                config,
+                tracingToken,
+                publisherExecutor,
+                writerEntiyId,
+                ReliabilityQosPolicy.Kind.BEST_EFFORT,
+                true);
     }
 
     /**
@@ -82,10 +92,11 @@ public class RtpsWriter<D extends RtpsTalkMessage>
     public RtpsWriter(
             RtpsTalkConfiguration config,
             TracingToken token,
+            Executor publisherExecutor,
             EntityId writerEntityId,
             ReliabilityQosPolicy.Kind reliabilityKind,
             boolean pushMode) {
-        super(config.publisherExecutor(), config.publisherMaxBufferSize());
+        super(publisherExecutor, config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
         logger = XLogger.getLogger(getClass(), tracingToken);

@@ -31,7 +31,7 @@ public class TestRtpsMessageReceiver extends RtpsMessageReceiver {
     private int subscribeCount;
 
     public TestRtpsMessageReceiver(TracingToken token) {
-        super(TestConstants.TEST_CONFIG, token);
+        super(TestConstants.TEST_CONFIG, token, TestConstants.TEST_PUBLISHER_EXECUTOR);
     }
 
     @Override

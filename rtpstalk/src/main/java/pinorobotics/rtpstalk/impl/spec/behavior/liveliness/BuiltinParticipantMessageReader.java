@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior.liveliness;
 
 import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -37,10 +38,12 @@ public class BuiltinParticipantMessageReader
     public BuiltinParticipantMessageReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             OperatingEntities operatingEntities) {
         super(
                 config,
                 tracingToken,
+                publisherExecutor,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
         Preconditions.isTrue(

@@ -21,6 +21,7 @@ import id.xfunction.logging.TracingToken;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -46,11 +47,13 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     public SpdpBuiltinParticipantReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             byte[] guidPrefix,
             OperatingEntities operatingEntities) {
         super(
                 config,
                 tracingToken,
+                publisherExecutor,
                 new Guid(
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),

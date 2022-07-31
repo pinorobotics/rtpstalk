@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.ScheduledExecutorService;
@@ -77,11 +78,18 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
+            TracingToken tracingToken,
+            Executor publisherExecutor,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            TracingToken tracingToken,
             EntityId writerEntiyId) {
-        super(config, tracingToken, writerEntiyId, ReliabilityQosPolicy.Kind.RELIABLE, true);
+        super(
+                config,
+                tracingToken,
+                publisherExecutor,
+                writerEntiyId,
+                ReliabilityQosPolicy.Kind.RELIABLE,
+                true);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();

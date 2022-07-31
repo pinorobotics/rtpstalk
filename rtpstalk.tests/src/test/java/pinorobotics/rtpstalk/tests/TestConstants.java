@@ -22,6 +22,7 @@ import id.xfunction.function.Unchecked;
 import id.xfunction.logging.TracingToken;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
@@ -58,4 +59,6 @@ public interface TestConstants {
     TestRtpsNetworkInterface TEST_NETWORK_IFACE = new TestRtpsNetworkInterface();
     NetworkInterface LOOPBACK_NETWORK_IFACE = Unchecked.get(() -> NetworkInterface.getByName("lo"));
     TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");
+    Executor TEST_PUBLISHER_EXECUTOR =
+            RtpsTalkConfiguration.Builder.DEFAULT_PUBLISHER_EXECUTOR.get();
 }

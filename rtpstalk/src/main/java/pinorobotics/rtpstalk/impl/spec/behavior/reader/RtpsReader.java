@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
@@ -78,9 +79,10 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     public RtpsReader(
             RtpsTalkConfiguration config,
             TracingToken token,
+            Executor publisherExecutor,
             Guid readerGuid,
             ReliabilityQosPolicy.Kind reliabilityKind) {
-        super(config.publisherExecutor(), config.publisherMaxBufferSize());
+        super(publisherExecutor, config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
