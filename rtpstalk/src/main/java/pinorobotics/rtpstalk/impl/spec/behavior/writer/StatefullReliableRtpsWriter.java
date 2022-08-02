@@ -35,6 +35,9 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.RtpsHeartbeatMessageBuilder;
+import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -51,6 +54,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilde
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
+ * Statefull RTPS writer with reliable reliability {@link ReliabilityQosPolicy.Kind#RELIABLE}.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D>
@@ -75,6 +80,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private OperatingEntities operatingEntities;
     private int historyCacheMaxSize;
     private WriterRtpsReader<D> writerReader;
+    private PublisherQosPolicy qosPolicy;
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
@@ -82,14 +88,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntiyId) {
-        super(
-                config,
-                tracingToken,
-                publisherExecutor,
-                writerEntiyId,
-                ReliabilityQosPolicy.Kind.RELIABLE,
-                true);
+            EntityId writerEntiyId,
+            PublisherQosPolicy qosPolicy) {
+        super(config, tracingToken, publisherExecutor, writerEntiyId, true);
+        Preconditions.isTrue(
+                qosPolicy.reliabilityKind() == ReliabilityKind.RELIABLE,
+                "ReliabilityKind not supported: " + qosPolicy.reliabilityKind());
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.heartbeatPeriod();
@@ -97,6 +101,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         operatingEntities.getWriters().add(this);
         // for heartbeat purposes (to process ackNacks) we create reader
         writerReader = new WriterRtpsReader<>(getTracingToken(), this);
+        this.qosPolicy = qosPolicy;
     }
 
     /** Contains the history of CacheChange changes for this RTPS Writer. */
@@ -165,6 +170,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     private void cleanupCache() {
+        if (qosPolicy.durabilityKind() == DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS) return;
         var oldestSeqNum =
                 matchedReaders.values().stream()
                         .mapToLong(ReaderProxy::getHighestSeqNumSent)

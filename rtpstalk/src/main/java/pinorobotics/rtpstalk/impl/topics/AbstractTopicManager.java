@@ -91,32 +91,39 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
      */
     @Override
     public void onNext(RtpsTalkParameterListMessage message) {
-        var pl = message.parameterList();
-        if (!isValid(pl)) return;
-        var pubTopic = (String) pl.getParameters().get(ParameterId.PID_TOPIC_NAME);
-        Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
-        var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
-        Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
-        var participantGuid = (Guid) pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
-        Preconditions.notNull(pubType, "Received subscription without PID_PARTICIPANT_GUID");
-        var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
-        Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
-        var pubUnicastLocator = (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
-        Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
-        Preconditions.equals(
-                participantGuid.guidPrefix,
-                pubEndpointGuid.guidPrefix,
-                "Guid prefix missmatch for topic " + pubTopic);
-        logger.fine(
-                "Discovered {0} for topic {1} type {2} with endpoint {3}",
-                actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
-                pubTopic,
-                pubType,
-                pubEndpointGuid);
-        var topicId = new TopicId(pubTopic, pubType);
-        var topic = createTopicIfMissing(topicId);
-        topic.addRemoteActor(pubUnicastLocator, pubEndpointGuid);
-        subscription.request(1);
+        try {
+            var pl = message.parameterList();
+            if (!isValid(pl)) {
+                logger.warning("Non valid publications data received, ignoring it");
+                return;
+            }
+            var pubTopic = (String) pl.getParameters().get(ParameterId.PID_TOPIC_NAME);
+            Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
+            var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
+            Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
+            var participantGuid = (Guid) pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
+            Preconditions.notNull(pubType, "Received subscription without PID_PARTICIPANT_GUID");
+            var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
+            Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
+            var pubUnicastLocator =
+                    (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
+            Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
+            Preconditions.equals(
+                    participantGuid.guidPrefix,
+                    pubEndpointGuid.guidPrefix,
+                    "Guid prefix missmatch for topic " + pubTopic);
+            logger.fine(
+                    "Discovered {0} for topic {1} type {2} with endpoint {3}",
+                    actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
+                    pubTopic,
+                    pubType,
+                    pubEndpointGuid);
+            var topicId = new TopicId(pubTopic, pubType);
+            var topic = createTopicIfMissing(topicId);
+            topic.addRemoteActor(pubUnicastLocator, pubEndpointGuid);
+        } finally {
+            subscription.request(1);
+        }
     }
 
     protected abstract ParameterList createAnnouncementData(A actor, Topic<A> topic);

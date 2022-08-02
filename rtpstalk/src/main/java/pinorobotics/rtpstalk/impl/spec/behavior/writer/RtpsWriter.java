@@ -30,7 +30,6 @@ import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
@@ -39,8 +38,10 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
- * This writer does not cache changes in {@link HistoryCache} and sends them to readers directly
- * (although it is used in {@link StatefullReliableRtpsWriter}).
+ * Abstract implementation of the Writer.
+ *
+ * <p>This writer does not use {@link HistoryCache} and caches only last change which it sends to
+ * readers directly.
  *
  * <p>Data flow:
  *
@@ -54,10 +55,9 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsWriter<D extends RtpsTalkMessage>
+public abstract class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
-
     protected final XLogger logger;
 
     private long lastChangeNumber;
@@ -67,18 +67,12 @@ public class RtpsWriter<D extends RtpsTalkMessage>
 
     private TracingToken tracingToken;
 
-    public RtpsWriter(
+    protected RtpsWriter(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             EntityId writerEntiyId) {
-        this(
-                config,
-                tracingToken,
-                publisherExecutor,
-                writerEntiyId,
-                ReliabilityQosPolicy.Kind.BEST_EFFORT,
-                true);
+        this(config, tracingToken, publisherExecutor, writerEntiyId, true);
     }
 
     /**
@@ -89,12 +83,11 @@ public class RtpsWriter<D extends RtpsTalkMessage>
             paragraph = "8.4.9.1.1",
             protocolVersion = Predefined.Version_2_3,
             text = "Writer always pushes out data as it becomes available")
-    public RtpsWriter(
+    protected RtpsWriter(
             RtpsTalkConfiguration config,
             TracingToken token,
             Executor publisherExecutor,
             EntityId writerEntityId,
-            ReliabilityQosPolicy.Kind reliabilityKind,
             boolean pushMode) {
         super(publisherExecutor, config.publisherMaxBufferSize());
         this.tracingToken = new TracingToken(token, writerEntityId.toString());

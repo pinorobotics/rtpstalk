@@ -22,7 +22,7 @@ import id.xfunction.XJsonStringBuilder;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record PublisherQosPolicy(ReliabilityKind reliabilityKind) {
+public record PublisherQosPolicy(ReliabilityKind reliabilityKind, DurabilityKind durabilityKind) {
 
     @Override
     public String toString() {
@@ -34,16 +34,24 @@ public record PublisherQosPolicy(ReliabilityKind reliabilityKind) {
     public static class Builder {
 
         public static final ReliabilityKind DEFAULT_RELIABILITY_KIND = ReliabilityKind.RELIABLE;
+        public static final DurabilityKind DEFAULT_DURABILITY_KIND =
+                DurabilityKind.VOLATILE_DURABILITY_QOS;
 
         private ReliabilityKind reliabilityKind = DEFAULT_RELIABILITY_KIND;
+        private DurabilityKind durabilityKind = DEFAULT_DURABILITY_KIND;
 
         public Builder reliabilityKind(ReliabilityKind reliabilityKind) {
             this.reliabilityKind = reliabilityKind;
             return this;
         }
 
+        public Builder durabilityKind(DurabilityKind durabilityKind) {
+            this.durabilityKind = durabilityKind;
+            return this;
+        }
+
         public PublisherQosPolicy build() {
-            return new PublisherQosPolicy(reliabilityKind);
+            return new PublisherQosPolicy(reliabilityKind, durabilityKind);
         }
     }
 }

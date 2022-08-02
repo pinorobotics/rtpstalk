@@ -21,6 +21,9 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -31,6 +34,11 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
  */
 public class SedpBuiltinPublicationsWriter
         extends StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> {
+    private static final PublisherQosPolicy DEFAULT_POLICY =
+            new PublisherQosPolicy.Builder()
+                    .reliabilityKind(ReliabilityKind.RELIABLE)
+                    .durabilityKind(DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS)
+                    .build();
 
     public SedpBuiltinPublicationsWriter(
             RtpsTalkConfiguration config,
@@ -44,6 +52,7 @@ public class SedpBuiltinPublicationsWriter
                 publisherExecutor,
                 channelFactory,
                 operatingEntities,
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue());
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue(),
+                DEFAULT_POLICY);
     }
 }

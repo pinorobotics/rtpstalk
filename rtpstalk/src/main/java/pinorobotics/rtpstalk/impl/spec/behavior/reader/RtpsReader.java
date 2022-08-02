@@ -119,10 +119,14 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     protected boolean addChange(CacheChange<D> cacheChange) {
         logger.entering("addChange");
+        if (isClosed()) {
+            logger.fine("Reader is closed, ignoring the change");
+            return false;
+        }
         var isAdded = cache.addChange(cacheChange);
         if (isAdded) {
             logger.fine("Submitting new change to subscribers");
-            if (!isClosed()) submit(cacheChange.getDataValue());
+            submit(cacheChange.getDataValue());
         }
         logger.exiting("addChange");
         return isAdded;

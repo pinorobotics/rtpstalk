@@ -20,6 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.userdata;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -30,6 +33,11 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage> {
+    private static final PublisherQosPolicy DEFAULT_POLICY =
+            new PublisherQosPolicy.Builder()
+                    .reliabilityKind(ReliabilityKind.RELIABLE)
+                    .durabilityKind(DurabilityKind.VOLATILE_DURABILITY_QOS)
+                    .build();
 
     public DataWriter(
             RtpsTalkConfiguration config,
@@ -44,6 +52,7 @@ public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage>
                 publisherExecutor,
                 channelFactory,
                 operatingEntities,
-                writerEntityId);
+                writerEntityId,
+                DEFAULT_POLICY);
     }
 }

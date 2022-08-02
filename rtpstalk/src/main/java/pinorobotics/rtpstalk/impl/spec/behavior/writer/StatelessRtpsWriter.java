@@ -26,12 +26,11 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
- * Stateless RTPS writer (best-effort reliability).
+ * Stateless RTPS writer with best-effort reliability {@link ReliabilityQosPolicy.Kind#BEST_EFFORT}.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class StatelessRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D> {
-
     private DataChannelFactory channelFactory;
     private EntityId readerEntiyId;
 
@@ -42,13 +41,7 @@ public class StatelessRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D
             DataChannelFactory channelFactory,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
-        super(
-                config,
-                tracingToken,
-                publisherExecutor,
-                writerEntityId,
-                ReliabilityQosPolicy.Kind.BEST_EFFORT,
-                true);
+        super(config, tracingToken, publisherExecutor, writerEntityId, true);
         this.channelFactory = channelFactory;
         this.readerEntiyId = readerEntiyId;
     }
