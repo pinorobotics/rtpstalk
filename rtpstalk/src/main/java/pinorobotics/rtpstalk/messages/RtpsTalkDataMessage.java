@@ -21,6 +21,10 @@ import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 
 /**
+ * Data message definition.
+ *
+ * <p>This is main type of messages in RTPS which is used to transfer user data.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements RtpsTalkMessage {
@@ -31,6 +35,16 @@ public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements 
 
     public RtpsTalkDataMessage(String data) {
         this(data.getBytes());
+    }
+
+    /** RTPS inline QoS to be included with a data message (can be empty) */
+    public Parameters inlineQos() {
+        return inlineQos;
+    }
+
+    /** Transfered user data */
+    public byte[] data() {
+        return data;
     }
 
     @Override

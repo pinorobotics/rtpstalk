@@ -20,6 +20,7 @@
  *
  * @see <a href="https://github.com/pinorobotics/rtpstalk/releases">Download</a>
  * @see <a href="https://github.com/pinorobotics/rtpstalk">Github</a>
+ * @see <a href="http://pinoweb.freetzi.com/rtpstalk">Documentation</a>
  * @author aeon_flux aeon_flux@eclipso.ch
  * @author lambdaprime intid@protonmail.com
  */
@@ -29,6 +30,7 @@ module rtpstalk {
 
     exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.messages;
+    exports pinorobotics.rtpstalk.exceptions;
     exports pinorobotics.rtpstalk.impl to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.topics to

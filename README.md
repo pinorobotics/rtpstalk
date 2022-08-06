@@ -20,7 +20,7 @@ dependencies {
 
 # Links
 
-[Documentation](http://pinoweb.atwebpages.com/rtpstalk)
+[Documentation](http://pinoweb.freetzi.com/rtpstalk)
 
 # Contributors
 

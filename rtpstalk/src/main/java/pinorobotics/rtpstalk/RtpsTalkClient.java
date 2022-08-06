@@ -29,6 +29,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
+ * RTPS client
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  * @author lambdaprime intid@protonmail.com
  */
@@ -42,6 +44,7 @@ public class RtpsTalkClient implements AutoCloseable {
     private boolean isClosed;
     private TracingToken tracingToken;
 
+    /** Create client with default {@link RtpsTalkConfiguration} */
     public RtpsTalkClient() {
         this(new RtpsTalkConfiguration.Builder().build());
     }
@@ -59,6 +62,15 @@ public class RtpsTalkClient implements AutoCloseable {
         tracingToken = new TracingToken(clientName);
     }
 
+    /**
+     * Subscribe to RTPS topic
+     *
+     * @param topic topic name
+     * @param type topic type
+     * @param subscriber subscriber which will be receiving messages for the given topic
+     * @return EntityId assigned to this client DataReader which will be registered to the given
+     *     topic
+     */
     public int subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
         if (!isStarted) {
             start();
@@ -67,6 +79,17 @@ public class RtpsTalkClient implements AutoCloseable {
         return entityId.value;
     }
 
+    /**
+     * Register RTPS topic publisher.
+     *
+     * <p>This client subscribes to the given publisher and announces its presence to all RTPS
+     * Participants in the network. Each message received by this client from the publisher will be
+     * sent only to those Participants which announce their interest in the given topic.
+     *
+     * @param topic topic name
+     * @param type topic type
+     * @param publisher user publisher which emits RTPS Data messages for the given topic
+     */
     public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
         if (!isStarted) {
             start();
@@ -86,9 +109,10 @@ public class RtpsTalkClient implements AutoCloseable {
      * </ul>
      *
      * <p><b>rtpstalk</b> client is lazy by default and starts all services automatically when user
-     * initiates some RTPS interactions.
+     * initiates any RTPS interaction.
      *
-     * <p>Using this method users can start all services on demand.
+     * <p>Using this method users can start all RTPS services in advance. It may be useful when you
+     * need to assign resources (for example ports) early during application startup.
      */
     public void start() {
         Preconditions.isTrue(!isStarted, "Already started");
@@ -103,6 +127,7 @@ public class RtpsTalkClient implements AutoCloseable {
         logger.exiting("start");
     }
 
+    /** Stop all subscribers, publishers, RTPS services assigned to this client */
     @Override
     public void close() {
         if (!isStarted) return;
@@ -111,6 +136,7 @@ public class RtpsTalkClient implements AutoCloseable {
         logger.fine("Closed");
     }
 
+    /** Return current client configuration */
     public RtpsTalkConfiguration getConfiguration() {
         return config.publicConfig();
     }

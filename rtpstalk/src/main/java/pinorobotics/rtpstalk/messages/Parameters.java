@@ -22,18 +22,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Contains parameters in order of addition.
+ * RTPS user defined parameters (part of inline QoS)
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Parameters {
 
+    /** Empty parameters object */
     public static final Parameters EMPTY = new Parameters();
 
     private Map<Short, byte[]> params = new LinkedHashMap<>();
 
     public Parameters() {}
 
+    /**
+     * @param params parameters to add
+     */
     public Parameters(Map<Short, byte[]> params) {
         params.forEach(this.params::put);
     }

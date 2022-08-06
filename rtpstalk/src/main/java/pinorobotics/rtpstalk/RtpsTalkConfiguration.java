@@ -80,15 +80,18 @@ public record RtpsTalkConfiguration(
 
         /**
          * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload
-         * of 65,507 bytes for IPv4"
+         * of 65,507 bytes for IPv4
          *
-         * <p>https://datatracker.ietf.org/doc/html/rfc8085
+         * @see <a href="https://datatracker.ietf.org/doc/html/rfc8085">UDP RFC</a>
          */
         public static final int UDP_MAX_PACKET_SIZE = 65_507;
 
         /**
          * Default starting port from which port assignment for {@link #builtinEnpointsPort}, {@link
-         * #userEndpointsPort} will happen
+         * #userEndpointsPort} will happen.
+         *
+         * <p><b>rtpstalk</b> will start to look for available ports starting from this port. If the
+         * port is in use it is skipped and next is tested.
          */
         public static final int DEFAULT_START_PORT = 7412;
 

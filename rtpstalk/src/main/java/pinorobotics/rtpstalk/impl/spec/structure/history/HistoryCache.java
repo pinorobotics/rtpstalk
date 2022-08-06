@@ -54,8 +54,9 @@ public class HistoryCache<D extends RtpsTalkMessage> {
     /**
      * Add change to the cache.
      *
-     * @return true if this change was added and it has strictly increasing {@link Data#wirter} from
-     *     previous changes of the same Writer
+     * @return true if this change was added and it has strictly increasing {@link
+     *     pinorobotics.rtpstalk.impl.spec.messages.submessages.Data#writerSN} from previous changes
+     *     of the same Writer
      */
     @RtpsSpecReference(
             paragraph = "8.4.2.2.1",

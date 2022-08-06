@@ -36,6 +36,7 @@ javadoc {
     options.overview = "src/overview.html"
     // ignore missing @return, @param etc
     options.addBooleanOption('Xdoclint:all,-missing', true)
+    exclude 'pinorobotics/rtpstalk/impl/**'
 }
 
 def packageDir = "$buildDir/package/${projectName}"
