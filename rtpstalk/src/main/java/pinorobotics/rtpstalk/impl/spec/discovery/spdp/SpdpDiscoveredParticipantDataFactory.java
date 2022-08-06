@@ -18,8 +18,8 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
 import java.util.EnumSet;
+import pinorobotics.rtpstalk.EndpointQos;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;

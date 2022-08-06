@@ -17,32 +17,17 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.EndpointQos;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class BuiltinEndpointQos {
-
-    public static enum EndpointQos {
-        BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER(0),
-        NONE(-1);
-
-        static final Map<Integer, EndpointQos> MAP =
-                Arrays.stream(EndpointQos.values())
-                        .collect(Collectors.toMap(k -> k.position, v -> v));
-        private int position;
-
-        EndpointQos(int position) {
-            this.position = position;
-        }
-    }
 
     public int value;
 
@@ -52,12 +37,12 @@ public class BuiltinEndpointQos {
         var bset = new BitSet();
         set.stream()
                 .filter(Predicate.isEqual(EndpointQos.NONE).negate())
-                .forEach(p -> bset.set(p.position));
+                .forEach(p -> bset.set(p.getValue()));
         value = (int) bset.toLongArray()[0];
     }
 
     public boolean hasFlag(EndpointQos flag) {
-        return BitSet.valueOf(new long[] {value}).get(flag.position);
+        return BitSet.valueOf(new long[] {value}).get(flag.getValue());
     }
 
     @Override
@@ -79,7 +64,7 @@ public class BuiltinEndpointQos {
         var set = BitSet.valueOf(new long[] {value});
         var str =
                 set.stream()
-                        .mapToObj(pos -> EndpointQos.MAP.getOrDefault(pos, EndpointQos.NONE))
+                        .mapToObj(pos -> EndpointQos.valueOf(pos))
                         .map(EndpointQos::name)
                         .collect(Collectors.joining(" | "));
         return str;

@@ -20,11 +20,11 @@ package pinorobotics.rtpstalk.impl.spec.behavior.liveliness;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
+import pinorobotics.rtpstalk.EndpointQos;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
-import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
