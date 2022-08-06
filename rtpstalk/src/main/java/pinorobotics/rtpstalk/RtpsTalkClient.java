@@ -23,6 +23,7 @@ import id.xfunction.logging.XLogger;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.RtpsServiceManager;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -34,7 +35,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 public class RtpsTalkClient implements AutoCloseable {
 
     private XLogger logger;
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private DataChannelFactory channelFactory;
     private RtpsServiceManager serviceManager;
     private boolean isStarted;
@@ -46,10 +47,11 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     public RtpsTalkClient(RtpsTalkConfiguration config) {
-        this.config = config;
+        this.config = new RtpsTalkConfigurationInternal(config);
         channelFactory = new DataChannelFactory(config);
         serviceManager =
-                new RtpsServiceManager(config, channelFactory, new RtpsMessageReceiverFactory());
+                new RtpsServiceManager(
+                        this.config, channelFactory, new RtpsMessageReceiverFactory());
     }
 
     public RtpsTalkClient(RtpsTalkConfiguration config, String clientName) {
@@ -110,6 +112,6 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     public RtpsTalkConfiguration getConfiguration() {
-        return config;
+        return config.publicConfig();
     }
 }

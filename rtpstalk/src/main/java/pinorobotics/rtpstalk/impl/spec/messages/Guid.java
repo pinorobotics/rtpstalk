@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
+import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId.Predefined;
@@ -27,6 +29,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Guid {
+
+    public static final int SIZE = GuidPrefix.SIZE + EntityId.SIZE;
 
     public GuidPrefix guidPrefix;
 
@@ -51,6 +55,18 @@ public class Guid {
         this(new GuidPrefix(guidPrefix), new EntityId(entityId));
     }
 
+    public Guid(byte[] guidPrefix, Predefined entityidParticipant) {
+        this(guidPrefix, entityidParticipant.getValue());
+    }
+
+    public static Guid newGuid(byte[] guid) {
+        Preconditions.isTrue(guid.length == SIZE);
+        var buf = ByteBuffer.wrap(guid);
+        var gp = new byte[GuidPrefix.SIZE];
+        buf.get(gp);
+        return new Guid(gp, new EntityId((buf.getInt())));
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(entityId, guidPrefix);
@@ -72,5 +88,12 @@ public class Guid {
         builder.append("guidPrefix", guidPrefix);
         builder.append("entityId", entityId);
         return builder.toString();
+    }
+
+    public byte[] toArray() {
+        var buf = ByteBuffer.allocate(Guid.SIZE);
+        buf.put(guidPrefix.value);
+        buf.putInt(entityId.value);
+        return buf.array();
     }
 }

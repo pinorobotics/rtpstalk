@@ -20,8 +20,8 @@ package pinorobotics.rtpstalk.impl.topics;
 import id.xfunction.logging.TracingToken;
 import java.util.List;
 import java.util.function.Consumer;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -49,7 +49,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
 
     public TopicSubscriptionsManager(
             TracingToken tracingToken,
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
             UserDataService userService) {

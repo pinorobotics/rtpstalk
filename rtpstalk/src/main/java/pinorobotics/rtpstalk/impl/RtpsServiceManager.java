@@ -42,13 +42,13 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * Responsible for starting and managing RTPS services for each network interface specified in
- * {@link RtpsTalkConfiguration#getNetworkIfaces()}
+ * {@link RtpsTalkConfiguration#networkInterface()}
  *
  * @author lambdaprime intid@protonmail.com
  */
 public class RtpsServiceManager implements AutoCloseable {
 
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
     private List<SpdpService> spdpServices = new ArrayList<>();
@@ -62,13 +62,14 @@ public class RtpsServiceManager implements AutoCloseable {
     private ExecutorService publisherExecutor;
 
     public RtpsServiceManager(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             DataChannelFactory channelFactory,
             RtpsMessageReceiverFactory receiverFactory) {
         this.config = config;
         this.channelFactory = channelFactory;
         this.receiverFactory = receiverFactory;
-        networkIfaceFactory = new RtpsNetworkInterfaceFactory(config, channelFactory);
+        networkIfaceFactory =
+                new RtpsNetworkInterfaceFactory(config.publicConfig(), channelFactory);
     }
 
     public void startAll(TracingToken tracingToken) {
@@ -78,7 +79,8 @@ public class RtpsServiceManager implements AutoCloseable {
         logger.fine("Using following configuration: {0}", config);
 
         publisherExecutor =
-                config.publisherExecutor()
+                config.publicConfig()
+                        .publisherExecutor()
                         .orElseGet(RtpsTalkConfiguration.Builder.DEFAULT_PUBLISHER_EXECUTOR);
 
         // looks like FASTRTPS does not support participant which runs on multiple network
@@ -92,10 +94,14 @@ public class RtpsServiceManager implements AutoCloseable {
         try {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
             sedpService =
-                    new SedpService(config, publisherExecutor, channelFactory, receiverFactory);
+                    new SedpService(
+                            config.publicConfig(),
+                            publisherExecutor,
+                            channelFactory,
+                            receiverFactory);
             userService =
                     new UserDataService(
-                            config,
+                            config.publicConfig(),
                             publisherExecutor,
                             channelFactory,
                             new DataObjectsFactory(),
@@ -139,7 +145,8 @@ public class RtpsServiceManager implements AutoCloseable {
             MergeProcessor<RtpsTalkParameterListMessage> participantsPublisher)
             throws Exception {
         var networkInterfaces =
-                config.networkInterface()
+                config.publicConfig()
+                        .networkInterface()
                         .map(List::of)
                         .orElseGet(() -> InternalUtils.getInstance().listAllNetworkInterfaces());
         Preconditions.isTrue(!networkInterfaces.isEmpty(), "No network interfaces found");
@@ -169,7 +176,7 @@ public class RtpsServiceManager implements AutoCloseable {
         sedpService.close();
         // if publisherExecutor is set it is managed by the user, otherwise it
         // is managed by us and we should shut it down
-        if (config.publisherExecutor().isEmpty()) {
+        if (config.publicConfig().publisherExecutor().isEmpty()) {
             logger.fine("Closing publisherExecutor");
             publisherExecutor.shutdown();
             try {

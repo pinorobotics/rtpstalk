@@ -72,7 +72,7 @@ public class TopicSubscriptionsManagerTest {
             var manager =
                     new TopicSubscriptionsManager(
                             TestConstants.TEST_TRACING_TOKEN,
-                            TestConstants.TEST_CONFIG,
+                            TestConstants.TEST_CONFIG_INTERNAL,
                             TestConstants.TEST_NETWORK_IFACE,
                             publicationsWriter,
                             service);

@@ -23,9 +23,9 @@ import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -48,7 +48,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
 
     public TopicPublicationsManager(
             TracingToken tracingToken,
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter,
             UserDataService userService) {

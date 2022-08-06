@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -39,8 +40,10 @@ public interface TestConstants {
     EntityId TEST_READER_ENTITY_ID = new EntityId(1, EntityKind.READER_NO_KEY);
     EntityId TEST_WRITER_ENTITY_ID = new EntityId(2, EntityKind.WRITER_NO_KEY);
     RtpsTalkConfiguration.Builder TEST_CONFIG_BUILDER =
-            new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX);
-    RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_BUILDER.build();
+            new RtpsTalkConfiguration.Builder().guidPrefix(TEST_GUID_PREFIX.value);
+    RtpsTalkConfigurationInternal TEST_CONFIG_INTERNAL =
+            new RtpsTalkConfigurationInternal(TEST_CONFIG_BUILDER.build());
+    RtpsTalkConfiguration TEST_CONFIG = TEST_CONFIG_INTERNAL.publicConfig();
 
     InetAddress TEST_ADDRESS = Unchecked.get(() -> InetAddress.getByName("11.1.1.1"));
     Locator TEST_METATRAFFIC_UNICAST_LOCATOR =

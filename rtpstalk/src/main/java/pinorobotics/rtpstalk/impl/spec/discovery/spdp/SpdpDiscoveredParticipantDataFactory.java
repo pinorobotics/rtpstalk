@@ -18,7 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
 import java.util.EnumSet;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos.EndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
@@ -35,7 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 public class SpdpDiscoveredParticipantDataFactory {
 
     public ParameterList createData(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Locator metatrafficUnicastLocator,
             Locator defaultUnicastLocator) {
         var endpointSet =
@@ -50,14 +50,14 @@ public class SpdpDiscoveredParticipantDataFactory {
                         Endpoint.SECURE_SUBSCRIPTION_READER,
                         Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
         // best-effort is not currently supported
-        if (config.builtinEndpointQos() == EndpointQos.NONE)
+        if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
             endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
         var params = new ParameterList();
         params.put(
                 ParameterId.PID_PROTOCOL_VERSION,
                 ProtocolVersion.Predefined.Version_2_3.getValue());
         params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
-        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
         params.put(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, metatrafficUnicastLocator);
         params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator);
         params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));

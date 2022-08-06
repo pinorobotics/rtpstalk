@@ -17,7 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.impl.qos.QosPoliciesTransformer;
@@ -40,10 +40,10 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  */
 public class SedpDataFactory {
 
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private QosPoliciesTransformer qosTransformer = new QosPoliciesTransformer();
 
-    public SedpDataFactory(RtpsTalkConfiguration config) {
+    public SedpDataFactory(RtpsTalkConfigurationInternal config) {
         this.config = config;
     }
 
@@ -52,10 +52,10 @@ public class SedpDataFactory {
             EntityId entityId,
             Locator defaultUnicastLocator,
             PublisherQosPolicy qosPolicy) {
-        var guid = new Guid(config.guidPrefix(), entityId);
+        var guid = new Guid(config.publicConfig().guidPrefix(), entityId);
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
-        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
         params.put(ParameterId.PID_TOPIC_NAME, topicId.name());
         params.put(ParameterId.PID_TYPE_NAME, topicId.type());
         params.put(ParameterId.PID_ENDPOINT_GUID, guid);
@@ -87,10 +87,12 @@ public class SedpDataFactory {
             SubscriberQosPolicy qosPolicy) {
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
-        params.put(ParameterId.PID_PARTICIPANT_GUID, config.getLocalParticipantGuid());
+        params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
         params.put(ParameterId.PID_TOPIC_NAME, topicId.name());
         params.put(ParameterId.PID_TYPE_NAME, topicId.type());
-        params.put(ParameterId.PID_ENDPOINT_GUID, new Guid(config.guidPrefix(), readerEntityId));
+        params.put(
+                ParameterId.PID_ENDPOINT_GUID,
+                new Guid(config.publicConfig().guidPrefix(), readerEntityId));
         params.put(
                 ParameterId.PID_RELIABILITY,
                 new ReliabilityQosPolicy(

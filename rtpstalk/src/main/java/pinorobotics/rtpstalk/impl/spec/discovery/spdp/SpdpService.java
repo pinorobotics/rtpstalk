@@ -23,8 +23,8 @@ import id.xfunction.logging.XLogger;
 import java.net.NetworkInterface;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
@@ -36,7 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
  */
 public class SpdpService implements AutoCloseable {
 
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private RtpsMessageReceiver receiver;
     private SpdpBuiltinParticipantReader reader;
     private SpdpBuiltinParticipantWriter writer;
@@ -48,7 +48,7 @@ public class SpdpService implements AutoCloseable {
     private Executor publisherExecutor;
 
     public SpdpService(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             RtpsMessageReceiverFactory receiverFactory) {
@@ -61,7 +61,7 @@ public class SpdpService implements AutoCloseable {
     }
 
     public SpdpService(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             RtpsMessageReceiverFactory receiverFactory,
@@ -85,20 +85,20 @@ public class SpdpService implements AutoCloseable {
         logger.entering("start");
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        config,
+                        config.publicConfig(),
                         new TracingToken(tracingToken, getClass().getSimpleName()),
                         publisherExecutor);
         logger.fine("Starting SPDP service on {0}", networkInterface.getName());
         reader =
                 new SpdpBuiltinParticipantReader(
-                        config,
+                        config.publicConfig(),
                         tracingToken,
                         publisherExecutor,
-                        config.guidPrefix(),
+                        config.publicConfig().guidPrefix(),
                         iface.getOperatingEntities());
         reader.subscribe(participantsSubscriber);
         Locator metatrafficMulticastLocator =
-                Locator.createDefaultMulticastLocator(config.domainId());
+                Locator.createDefaultMulticastLocator(config.publicConfig().domainId());
         var dataChannel =
                 channelFactory.bindMulticast(
                         tracingToken, networkInterface, metatrafficMulticastLocator);
@@ -106,7 +106,11 @@ public class SpdpService implements AutoCloseable {
         receiver.subscribe(reader);
         writer =
                 new SpdpBuiltinParticipantWriter(
-                        config, tracingToken, publisherExecutor, channelFactory, networkInterface);
+                        config.publicConfig(),
+                        tracingToken,
+                        publisherExecutor,
+                        channelFactory,
+                        networkInterface);
         writer.readerLocatorAdd(metatrafficMulticastLocator);
         writer.setSpdpDiscoveredParticipantDataMessage(
                 new RtpsTalkParameterListMessage(

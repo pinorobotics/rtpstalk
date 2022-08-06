@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
@@ -83,7 +84,7 @@ public class SpdpServiceTest {
         receiverFactory = new RtpsMessageReceiverFactory();
         service =
                 new SpdpService(
-                        CONFIG,
+                        TestConstants.TEST_CONFIG_INTERNAL,
                         TestConstants.TEST_PUBLISHER_EXECUTOR,
                         channelFactory,
                         receiverFactory);
@@ -119,10 +120,11 @@ public class SpdpServiceTest {
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
         try (var service =
                 new SpdpService(
-                        new RtpsTalkConfiguration.Builder()
-                                .spdpDiscoveredParticipantDataPublishPeriod(
-                                        java.time.Duration.ofMillis(50))
-                                .build(),
+                        new RtpsTalkConfigurationInternal(
+                                new RtpsTalkConfiguration.Builder()
+                                        .spdpDiscoveredParticipantDataPublishPeriod(
+                                                java.time.Duration.ofMillis(50))
+                                        .build()),
                         TestConstants.TEST_PUBLISHER_EXECUTOR,
                         channelFactory,
                         receiverFactory)) {

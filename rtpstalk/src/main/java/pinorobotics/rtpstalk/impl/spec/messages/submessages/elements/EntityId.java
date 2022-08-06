@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
  */
 public class EntityId {
 
+    public static final int SIZE = Integer.BYTES;
+
     public static enum Predefined {
         ENTITYID_PARTICIPANT(new EntityId(0x000001, BUILTIN_PARTICIPANT)),
         ENTITYID_SEDP_BUILTIN_TOPICS_ANNOUNCER(new EntityId(0x000002, BUILTIN_WRITER)),

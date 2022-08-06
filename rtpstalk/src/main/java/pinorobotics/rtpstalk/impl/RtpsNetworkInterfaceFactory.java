@@ -56,7 +56,7 @@ public class RtpsNetworkInterfaceFactory {
         // Mainly it is needed for local Locators like defaultUnicastLocator,
         // metatrafficUnicastLocator.
         var builtinDataChannel =
-                channelFactory.bind(tracingToken, bindAddress, config.builtInEnpointsPort());
+                channelFactory.bind(tracingToken, bindAddress, config.builtinEnpointsPort());
         var builtinLocator =
                 new Locator(
                         LocatorKind.LOCATOR_KIND_UDPv4,

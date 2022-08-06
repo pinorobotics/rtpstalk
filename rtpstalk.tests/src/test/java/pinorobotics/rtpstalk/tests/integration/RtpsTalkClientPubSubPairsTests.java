@@ -123,7 +123,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         12,
                         5,
                         new RtpsTalkConfiguration.Builder()
-                                .guidPrefix(TestConstants.TEST_GUID_PREFIX)
+                                .guidPrefix(TestConstants.TEST_GUID_PREFIX.value)
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build(),

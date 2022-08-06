@@ -32,19 +32,23 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
 /**
+ * Configuration for {@link RtpsTalkClient}.
+ *
+ * <p>Detailed description of parameters see in {@link Builder}
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  * @author lambdaprime intid@protonmail.com
  */
 public record RtpsTalkConfiguration(
         int startPort,
         int historyCacheMaxSize,
-        Optional<Integer> builtInEnpointsPort,
+        Optional<Integer> builtinEnpointsPort,
         Optional<Integer> userEndpointsPort,
         Optional<NetworkInterface> networkInterface,
         int packetBufferSize,
         int domainId,
         byte[] guidPrefix,
-        Guid localParticpantGuid,
+        byte[] localParticipantGuid,
         EndpointQos builtinEndpointQos,
         Duration leaseDuration,
         Duration heartbeatPeriod,
@@ -66,8 +70,7 @@ public record RtpsTalkConfiguration(
         builder.append("guidPrefix", XByte.toHex(guidPrefix));
         builder.append("builtinEndpointQos", builtinEndpointQos);
         builder.append("leaseDuration", leaseDuration);
-        builder.append("localParticpantGuid", localParticpantGuid);
-        builder.append("builtInEnpointsPort", builtInEnpointsPort);
+        builder.append("builtinEnpointsPort", builtinEnpointsPort);
         builder.append("userEndpointsPort", userEndpointsPort);
         builder.append("historyCacheMaxSize", historyCacheMaxSize);
         builder.append("publisherExecutor", publisherExecutor);
@@ -85,7 +88,7 @@ public record RtpsTalkConfiguration(
         public static final int UDP_MAX_PACKET_SIZE = 65_507;
 
         /**
-         * Default starting port from which port assignment for {@link #builtInEnpointsPort}, {@link
+         * Default starting port from which port assignment for {@link #builtinEnpointsPort}, {@link
          * #userEndpointsPort} will happen
          */
         public static final int DEFAULT_START_PORT = 7412;
@@ -98,12 +101,12 @@ public record RtpsTalkConfiguration(
 
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
-        private Optional<Integer> builtInEnpointsPort = Optional.empty();
+        private Optional<Integer> builtinEnpointsPort = Optional.empty();
         private Optional<Integer> userEndpointsPort = Optional.empty();
         private int packetBufferSize = UDP_MAX_PACKET_SIZE;
         private int domainId = 0;
         private int appEntityKey = 0x000012;
-        private GuidPrefix guidPrefix = GuidPrefix.generate();
+        private byte[] guidPrefix = GuidPrefix.generate().value;
         private EndpointQos builtinEndpointQos = EndpointQos.NONE;
         private Duration leaseDuration = Duration.ofSeconds(20);
         private Duration heartbeatPeriod = Duration.ofSeconds(1);
@@ -121,9 +124,13 @@ public record RtpsTalkConfiguration(
         }
 
         /**
-         * Network interface where <b>rtpstalk</b> will be working on. By default it is active on
-         * all network interfaces and it publishes and receives data from all of them. Users can
-         * limit <b>rtpstalk</b> traffic to local network by specifying only its loopback interface.
+         * Network interface where <b>rtpstalk</b> will be running.
+         *
+         * <p>By default it runs SPDP on all network interfaces but announces itself only on one of
+         * them.
+         *
+         * <p>Users can limit <b>rtpstalk</b> traffic to local network by specifying only its
+         * loopback interface.
          *
          * <p><b>rtpstalk</b> currently supports only network interfaces with IPv4 addresses.
          */
@@ -136,9 +143,10 @@ public record RtpsTalkConfiguration(
         /**
          * {@link ExecutorService} which will be used by all <b>rtpstalk</b> internal publishers.
          *
-         * <p>By default each instance of client will use {@link ExecutorService} provided by {@link
-         * DEFAULT_PUBLISHER_EXECUTOR} This method allows to set custom {@link ExecutorService}. In
-         * that case {@link ExecutorService} should be managed by the user and terminated properly.
+         * <p>By default each instance of the client will use {@link ExecutorService} provided by
+         * {@link DEFAULT_PUBLISHER_EXECUTOR} This method allows to set custom {@link
+         * ExecutorService}. In that case {@link ExecutorService} should be managed by the user and
+         * terminated properly.
          */
         public Builder publisherExecutor(ExecutorService publisherExecutor) {
             this.publisherExecutor = Optional.of(publisherExecutor);
@@ -150,16 +158,19 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /** Port on which all RTPS built-in endpoints will be running. */
         public Builder builtinEnpointsPort(int builtInEnpointsPort) {
-            this.builtInEnpointsPort = Optional.of(builtInEnpointsPort);
+            this.builtinEnpointsPort = Optional.of(builtInEnpointsPort);
             return this;
         }
 
+        /** Port on which all User Data endpoints will be running. */
         public Builder userEndpointsPort(int userEndpointsPort) {
             this.userEndpointsPort = Optional.of(userEndpointsPort);
             return this;
         }
 
+        /** Maximum size of RTPS packets */
         public Builder packetBufferSize(int packetBufferSize) {
             this.packetBufferSize = packetBufferSize;
             return this;
@@ -180,7 +191,8 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
-        public Builder guidPrefix(GuidPrefix guidPrefix) {
+        /** GuidPrefix of the local Participant (by default it is randomly generated) */
+        public Builder guidPrefix(byte[] guidPrefix) {
             this.guidPrefix = guidPrefix;
             return this;
         }
@@ -195,11 +207,13 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /** Heartbeat period for Statefull Reliable DataWriter */
         public Builder heartbeatPeriod(Duration heartbeatPeriod) {
             this.heartbeatPeriod = heartbeatPeriod;
             return this;
         }
 
+        /** Announcement period for SPDP */
         public Builder spdpDiscoveredParticipantDataPublishPeriod(
                 Duration spdpDiscoveredParticipantDataPublishPeriod) {
             this.spdpDiscoveredParticipantDataPublishPeriod =
@@ -211,13 +225,13 @@ public record RtpsTalkConfiguration(
             return new RtpsTalkConfiguration(
                     startPort,
                     historyCacheMaxSize,
-                    builtInEnpointsPort,
+                    builtinEnpointsPort,
                     userEndpointsPort,
                     networkIface,
                     packetBufferSize,
                     domainId,
-                    guidPrefix.value,
-                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),
+                    guidPrefix,
+                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT).toArray(),
                     builtinEndpointQos,
                     leaseDuration,
                     heartbeatPeriod,
@@ -226,9 +240,5 @@ public record RtpsTalkConfiguration(
                     publisherExecutor,
                     publisherMaxBufferCapacity);
         }
-    }
-
-    public Guid getLocalParticipantGuid() {
-        return localParticpantGuid;
     }
 }

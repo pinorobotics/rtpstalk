@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
+import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import java.nio.ByteBuffer;
@@ -54,6 +55,7 @@ public class GuidPrefix implements SubmessageElement {
     public GuidPrefix() {}
 
     public GuidPrefix(byte[] value) {
+        Preconditions.isTrue(value.length == SIZE);
         this.value = value;
     }
 
