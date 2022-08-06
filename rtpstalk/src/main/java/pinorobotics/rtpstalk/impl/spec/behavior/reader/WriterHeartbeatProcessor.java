@@ -20,8 +20,6 @@ package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
-import java.io.IOException;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
@@ -36,8 +34,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
-import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
-import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
  * Combines multiple heartbeats into one AckNack
@@ -51,19 +47,13 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 public class WriterHeartbeatProcessor {
 
     private XLogger logger;
-    private DataChannel dataChannel;
-    private DataChannelFactory dataChannelFactory;
     private WriterProxy writerProxy;
     private int writerCount;
     private int count;
     private Heartbeat lastHeartbeat;
-    private TracingToken tracingToken;
 
-    public WriterHeartbeatProcessor(
-            TracingToken tracingToken, RtpsTalkConfiguration config, WriterProxy writerProxy) {
-        this.tracingToken = tracingToken;
+    public WriterHeartbeatProcessor(TracingToken tracingToken, WriterProxy writerProxy) {
         this.writerProxy = writerProxy;
-        dataChannelFactory = new DataChannelFactory(config);
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -98,17 +88,6 @@ public class WriterHeartbeatProcessor {
         var readerGuid = writerProxy.getReaderGuid();
 
         logger.fine("Sending heartbeat ack for writer {0}", writerGuid);
-        if (dataChannel == null) {
-            var locator = writerProxy.getUnicastLocatorList().get(0);
-            try {
-                dataChannel = dataChannelFactory.connect(tracingToken, locator);
-            } catch (IOException e) {
-                logger.warning(
-                        "Cannot open connection to remote writer on {0}: {1}",
-                        locator, e.getMessage());
-                return;
-            }
-        }
 
         var infoDst = new InfoDestination(writerGuid.guidPrefix);
 
@@ -129,7 +108,7 @@ public class WriterHeartbeatProcessor {
                         VendorId.Predefined.RTPSTALK.getValue(),
                         readerGuid.guidPrefix);
         var message = new RtpsMessage(header, submessages);
-        dataChannel.send(writerGuid, message);
+        writerProxy.getDataChannel().send(writerGuid, message);
         lastHeartbeat = null;
     }
 

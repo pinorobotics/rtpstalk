@@ -22,14 +22,18 @@ import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterSt
 
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -42,16 +46,24 @@ public class WriterProxy {
     private Map<Long, ChangeFromWriterStatusKind> changesFromWriter = new LinkedHashMap<>();
     private long seqNumMax = 0;
     private XLogger logger;
+    private WriterHeartbeatProcessor heartbeatProcessor;
+    private DataChannel dataChannel;
+    private TracingToken tracingToken;
+    private RtpsTalkConfiguration config;
 
     public WriterProxy(
             TracingToken tracingToken,
+            RtpsTalkConfiguration config,
             Guid readerGuid,
             Guid remoteWriterGuid,
             List<Locator> unicastLocatorList) {
+        this.config = config;
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
+        this.tracingToken = tracingToken;
         logger = XLogger.getLogger(getClass(), tracingToken);
+        heartbeatProcessor = new WriterHeartbeatProcessor(tracingToken, this);
     }
 
     public void receivedChangeSet(long seqNum) {
@@ -119,5 +131,23 @@ public class WriterProxy {
                 .filter(e -> e.getValue() == MISSING)
                 .mapToLong(Entry::getKey)
                 .toArray();
+    }
+
+    public WriterHeartbeatProcessor heartbeatProcessor() {
+        return heartbeatProcessor;
+    }
+
+    public DataChannel getDataChannel() {
+        if (dataChannel == null) {
+            var dataChannelFactory = new DataChannelFactory(config);
+            var locator = getUnicastLocatorList().get(0);
+            try {
+                dataChannel = dataChannelFactory.connect(tracingToken, locator);
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Cannot open connection to remote writer on " + locator, e);
+            }
+        }
+        return dataChannel;
     }
 }
