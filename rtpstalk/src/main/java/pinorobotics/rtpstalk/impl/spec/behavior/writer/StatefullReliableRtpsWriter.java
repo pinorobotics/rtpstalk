@@ -82,6 +82,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private WriterRtpsReader<D> writerReader;
     private PublisherQosPolicy qosPolicy;
 
+    private boolean isClosed;
+
     public StatefullReliableRtpsWriter(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
@@ -170,7 +172,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     private void cleanupCache() {
-        if (qosPolicy.durabilityKind() == DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS) return;
+        if (qosPolicy.durabilityKind() == DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS) {
+            if (!isClosed) return;
+            // On close we are not going to accept new Readers therefore
+            // we can start cleanup the cache. That way we make sure that current
+            // Readers receive everything what was published in the cache.
+        }
         var oldestSeqNum =
                 matchedReaders.values().stream()
                         .mapToLong(ReaderProxy::getHighestSeqNumSent)
@@ -186,9 +193,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     @Override
     public void close() {
         cancelSubscription();
+        isClosed = true;
         var numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
-        boolean isBuiltin = getGuid().entityId.isBuiltin();
-        while (!isBuiltin && numOfPendingChanges != 0) {
+        while (numOfPendingChanges != 0) {
             if (matchedReaders.isEmpty()) {
                 logger.fine(
                         "Discarding pending changes since there is no matched readers available");
