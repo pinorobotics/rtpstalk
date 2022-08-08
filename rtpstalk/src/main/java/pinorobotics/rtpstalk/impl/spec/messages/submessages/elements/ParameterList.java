@@ -34,8 +34,13 @@ public class ParameterList implements SubmessageElement, Payload {
 
     public ParameterList() {}
 
+    public ParameterList(Map<ParameterId, Object> params, Map<Short, byte[]> userParams) {
+        this.params.putAll(params);
+        this.userParams.putAll(userParams);
+    }
+
     public ParameterList(Map<Short, byte[]> userParams) {
-        this.userParams = userParams;
+        this(Map.of(), userParams);
     }
 
     public Map<ParameterId, Object> getParameters() {

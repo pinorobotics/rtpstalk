@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
+import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo.Flags;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
@@ -33,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
@@ -49,15 +52,17 @@ public class DataProviders {
     private static final ResourceUtils resourceUtils = new ResourceUtils();
 
     public static Stream<List> rtpsMessageConversion() {
+        var header =
+                new Header(
+                        ProtocolId.Predefined.RTPS.getValue(),
+                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                        VendorId.Predefined.RTPSTALK.getValue(),
+                        TestConstants.TEST_GUID_PREFIX);
         return Stream.of(
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test1"),
                         new RtpsMessage(
-                                new Header(
-                                        ProtocolId.Predefined.RTPS.getValue(),
-                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                                        VendorId.Predefined.RTPSTALK.getValue(),
-                                        TestConstants.TEST_GUID_PREFIX),
+                                header,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new AckNack(
                                         EntityId.Predefined
@@ -71,11 +76,7 @@ public class DataProviders {
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_submessages_padding"),
                         new RtpsMessage(
-                                new Header(
-                                        ProtocolId.Predefined.RTPS.getValue(),
-                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                                        VendorId.Predefined.RTPSTALK.getValue(),
-                                        TestConstants.TEST_GUID_PREFIX),
+                                header,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -88,11 +89,7 @@ public class DataProviders {
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_inlineqos"),
                         new RtpsMessage(
-                                new Header(
-                                        ProtocolId.Predefined.RTPS.getValue(),
-                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                                        VendorId.Predefined.RTPSTALK.getValue(),
-                                        TestConstants.TEST_GUID_PREFIX),
+                                header,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -107,13 +104,26 @@ public class DataProviders {
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x10, 0x11, 0x0, 0x0}))))),
                 List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_parameterlist"),
+                        new RtpsMessage(
+                                header,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new Data(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                                        new SequenceNumber(3),
+                                        new SerializedPayload(
+                                                new ParameterList(
+                                                        Map.of(
+                                                                ParameterId.PID_STATUS_INFO,
+                                                                new StatusInfo(Flags.DISPOSED)),
+                                                        Map.of()))))),
+                List.of(
                         resourceUtils.readResource(DataProviders.class, "test_multiple_data"),
                         new RtpsMessage(
-                                new Header(
-                                        ProtocolId.Predefined.RTPS.getValue(),
-                                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                                        VendorId.Predefined.RTPSTALK.getValue(),
-                                        TestConstants.TEST_GUID_PREFIX),
+                                header,
                                 new InfoTimestamp(new Timestamp(1654495356, 0)),
                                 new Data(
                                         new EntityId(0x12, EntityKind.READER_NO_KEY),

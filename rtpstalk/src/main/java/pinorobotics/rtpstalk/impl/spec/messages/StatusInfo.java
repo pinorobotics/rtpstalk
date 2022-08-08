@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,9 +29,30 @@ import java.util.Objects;
  */
 public class StatusInfo {
 
+    public enum Flags {
+        DISPOSED(0),
+        UNREGISTERED(1);
+
+        private int value;
+
+        private Flags(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public static final int SIZE = Integer.BYTES;
+
     public int value;
 
-    public StatusInfo() {}
+    public StatusInfo(Flags... flags) {
+        var bset = new BitSet();
+        Arrays.stream(flags).forEach(p -> bset.set(p.getValue()));
+        value = (int) bset.toLongArray()[0];
+    }
 
     public StatusInfo(int value) {
         this.value = value;

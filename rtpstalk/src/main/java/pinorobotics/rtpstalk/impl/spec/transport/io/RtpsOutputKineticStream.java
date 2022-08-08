@@ -29,6 +29,7 @@ import java.util.function.Function;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -233,6 +234,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             writeShort(len.shortValue());
             var endPos = buf.position() + len;
             if (param.getValue() instanceof Locator locator) writeLocator(locator);
+            else if (param.getValue() instanceof StatusInfo statusInfo) writeStatusInfo(statusInfo);
             else writer.write(param.getValue());
 
             // pad rest with zeros
@@ -293,6 +295,12 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         LOGGER.entering("writeEntityId");
         buf.putInt(entiyId.value);
         LOGGER.exiting("writeEntityId");
+    }
+
+    public void writeStatusInfo(StatusInfo statusInfo) {
+        LOGGER.entering("writeStatusInfo");
+        buf.putInt(statusInfo.value);
+        LOGGER.exiting("writeStatusInfo");
     }
 
     @Override
