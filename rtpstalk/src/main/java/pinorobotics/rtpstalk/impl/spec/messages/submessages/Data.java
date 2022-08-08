@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import java.util.List;
+import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -36,8 +37,6 @@ public class Data extends Submessage {
      * until the first octet of the inlineQos SubmessageElement. If the inlineQos SubmessageElement
      * is not present (i.e., the InlineQosFlag is not set), then octetsToInlineQos contains the
      * offset to the next field after the inlineQos.
-     *
-     * <p>Currently inlineQos is no supported.
      */
     public short octetsToInlineQos;
 
@@ -60,7 +59,7 @@ public class Data extends Submessage {
      */
     public transient ParameterList inlineQos = new ParameterList();
 
-    public transient SerializedPayload serializedPayload;
+    public transient Optional<SerializedPayload> serializedPayload = Optional.empty();
 
     public Data() {}
 
@@ -82,6 +81,14 @@ public class Data extends Submessage {
     }
 
     public Data(
+            EntityId.Predefined readerId,
+            EntityId.Predefined writerId,
+            SequenceNumber writerSN,
+            ParameterList inlineQos) {
+        this(readerId.getValue(), writerId.getValue(), writerSN, inlineQos, Optional.empty());
+    }
+
+    public Data(
             EntityId readerId,
             EntityId writerId,
             SequenceNumber writerSN,
@@ -95,6 +102,15 @@ public class Data extends Submessage {
             SequenceNumber writerSN,
             ParameterList inlineQos,
             SerializedPayload serializedPayload) {
+        this(readerId, writerId, writerSN, inlineQos, Optional.of(serializedPayload));
+    }
+
+    public Data(
+            EntityId readerId,
+            EntityId writerId,
+            SequenceNumber writerSN,
+            ParameterList inlineQos,
+            Optional<SerializedPayload> serializedPayload) {
         this.octetsToInlineQos =
                 (short)
                         (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
@@ -105,8 +121,9 @@ public class Data extends Submessage {
         this.writerSN = writerSN;
         this.inlineQos = inlineQos;
         this.serializedPayload = serializedPayload;
-        var flags = 0b100 | RtpsTalkConfiguration.ENDIANESS_BIT;
-        if (!inlineQos.getUserParameters().isEmpty()) flags |= 2;
+        var flags = RtpsTalkConfiguration.ENDIANESS_BIT;
+        if (serializedPayload.isPresent()) flags |= 0b100;
+        if (!inlineQos.isEmpty()) flags |= 2;
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.DATA.getValue(),
@@ -140,7 +157,7 @@ public class Data extends Submessage {
         return (getFlagsInternal() & 10) != 0;
     }
 
-    public SerializedPayload getSerializedPayload() {
+    public Optional<SerializedPayload> getSerializedPayload() {
         return serializedPayload;
     }
 
@@ -153,7 +170,7 @@ public class Data extends Submessage {
             "writerId", writerId,
             "writerSN", writerSN,
             "inlineQos", inlineQos,
-            "serializedPayload", serializedPayload
+            "serializedPayload", serializedPayload.map(Object::toString).orElse("null")
         };
     }
 }

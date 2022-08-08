@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.transport.io;
 import id.xfunction.lang.XRE;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
@@ -155,6 +156,7 @@ public class LengthCalculator {
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
         if (obj instanceof RawData rawData) return rawData.getData().length;
+        if (obj instanceof Optional<?> opt) return opt.isEmpty() ? 0 : calculateLength(opt.get());
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 

@@ -192,7 +192,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         LOGGER.entering("writeData");
         writer.write(data);
         writeParameterList(data.inlineQos);
-        writer.write(data.serializedPayload);
+        if (data.serializedPayload.isPresent()) writer.write(data.serializedPayload.get());
         LOGGER.exiting("writeData");
     }
 

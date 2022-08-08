@@ -39,15 +39,15 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     public Optional<D> extractMessage(Data d) {
         var inlineQos = d.inlineQos;
-        if (d.serializedPayload == null) {
+        if (d.serializedPayload.isEmpty()) {
             if (inlineQos.isEmpty()) return Optional.empty();
             // there is no payload in this message except inlineQos
             return Optional.of((D) new RtpsTalkParameterListMessage(inlineQos));
         }
-        var representationId =
-                d.serializedPayload.serializedPayloadHeader.representation_identifier;
+        var serializedPayload = d.serializedPayload.get();
+        var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
         var representationOpt =
-                d.serializedPayload.serializedPayloadHeader.representation_identifier
+                serializedPayload.serializedPayloadHeader.representation_identifier
                         .findPredefined();
         if (representationOpt.isEmpty()) {
             LOGGER.warning(
@@ -62,12 +62,12 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                 return Optional.of(
                         (D)
                                 new RtpsTalkDataMessage(
-                                        userParams, ((RawData) d.serializedPayload.payload).data));
+                                        userParams, ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(
-                                        userParams, (ParameterList) d.serializedPayload.payload));
+                                        userParams, (ParameterList) serializedPayload.payload));
             default:
                 {
                     LOGGER.warning(

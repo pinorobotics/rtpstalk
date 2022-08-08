@@ -59,6 +59,7 @@ public class DataProviders {
                         VendorId.Predefined.RTPSTALK.getValue(),
                         TestConstants.TEST_GUID_PREFIX);
         return Stream.of(
+                // 1
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test1"),
                         new RtpsMessage(
@@ -73,6 +74,7 @@ public class DataProviders {
                                                 .getValue(),
                                         new SequenceNumberSet(1, 9, 511),
                                         new Count()))),
+                // 2
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_submessages_padding"),
                         new RtpsMessage(
@@ -86,6 +88,7 @@ public class DataProviders {
                                         new SequenceNumber(1),
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x11, 0x22, 0x00, 0x0}))))),
+                // 3
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_inlineqos"),
                         new RtpsMessage(
@@ -103,6 +106,39 @@ public class DataProviders {
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x10, 0x11, 0x0, 0x0}))))),
+                // 4
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_empty_data"),
+                        new RtpsMessage(
+                                header,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new Data(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                                        new SequenceNumber(1),
+                                        new ParameterList(
+                                                Map.of(
+                                                        (short) 0x800f,
+                                                        new byte[] {0x30, 0x31, 0x32, 0x33})),
+                                        new SerializedPayload(new RawData(new byte[0]))))),
+                // 5
+                List.of(
+                        resourceUtils.readResource(DataProviders.class, "test_null_data"),
+                        new RtpsMessage(
+                                header,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new Data(
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR,
+                                        EntityId.Predefined
+                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
+                                        new SequenceNumber(1),
+                                        new ParameterList(
+                                                Map.of(
+                                                        (short) 0x800f,
+                                                        new byte[] {0x30, 0x31, 0x32, 0x33}))))),
                 List.of(
                         resourceUtils.readResource(DataProviders.class, "test_parameterlist"),
                         new RtpsMessage(

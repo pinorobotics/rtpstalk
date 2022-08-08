@@ -27,4 +27,6 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 public interface Payload {
 
     RepresentationIdentifier.Predefined getRepresentationIdentifier();
+
+    boolean isEmpty();
 }

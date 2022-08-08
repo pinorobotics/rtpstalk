@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
@@ -299,7 +300,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                                 "Representation identifier " + representationId.get());
                     };
             LOGGER.fine("payload: {0}", payload);
-            data.serializedPayload = new SerializedPayload(payloadHeader, payload);
+            data.serializedPayload = Optional.of(new SerializedPayload(payloadHeader, payload));
         }
         LOGGER.exiting("readData");
         return data;

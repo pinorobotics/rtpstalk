@@ -51,4 +51,9 @@ public class RawData implements Payload {
             return XJson.asString("size", data.length);
         }
     }
+
+    @Override
+    public boolean isEmpty() {
+        return data.length == 0;
+    }
 }
