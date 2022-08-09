@@ -29,6 +29,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdenti
  */
 public class ParameterList implements SubmessageElement, Payload {
 
+    public static final ParameterList EMPTY = new ParameterList();
+
     private Map<ParameterId, Object> params = new LinkedHashMap<>();
     private Map<Short, byte[]> userParams = new LinkedHashMap<>();
 
@@ -72,6 +74,7 @@ public class ParameterList implements SubmessageElement, Payload {
         userParams.putIfAbsent(parameterId, value);
     }
 
+    @Override
     public boolean isEmpty() {
         return params.isEmpty() && userParams.isEmpty();
     }

@@ -132,15 +132,11 @@ public class LengthCalculator {
                     Short.BYTES * 2
                             + getFixedLength(EntityId.class) * 2
                             + getFixedLength(SequenceNumber.class)
-                            + calculateUserParameterListLength(d.inlineQos)
+                            + calculateLength(d.inlineQos)
                             + calculateLength(d.serializedPayload));
         if (obj instanceof SerializedPayload p)
             return getFixedLength(SerializedPayloadHeader.class) + calculateLength(p.payload);
-        if (obj instanceof ParameterList pl)
-            return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
-                    + pl.getParameters().entrySet().stream()
-                            .mapToInt(this::calculateParameterLength)
-                            .sum();
+        if (obj instanceof ParameterList pl) return calculateParameterListLength(pl);
         if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);
         if (obj instanceof ByteSequence seq) return Integer.BYTES + seq.length;
@@ -220,16 +216,24 @@ public class LengthCalculator {
         return len + InternalUtils.getInstance().padding(len, 4);
     }
 
-    private int calculateUserParameterListLength(ParameterList parameterList) {
-        var params = parameterList.getUserParameters();
-        if (params.isEmpty()) return 0;
-        return Short.BYTES /* param id */
-                + Short.BYTES /* length */
-                + calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
-                + params.entrySet().stream().mapToInt(this::calculateUserParameterLength).sum();
+    private int calculateParameterListLength(ParameterList parameterList) {
+        if (parameterList.isEmpty()) return 0;
+        return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
+                + parameterList.getParameters().entrySet().stream()
+                        .mapToInt(this::calculateParameterLength)
+                        .sum()
+                + parameterList.getUserParameters().entrySet().stream()
+                        .mapToInt(this::calculateUserParameterListLength)
+                        .sum();
     }
 
-    public int calculateUserParameterLength(Entry<Short, byte[]> param) {
+    private int calculateUserParameterListLength(Entry<Short, byte[]> param) {
+        return Short.BYTES /* param id */
+                + Short.BYTES /* length */
+                + calculateUserParameterValueLength(param);
+    }
+
+    public int calculateUserParameterValueLength(Entry<Short, byte[]> param) {
         var len = param.getValue().length;
         return calculateParameterListValuePadding(len);
     }

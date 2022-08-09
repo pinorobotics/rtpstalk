@@ -25,11 +25,10 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record RtpsTalkParameterListMessage(Parameters inlineQos, ParameterList parameterList)
+public record RtpsTalkParameterListMessage(ParameterList inlineQos, ParameterList parameterList)
         implements RtpsTalkMessage {
-
     public RtpsTalkParameterListMessage(ParameterList parameterList) {
-        this(Parameters.EMPTY, parameterList);
+        this(ParameterList.EMPTY, parameterList);
     }
 
     @Override
@@ -38,5 +37,11 @@ public record RtpsTalkParameterListMessage(Parameters inlineQos, ParameterList p
         builder.append("inlineQos", inlineQos);
         builder.append("parameterList", parameterList);
         return builder.toString();
+    }
+
+    @Override
+    public Parameters userInlineQos() {
+        // this is internal message so it has no user parameters
+        return Parameters.EMPTY;
     }
 }

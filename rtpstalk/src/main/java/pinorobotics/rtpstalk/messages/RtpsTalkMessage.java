@@ -26,5 +26,5 @@ package pinorobotics.rtpstalk.messages;
 public interface RtpsTalkMessage {
 
     /** RTPS inline QoS to be included with a message (can be empty) */
-    Parameters inlineQos();
+    Parameters userInlineQos();
 }

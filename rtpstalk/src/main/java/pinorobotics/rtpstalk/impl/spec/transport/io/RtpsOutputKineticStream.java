@@ -198,14 +198,21 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     public void writeParameterList(ParameterList pl) throws Exception {
         LOGGER.entering("writeParameterList");
+        if (pl.isEmpty()) return;
+        var paramListStart = buf.position();
         writeParameterList(
                 pl.getUserParameters(),
                 k -> k,
-                e -> LengthCalculator.getInstance().calculateUserParameterLength(e));
+                e -> LengthCalculator.getInstance().calculateUserParameterValueLength(e));
         writeParameterList(
                 pl.getParameters(),
                 k -> k.getValue(),
                 e -> LengthCalculator.getInstance().calculateParameterValueLength(e));
+        writeShort(ParameterId.PID_SENTINEL.getValue());
+        writeShort((short) 0);
+        Preconditions.isTrue(
+                (buf.position() - paramListStart) % 4 == 0,
+                "Invalid param alignment: PID_SENTINEL");
         LOGGER.exiting("writeParameterList");
     }
 
@@ -217,7 +224,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                             + " with a sentinel. Each Parameter within the ParameterList starts"
                             + " aligned on a 4-byte boundary with respect to the start of the"
                             + " ParameterList.")
-    public <K, V> void writeParameterList(
+    private <K, V> void writeParameterList(
             Map<K, V> parameterList,
             Function<K, Short> paramIdMapper,
             Function<Entry<K, V>, Integer> lenCalculator)
@@ -240,11 +247,6 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             // pad rest with zeros
             while (buf.position() < endPos) writeByte((byte) 0);
         }
-        writeShort(ParameterId.PID_SENTINEL.getValue());
-        writeShort((short) 0);
-        Preconditions.isTrue(
-                (buf.position() - paramListStart) % 4 == 0,
-                "Invalid param alignment: PID_SENTINEL");
         LOGGER.exiting("writeParameterList");
     }
 

@@ -289,7 +289,8 @@ class RtpsInputKineticStream implements InputKineticStream {
             var representationId = payloadHeader.representation_identifier.findPredefined();
             if (representationId.isEmpty())
                 throw new XRuntimeException(
-                        "Unknown representation identifier %s", representationId);
+                        "Unknown representation identifier %s",
+                        payloadHeader.representation_identifier);
             Payload payload =
                     switch (representationId.get()) {
                         case PL_CDR_LE -> readParameterList(false);

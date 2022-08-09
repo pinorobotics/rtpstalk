@@ -29,6 +29,10 @@ import id.xfunction.XJsonStringBuilder;
  */
 public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements RtpsTalkMessage {
 
+    public RtpsTalkDataMessage(Parameters inlineQos) {
+        this(inlineQos, new byte[0]);
+    }
+
     public RtpsTalkDataMessage(byte[] data) {
         this(Parameters.EMPTY, data);
     }
@@ -38,7 +42,7 @@ public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements 
     }
 
     /** RTPS inline QoS to be included with a data message (can be empty) */
-    public Parameters inlineQos() {
+    public Parameters userInlineQos() {
         return inlineQos;
     }
 

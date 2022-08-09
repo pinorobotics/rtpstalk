@@ -102,6 +102,9 @@ public class DataProviders {
                                         new SequenceNumber(1),
                                         new ParameterList(
                                                 Map.of(
+                                                        ParameterId.PID_STATUS_INFO,
+                                                        new StatusInfo(Flags.DISPOSED)),
+                                                Map.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(

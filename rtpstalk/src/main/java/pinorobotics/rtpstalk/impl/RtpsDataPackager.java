@@ -42,7 +42,8 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
         if (d.serializedPayload.isEmpty()) {
             if (inlineQos.isEmpty()) return Optional.empty();
             // there is no payload in this message except inlineQos
-            return Optional.of((D) new RtpsTalkParameterListMessage(inlineQos));
+            return Optional.of(
+                    (D) new RtpsTalkParameterListMessage(inlineQos, ParameterList.EMPTY));
         }
         var serializedPayload = d.serializedPayload.get();
         var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
@@ -56,18 +57,18 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                     representationId);
             return Optional.empty();
         }
-        var userParams = new Parameters(inlineQos.getUserParameters());
         switch (representationOpt.get()) {
             case CDR_LE:
                 return Optional.of(
                         (D)
                                 new RtpsTalkDataMessage(
-                                        userParams, ((RawData) serializedPayload.payload).data));
+                                        new Parameters(inlineQos.getUserParameters()),
+                                        ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(
-                                        userParams, (ParameterList) serializedPayload.payload));
+                                        inlineQos, (ParameterList) serializedPayload.payload));
             default:
                 {
                     LOGGER.warning(
@@ -81,12 +82,13 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     public Data packMessage(
             EntityId readerEntiyId, EntityId writerEntityId, Long seqNum, RtpsTalkMessage message) {
-        var inlineQos = new ParameterList(message.inlineQos().getParameters());
+        var inlineQos = new ParameterList(message.userInlineQos().getParameters());
         Payload payload = null;
         if (message instanceof RtpsTalkDataMessage data) payload = new RawData(data.data());
-        else if (message instanceof RtpsTalkParameterListMessage params)
+        else if (message instanceof RtpsTalkParameterListMessage params) {
             payload = params.parameterList();
-        else
+            inlineQos = params.inlineQos();
+        } else
             throw new UnsupportedOperationException(
                     "Cannot package message of type " + message.getClass().getSimpleName());
         return new Data(
