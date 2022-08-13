@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
@@ -25,10 +26,21 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record RtpsTalkParameterListMessage(ParameterList inlineQos, ParameterList parameterList)
-        implements RtpsTalkMessage {
+public class RtpsTalkParameterListMessage implements RtpsTalkMessage {
+    private Optional<ParameterList> inlineQos = Optional.empty();
+    private Optional<ParameterList> parameterList = Optional.empty();
+
+    public RtpsTalkParameterListMessage(ParameterList inlineQos, ParameterList parameterList) {
+        this.inlineQos = Optional.ofNullable(inlineQos);
+        this.parameterList = Optional.ofNullable(parameterList);
+    }
+
     public RtpsTalkParameterListMessage(ParameterList parameterList) {
-        this(ParameterList.EMPTY, parameterList);
+        this(null, parameterList);
+    }
+
+    public static RtpsTalkParameterListMessage withInlineQosOnly(ParameterList inlineQos) {
+        return new RtpsTalkParameterListMessage(inlineQos, null);
     }
 
     @Override
@@ -40,8 +52,15 @@ public record RtpsTalkParameterListMessage(ParameterList inlineQos, ParameterLis
     }
 
     @Override
-    public Parameters userInlineQos() {
-        // this is internal message so it has no user parameters
-        return Parameters.EMPTY;
+    public Optional<Parameters> userInlineQos() {
+        return Optional.empty();
+    }
+
+    public Optional<ParameterList> inlineQos() {
+        return inlineQos;
+    }
+
+    public Optional<ParameterList> parameterList() {
+        return parameterList;
     }
 }

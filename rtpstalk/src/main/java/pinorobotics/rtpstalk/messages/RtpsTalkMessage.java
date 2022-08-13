@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.messages;
 
+import java.util.Optional;
+
 /**
  * Base interface for all kinds of messages which can be sent with {@link
  * pinorobotics.rtpstalk.RtpsTalkClient}
@@ -26,5 +28,5 @@ package pinorobotics.rtpstalk.messages;
 public interface RtpsTalkMessage {
 
     /** RTPS inline QoS to be included with a message (can be empty) */
-    Parameters userInlineQos();
+    Optional<Parameters> userInlineQos();
 }

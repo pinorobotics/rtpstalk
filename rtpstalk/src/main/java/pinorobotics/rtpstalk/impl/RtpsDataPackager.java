@@ -21,7 +21,6 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -40,13 +39,20 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     public Optional<D> extractMessage(Class<D> type, Data d) {
         if (d.serializedPayload.isEmpty()) {
-            RtpsTalkMessage message = null;
-            if (type == RtpsTalkParameterListMessage.class)
-                message = new RtpsTalkParameterListMessage(d.inlineQos, ParameterList.EMPTY);
-            else if (type == RtpsTalkDataMessage.class)
-                message = new RtpsTalkDataMessage(new Parameters(d.inlineQos.getUserParameters()));
-            else throw new IllegalArgumentException("Type " + type.getName() + " is not supported");
-            return Optional.of((D) message);
+            return d.inlineQos.map(
+                    inlineQos -> {
+                        RtpsTalkMessage message = null;
+                        if (type == RtpsTalkParameterListMessage.class)
+                            message = RtpsTalkParameterListMessage.withInlineQosOnly(inlineQos);
+                        else if (type == RtpsTalkDataMessage.class)
+                            message =
+                                    new RtpsTalkDataMessage(
+                                            new Parameters(inlineQos.getUserParameters()));
+                        else
+                            throw new IllegalArgumentException(
+                                    "Type " + type.getName() + " is not supported");
+                        return (D) message;
+                    });
         }
         var serializedPayload = d.serializedPayload.get();
         var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
@@ -67,7 +73,10 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                 return Optional.of(
                         (D)
                                 new RtpsTalkDataMessage(
-                                        new Parameters(inlineQos.getUserParameters()),
+                                        inlineQos
+                                                .map(ParameterList::getUserParameters)
+                                                .map(Parameters::new)
+                                                .orElse(null),
                                         ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
                 Preconditions.equals(
@@ -75,7 +84,8 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(
-                                        inlineQos, (ParameterList) serializedPayload.payload));
+                                        inlineQos.orElse(null),
+                                        (ParameterList) serializedPayload.payload));
             default:
                 {
                     LOGGER.warning(
@@ -89,20 +99,17 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     public Data packMessage(
             EntityId readerEntiyId, EntityId writerEntityId, Long seqNum, RtpsTalkMessage message) {
-        var inlineQos = new ParameterList(message.userInlineQos().getParameters());
-        Payload payload = null;
-        if (message instanceof RtpsTalkDataMessage data) payload = new RawData(data.data());
+        var inlineQos = message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
+        var payload = Optional.<SerializedPayload>empty();
+        if (message instanceof RtpsTalkDataMessage data)
+            payload = data.data().map(RawData::new).map(SerializedPayload::new);
         else if (message instanceof RtpsTalkParameterListMessage params) {
-            payload = params.parameterList();
+            payload = params.parameterList().map(SerializedPayload::new);
             inlineQos = params.inlineQos();
         } else
             throw new UnsupportedOperationException(
                     "Cannot package message of type " + message.getClass().getSimpleName());
         return new Data(
-                readerEntiyId,
-                writerEntityId,
-                new SequenceNumber(seqNum),
-                inlineQos,
-                new SerializedPayload(payload));
+                readerEntiyId, writerEntityId, new SequenceNumber(seqNum), inlineQos, payload);
     }
 }

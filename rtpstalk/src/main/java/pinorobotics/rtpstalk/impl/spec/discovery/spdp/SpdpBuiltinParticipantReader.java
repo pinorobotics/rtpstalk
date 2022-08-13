@@ -66,10 +66,13 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     protected boolean addChange(CacheChange<RtpsTalkParameterListMessage> cacheChange) {
         if (!super.addChange(cacheChange)) return false;
         var parameterList = cacheChange.getDataValue().parameterList();
-        if (parameterList.getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
-                instanceof Guid guid) {
-            participants.put(guid, parameterList);
-        }
+        parameterList.ifPresent(
+                pl -> {
+                    if (pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
+                            instanceof Guid guid) {
+                        participants.put(guid, pl);
+                    }
+                });
         return true;
     }
 

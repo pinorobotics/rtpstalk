@@ -21,12 +21,16 @@ import id.pubsubtests.PubSubClientTests;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
+import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 
@@ -50,6 +54,35 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     @AfterEach
     public void clean() {
         tools.close();
+    }
+
+    @Test
+    public void test_inlineQos() throws Exception {
+        try (var subscriberClient = new RtpsTalkClient();
+                var publisherClient = new RtpsTalkClient()) {
+            var topicName = "HelloWorldTopic";
+            var topicType = "HelloWorld";
+            // register a new subscriber
+            var collector =
+                    new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 3) {
+                        public void onNext(RtpsTalkDataMessage item) {
+                            System.out.println(item.data());
+                            super.onNext(item);
+                        }
+                    };
+            subscriberClient.subscribe(topicName, topicType, collector);
+            var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
+            publisherClient.publish(topicName, topicType, publisher);
+            RtpsTalkDataMessage[] expected = {
+                new RtpsTalkDataMessage("abcdefgh"),
+                new RtpsTalkDataMessage(new Parameters(Map.of((short) 11, "1234".getBytes()))),
+                new RtpsTalkDataMessage(
+                        new Parameters(Map.of((short) 12, "5678".getBytes())), "abcd".getBytes()),
+            };
+            Arrays.stream(expected).forEach(publisher::submit);
+            var actual = collector.getFuture().get();
+            Assertions.assertEquals(Arrays.toString(expected), actual.toString());
+        }
     }
 
     /**

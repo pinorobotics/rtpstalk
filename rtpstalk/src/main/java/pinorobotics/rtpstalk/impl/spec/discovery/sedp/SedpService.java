@@ -127,7 +127,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     @Override
     public void onNext(RtpsTalkParameterListMessage participantDataMessage) {
         logger.entering("onNext");
-        configureEndpoints(participantDataMessage.parameterList());
+        participantDataMessage.parameterList().ifPresent(this::configureEndpoints);
         subscription.request(1);
         logger.exiting("onNext");
     }

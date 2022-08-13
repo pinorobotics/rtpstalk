@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -57,7 +58,7 @@ public class Data extends Submessage {
      * Present only if the InlineQosFlag is set in the header. Contains QoS that may affect the
      * interpretation of the message
      */
-    public transient ParameterList inlineQos = new ParameterList();
+    public transient Optional<ParameterList> inlineQos = Optional.empty();
 
     public transient Optional<SerializedPayload> serializedPayload = Optional.empty();
 
@@ -85,7 +86,12 @@ public class Data extends Submessage {
             EntityId.Predefined writerId,
             SequenceNumber writerSN,
             ParameterList inlineQos) {
-        this(readerId.getValue(), writerId.getValue(), writerSN, inlineQos, Optional.empty());
+        this(
+                readerId.getValue(),
+                writerId.getValue(),
+                writerSN,
+                Optional.of(inlineQos),
+                Optional.empty());
     }
 
     public Data(
@@ -93,7 +99,7 @@ public class Data extends Submessage {
             EntityId writerId,
             SequenceNumber writerSN,
             SerializedPayload serializedPayload) {
-        this(readerId, writerId, writerSN, new ParameterList(), serializedPayload);
+        this(readerId, writerId, writerSN, Optional.empty(), Optional.of(serializedPayload));
     }
 
     public Data(
@@ -102,15 +108,18 @@ public class Data extends Submessage {
             SequenceNumber writerSN,
             ParameterList inlineQos,
             SerializedPayload serializedPayload) {
-        this(readerId, writerId, writerSN, inlineQos, Optional.of(serializedPayload));
+        this(readerId, writerId, writerSN, Optional.of(inlineQos), Optional.of(serializedPayload));
     }
 
     public Data(
             EntityId readerId,
             EntityId writerId,
             SequenceNumber writerSN,
-            ParameterList inlineQos,
+            Optional<ParameterList> inlineQos,
             Optional<SerializedPayload> serializedPayload) {
+        Preconditions.isTrue(
+                inlineQos.isPresent() || serializedPayload.isPresent(),
+                "At least inlineQos or data must be present");
         this.octetsToInlineQos =
                 (short)
                         (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2

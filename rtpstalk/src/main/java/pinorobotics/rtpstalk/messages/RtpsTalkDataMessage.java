@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.messages;
 
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
+import java.util.Optional;
 
 /**
  * Data message definition.
@@ -27,27 +28,36 @@ import id.xfunction.XJsonStringBuilder;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements RtpsTalkMessage {
+public class RtpsTalkDataMessage implements RtpsTalkMessage {
+
+    private Optional<Parameters> inlineQos = Optional.empty();
+    private Optional<byte[]> data = Optional.empty();
+
+    public RtpsTalkDataMessage(Parameters inlineQos, byte[] data) {
+        this.inlineQos = Optional.ofNullable(inlineQos);
+        this.data = Optional.ofNullable(data);
+    }
 
     public RtpsTalkDataMessage(Parameters inlineQos) {
-        this(inlineQos, new byte[0]);
+        this(inlineQos, null);
     }
 
     public RtpsTalkDataMessage(byte[] data) {
-        this(Parameters.EMPTY, data);
+        this(null, data);
     }
 
     public RtpsTalkDataMessage(String data) {
         this(data.getBytes());
     }
 
-    /** RTPS inline QoS to be included with a data message (can be empty) */
-    public Parameters userInlineQos() {
+    /** RTPS inline QoS to be included with a data message */
+    @Override
+    public Optional<Parameters> userInlineQos() {
         return inlineQos;
     }
 
     /** Transfered user data */
-    public byte[] data() {
+    public Optional<byte[]> data() {
         return data;
     }
 
@@ -55,7 +65,7 @@ public record RtpsTalkDataMessage(Parameters inlineQos, byte[] data) implements 
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("inlineQos", inlineQos);
-        builder.append("data", XByte.toHexPairs(data));
+        builder.append("data", data.map(XByte::toHexPairs));
         return builder.toString();
     }
 }

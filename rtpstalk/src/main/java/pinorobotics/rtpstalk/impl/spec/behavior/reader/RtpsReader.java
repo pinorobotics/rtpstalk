@@ -115,7 +115,8 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                 .ifPresent(
                         message -> {
                             addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
-                            if (!d.inlineQos.isEmpty()) processInlineQos(writerGuid, d.inlineQos);
+                            d.inlineQos.ifPresent(
+                                    inlineQos -> processInlineQos(writerGuid, inlineQos));
                         });
         return Result.CONTINUE;
     }

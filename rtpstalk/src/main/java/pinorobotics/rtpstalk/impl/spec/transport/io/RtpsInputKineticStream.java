@@ -281,7 +281,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         var data = reader.read(Data.class);
         if (data.isInlineQos()) {
             LOGGER.fine("Reading InlineQos");
-            data.inlineQos = readParameterList(true);
+            data.inlineQos = Optional.of(readParameterList(true));
         }
         if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {
             var payloadHeader = reader.read(SerializedPayloadHeader.class);

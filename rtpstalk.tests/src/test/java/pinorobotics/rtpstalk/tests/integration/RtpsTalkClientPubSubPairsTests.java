@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -181,6 +182,8 @@ public class RtpsTalkClientPubSubPairsTests {
         var expectedData =
                 generateMessages(testCase.numberOfMessages).stream()
                         .map(RtpsTalkDataMessage::data)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
                         .map(XByte::toHexPairs)
                         .collect(joining("\n"));
         var procs = new ArrayList<XProcess>();
@@ -230,6 +233,8 @@ public class RtpsTalkClientPubSubPairsTests {
             var dataReceived =
                     subscribers.get(i).getFuture().get().stream()
                             .map(RtpsTalkDataMessage::data)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
                             .map(XByte::toHexPairs)
                             .collect(joining("\n"));
             Assertions.assertEquals(expectedData, dataReceived);

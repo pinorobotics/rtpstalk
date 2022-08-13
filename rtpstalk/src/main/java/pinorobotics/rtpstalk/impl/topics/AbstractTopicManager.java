@@ -92,7 +92,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     @Override
     public void onNext(RtpsTalkParameterListMessage message) {
         try {
-            var pl = message.parameterList();
+            var pl = message.parameterList().orElse(null);
+            if (pl == null) return;
             if (!isValid(pl)) {
                 logger.warning("Non valid publications data received, ignoring it");
                 return;
