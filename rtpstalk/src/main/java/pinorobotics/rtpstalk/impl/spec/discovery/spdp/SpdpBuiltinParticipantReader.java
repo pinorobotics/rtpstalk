@@ -53,6 +53,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
         super(
                 config,
                 tracingToken,
+                RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 new Guid(
                         guidPrefix,

@@ -75,14 +75,17 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     private Optional<Subscription> subscription = Optional.empty();
     private TracingToken tracingToken;
     private RtpsDataPackager<D> packager = new RtpsDataPackager<>();
+    private Class<D> messageType;
 
     public RtpsReader(
             RtpsTalkConfiguration config,
             TracingToken token,
+            Class<D> messageType,
             Executor publisherExecutor,
             Guid readerGuid,
             ReliabilityQosPolicy.Kind reliabilityKind) {
         super(publisherExecutor, config.publisherMaxBufferSize());
+        this.messageType = messageType;
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
@@ -108,7 +111,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     public Result onData(GuidPrefix guidPrefix, Data d) {
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
-        packager.extractMessage(d)
+        packager.extractMessage(messageType, d)
                 .ifPresent(
                         message -> {
                             addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));

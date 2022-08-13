@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl;
 
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
@@ -37,13 +38,15 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);
 
-    public Optional<D> extractMessage(Data d) {
-        var inlineQos = d.inlineQos;
+    public Optional<D> extractMessage(Class<D> type, Data d) {
         if (d.serializedPayload.isEmpty()) {
-            if (inlineQos.isEmpty()) return Optional.empty();
-            // there is no payload in this message except inlineQos
-            return Optional.of(
-                    (D) new RtpsTalkParameterListMessage(inlineQos, ParameterList.EMPTY));
+            RtpsTalkMessage message = null;
+            if (type == RtpsTalkParameterListMessage.class)
+                message = new RtpsTalkParameterListMessage(d.inlineQos, ParameterList.EMPTY);
+            else if (type == RtpsTalkDataMessage.class)
+                message = new RtpsTalkDataMessage(new Parameters(d.inlineQos.getUserParameters()));
+            else throw new IllegalArgumentException("Type " + type.getName() + " is not supported");
+            return Optional.of((D) message);
         }
         var serializedPayload = d.serializedPayload.get();
         var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
@@ -57,14 +60,18 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                     representationId);
             return Optional.empty();
         }
+        var inlineQos = d.inlineQos;
         switch (representationOpt.get()) {
             case CDR_LE:
+                Preconditions.equals(type, RtpsTalkDataMessage.class, "Data message type mismatch");
                 return Optional.of(
                         (D)
                                 new RtpsTalkDataMessage(
                                         new Parameters(inlineQos.getUserParameters()),
                                         ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
+                Preconditions.equals(
+                        type, RtpsTalkParameterListMessage.class, "Data message type mismatch");
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(

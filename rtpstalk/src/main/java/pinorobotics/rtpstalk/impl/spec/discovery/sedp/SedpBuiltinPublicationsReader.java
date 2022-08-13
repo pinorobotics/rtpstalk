@@ -39,6 +39,7 @@ public class SedpBuiltinPublicationsReader
         super(
                 config,
                 tracingToken,
+                RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());

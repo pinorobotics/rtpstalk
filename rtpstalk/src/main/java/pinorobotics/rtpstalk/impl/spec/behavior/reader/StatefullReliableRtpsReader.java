@@ -57,12 +57,14 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     public StatefullReliableRtpsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
+            Class<D> messageType,
             Executor publisherExecutor,
             OperatingEntities operatingEntities,
             EntityId entityId) {
         super(
                 config,
                 tracingToken,
+                messageType,
                 publisherExecutor,
                 new Guid(config.guidPrefix(), entityId),
                 ReliabilityQosPolicy.Kind.RELIABLE);

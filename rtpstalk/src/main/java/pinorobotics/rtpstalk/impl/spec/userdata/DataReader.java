@@ -36,6 +36,12 @@ public class DataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage>
             Executor publisherExecutor,
             OperatingEntities operatingEntities,
             EntityId entityId) {
-        super(config, tracingToken, publisherExecutor, operatingEntities, entityId);
+        super(
+                config,
+                tracingToken,
+                RtpsTalkDataMessage.class,
+                publisherExecutor,
+                operatingEntities,
+                entityId);
     }
 }

@@ -43,6 +43,7 @@ public class BuiltinParticipantMessageReader
         super(
                 config,
                 tracingToken,
+                RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
