@@ -82,30 +82,36 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
     @Override
     public void onNext(MessageBuilder messageBuilder) {
         logger.entering("onNext");
-        var guidPrefix = messageBuilder.getReaderGuidPrefix();
-        if (guidPrefix == GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue()
-                || guidPrefix.equals(remoteReader.guidPrefix)) {
-            var message = messageBuilder.build(remoteReader.entityId, writerEntityId);
-            infoDstOpt.ifPresent(
-                    infoDst -> {
-                        if (!(message.submessages[0] instanceof Heartbeat)) return;
-                        logger.fine("This is Heartbeat message, including InfoDestination into it");
-                        Preconditions.equals(
-                                1,
-                                message.submessages.length,
-                                "Heartbeat messages may contain only one submessage");
-                        var submessages = new Submessage[2];
-                        submessages[0] = infoDst;
-                        submessages[1] = message.submessages[0];
-                        message.submessages = submessages;
-                    });
-            dataChannel.send(remoteReader, message);
-        } else {
-            logger.fine(
-                    "Not sending message since it belongs to different participant {0}",
-                    guidPrefix);
+        try {
+            var guidPrefix = messageBuilder.getReaderGuidPrefix();
+            if (guidPrefix == GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue()
+                    || guidPrefix.equals(remoteReader.guidPrefix)) {
+                var message = messageBuilder.build(remoteReader.entityId, writerEntityId);
+                infoDstOpt.ifPresent(
+                        infoDst -> {
+                            if (!(message.submessages[0] instanceof Heartbeat)) return;
+                            logger.fine(
+                                    "This is Heartbeat message, including InfoDestination into it");
+                            Preconditions.equals(
+                                    1,
+                                    message.submessages.length,
+                                    "Heartbeat messages may contain only one submessage");
+                            var submessages = new Submessage[2];
+                            submessages[0] = infoDst;
+                            submessages[1] = message.submessages[0];
+                            message.submessages = submessages;
+                        });
+                dataChannel.send(remoteReader, message);
+            } else {
+                logger.fine(
+                        "Not sending message since it belongs to different participant {0}",
+                        guidPrefix);
+            }
+        } catch (Exception e) {
+            logger.severe(e);
+        } finally {
+            subscription.request(1);
         }
-        subscription.request(1);
         logger.exiting("onNext");
     }
 

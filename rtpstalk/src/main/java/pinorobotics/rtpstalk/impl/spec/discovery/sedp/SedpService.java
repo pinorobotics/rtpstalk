@@ -250,8 +250,10 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     public void close() {
         if (!isStarted) return;
         subscription.cancel();
-        subscriptionsReader.close();
         subscriptionsWriter.close();
+        // close Reader only after the Writer so that Writer could properly ack any
+        // data which is still present in its cache
+        subscriptionsReader.close();
         publicationsReader.close();
         publicationsWriter.close();
         metatrafficReceiver.close();

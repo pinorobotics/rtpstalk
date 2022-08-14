@@ -37,6 +37,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 
 /**
+ *
+ *
+ * <h2>Thread safe</h2>
+ *
+ * Since we run one SPDP reader per each network interface and they all bind to same multicast
+ * address it means they may receive same data and run concurrently.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
@@ -96,9 +103,11 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
         if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
             if (info.isDisposed()) {
                 if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
-                    var guid = keyHash.asGuid();
-                    if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(guid.entityId)) {
-                        logger.fine("Writer marked participant {0} as disposed", guid);
+                    var participantGuid = keyHash.asGuid();
+                    if (EntityId.Predefined.ENTITYID_PARTICIPANT
+                            .getValue()
+                            .equals(participantGuid.entityId)) {
+                        logger.fine("Writer marked participant {0} as disposed", participantGuid);
                         var writersToReaders =
                                 Map.of(
                                         EntityId.Predefined
@@ -113,16 +122,18 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
                                                 .getValue());
+                        // find and remove all readers which belong to the disposed participant
                         for (var pair : writersToReaders.entrySet()) {
+                            var readerGuid = new Guid(participantGuid.guidPrefix, pair.getValue());
                             operatingEntities
                                     .getWriters()
                                     .find(pair.getKey())
-                                    .ifPresent(
+                                    // check if reader was already removed
+                                    .filter(
                                             writer ->
-                                                    writer.matchedReaderRemove(
-                                                            new Guid(
-                                                                    guid.guidPrefix,
-                                                                    pair.getValue())));
+                                                    writer.matchedReaderLookup(readerGuid)
+                                                            .isPresent())
+                                    .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
                         }
                     }
                 }

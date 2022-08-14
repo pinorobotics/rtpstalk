@@ -51,6 +51,10 @@ public class Guid {
         this(new GuidPrefix(guidPrefix), entityId);
     }
 
+    public Guid(byte[] guidPrefix, int entityId) {
+        this(guidPrefix, new EntityId(entityId));
+    }
+
     public Guid(String guidPrefix, String entityId) {
         this(new GuidPrefix(guidPrefix), new EntityId(entityId));
     }

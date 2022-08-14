@@ -39,11 +39,11 @@ import pinorobotics.rtpstalk.impl.topics.ActorDetails.Type;
  * @author lambdaprime intid@protonmail.com
  */
 public abstract class AbstractTopicManager<A extends ActorDetails>
-        extends SimpleSubscriber<RtpsTalkParameterListMessage> {
+        extends SimpleSubscriber<RtpsTalkParameterListMessage> implements AutoCloseable {
 
     protected XLogger logger;
-    private List<Topic<A>> topics = new ArrayList<>();
-    private StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> announcementsWriter;
+    protected List<Topic<A>> topics = new ArrayList<>();
+    protected StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> announcementsWriter;
     private ActorDetails.Type actorsType;
 
     public AbstractTopicManager(
@@ -140,4 +140,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                 && pl.getParameters().containsKey(ParameterId.PID_ENDPOINT_GUID)
                 && pl.getParameters().containsKey(ParameterId.PID_UNICAST_LOCATOR);
     }
+
+    @Override
+    public void close() {}
 }

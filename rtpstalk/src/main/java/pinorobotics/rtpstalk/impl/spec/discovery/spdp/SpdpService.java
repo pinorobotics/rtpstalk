@@ -26,6 +26,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.spec.DataFactory;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
@@ -46,6 +47,7 @@ public class SpdpService implements AutoCloseable {
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private Executor publisherExecutor;
+    private DataFactory dataFactory;
 
     public SpdpService(
             RtpsTalkConfigurationInternal config,
@@ -71,6 +73,7 @@ public class SpdpService implements AutoCloseable {
         this.channelFactory = channelFactory;
         this.receiverFactory = receiverFactory;
         this.spdpDiscoveredDataFactory = spdpDiscoveredDataFactory;
+        dataFactory = new DataFactory();
     }
 
     public void start(
@@ -125,6 +128,12 @@ public class SpdpService implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
+        if (!writer.isClosed()) {
+            writer.newChange(
+                    RtpsTalkParameterListMessage.withInlineQosOnly(
+                            dataFactory.createReaderDisposedSubscriptionData(
+                                    config.localParticipantGuid())));
+        }
         receiver.close();
         writer.close();
         reader.close();

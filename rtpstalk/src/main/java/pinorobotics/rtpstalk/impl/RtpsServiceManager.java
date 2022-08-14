@@ -171,9 +171,13 @@ public class RtpsServiceManager implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
+        subscriptionsManager.close();
         spdpServices.forEach(SpdpService::close);
-        userService.close();
         sedpService.close();
+        // close DataReader/DataWriter only after we announce to all Participants
+        // that publications/subscriptions are disposed. Otherwise if we close
+        // userdata port early, Participants may get an exceptions trying to send us anything
+        userService.close();
         // if publisherExecutor is set it is managed by the user, otherwise it
         // is managed by us and we should shut it down
         if (config.publicConfig().publisherExecutor().isEmpty()) {

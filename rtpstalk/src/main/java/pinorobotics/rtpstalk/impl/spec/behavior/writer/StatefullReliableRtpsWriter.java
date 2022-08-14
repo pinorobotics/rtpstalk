@@ -23,10 +23,10 @@ import id.xfunction.lang.XThread;
 import id.xfunction.logging.TracingToken;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
@@ -66,7 +66,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                     new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
 
     /** Used to maintain state on the remote Readers matched up with this Writer. */
-    private Map<Guid, ReaderProxy> matchedReaders = new HashMap<>();
+    private Map<Guid, ReaderProxy> matchedReaders = new ConcurrentHashMap<>();
 
     /**
      * Protocol tuning parameter that allows the RTPS Writer to repeatedly announce the availability
@@ -146,7 +146,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     public void matchedReaderRemove(Guid remoteGuid) {
         var reader = matchedReaders.remove(remoteGuid);
         if (reader == null) {
-            logger.warning("Trying to remove unknwon matched reader {0}, ignoring...", remoteGuid);
+            logger.fine("Trying to remove unknown matched reader {0}, ignoring...", remoteGuid);
         } else {
             reader.close();
             cleanupCache();

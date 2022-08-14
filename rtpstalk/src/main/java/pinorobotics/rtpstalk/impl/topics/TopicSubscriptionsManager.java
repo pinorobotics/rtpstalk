@@ -25,9 +25,12 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.spec.DataFactory;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
@@ -43,9 +46,11 @@ import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
  */
 public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDetails> {
 
-    private SedpDataFactory dataFactory;
+    private DataFactory dataFactory;
+    private SedpDataFactory sedpDataFactory;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
+    private GuidPrefix localGuidPrefix;
 
     public TopicSubscriptionsManager(
             TracingToken tracingToken,
@@ -54,7 +59,9 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
             UserDataService userService) {
         super(tracingToken, subscriptionsWriter, ActorDetails.Type.Subscriber);
-        this.dataFactory = new SedpDataFactory(config);
+        this.sedpDataFactory = new SedpDataFactory(config);
+        dataFactory = new DataFactory();
+        localGuidPrefix = config.localParticipantGuid().guidPrefix;
         this.networkIface = networkIface;
         this.userService = userService;
     }
@@ -83,10 +90,21 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
     @Override
     protected ParameterList createAnnouncementData(
             SubscriberDetails actor, Topic<SubscriberDetails> topic) {
-        return dataFactory.createSubscriptionData(
+        return sedpDataFactory.createSubscriptionData(
                 topic.getTopicId(),
                 topic.getLocalTopicEntityId(),
                 networkIface.getLocalDefaultUnicastLocator(),
                 actor.qosPolicy());
+    }
+
+    @Override
+    public void close() {
+        for (var topic : topics) {
+            announcementsWriter.newChange(
+                    RtpsTalkParameterListMessage.withInlineQosOnly(
+                            dataFactory.createReaderDisposedSubscriptionData(
+                                    new Guid(localGuidPrefix, topic.getLocalTopicEntityId()))));
+        }
+        super.close();
     }
 }

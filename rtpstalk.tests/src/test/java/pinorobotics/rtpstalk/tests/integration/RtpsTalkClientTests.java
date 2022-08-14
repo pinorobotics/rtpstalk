@@ -30,9 +30,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
+import pinorobotics.rtpstalk.tests.TestEvents;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -107,6 +109,30 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             tools.runHelloWorldExample(Map.of(), "publisher").await();
             tools.runHelloWorldExample(Map.of(), "publisher").await();
             collector.getFuture().get();
+        }
+    }
+
+    @Test
+    public void test_subscriber_notifies_publisher_when_it_closes() throws Exception {
+        try (var publisherClient = new RtpsTalkClient()) {
+            var topicName = "HelloWorldTopic";
+            var topicType = "HelloWorld";
+            var subscriberClient = new RtpsTalkClient();
+            var collector =
+                    new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 1) {
+                        public void onNext(RtpsTalkDataMessage item) {
+                            System.out.println(item.data());
+                            super.onNext(item);
+                        }
+                    };
+            var entityId = subscriberClient.subscribe(topicName, topicType, collector);
+            var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
+            publisherClient.publish(topicName, topicType, publisher);
+            publisher.submit(new RtpsTalkDataMessage("hello"));
+            collector.getFuture().get();
+            subscriberClient.close();
+            TestEvents.waitForDisposedSubscriber(
+                    new Guid(subscriberClient.getConfiguration().guidPrefix(), entityId));
         }
     }
 }
