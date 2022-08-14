@@ -85,7 +85,9 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "service_close.template",
                                 "service_startup_ports_8080_8081.template"),
                         List.of("topic_subscriptions_manager_future_topic.template"),
-                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                        List.of(
+                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                RtpsTalkClientPubSubPairsTests::validateNoExceptions),
                         Map.of()),
                 // 2
                 new TestCase(
@@ -101,7 +103,9 @@ public class RtpsTalkClientPubSubPairsTests {
                                 "spdp_close.template",
                                 "service_startup_ports_8080_8081.template"),
                         List.of("topic_subscriptions_manager.template"),
-                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                        List.of(
+                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                RtpsTalkClientPubSubPairsTests::validateNoExceptions),
                         Map.of()),
                 // 3
                 new TestCase(
@@ -117,7 +121,8 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of("topic_subscriptions_manager.template"),
                         List.of(
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface),
+                                RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface,
+                                RtpsTalkClientPubSubPairsTests::validateNoExceptions),
                         Map.of()),
                 // 4
                 new TestCase(
@@ -370,5 +375,11 @@ public class RtpsTalkClientPubSubPairsTests {
         var log = LogUtils.readLogFile();
         Assertions.assertTrue(log.contains("Starting SPDP service on lo"));
         Assertions.assertFalse(log.contains("Starting SPDP service on eth0"));
+    }
+
+    private static void validateNoExceptions() {
+        var log = LogUtils.readLogFile();
+        Assertions.assertFalse(log.contains("Exception"));
+        Assertions.assertFalse(log.contains("ERROR"));
     }
 }
