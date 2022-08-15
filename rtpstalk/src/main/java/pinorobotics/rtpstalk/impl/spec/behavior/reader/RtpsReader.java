@@ -168,7 +168,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     public void onComplete() {}
 
     protected void processInlineQos(Guid writer, ParameterList inlineQos) {
-        // empty
+        logger.fine("Ignoring inlineQos");
     }
 
     @Override

@@ -22,6 +22,7 @@ import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -39,5 +40,11 @@ public class LogUtils {
 
     public static String readLogFile() {
         return Unchecked.get(() -> Files.readString(LOG_FILE));
+    }
+
+    public static void validateNoExceptions() {
+        var log = LogUtils.readLogFile();
+        Assertions.assertFalse(log.contains("Exception"));
+        Assertions.assertFalse(log.contains("ERROR"));
     }
 }

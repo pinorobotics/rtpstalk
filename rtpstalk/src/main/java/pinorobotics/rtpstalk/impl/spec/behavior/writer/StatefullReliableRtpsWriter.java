@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -201,15 +202,16 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         "Discarding pending changes since there is no matched readers available");
                 break;
             }
-            logger.fine("Waiting for {0} pending changes to be sent", numOfPendingChanges);
+            logger.fine(
+                    "Waiting for {0} pending changes in the history cache to be sent",
+                    numOfPendingChanges);
             XThread.sleep(heartbeatPeriod.toMillis());
             numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
         }
         super.close();
         operatingEntities.getWriters().remove(getGuid().entityId);
         executor.shutdown();
-        writerReader.getSubscription().ifPresent(s -> s.cancel());
-        super.close();
+        writerReader.getSubscription().ifPresent(Subscription::cancel);
     }
 
     @Override

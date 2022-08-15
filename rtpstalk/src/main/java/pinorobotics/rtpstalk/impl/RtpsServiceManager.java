@@ -172,8 +172,11 @@ public class RtpsServiceManager implements AutoCloseable {
     public void close() {
         if (!isStarted) return;
         subscriptionsManager.close();
-        spdpServices.forEach(SpdpService::close);
+        // announce that all local publications/subscriptions are disposed
+        // we need to keep SPDP still open at that point in case if any of the remote
+        // Participants initiate close operation as well
         sedpService.close();
+        spdpServices.forEach(SpdpService::close);
         // close DataReader/DataWriter only after we announce to all Participants
         // that publications/subscriptions are disposed. Otherwise if we close
         // userdata port early, Participants may get an exceptions trying to send us anything

@@ -3,6 +3,6 @@
 *.RtpsMessageReceiver#*-SedpReceiver - Subscribing *-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
 *.RtpsMessageReceiver#*-SedpReceiver - Subscribing *-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
 *.SpdpService#*-lo - Starting SPDP service on lo
-*.RtpsMessageReceiver#*-lo-SpdpService - Subscribing *-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
+*.RtpsMessageReceiver#*-lo-SpdpReceiver - Subscribing *-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
 *.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8081", "address": "/127.0.0.1" }
 *

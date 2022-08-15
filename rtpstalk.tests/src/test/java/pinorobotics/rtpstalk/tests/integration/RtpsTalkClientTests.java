@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
+import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -89,7 +90,8 @@ public class RtpsTalkClientTests extends PubSubClientTests {
 
     /**
      * Test that subscriber continues to receive messages when one publisher stopped and new one
-     * joined.
+     * joined. This makes sure that SEDP operates with {@link
+     * DurabilityKind#TRANSIENT_LOCAL_DURABILITY_QOS}
      */
     @Test
     public void test_subscriber_when_topic_publisher_is_changed() throws Exception {
@@ -134,5 +136,29 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             TestEvents.waitForDisposedSubscriber(
                     new Guid(subscriberClient.getConfiguration().guidPrefix(), entityId));
         }
+    }
+
+    /**
+     * Once remote publisher sends N messages and local subscriber receives them they will both
+     * initiate close.
+     */
+    @Test
+    public void test_concurrent_close() throws Exception {
+        try (var client = new RtpsTalkClient()) {
+            var topicName = "HelloWorldTopic";
+            var topicType = "HelloWorld";
+            var count = 10;
+            var collector =
+                    new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), count) {
+                        public void onNext(RtpsTalkDataMessage item) {
+                            System.out.println(item.data());
+                            super.onNext(item);
+                        }
+                    };
+            client.subscribe(topicName, topicType, collector);
+            tools.runHelloWorldExample(Map.of(), "publisher", "" + count);
+            collector.getFuture().get();
+        }
+        LogUtils.validateNoExceptions();
     }
 }

@@ -28,8 +28,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
  * Visitor of submessages inside of RTPS message.
  *
  * <p>Each method accepts guidPrefix which is taken from the header of the RTPS message itself.
- */
-/**
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public interface RtpsSubmessageVisitor {
