@@ -15,6 +15,13 @@ plugins {
 
 apply plugin : 'eclipse'
 
+eclipse.classpath.file {
+    // instruct eclipse plugin to put everything to module path
+    whenMerged {
+        entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
+    }
+}
+
 dependencies {
    implementation 'io.github.lambdaprime:id.xfunction:17.0-SNAPSHOT'
    implementation 'io.github.lambdaprime:kineticstreamer:4.0-SNAPSHOT'

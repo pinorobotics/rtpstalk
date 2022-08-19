@@ -2,9 +2,7 @@
 *.SedpService#* - Starting SEDP service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "*", "address": "/*" }
 *.RtpsMessageReceiver#*-SedpReceiver - Subscribing *-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
 *.RtpsMessageReceiver#*-SedpReceiver - Subscribing *-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
-*.SpdpService#*-eth0 - Starting SPDP service on eth0
-*.RtpsMessageReceiver#*-eth0-SpdpReceiver - Subscribing *-eth0-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
-*.SpdpService#*-lo - Starting SPDP service on lo
-*.RtpsMessageReceiver#*-lo-SpdpReceiver - Subscribing *-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
+*.SpdpService#*-${IFACE} - Starting SPDP service on ${IFACE}
+*.RtpsMessageReceiver#*-${IFACE}-SpdpReceiver - Subscribing *-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
 *.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "*", "address": "/*" }
 *

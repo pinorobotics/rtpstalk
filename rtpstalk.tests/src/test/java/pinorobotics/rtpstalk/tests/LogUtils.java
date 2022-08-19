@@ -33,6 +33,7 @@ public class LogUtils {
             XFiles.TEMP_FOLDER.map(p -> p.resolve("rtpstalk-test.log")).orElseThrow();
 
     public static void setupLog() {
+        XLogger.reset();
         Unchecked.run(() -> Files.deleteIfExists(LOG_FILE));
         // since we deleted the log file we need to reconfigure logger
         XLogger.load("rtpstalk-test.properties");

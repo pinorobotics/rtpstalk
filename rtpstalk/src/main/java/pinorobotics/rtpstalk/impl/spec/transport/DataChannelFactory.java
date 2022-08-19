@@ -49,10 +49,12 @@ public class DataChannelFactory {
         var socketAddress = locator.getSocketAddress();
         Preconditions.isTrue(
                 socketAddress.getAddress().isMulticastAddress(), "Multicast address required");
+        // see
+        // https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/MulticastChannel.html
         var dataChannel =
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                        .bind(socketAddress)
+                        .bind(new InetSocketAddress(locator.getSocketAddress().getPort()))
                         .setOption(StandardSocketOptions.IP_MULTICAST_IF, networkInterface);
         dataChannel.join(locator.address(), networkInterface);
         return new DataChannel(

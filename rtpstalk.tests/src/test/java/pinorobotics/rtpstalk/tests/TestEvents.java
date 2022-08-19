@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.nio.file.XFiles;
+import java.time.Duration;
 import java.util.regex.Pattern;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 
@@ -26,11 +27,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
  */
 public class TestEvents {
 
+    private static final Duration DELAY = Duration.ofMillis(100);
+
     public static Guid waitForDiscoveredActor(String topic, String actorType) throws Exception {
         var regexp =
                 Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
                         .asMatchPredicate();
-        var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp).get();
+        var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp, DELAY).get();
         return extractGuid(line);
     }
 
@@ -44,11 +47,11 @@ public class TestEvents {
 
     public static void waitForDisposedParticipant(Guid participant) throws Exception {
         var str = "Writer marked participant " + participant.toString() + " as disposed";
-        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str)).get();
+        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
     }
 
     public static void waitForDisposedSubscriber(Guid reader) throws Exception {
         var str = "Reader " + reader + " marked subscription as disposed";
-        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str)).get();
+        XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
     }
 }

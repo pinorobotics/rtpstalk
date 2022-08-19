@@ -150,10 +150,16 @@ public class RtpsServiceManager implements AutoCloseable {
                         .map(List::of)
                         .orElseGet(() -> InternalUtils.getInstance().listAllNetworkInterfaces());
         Preconditions.isTrue(!networkInterfaces.isEmpty(), "No network interfaces found");
+        logger.fine("Starting SPDP on following network interfaces {0}", networkInterfaces);
         for (var iface : networkInterfaces) {
-            var spdp = new SpdpService(config, publisherExecutor, channelFactory, receiverFactory);
-            spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());
-            spdpServices.add(spdp);
+            try {
+                var spdp =
+                        new SpdpService(config, publisherExecutor, channelFactory, receiverFactory);
+                spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());
+                spdpServices.add(spdp);
+            } catch (Exception e) {
+                logger.severe("Error starting SPDP on network interface " + iface, e);
+            }
         }
     }
 

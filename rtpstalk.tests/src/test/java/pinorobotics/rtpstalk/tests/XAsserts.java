@@ -44,6 +44,8 @@ public class XAsserts {
     }
 
     public static void assertMatches(String template, String str) throws AssertionError {
+        // change line endings to UNIX
+        str = str.replace(System.lineSeparator(), "\n");
         if (!new WildcardMatcher(template).matches(str))
             throw new AssertionFailedError(
                     String.format("expected template <%s>, actual text <%s>", template, str),

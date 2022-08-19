@@ -19,9 +19,11 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import static java.util.stream.Collectors.joining;
 
+import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
+import id.xfunction.text.Substitutor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -80,12 +83,12 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .build(),
                         true,
                         List.of(
-                                "service_startup.template",
-                                "spdp_close.template",
                                 "service_close.template",
                                 "service_startup_ports_8080_8081.template"),
                         List.of("topic_subscriptions_manager_future_topic.template"),
                         List.of(
+                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
+                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
                                 LogUtils::validateNoExceptions),
                         Map.of()),
@@ -98,12 +101,11 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        List.of(
-                                "service_startup.template",
-                                "spdp_close.template",
-                                "service_startup_ports_8080_8081.template"),
+                        List.of("service_startup_ports_8080_8081.template"),
                         List.of("topic_subscriptions_manager.template"),
                         List.of(
+                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
+                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
                                 LogUtils::validateNoExceptions),
                         Map.of()),
@@ -121,7 +123,6 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of("topic_subscriptions_manager.template"),
                         List.of(
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                RtpsTalkClientPubSubPairsTests::validateSpdpLoopbackIface,
                                 LogUtils::validateNoExceptions),
                         Map.of()),
                 // 4
@@ -134,12 +135,12 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .userEndpointsPort(8081)
                                 .build(),
                         false,
-                        List.of(
-                                "service_startup.template",
-                                "spdp_close.template",
-                                "service_startup_ports_8080_8081.template"),
+                        List.of("service_startup_ports_8080_8081.template"),
                         List.of(),
-                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                        List.of(
+                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
+                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
+                                RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
                                 "TRANSIENT_LOCAL_DURABILITY_QOS")),
@@ -149,12 +150,12 @@ public class RtpsTalkClientPubSubPairsTests {
                         1,
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
-                        List.of(
-                                "service_startup.template",
-                                "spdp_close.template",
-                                "service_startup_ports_default.template"),
+                        List.of("service_startup_ports_default.template"),
                         List.of("topic_subscriptions_manager.template"),
-                        List.of(RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                        List.of(
+                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
+                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
+                                RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
                                 FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
                                 "VOLATILE_DURABILITY_QOS")));
@@ -365,15 +366,22 @@ public class RtpsTalkClientPubSubPairsTests {
         assertValidators(testCase.validators);
     }
 
+    private static void validateAcrossNetworkInterfaces(String templateResourceName) {
+        var log = LogUtils.readLogFile();
+        ResourceUtils resourceUtils = new ResourceUtils();
+        var template =
+                resourceUtils.readResource(
+                        RtpsTalkClientPubSubPairsTests.class, templateResourceName);
+        for (var iface : InternalUtils.getInstance().listAllNetworkInterfaces()) {
+            var expectedTemplate =
+                    new Substitutor().substitute(template, Map.of("${IFACE}", iface.getName()));
+            XAsserts.assertMatches(expectedTemplate, log);
+        }
+    }
+
     private static void validateSedpClose() {
         var log = LogUtils.readLogFile();
         XAsserts.assertMatchesAll(
                 RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES", log);
-    }
-
-    private static void validateSpdpLoopbackIface() {
-        var log = LogUtils.readLogFile();
-        Assertions.assertTrue(log.contains("Starting SPDP service on lo"));
-        Assertions.assertFalse(log.contains("Starting SPDP service on eth0"));
     }
 }
