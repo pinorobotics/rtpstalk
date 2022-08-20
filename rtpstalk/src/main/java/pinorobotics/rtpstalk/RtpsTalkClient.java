@@ -57,11 +57,6 @@ public class RtpsTalkClient implements AutoCloseable {
                         this.config, channelFactory, new RtpsMessageReceiverFactory());
     }
 
-    public RtpsTalkClient(RtpsTalkConfiguration config, String clientName) {
-        this(config);
-        tracingToken = new TracingToken(clientName);
-    }
-
     /**
      * Subscribe to RTPS topic
      *

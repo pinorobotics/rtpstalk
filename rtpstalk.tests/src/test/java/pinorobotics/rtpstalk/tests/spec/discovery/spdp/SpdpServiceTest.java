@@ -138,7 +138,7 @@ public class SpdpServiceTest {
                     channelFactory.getChannels().get(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR);
             Assertions.assertNotNull(channel);
             // one immediately and some after
-            Assertions.assertTrue(channel.getDataQueue().size() > 3);
+            Assertions.assertTrue(channel.getDataQueue().size() >= 3);
         }
     }
 

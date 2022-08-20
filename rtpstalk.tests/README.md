@@ -36,10 +36,9 @@ make
 # Windows setup
 
 Run [build-tools-for-visual-studio-2022 installer](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022):
-- Open Individual Components
-- Select:
--- C++ Cmake tools for Windows (includes MSVC v143 - VS 2022 C++ x64/x86 build tools)
--- Windows 10 SDK
+- Open Individual Components and select:
+    - C++ Cmake tools for Windows (includes MSVC v143 - VS 2022 C++ x64/x86 build tools)
+    - Windows 10 SDK
 
 Install [fast-dds-2-6-0](https://www.eprosima.com/index.php/component/ars/repository/eprosima-fast-dds/eprosima-fast-dds-2-6-0/eprosima_fast-dds-2-6-0-windows-exe?format=raw)
 

@@ -25,4 +25,5 @@ dependencies {
 # Contributors
 
 aeon_flux <aeon_flux@eclipso.ch>
+
 lambdaprime <intid@protonmail.com>
