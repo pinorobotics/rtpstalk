@@ -1,0 +1,74 @@
+/*************************************************
+
+First we need publish main project to staging repo.
+
+Run following command in the root folder of the project:
+
+gradle clean build
+gradle publish \
+ -Ppublish=true \
+ -Psigning.secretKeyRingFile=XXX \
+ -Psigning.password=XXX \
+ -Psigning.keyId=XXX \
+ -PossrhUsername=XXX \
+ -PossrhPassword=XXX
+
+Once it is done we can promote it to release repo:
+
+cd publish
+gradle closeAndReleaseRepository -PnexusUsername=XXX -PnexusPassword=XXX
+
+**************************************************/
+
+/*
+ * This is taken from https://github.com/Codearte/gradle-nexus-staging-plugin/
+ * It is used to publish from staging to release repo
+ */
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
+    }
+
+}
+
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' version '6.7.2'
+}
+
+apply plugin: 'io.codearte.nexus-staging'
+
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+}
+
+nexusStaging {
+    serverUrl = "https://s01.oss.sonatype.org/service/local/"
+    packageGroup = "io.github.pinorobotics"
+}
+
+/*
+ * Now we include original build.gradle which will build subprojects
+ * as usual + let them sign and publish to staging repo
+ */
+Properties props = new Properties()
+InputStream ins = new FileInputStream("../gradle.properties")
+props.load(ins)
+props.each { prop ->
+    project.ext.set(prop.key, prop.value)
+}
+ins.close()
+
+ext {
+    releaseFileName = "${projectName}-v${version}.zip"
+}

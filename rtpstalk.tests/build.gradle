@@ -1,10 +1,7 @@
 plugins {
-    id 'java'
     id 'com.diffplug.spotless'
     id 'jacoco'
 }
-
-apply plugin : 'eclipse'
 
 eclipse.classpath.file {
     // instruct eclipse plugin to put everything to module path
@@ -21,9 +18,6 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-commons:1.7.0'
 }
-
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
 jacoco {
     // Java 17 support

@@ -23,16 +23,13 @@ eclipse.classpath.file {
 }
 
 dependencies {
-   implementation 'io.github.lambdaprime:id.xfunction:17.0-SNAPSHOT'
-   implementation 'io.github.lambdaprime:kineticstreamer:4.0-SNAPSHOT'
+   implementation 'io.github.lambdaprime:id.xfunction:18.0'
+   implementation 'io.github.lambdaprime:kineticstreamer:4.0'
 
    // transitively export following dependency to tests project
-   apiElements 'io.github.lambdaprime:id.xfunction:17.0-SNAPSHOT'
-   apiElements 'io.github.lambdaprime:kineticstreamer:4.0-SNAPSHOT'
+   apiElements 'io.github.lambdaprime:id.xfunction:18.0'
+   apiElements 'io.github.lambdaprime:kineticstreamer:4.0'
 }
-
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
 javadoc {
     options.noTimestamp = true
@@ -40,7 +37,6 @@ javadoc {
     options.noTree = true
     options.noIndex = true
     options.noNavBar = true
-    options.overview = "src/overview.html"
     // ignore missing @return, @param etc
     options.addBooleanOption('Xdoclint:all,-missing', true)
     exclude 'pinorobotics/rtpstalk/impl/**'
@@ -80,6 +76,7 @@ classes.dependsOn spotlessApply
 
 if (project.hasProperty('publish')) {
 
+  // update version only during publishing
   task updateVersion() {
       if (version.contains("SNAPSHOT")) return;
       println "Updating version to " + version

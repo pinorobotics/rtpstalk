@@ -22,6 +22,8 @@ dependencies {
 
 [Documentation](http://pinoweb.freetzi.com/rtpstalk)
 
+[Development](DEVELOPMENT.md)
+
 # Contributors
 
 aeon_flux <aeon_flux@eclipso.ch>
