@@ -56,7 +56,7 @@ public class RepresentationIdentifier {
         this.value = value;
     }
 
-    public Optional<Predefined> findPredefined() {
+    public Optional<Predefined> getPredefinedValue() {
         return Optional.ofNullable(Predefined.MAP.get(this));
     }
 

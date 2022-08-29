@@ -286,7 +286,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {
             var payloadHeader = reader.read(SerializedPayloadHeader.class);
             LOGGER.fine("payloadHeader: {0}", payloadHeader);
-            var representationId = payloadHeader.representation_identifier.findPredefined();
+            var representationId = payloadHeader.representation_identifier.getPredefinedValue();
             if (representationId.isEmpty())
                 throw new XRuntimeException(
                         "Unknown representation identifier %s",

@@ -58,7 +58,7 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
         var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
         var representationOpt =
                 serializedPayload.serializedPayloadHeader.representation_identifier
-                        .findPredefined();
+                        .getPredefinedValue();
         if (representationOpt.isEmpty()) {
             LOGGER.warning(
                     "Received data submessage with unknown representation identifier {0}, ignoring"

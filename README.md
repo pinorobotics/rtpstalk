@@ -6,7 +6,7 @@ Java 17+
 
 # Download
 
-You can download **rtpstalk** from <https://github.com/pinorobotics/rtpstalk/releases>
+Download [release versions](https://github.com/pinorobotics/rtpstalk/releases)
 
 Or you can add dependency to it as follows:
 
