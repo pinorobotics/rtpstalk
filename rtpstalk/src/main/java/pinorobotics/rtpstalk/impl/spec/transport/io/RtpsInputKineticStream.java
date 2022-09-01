@@ -283,7 +283,8 @@ class RtpsInputKineticStream implements InputKineticStream {
             LOGGER.fine("Reading InlineQos");
             data.inlineQos = Optional.of(readParameterList(true));
         }
-        if (buf.position() < dataSubmessageStart + data.submessageHeader.submessageLength) {
+        var dataLen = data.submessageHeader.submessageLength.getUnsigned();
+        if (buf.position() < dataSubmessageStart + dataLen) {
             var payloadHeader = reader.read(SerializedPayloadHeader.class);
             LOGGER.fine("payloadHeader: {0}", payloadHeader);
             var representationId = payloadHeader.representation_identifier.getPredefinedValue();
@@ -295,8 +296,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                     switch (representationId.get()) {
                         case PL_CDR_LE -> readParameterList(false);
                         case CDR_LE -> readRawData(
-                                data.submessageHeader.submessageLength
-                                        - (buf.position() - dataSubmessageStart));
+                                dataLen - (buf.position() - dataSubmessageStart));
                         default -> throw new UnsupportedOperationException(
                                 "Representation identifier " + representationId.get());
                     };
@@ -344,11 +344,12 @@ class RtpsInputKineticStream implements InputKineticStream {
             LOGGER.fine("submessageStart: {0}", submessageStart);
             buf.reset();
 
+            int submessageLen = submessageHeader.submessageLength.getUnsigned();
             var messageClassOpt = submessageHeader.submessageKind.getSubmessageClass();
             if (messageClassOpt.isEmpty()) {
                 LOGGER.warning(
-                        "Submessage kind {} is not supported", submessageHeader.submessageKind);
-                skip(submessageHeader.submessageLength);
+                        "Submessage kind {0} is not supported", submessageHeader.submessageKind);
+                skip(submessageLen);
             } else {
                 // knowing submessage type now we can read it fully
                 var submessage = readSubmessage(messageClassOpt.get());
@@ -363,7 +364,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             LOGGER.fine("submessageEnd: {0}", submessageEnd);
 
             Preconditions.equals(
-                    submessageHeader.submessageLength,
+                    submessageLen,
                     submessageEnd - submessageStart,
                     "Read submessage size does not match expected");
         }

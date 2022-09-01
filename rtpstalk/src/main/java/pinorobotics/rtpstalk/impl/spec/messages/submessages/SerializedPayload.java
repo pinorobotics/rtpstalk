@@ -36,6 +36,11 @@ public class SerializedPayload implements SubmessageElement {
         this(getPredefinedPayloadHeader(payload.getRepresentationIdentifier()), payload);
     }
 
+    public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {
+        this.serializedPayloadHeader = payloadHeader;
+        this.payload = payload;
+    }
+
     private static SerializedPayloadHeader getPredefinedPayloadHeader(
             Predefined representationIdentifier) {
         return switch (representationIdentifier) {
@@ -44,11 +49,6 @@ public class SerializedPayload implements SubmessageElement {
             default -> throw new UnsupportedOperationException(
                     "Unsupported representation identifier " + representationIdentifier);
         };
-    }
-
-    public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {
-        this.serializedPayloadHeader = payloadHeader;
-        this.payload = payload;
     }
 
     @Override

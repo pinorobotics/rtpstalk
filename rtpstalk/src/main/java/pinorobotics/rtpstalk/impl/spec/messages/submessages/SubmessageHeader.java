@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -34,7 +35,7 @@ public class SubmessageHeader {
      * Number of octets from the start of the contents of the currennt Submessage to the start of
      * the next Submessage header.
      */
-    public short submessageLength;
+    public UnsignedShort submessageLength;
 
     public SubmessageHeader() {}
 
@@ -45,7 +46,7 @@ public class SubmessageHeader {
     public SubmessageHeader(SubmessageKind kind, int submessageFlag, int submessageLength) {
         this.submessageKind = kind;
         this.submessageFlag = (byte) submessageFlag;
-        this.submessageLength = (short) submessageLength;
+        this.submessageLength = new UnsignedShort(submessageLength);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Duration {
 
     public static enum Predefined {
         ZERO(new Duration(0, 0)),
-        INFINITE(new Duration(0x7fffffff, 0xffffffff));
+        INFINITE(new Duration(0x7fffffff, 0xffffffffL));
 
         static final Map<Duration, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
@@ -48,13 +48,13 @@ public class Duration {
     public int seconds;
 
     /** Time in sec/2^32 */
-    public int fraction;
+    public UnsignedInt fraction;
 
     public Duration() {}
 
-    public Duration(int seconds, int fraction) {
+    public Duration(int seconds, long fraction) {
         this.seconds = seconds;
-        this.fraction = fraction;
+        this.fraction = new UnsignedInt(fraction);
     }
 
     public Duration(int seconds) {
@@ -72,7 +72,7 @@ public class Duration {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Duration other = (Duration) obj;
-        return fraction == other.fraction && seconds == other.seconds;
+        return Objects.equals(fraction, other.fraction) && seconds == other.seconds;
     }
 
     @Override

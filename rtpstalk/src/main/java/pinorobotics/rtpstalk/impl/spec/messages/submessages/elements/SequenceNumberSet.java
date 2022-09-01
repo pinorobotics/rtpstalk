@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
 /**
@@ -39,7 +40,7 @@ public class SequenceNumberSet {
     public SequenceNumber bitmapBase = new SequenceNumber(1);
 
     /** Number of bits in a set */
-    public int numBits;
+    public UnsignedInt numBits;
 
     /** Bitmap of up to 256 bits */
     public int[] bitmap = new int[0];
@@ -52,7 +53,7 @@ public class SequenceNumberSet {
 
     public SequenceNumberSet(SequenceNumber bitmapBase, int numBits, int... bitmap) {
         this.bitmapBase = bitmapBase;
-        this.numBits = numBits;
+        this.numBits = new UnsignedInt(numBits);
         if (bitmap.length == 0) return;
         Preconditions.isTrue(bitmap.length <= 8, "Bitmap size should not exceed 8");
         this.bitmap = bitmap;

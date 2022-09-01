@@ -35,7 +35,7 @@ public class Locator {
     public static final Locator INVALID = createEmpty(LocatorKind.LOCATOR_KIND_INVALID);
 
     private LocatorKind kind;
-    private int port;
+    private UnsignedInt port;
     private InetAddress address;
     private InetSocketAddress socketAddress;
 
@@ -44,7 +44,7 @@ public class Locator {
             Preconditions.isTrue(
                     InternalUtils.isIpv4().test(address), "Non IPv4 address " + address);
         this.kind = kind;
-        this.port = port;
+        this.port = new UnsignedInt(port);
         this.address = address;
         socketAddress = new InetSocketAddress(address, port);
     }
@@ -89,8 +89,8 @@ public class Locator {
         return kind;
     }
 
-    public int port() {
-        return port;
+    public long port() {
+        return port.getUnsigned();
     }
 
     @Override
@@ -104,6 +104,8 @@ public class Locator {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Locator other = (Locator) obj;
-        return Objects.equals(address, other.address) && kind == other.kind && port == other.port;
+        return Objects.equals(address, other.address)
+                && kind == other.kind
+                && Objects.equals(port, other.port);
     }
 }

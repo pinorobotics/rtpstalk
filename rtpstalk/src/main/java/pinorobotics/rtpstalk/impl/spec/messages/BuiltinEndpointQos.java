@@ -29,7 +29,7 @@ import pinorobotics.rtpstalk.EndpointQos;
  */
 public class BuiltinEndpointQos {
 
-    public int value;
+    public int bitmask;
 
     public BuiltinEndpointQos() {}
 
@@ -38,16 +38,16 @@ public class BuiltinEndpointQos {
         set.stream()
                 .filter(Predicate.isEqual(EndpointQos.NONE).negate())
                 .forEach(p -> bset.set(p.getValue()));
-        value = (int) bset.toLongArray()[0];
+        bitmask = (int) bset.toLongArray()[0];
     }
 
     public boolean hasFlag(EndpointQos flag) {
-        return BitSet.valueOf(new long[] {value}).get(flag.getValue());
+        return BitSet.valueOf(new long[] {bitmask}).get(flag.getValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(bitmask);
     }
 
     @Override
@@ -56,12 +56,12 @@ public class BuiltinEndpointQos {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         BuiltinEndpointQos other = (BuiltinEndpointQos) obj;
-        return value == other.value;
+        return bitmask == other.bitmask;
     }
 
     @Override
     public String toString() {
-        var set = BitSet.valueOf(new long[] {value});
+        var set = BitSet.valueOf(new long[] {bitmask});
         var str =
                 set.stream()
                         .mapToObj(pos -> EndpointQos.valueOf(pos))

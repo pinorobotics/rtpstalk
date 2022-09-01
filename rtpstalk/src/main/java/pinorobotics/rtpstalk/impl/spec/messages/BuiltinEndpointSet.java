@@ -142,7 +142,7 @@ public class BuiltinEndpointSet {
             new BuiltinEndpointSet(EnumSet.allOf(Endpoint.class));
     public static final BuiltinEndpointSet EMPTY = new BuiltinEndpointSet();
 
-    public int value;
+    public int bitmask;
 
     public BuiltinEndpointSet() {}
 
@@ -151,16 +151,16 @@ public class BuiltinEndpointSet {
         set.stream()
                 .filter(Predicate.isEqual(Endpoint.UNKNOWN).negate())
                 .forEach(p -> bset.set(p.position));
-        value = (int) bset.toLongArray()[0];
+        bitmask = (int) bset.toLongArray()[0];
     }
 
     public boolean hasEndpoint(Endpoint endpoint) {
-        return BitSet.valueOf(new long[] {value}).get(endpoint.position);
+        return BitSet.valueOf(new long[] {bitmask}).get(endpoint.position);
     }
 
     @Override
     public String toString() {
-        var set = BitSet.valueOf(new long[] {value});
+        var set = BitSet.valueOf(new long[] {bitmask});
         var str =
                 set.stream()
                         .mapToObj(pos -> Endpoint.MAP.getOrDefault(pos, Endpoint.UNKNOWN))

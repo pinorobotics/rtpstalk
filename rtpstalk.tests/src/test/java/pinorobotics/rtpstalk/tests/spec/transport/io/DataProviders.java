@@ -18,11 +18,10 @@
 package pinorobotics.rtpstalk.tests.spec.transport.io;
 
 import id.xfunction.ResourceUtils;
-import java.util.List;
+import id.xfunction.function.Unchecked;
+import id.xfunction.io.XInputStream;
 import java.util.Map;
 import java.util.stream.Stream;
-import pinorobotics.rtpstalk.impl.spec.messages.Header;
-import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo.Flags;
@@ -37,11 +36,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Timestamp;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
@@ -51,19 +48,28 @@ public class DataProviders {
 
     private static final ResourceUtils resourceUtils = new ResourceUtils();
 
-    public static Stream<List> rtpsMessageConversion() {
-        var header =
-                new Header(
-                        ProtocolId.Predefined.RTPS.getValue(),
-                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                        VendorId.Predefined.RTPSTALK.getValue(),
-                        TestConstants.TEST_GUID_PREFIX);
+    public record TestCase(byte[] serializedMessage, RtpsMessage message) {
+        public TestCase(String resourceName, RtpsMessage message) {
+            this(readAllBytes(resourceName), message);
+        }
+
+        private static byte[] readAllBytes(String resourceName) {
+            return Unchecked.get(
+                    () ->
+                            new XInputStream(
+                                            resourceUtils.readResource(
+                                                    DataProviders.class, resourceName))
+                                    .readAllBytes());
+        }
+    }
+
+    public static Stream<TestCase> rtpsMessageConversion() {
         return Stream.of(
                 // 1
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test1"),
+                new TestCase(
+                        "test1",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new AckNack(
                                         EntityId.Predefined
@@ -75,10 +81,10 @@ public class DataProviders {
                                         new SequenceNumberSet(1, 9, 511),
                                         new Count()))),
                 // 2
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_submessages_padding"),
+                new TestCase(
+                        "test_submessages_padding",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -89,10 +95,10 @@ public class DataProviders {
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x11, 0x22, 0x00, 0x0}))))),
                 // 3
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_inlineqos"),
+                new TestCase(
+                        "test_inlineqos",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -110,10 +116,10 @@ public class DataProviders {
                                         new SerializedPayload(
                                                 new RawData(new byte[] {0x10, 0x11, 0x0, 0x0}))))),
                 // 4
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_empty_data"),
+                new TestCase(
+                        "test_empty_data",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -127,10 +133,10 @@ public class DataProviders {
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(new RawData(new byte[0]))))),
                 // 5
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_null_data"),
+                new TestCase(
+                        "test_null_data",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -142,10 +148,10 @@ public class DataProviders {
                                                 Map.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33}))))),
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_parameterlist"),
+                new TestCase(
+                        "test_parameterlist",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
                                 new Data(
                                         EntityId.Predefined
@@ -159,10 +165,10 @@ public class DataProviders {
                                                                 ParameterId.PID_STATUS_INFO,
                                                                 new StatusInfo(Flags.DISPOSED)),
                                                         Map.of()))))),
-                List.of(
-                        resourceUtils.readResource(DataProviders.class, "test_multiple_data"),
+                new TestCase(
+                        "test_multiple_data",
                         new RtpsMessage(
-                                header,
+                                TestConstants.TEST_HEADER,
                                 new InfoTimestamp(new Timestamp(1654495356, 0)),
                                 new Data(
                                         new EntityId(0x12, EntityKind.READER_NO_KEY),

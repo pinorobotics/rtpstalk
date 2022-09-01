@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
@@ -39,7 +40,7 @@ public class Data extends Submessage {
      * is not present (i.e., the InlineQosFlag is not set), then octetsToInlineQos contains the
      * offset to the next field after the inlineQos.
      */
-    public short octetsToInlineQos;
+    public UnsignedShort octetsToInlineQos;
 
     /** Identifies the RTPS Reader entity that is being informed of the change to the data-object */
     public EntityId readerId;
@@ -121,10 +122,10 @@ public class Data extends Submessage {
                 inlineQos.isPresent() || serializedPayload.isPresent(),
                 "At least inlineQos or data must be present");
         this.octetsToInlineQos =
-                (short)
+                new UnsignedShort(
                         (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
                                 + LengthCalculator.getInstance()
-                                        .getFixedLength(SequenceNumber.class));
+                                        .getFixedLength(SequenceNumber.class)));
         this.readerId = readerId;
         this.writerId = writerId;
         this.writerSN = writerSN;

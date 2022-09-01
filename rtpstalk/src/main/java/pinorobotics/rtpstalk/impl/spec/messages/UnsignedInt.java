@@ -15,45 +15,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
+package pinorobotics.rtpstalk.impl.spec.messages;
 
-import id.xfunction.XJsonStringBuilder;
+import id.xfunction.Preconditions;
 import java.util.Objects;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SequenceNumber implements Comparable<SequenceNumber> {
+public class UnsignedInt {
 
-    public static final SequenceNumber MIN = new SequenceNumber(0);
-    public static final SequenceNumber MAX = new SequenceNumber(Long.MAX_VALUE);
-    public static final SequenceNumber SEQUENCENUMBER_UNKNOWN =
-            new SequenceNumber(0xffffffff00000000L);
+    /**
+     * This is unsigned int and it should not be used directly but through getter method. It is made
+     * public to make serialization possible and it required by kineticstreamer
+     */
+    public int value;
 
-    /** Composite value of high and low which we pack to long */
-    public long value;
+    public UnsignedInt() {
+        // required by kineticstreamer
+    }
 
-    public SequenceNumber() {}
+    public UnsignedInt(long value) {
+        Preconditions.isLessOrEqual(0, value, "Only positive value allowed");
+        Preconditions.isLessOrEqual(value, 0xffffffffL, "Value exceeds unsigned int");
+        this.value = (int) value;
+    }
 
-    public SequenceNumber(long value) {
-        this.value = value;
+    public long getUnsigned() {
+        return Integer.toUnsignedLong(value);
     }
 
     @Override
     public String toString() {
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("value", value);
-        return builder.toString();
-    }
-
-    @Override
-    public int compareTo(SequenceNumber o) {
-        return Long.compare(value, o.value);
+        return "" + Integer.toUnsignedLong(value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value);
+        return Objects.hash(value);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class SequenceNumber implements Comparable<SequenceNumber> {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        SequenceNumber other = (SequenceNumber) obj;
+        UnsignedInt other = (UnsignedInt) obj;
         return value == other.value;
     }
 }

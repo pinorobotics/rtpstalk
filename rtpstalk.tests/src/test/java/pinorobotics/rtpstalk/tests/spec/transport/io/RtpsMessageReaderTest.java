@@ -19,12 +19,11 @@ package pinorobotics.rtpstalk.tests.spec.transport.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import id.xfunction.io.XInputStream;
 import java.nio.ByteBuffer;
-import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
+import pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders.TestCase;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -34,9 +33,9 @@ public class RtpsMessageReaderTest {
     @ParameterizedTest
     @MethodSource(
             "pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders#rtpsMessageConversion")
-    public void testRead(List testData) throws Exception {
-        var buf = ByteBuffer.wrap(new XInputStream((String) testData.get(0)).readAllBytes());
-        var expected = testData.get(1);
+    public void testRead(TestCase testData) throws Exception {
+        var buf = ByteBuffer.wrap(testData.serializedMessage());
+        var expected = testData.message();
         var actual = new RtpsMessageReader().readRtpsMessage(buf).get();
         System.out.println(actual);
         assertEquals(expected.toString(), actual.toString());

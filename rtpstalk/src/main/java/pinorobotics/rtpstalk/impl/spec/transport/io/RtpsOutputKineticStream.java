@@ -253,7 +253,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     private void writeLocator(Locator locator) throws Exception {
         LOGGER.entering("writeLocator");
         writeInt(locator.kind().value);
-        writeInt(locator.port());
+        writeInt((int) locator.port());
         switch (locator.kind()) {
             case LOCATOR_KIND_UDPv4:
                 {
@@ -286,7 +286,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     public void writeSequenceNumberSet(SequenceNumberSet set) throws Exception {
         LOGGER.entering("writeSequenceNumberSet");
         writeSequenceNumber(set.bitmapBase);
-        writeInt(set.numBits);
+        writeInt(set.numBits.value);
         for (var i : set.bitmap) {
             buf.putInt(XByte.reverseBitsInBytes(i));
         }

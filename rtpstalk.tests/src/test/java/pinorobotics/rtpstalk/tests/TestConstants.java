@@ -25,11 +25,15 @@ import java.net.NetworkInterface;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
+import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -64,4 +68,10 @@ public interface TestConstants {
     TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");
     Executor TEST_PUBLISHER_EXECUTOR =
             RtpsTalkConfiguration.Builder.DEFAULT_PUBLISHER_EXECUTOR.get();
+    Header TEST_HEADER =
+            new Header(
+                    ProtocolId.Predefined.RTPS.getValue(),
+                    ProtocolVersion.Predefined.Version_2_3.getValue(),
+                    VendorId.Predefined.RTPSTALK.getValue(),
+                    TEST_GUID_PREFIX);
 }

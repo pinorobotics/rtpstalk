@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -31,8 +32,8 @@ public class Timestamp implements SubmessageElement {
 
     public static enum Predefined {
         TIME_ZERO(new Timestamp(0, 0)),
-        TIME_INVALID(new Timestamp(0xffffffff, 0xffffffff)),
-        TIME_INFINITE(new Timestamp(0xffffffff, 0xfffffffe));
+        TIME_INVALID(new Timestamp(0xffffffff, 0xffffffffL)),
+        TIME_INFINITE(new Timestamp(0xffffffff, 0xfffffffeL));
 
         static final Map<Timestamp, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
@@ -50,7 +51,7 @@ public class Timestamp implements SubmessageElement {
     public int seconds;
 
     /** Time in sec/2^32 */
-    public int fraction;
+    public UnsignedInt fraction;
 
     public Timestamp() {
         // TODO Auto-generated constructor stub
@@ -58,7 +59,7 @@ public class Timestamp implements SubmessageElement {
 
     public Timestamp(long seconds, long fraction) {
         this.seconds = (int) seconds;
-        this.fraction = (int) fraction;
+        this.fraction = new UnsignedInt(fraction);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class Timestamp implements SubmessageElement {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Timestamp other = (Timestamp) obj;
-        return fraction == other.fraction && seconds == other.seconds;
+        return Objects.equals(fraction, other.fraction) && seconds == other.seconds;
     }
 
     @Override
@@ -83,7 +84,7 @@ public class Timestamp implements SubmessageElement {
         }
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("seconds", seconds);
-        builder.append("fraction", Integer.toUnsignedLong(fraction));
+        builder.append("fraction", fraction);
         return builder.toString();
     }
 
