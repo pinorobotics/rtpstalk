@@ -48,8 +48,10 @@ public class WriterHeartbeatProcessor {
 
     private XLogger logger;
     private WriterProxy writerProxy;
-    private int writerCount;
+
+    /** Counter of Acks */
     private int count;
+
     private Heartbeat lastHeartbeat;
 
     public WriterHeartbeatProcessor(TracingToken tracingToken, WriterProxy writerProxy) {
@@ -69,8 +71,7 @@ public class WriterHeartbeatProcessor {
             logger.fine("Received final heartbeat, ignoring...");
             return;
         }
-        if (writerCount < heartbeat.count.value) {
-            writerCount = heartbeat.count.value;
+        if (lastHeartbeat == null || lastHeartbeat.count.value < heartbeat.count.value) {
             lastHeartbeat = heartbeat;
         } else {
             logger.fine("Received duplicate heartbeat, ignoring...");
@@ -130,7 +131,7 @@ public class WriterHeartbeatProcessor {
             if (sn < first || last < sn) continue;
             bset.flip((int) (sn - first));
         }
-        return new SequenceNumberSet(lastHeartbeat.firstSN, numBits, bset.intArray());
+        return new SequenceNumberSet(heartbeat.firstSN, numBits, bset.intArray());
     }
 
     private SequenceNumberSet expectNextSet() {

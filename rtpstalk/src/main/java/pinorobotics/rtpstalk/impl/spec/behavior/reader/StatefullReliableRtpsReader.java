@@ -100,7 +100,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             var writerProxy = matchedWriters.get(writerGuid);
             if (writerProxy != null) {
                 logger.fine("Received heartbeat from writer {0}", writerGuid);
-                writerProxy.heartbeatProcessor().addHeartbeat(heartbeat);
+                writerProxy.getHeartbeatProcessor().addHeartbeat(heartbeat);
             } else {
                 logger.fine("Received heartbeat from unknown writer {0}, ignoring...", writerGuid);
             }
@@ -127,7 +127,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     protected void process(RtpsMessage message) {
         super.process(message);
         matchedWriters.values().stream()
-                .map(WriterProxy::heartbeatProcessor)
+                .map(WriterProxy::getHeartbeatProcessor)
                 .forEach(WriterHeartbeatProcessor::ack);
     }
 

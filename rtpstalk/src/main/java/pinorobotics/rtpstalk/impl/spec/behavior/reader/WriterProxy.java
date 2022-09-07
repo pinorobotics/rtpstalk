@@ -23,11 +23,12 @@ import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterSt
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -111,15 +112,24 @@ public class WriterProxy {
     }
 
     public void lostChangesUpdate(long firstSN) {
-        changesFromWriter =
-                changesFromWriter.entrySet().stream()
-                        .filter(e -> e.getKey() >= firstSN)
-                        .collect(
-                                Collectors.toMap(
-                                        Entry::getKey,
-                                        Entry::getValue,
-                                        (a, b) -> b,
-                                        LinkedHashMap::new));
+        Map<Long, ChangeFromWriterStatusKind> newChangesFromWriter =
+                new LinkedHashMap<>(changesFromWriter.size());
+        var lostChanges = new ArrayList<Long>();
+        for (var entry : changesFromWriter.entrySet()) {
+            var seqNum = entry.getKey();
+            if (seqNum < firstSN) {
+                lostChanges.add(seqNum);
+            } else {
+                newChangesFromWriter.put(entry.getKey(), entry.getValue());
+            }
+        }
+        if (!lostChanges.isEmpty()) {
+            Collections.sort(lostChanges);
+            logger.fine(
+                    "Changes from {0} to {1} are not available on the Writer anymore and are lost",
+                    lostChanges.get(0), lostChanges.get(lostChanges.size() - 1));
+        }
+        changesFromWriter = newChangesFromWriter;
     }
 
     /**
@@ -133,7 +143,7 @@ public class WriterProxy {
                 .toArray();
     }
 
-    public WriterHeartbeatProcessor heartbeatProcessor() {
+    public WriterHeartbeatProcessor getHeartbeatProcessor() {
         return heartbeatProcessor;
     }
 
