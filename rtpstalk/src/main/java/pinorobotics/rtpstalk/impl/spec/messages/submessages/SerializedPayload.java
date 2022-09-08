@@ -58,4 +58,8 @@ public class SerializedPayload implements SubmessageElement {
         builder.append("payload", payload);
         return builder.toString();
     }
+
+    public Payload getPayload() {
+        return payload;
+    }
 }

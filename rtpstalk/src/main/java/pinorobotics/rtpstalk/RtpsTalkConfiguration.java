@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Supplier;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -54,7 +55,8 @@ public record RtpsTalkConfiguration(
         Duration spdpDiscoveredParticipantDataPublishPeriod,
         int appEntityKey,
         Optional<ExecutorService> publisherExecutor,
-        int publisherMaxBufferSize) {
+        int publisherMaxBufferSize,
+        int receiveBufferSize) {
 
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
@@ -73,6 +75,7 @@ public record RtpsTalkConfiguration(
         builder.append("userEndpointsPort", userEndpointsPort);
         builder.append("historyCacheMaxSize", historyCacheMaxSize);
         builder.append("publisherExecutor", publisherExecutor);
+        builder.append("receiveBufferSize", receiveBufferSize);
         return builder.toString();
     }
 
@@ -101,6 +104,8 @@ public record RtpsTalkConfiguration(
                 () -> Executors.newCachedThreadPool();
         public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = 32;
 
+        public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 26214400;
+
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
         private Optional<Integer> builtinEnpointsPort = Optional.empty();
@@ -116,6 +121,7 @@ public record RtpsTalkConfiguration(
         private Optional<ExecutorService> publisherExecutor = Optional.empty();
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
+        private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
 
         /**
          * @see #networkInterface(String)
@@ -223,6 +229,23 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /**
+         * When Writer sends many large messages the network socket receive buffer on the Reader may
+         * quickly run out of space. When receive buffer is full all new messages are dropped.
+         * Depending on QOS policy when some of the messages are lost then {@link Subscriber} may
+         * stop receiving new messages.
+         *
+         * <p>Increasing receive buffer allows to store more messages and to reduce number of lost
+         * messages.
+         *
+         * <p>Another way to address message loss is to configure QOS policy which is not available
+         * at that moment.
+         */
+        public Builder receiveBufferSize(int receiveBufferSize) {
+            this.receiveBufferSize = receiveBufferSize;
+            return this;
+        }
+
         public RtpsTalkConfiguration build() {
             return new RtpsTalkConfiguration(
                     startPort,
@@ -240,7 +263,8 @@ public record RtpsTalkConfiguration(
                     spdpDiscoveredParticipantDataPublishPeriod,
                     appEntityKey,
                     publisherExecutor,
-                    publisherMaxBufferCapacity);
+                    publisherMaxBufferCapacity,
+                    receiveBufferSize);
         }
     }
 }

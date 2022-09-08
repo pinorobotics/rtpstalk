@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.walk;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
@@ -34,6 +35,8 @@ public class RtpsSubmessagesWalker {
         for (var submessage : message.getSubmessages()) {
             Result res = null;
             if (submessage instanceof Data data) res = visitor.onData(guidPrefix, data);
+            else if (submessage instanceof DataFrag dataFrag)
+                res = visitor.onDataFrag(guidPrefix, dataFrag);
             else if (submessage instanceof AckNack ackNack)
                 res = visitor.onAckNack(guidPrefix, ackNack);
             else if (submessage instanceof Heartbeat heartbeat)

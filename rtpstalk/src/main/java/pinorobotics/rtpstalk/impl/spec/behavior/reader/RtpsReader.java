@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
@@ -76,6 +77,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     private TracingToken tracingToken;
     private RtpsDataPackager<D> packager = new RtpsDataPackager<>();
     private Class<D> messageType;
+    private DataFragmentReaderProcessor processor;
 
     public RtpsReader(
             RtpsTalkConfiguration config,
@@ -89,6 +91,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
+        processor = new DataFragmentReaderProcessor(tracingToken);
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
@@ -117,6 +120,20 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                             addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
                             d.inlineQos.ifPresent(
                                     inlineQos -> processInlineQos(writerGuid, inlineQos));
+                        });
+        return Result.CONTINUE;
+    }
+
+    @Override
+    public Result onDataFrag(GuidPrefix guidPrefix, DataFrag dataFrag) {
+        var writerGuid = new Guid(guidPrefix, dataFrag.writerId);
+        processor
+                .addDataFrag(writerGuid, dataFrag)
+                .ifPresent(
+                        message -> {
+                            addChange(
+                                    new CacheChange<>(
+                                            writerGuid, dataFrag.writerSN.value, (D) message));
                         });
         return Result.CONTINUE;
     }

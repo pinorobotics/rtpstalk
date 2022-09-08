@@ -38,9 +38,12 @@ import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataSubmessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
@@ -273,25 +276,35 @@ class RtpsInputKineticStream implements InputKineticStream {
         buf.position(buf.position() + offset);
     }
 
-    private Data readData() throws Exception {
+    private <T extends DataSubmessage> T readData(Class<T> dataType) throws Exception {
         LOGGER.entering("readData");
         var dataSubmessageStart =
                 buf.position()
                         + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
-        var data = reader.read(Data.class);
+        var data = reader.read(dataType);
         if (data.isInlineQos()) {
             LOGGER.fine("Reading InlineQos");
-            data.inlineQos = Optional.of(readParameterList(true));
+            data.setInlineQos(readParameterList(true));
         }
-        var dataLen = data.submessageHeader.submessageLength.getUnsigned();
+        var dataLen = data.getSubmessageLength();
         if (buf.position() < dataSubmessageStart + dataLen) {
-            var payloadHeader = reader.read(SerializedPayloadHeader.class);
-            LOGGER.fine("payloadHeader: {0}", payloadHeader);
-            var representationId = payloadHeader.representation_identifier.getPredefinedValue();
-            if (representationId.isEmpty())
-                throw new XRuntimeException(
-                        "Unknown representation identifier %s",
-                        payloadHeader.representation_identifier);
+            SerializedPayloadHeader payloadHeader = null;
+            // is it DataFrag without header
+            boolean isDataFragNoHeader = false;
+            if (data instanceof DataFrag dataFrag) {
+                isDataFragNoHeader = dataFrag.fragmentStartingNum.getUnsigned() > 1;
+            }
+            Optional<RepresentationIdentifier.Predefined> representationId =
+                    Optional.of(RepresentationIdentifier.Predefined.CDR_LE);
+            if (!isDataFragNoHeader) {
+                payloadHeader = reader.read(SerializedPayloadHeader.class);
+                LOGGER.fine("payloadHeader: {0}", payloadHeader);
+                representationId = payloadHeader.representation_identifier.getPredefinedValue();
+                if (representationId.isEmpty())
+                    throw new XRuntimeException(
+                            "Unknown representation identifier %s",
+                            payloadHeader.representation_identifier);
+            }
             Payload payload =
                     switch (representationId.get()) {
                         case PL_CDR_LE -> readParameterList(false);
@@ -300,8 +313,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                         default -> throw new UnsupportedOperationException(
                                 "Representation identifier " + representationId.get());
                     };
+
             LOGGER.fine("payload: {0}", payload);
-            data.serializedPayload = Optional.of(new SerializedPayload(payloadHeader, payload));
+            data.setSerializedPayload(new SerializedPayload(payloadHeader, payload));
         }
         LOGGER.exiting("readData");
         return data;
@@ -374,7 +388,8 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private Submessage readSubmessage(Class<? extends Submessage> type) throws Exception {
         // submessages with polymorphic types inside we read manually
-        if (type == Data.class) return readData();
+        if (type == Data.class) return readData(Data.class);
+        else if (type == DataFrag.class) return readData(DataFrag.class);
         else if (type == Heartbeat.class) return readHeartbeat();
         else /* rest we leave for kineticstreamer */ return reader.read(type);
     }

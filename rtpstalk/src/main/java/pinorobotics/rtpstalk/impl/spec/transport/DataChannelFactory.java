@@ -18,9 +18,12 @@
 package pinorobotics.rtpstalk.impl.spec.transport;
 
 import id.xfunction.Preconditions;
+import id.xfunction.function.ThrowingConsumer;
 import id.xfunction.logging.TracingToken;
+import id.xfunction.logging.XLogger;
 import id.xfunction.net.FreeUdpPortIterator;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -36,6 +39,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
  */
 public class DataChannelFactory {
 
+    private static final XLogger LOGGER = XLogger.getLogger(DataChannelFactory.class);
     private RtpsTalkConfiguration config;
 
     public DataChannelFactory(RtpsTalkConfiguration config) {
@@ -75,11 +79,30 @@ public class DataChannelFactory {
             TracingToken tracingToken, Optional<InetAddress> address, Optional<Integer> port)
             throws IOException {
         DatagramChannel dataChannel = null;
+        ThrowingConsumer<DatagramSocket, IOException> configurator =
+                socket -> {
+                    socket.setReceiveBufferSize(config.receiveBufferSize());
+                    if (socket.getReceiveBufferSize() != config.receiveBufferSize()) {
+                        LOGGER.warning(
+                                """
+                        Could not set size of receive buffer, current size {0}, expected {1}. This may cause message loss.
+
+                        If running Linux try to set receive buffer manually:
+                        sudo sysctl -w net.core.rmem_max={1}
+                        sudo sysctl -w net.core.rmem_default={1}
+                        sudo sysctl -w net.ipv4.udp_mem={1}
+                        """,
+                                socket.getReceiveBufferSize(), config.receiveBufferSize());
+                    }
+                };
         if (port.isEmpty()) {
-            var portIterator = new FreeUdpPortIterator(config.startPort(), address);
+            var portIterator = new FreeUdpPortIterator(config.startPort());
+            address.ifPresent(portIterator::withNetworkInterfaceAddress);
+            portIterator.withSocketConfigurator(configurator);
             dataChannel = portIterator.next();
         } else {
             dataChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+            configurator.accept(dataChannel.socket());
             if (address.isPresent())
                 dataChannel.bind(new InetSocketAddress(address.get(), port.get()));
             else dataChannel.bind(new InetSocketAddress(port.get()));

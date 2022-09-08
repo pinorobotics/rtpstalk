@@ -54,6 +54,10 @@ public abstract class Submessage {
         return new Object[0];
     }
 
+    public int getSubmessageLength() {
+        return submessageHeader.submessageLength.getUnsigned();
+    }
+
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);

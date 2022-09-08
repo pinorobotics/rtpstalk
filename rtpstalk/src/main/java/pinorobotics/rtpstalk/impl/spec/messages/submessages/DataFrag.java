@@ -17,10 +17,10 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
-import id.xfunction.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -30,9 +30,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Data extends Submessage implements DataSubmessage {
+public class DataFrag extends Submessage implements DataSubmessage {
 
-    public short extraFlags;
+    public UnsignedShort extraFlags;
 
     /**
      * Contains the number of octets starting from the first octet immediately following this field
@@ -56,71 +56,43 @@ public class Data extends Submessage implements DataSubmessage {
     public SequenceNumber writerSN;
 
     /**
+     * Indicates the starting fragment for the series of fragments in serializedData. Fragment
+     * numbering starts with number 1
+     */
+    public UnsignedInt fragmentStartingNum;
+
+    /**
+     * The number of consecutive fragments contained in this Submessage, starting at
+     * fragmentStartingNum.
+     */
+    public UnsignedShort fragmentsInSubmessage;
+
+    /** The size of an individual fragment in bytes. The maximum fragment size equals 64K. */
+    public UnsignedShort fragmentSize;
+
+    /** The total size in bytes of the original data before fragmentation. */
+    public int dataSize;
+
+    /**
      * Present only if the InlineQosFlag is set in the header. Contains QoS that may affect the
      * interpretation of the message
      */
     public transient Optional<ParameterList> inlineQos = Optional.empty();
 
-    public transient Optional<SerializedPayload> serializedPayload = Optional.empty();
+    public transient SerializedPayload serializedPayload;
 
-    public Data() {}
+    public DataFrag() {}
 
-    public Data(
-            EntityId.Predefined readerId,
-            EntityId.Predefined writerId,
-            SequenceNumber writerSN,
-            SerializedPayload serializedPayload) {
-        this(readerId.getValue(), writerId.getValue(), writerSN, serializedPayload);
-    }
-
-    public Data(
-            EntityId.Predefined readerId,
-            EntityId.Predefined writerId,
-            SequenceNumber writerSN,
-            ParameterList inlineQos,
-            SerializedPayload serializedPayload) {
-        this(readerId.getValue(), writerId.getValue(), writerSN, inlineQos, serializedPayload);
-    }
-
-    public Data(
-            EntityId.Predefined readerId,
-            EntityId.Predefined writerId,
-            SequenceNumber writerSN,
-            ParameterList inlineQos) {
-        this(
-                readerId.getValue(),
-                writerId.getValue(),
-                writerSN,
-                Optional.of(inlineQos),
-                Optional.empty());
-    }
-
-    public Data(
+    public DataFrag(
             EntityId readerId,
             EntityId writerId,
             SequenceNumber writerSN,
-            SerializedPayload serializedPayload) {
-        this(readerId, writerId, writerSN, Optional.empty(), Optional.of(serializedPayload));
-    }
-
-    public Data(
-            EntityId readerId,
-            EntityId writerId,
-            SequenceNumber writerSN,
-            ParameterList inlineQos,
-            SerializedPayload serializedPayload) {
-        this(readerId, writerId, writerSN, Optional.of(inlineQos), Optional.of(serializedPayload));
-    }
-
-    public Data(
-            EntityId readerId,
-            EntityId writerId,
-            SequenceNumber writerSN,
+            long fragmentStartingNum,
+            int fragmentsInSubmessage,
+            int fragmentSize,
+            int dataSize,
             Optional<ParameterList> inlineQos,
-            Optional<SerializedPayload> serializedPayload) {
-        Preconditions.isTrue(
-                inlineQos.isPresent() || serializedPayload.isPresent(),
-                "At least inlineQos or data must be present");
+            SerializedPayload serializedPayload) {
         this.octetsToInlineQos =
                 new UnsignedShort(
                         (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
@@ -129,14 +101,19 @@ public class Data extends Submessage implements DataSubmessage {
         this.readerId = readerId;
         this.writerId = writerId;
         this.writerSN = writerSN;
+        this.fragmentStartingNum = new UnsignedInt(fragmentStartingNum);
+        this.fragmentsInSubmessage = new UnsignedShort(fragmentsInSubmessage);
+        this.fragmentSize = new UnsignedShort(fragmentSize);
+        this.dataSize = dataSize;
         this.inlineQos = inlineQos;
         this.serializedPayload = serializedPayload;
         var flags = RtpsTalkConfiguration.ENDIANESS_BIT;
-        if (serializedPayload.isPresent()) flags |= 0b100;
+        // data flag
+        flags |= 0b100;
         if (!inlineQos.isEmpty()) flags |= 2;
         submessageHeader =
                 new SubmessageHeader(
-                        SubmessageKind.Predefined.DATA.getValue(),
+                        SubmessageKind.Predefined.DATA_FRAG.getValue(),
                         flags,
                         LengthCalculator.getInstance().calculateLength(this));
     }
@@ -145,7 +122,6 @@ public class Data extends Submessage implements DataSubmessage {
     public List<String> getFlags() {
         var flags = super.getFlags();
         if (isInlineQos()) flags.add("InlineQos");
-        if (isData()) flags.add("Data");
         if (isKey()) flags.add("Key");
         if (isNonStandardPayload()) flags.add("NonStandardPayload");
         return flags;
@@ -156,19 +132,15 @@ public class Data extends Submessage implements DataSubmessage {
         return (getFlagsInternal() & 2) != 0;
     }
 
-    public boolean isData() {
+    public boolean isKey() {
         return (getFlagsInternal() & 4) != 0;
     }
 
-    public boolean isKey() {
+    public boolean isNonStandardPayload() {
         return (getFlagsInternal() & 8) != 0;
     }
 
-    public boolean isNonStandardPayload() {
-        return (getFlagsInternal() & 10) != 0;
-    }
-
-    public Optional<SerializedPayload> getSerializedPayload() {
+    public SerializedPayload getSerializedPayload() {
         return serializedPayload;
     }
 
@@ -176,12 +148,15 @@ public class Data extends Submessage implements DataSubmessage {
     protected Object[] getAdditionalFields() {
         return new Object[] {
             "extraFlags", extraFlags,
-            "octetsToInlineQos", octetsToInlineQos,
             "readerId", readerId,
             "writerId", writerId,
             "writerSN", writerSN,
             "inlineQos", inlineQos,
-            "serializedPayload", serializedPayload.map(Object::toString).orElse("null")
+            "fragmentStartingNum", fragmentStartingNum,
+            "fragmentsInSubmessage", fragmentsInSubmessage,
+            "fragmentSize", fragmentSize,
+            "dataSize", dataSize,
+            "serializedPayload", serializedPayload
         };
     }
 
@@ -193,6 +168,6 @@ public class Data extends Submessage implements DataSubmessage {
 
     @Override
     public void setSerializedPayload(SerializedPayload serializedPayload) {
-        this.serializedPayload = Optional.of(serializedPayload);
+        this.serializedPayload = serializedPayload;
     }
 }

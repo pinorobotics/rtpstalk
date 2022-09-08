@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.integration;
 import id.pubsubtests.TestPubSubClient;
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.TransformProcessor;
+import java.util.Optional;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
@@ -50,12 +51,12 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
         client.subscribe(topic, asType(topic), transformer);
     }
 
-    private String extractString(RtpsTalkDataMessage message) {
-        return message.data().map(v -> new String(v).trim()).orElse("null");
+    private Optional<String> extractString(RtpsTalkDataMessage message) {
+        return message.data().map(v -> new String(v).trim());
     }
 
-    private RtpsTalkDataMessage packString(String message) {
-        return new RtpsTalkDataMessage(message.getBytes());
+    private Optional<RtpsTalkDataMessage> packString(String message) {
+        return Optional.of(new RtpsTalkDataMessage(message.getBytes()));
     }
 
     private String asType(String topic) {

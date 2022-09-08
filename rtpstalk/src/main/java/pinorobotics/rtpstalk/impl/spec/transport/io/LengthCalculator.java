@@ -41,6 +41,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
@@ -132,6 +133,14 @@ public class LengthCalculator {
                     Short.BYTES * 2
                             + getFixedLength(EntityId.class) * 2
                             + getFixedLength(SequenceNumber.class)
+                            + calculateLength(d.inlineQos)
+                            + calculateLength(d.serializedPayload));
+        if (obj instanceof DataFrag d)
+            return calculateSubmessagePadding(
+                    Short.BYTES * 4
+                            + getFixedLength(EntityId.class) * 2
+                            + getFixedLength(SequenceNumber.class)
+                            + Integer.BYTES
                             + calculateLength(d.inlineQos)
                             + calculateLength(d.serializedPayload));
         if (obj instanceof SerializedPayload p)

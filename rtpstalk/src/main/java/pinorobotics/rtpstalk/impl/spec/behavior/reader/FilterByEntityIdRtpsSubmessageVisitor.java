@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -43,6 +44,12 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
     public Result onData(GuidPrefix guidPrefix, Data data) {
         if (!readerEntityId.equals(data.readerId)) return Result.CONTINUE;
         return nextVisitor.onData(guidPrefix, data);
+    }
+
+    @Override
+    public Result onDataFrag(GuidPrefix guidPrefix, DataFrag data) {
+        if (!readerEntityId.equals(data.readerId)) return Result.CONTINUE;
+        return nextVisitor.onDataFrag(guidPrefix, data);
     }
 
     @Override

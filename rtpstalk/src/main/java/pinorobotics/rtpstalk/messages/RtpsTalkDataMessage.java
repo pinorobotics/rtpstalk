@@ -38,12 +38,17 @@ public class RtpsTalkDataMessage implements RtpsTalkMessage {
         this.data = Optional.ofNullable(data);
     }
 
+    public RtpsTalkDataMessage(Optional<Parameters> inlineQos, byte[] data) {
+        this.inlineQos = inlineQos;
+        this.data = Optional.ofNullable(data);
+    }
+
     public RtpsTalkDataMessage(Parameters inlineQos) {
         this(inlineQos, null);
     }
 
     public RtpsTalkDataMessage(byte[] data) {
-        this(null, data);
+        this(Optional.empty(), data);
     }
 
     public RtpsTalkDataMessage(String data) {

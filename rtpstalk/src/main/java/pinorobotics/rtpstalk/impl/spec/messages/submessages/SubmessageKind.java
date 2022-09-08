@@ -65,10 +65,10 @@ public class SubmessageKind {
         //        HEARTBEAT_FRAG(new SubmessageKind(0x13), InfoTimestamp.class),
 
         /** Data */
-        DATA(new SubmessageKind(0x15), Data.class);
+        DATA(new SubmessageKind(0x15), Data.class),
 
-        //        /** DataFrag */
-        //        DATA_FRAG(new SubmessageKind(0x16), InfoTimestamp.class);
+        /** DataFrag */
+        DATA_FRAG(new SubmessageKind(0x16), DataFrag.class);
 
         static final Map<SubmessageKind, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
