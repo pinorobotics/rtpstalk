@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.spec.behavior.reader;
+package pinorobotics.rtpstalk.tests.behavior.reader;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.impl.spec.behavior.reader.DataFragmentReaderProcessor;
+import pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentReaderProcessor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;

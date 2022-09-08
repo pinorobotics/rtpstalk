@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.spec.behavior.reader;
+package pinorobotics.rtpstalk.impl.behavior.reader;
 
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;

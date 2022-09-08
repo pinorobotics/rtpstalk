@@ -37,6 +37,10 @@ module rtpstalk {
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.qos to
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.behavior.reader to
+            rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.behavior.writer to
+            rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.spec.messages to
             id.kineticstreamer,
             rtpstalk.tests;

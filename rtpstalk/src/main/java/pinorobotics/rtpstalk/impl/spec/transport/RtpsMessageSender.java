@@ -101,6 +101,7 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
                             submessages[1] = message.submessages[0];
                             message.submessages = submessages;
                         });
+
                 dataChannel.send(remoteReader, message);
             } else {
                 logger.fine(

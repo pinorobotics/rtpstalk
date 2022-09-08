@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl;
+package pinorobotics.rtpstalk.impl.behavior.writer;
 
 import id.xfunction.Preconditions;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;

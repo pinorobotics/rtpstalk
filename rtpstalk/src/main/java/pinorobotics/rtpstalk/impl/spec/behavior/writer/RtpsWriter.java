@@ -26,7 +26,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.RtpsDataMessageBuilder;
+import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
