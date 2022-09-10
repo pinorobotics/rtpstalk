@@ -273,7 +273,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         if (requestedChanges.isEmpty()) return;
         var builder =
                 new RtpsDataMessageBuilder(
-                        getGuid().guidPrefix, readerProxy.getRemoteReaderGuid().guidPrefix);
+                        getConfig(),
+                        getGuid().guidPrefix,
+                        readerProxy.getRemoteReaderGuid().guidPrefix);
         historyCache
                 .findAll(getGuid(), requestedChanges)
                 .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));

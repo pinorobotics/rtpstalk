@@ -59,6 +59,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
     protected final XLogger logger;
+    private RtpsTalkConfiguration config;
 
     private long lastChangeNumber;
     private Guid writerGuid;
@@ -90,6 +91,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
             EntityId writerEntityId,
             boolean pushMode) {
         super(publisherExecutor, config.publisherMaxBufferSize());
+        this.config = config;
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
         this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
         logger = XLogger.getLogger(getClass(), tracingToken);
@@ -112,7 +114,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     public void newChange(D data) {
         logger.entering("newChange");
         lastChangeNumber++;
-        lastMessage = new RtpsDataMessageBuilder(writerGuid.guidPrefix);
+        lastMessage = new RtpsDataMessageBuilder(config, writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);
         sendLastChangeToAllReaders();
         logger.exiting("newChange");
@@ -160,6 +162,10 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         cancelSubscription();
         super.close();
         logger.fine("Closed");
+    }
+
+    protected RtpsTalkConfiguration getConfig() {
+        return config;
     }
 
     /**

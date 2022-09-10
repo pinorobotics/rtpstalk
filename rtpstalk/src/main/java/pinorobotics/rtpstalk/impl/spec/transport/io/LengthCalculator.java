@@ -31,11 +31,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.HistoryQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.IntSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
+import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
@@ -122,6 +124,12 @@ public class LengthCalculator {
                     + getFixedLength(SequenceNumber.class) * 2
                     + getFixedLength(Count.class);
         if (clazz == StatusInfo.class) return StatusInfo.SIZE;
+        if (clazz == ProtocolId.class) return ProtocolId.SIZE;
+        if (clazz == Header.class)
+            return getFixedLength(ProtocolId.class)
+                    + getFixedLength(ProtocolVersion.class)
+                    + getFixedLength(VendorId.class)
+                    + getFixedLength(GuidPrefix.class);
         return -1;
     }
 

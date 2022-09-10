@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk;
 
+import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.function.Unchecked;
@@ -58,6 +59,25 @@ public record RtpsTalkConfiguration(
         int publisherMaxBufferSize,
         int receiveBufferSize) {
 
+    /**
+     * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload of
+     * 65,507 bytes for IPv4
+     *
+     * @see <a href="https://datatracker.ietf.org/doc/html/rfc8085">UDP RFC</a>
+     */
+    public static final int UDP_MAX_PACKET_SIZE = 65_507;
+
+    public static final int MIN_PACKET_BUFFER_SIZE = 10_000;
+
+    public RtpsTalkConfiguration {
+        Preconditions.isTrue(
+                packetBufferSize >= MIN_PACKET_BUFFER_SIZE,
+                "packetBufferSize is less than " + MIN_PACKET_BUFFER_SIZE);
+        Preconditions.isTrue(
+                packetBufferSize <= UDP_MAX_PACKET_SIZE,
+                "packetBufferSize cannot exceed UDP packet maximum size");
+    }
+
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
 
@@ -80,14 +100,6 @@ public record RtpsTalkConfiguration(
     }
 
     public static class Builder {
-
-        /**
-         * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload
-         * of 65,507 bytes for IPv4
-         *
-         * @see <a href="https://datatracker.ietf.org/doc/html/rfc8085">UDP RFC</a>
-         */
-        public static final int UDP_MAX_PACKET_SIZE = 65_507;
 
         /**
          * Default starting port from which port assignment for {@link #builtinEnpointsPort}, {@link

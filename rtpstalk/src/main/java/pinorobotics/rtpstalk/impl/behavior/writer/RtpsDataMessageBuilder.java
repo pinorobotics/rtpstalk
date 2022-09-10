@@ -20,12 +20,15 @@ package pinorobotics.rtpstalk.impl.behavior.writer;
 import id.xfunction.Preconditions;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -34,6 +37,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -46,12 +50,16 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     private Optional<GuidPrefix> readerGuidPrefix;
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
     private long lastSeqNum;
+    private int maxMessageSize;
 
-    public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix) {
-        this(writerGuidPrefix, null);
+    public RtpsDataMessageBuilder(RtpsTalkConfiguration config, GuidPrefix writerGuidPrefix) {
+        this(config, writerGuidPrefix, null);
     }
 
-    public RtpsDataMessageBuilder(GuidPrefix writerGuidPrefix, GuidPrefix readerGuidPrefix) {
+    public RtpsDataMessageBuilder(
+            RtpsTalkConfiguration config,
+            GuidPrefix writerGuidPrefix,
+            GuidPrefix readerGuidPrefix) {
         header =
                 new Header(
                         ProtocolId.Predefined.RTPS.getValue(),
@@ -59,6 +67,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                         VendorId.Predefined.RTPSTALK.getValue(),
                         writerGuidPrefix);
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
+        maxMessageSize =
+                config.packetBufferSize()
+                        - LengthCalculator.getInstance().getFixedLength(Header.class);
+        Preconditions.isTrue(maxMessageSize > 0, "Unexpected maxMessageSize " + maxMessageSize);
     }
 
     public void add(long seqNum, RtpsTalkMessage payload) {
@@ -68,18 +80,23 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     }
 
     @Override
-    public RtpsMessage build(EntityId readerEntiyId, EntityId writerEntityId) {
-        var submessages = new ArrayList<Submessage>();
-        // we do not timestamp data changes so we do not include InfoTimestamp per each Data
-        // submessage,
-        // instead we include InfoTimestamp per entire message and only once
-        submessages.add(InfoTimestamp.now());
+    public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
+        var messages = new ArrayList<RtpsMessage>();
+        var messageBuilder = new InternalBuilder();
         for (var e : data.entrySet()) {
             var seqNum = e.getKey();
-            submessages.add(
-                    packager.packMessage(readerEntiyId, writerEntityId, seqNum, e.getValue()));
+            var message = e.getValue();
+            var submessage = packager.packMessage(readerEntiyId, writerEntityId, seqNum, message);
+            if (messageBuilder.add(submessage)) continue;
+
+            // the message is already full so we reset it
+            messageBuilder.build().ifPresent(messages::add);
+            messageBuilder = new InternalBuilder();
+            if (messageBuilder.add(submessage)) continue;
+            throw new RuntimeException("Data size is too big");
         }
-        return new RtpsMessage(header, submessages);
+        messageBuilder.build().ifPresent(messages::add);
+        return messages;
     }
 
     public boolean hasData() {
@@ -89,5 +106,32 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     @Override
     public GuidPrefix getReaderGuidPrefix() {
         return readerGuidPrefix.orElseGet(() -> MessageBuilder.super.getReaderGuidPrefix());
+    }
+
+    private class InternalBuilder {
+        static final int headerLen = LengthCalculator.getInstance().getFixedLength(Header.class);
+        List<Submessage> submessages = new ArrayList<Submessage>();
+        int messageLen = headerLen;
+
+        InternalBuilder() {
+            // we do not timestamp data changes so we do not include InfoTimestamp per each Data
+            // submessage, instead we include InfoTimestamp per entire message and only once
+            submessages.add(InfoTimestamp.now());
+            messageLen += LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class);
+        }
+
+        boolean add(Data submessage) {
+            var submessageLen = submessage.submessageHeader.submessageLength.getUnsigned();
+            if (messageLen + submessageLen > maxMessageSize) return false;
+            submessages.add(submessage);
+            messageLen += submessageLen;
+            return true;
+        }
+
+        public Optional<RtpsMessage> build() {
+            return submessages.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(new RtpsMessage(header, submessages));
+        }
     }
 }

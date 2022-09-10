@@ -17,10 +17,13 @@
  */
 package pinorobotics.rtpstalk.impl.behavior.writer;
 
+import java.util.ArrayList;
+import java.util.List;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -54,7 +57,10 @@ public class RtpsHeartbeatMessageBuilder implements RtpsMessageSender.MessageBui
     }
 
     @Override
-    public RtpsMessage build(EntityId readerEntiyId, EntityId writerEntityId) {
+    public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
+        var submessages = new ArrayList<Submessage>();
+        if (getReaderGuidPrefix() != GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue())
+            submessages.add(new InfoDestination(getReaderGuidPrefix()));
         var heartbeat =
                 new Heartbeat(
                         readerEntiyId,
@@ -62,7 +68,7 @@ public class RtpsHeartbeatMessageBuilder implements RtpsMessageSender.MessageBui
                         new SequenceNumber(seqNumMin),
                         new SequenceNumber(seqNumMax),
                         new Count(heartbeatCount));
-        var submessages = new Submessage[] {heartbeat};
-        return new RtpsMessage(header, submessages);
+        submessages.add(heartbeat);
+        return List.of(new RtpsMessage(header, submessages.toArray(new Submessage[0])));
     }
 }

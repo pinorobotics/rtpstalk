@@ -105,8 +105,8 @@ public class SpdpServiceTest {
                 TestConstants.TEST_NETWORK_IFACE,
                 TestConstants.LOOPBACK_NETWORK_IFACE,
                 new SimpleSubscriber<>());
-        // we expect spdp publisher startup time no longer than 100 msec
-        Thread.sleep(100);
+        // we expect spdp publisher startup time no longer than 300 msec
+        Thread.sleep(300);
         Assertions.assertEquals(1, metatrafficChannel.getDataQueue().size());
         var message = metatrafficChannel.getDataQueue().peek().toString();
         System.out.println(message);

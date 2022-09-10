@@ -43,7 +43,9 @@ public class ProtocolId {
         }
     }
 
-    public byte[] value = new byte[4];
+    public static final int SIZE = 4;
+
+    public byte[] value = new byte[SIZE];
 
     public ProtocolId() {}
 
