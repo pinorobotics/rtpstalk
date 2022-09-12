@@ -27,7 +27,6 @@ import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
-import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -77,8 +76,8 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     }
 
     /**
-     * @param pushMode Note that for a {@link ReliabilityKind#BEST_EFFORT} Writer, pushMode is true,
-     *     as there are no acknowledgments.
+     * @param pushMode Note that for a {@link ReliabilityQosPolicy.Kind#BEST_EFFORT} Writer,
+     *     pushMode is true, as there are no acknowledgments.
      */
     @RtpsSpecReference(
             paragraph = "8.4.9.1.1",

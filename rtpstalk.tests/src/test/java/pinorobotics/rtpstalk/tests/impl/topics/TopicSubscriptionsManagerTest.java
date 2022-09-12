@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
@@ -80,9 +80,7 @@ public class TopicSubscriptionsManagerTest {
             var topicId = new TopicId("testTopic", "testType");
             manager.addLocalActor(
                     new SubscriberDetails(
-                            topicId,
-                            new SubscriberQosPolicy.Builder().build(),
-                            new SimpleSubscriber<>()));
+                            topicId, new SubscriberQosPolicySet(), new SimpleSubscriber<>()));
             var subData =
                     publicationsWriter
                             .getWriterCache()

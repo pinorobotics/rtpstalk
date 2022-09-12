@@ -18,40 +18,21 @@
 package pinorobotics.rtpstalk.impl.qos;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record PublisherQosPolicy(ReliabilityKind reliabilityKind, DurabilityKind durabilityKind) {
+public record SubscriberQosPolicySet(ReliabilityQosPolicy.Kind reliabilityKind) {
+
+    public SubscriberQosPolicySet() {
+        this(ReliabilityQosPolicy.Kind.RELIABLE);
+    }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("reliabilityKind", reliabilityKind);
         return builder.toString();
-    }
-
-    public static class Builder {
-
-        public static final ReliabilityKind DEFAULT_RELIABILITY_KIND = ReliabilityKind.RELIABLE;
-        public static final DurabilityKind DEFAULT_DURABILITY_KIND =
-                DurabilityKind.VOLATILE_DURABILITY_QOS;
-
-        private ReliabilityKind reliabilityKind = DEFAULT_RELIABILITY_KIND;
-        private DurabilityKind durabilityKind = DEFAULT_DURABILITY_KIND;
-
-        public Builder reliabilityKind(ReliabilityKind reliabilityKind) {
-            this.reliabilityKind = reliabilityKind;
-            return this;
-        }
-
-        public Builder durabilityKind(DurabilityKind durabilityKind) {
-            this.durabilityKind = durabilityKind;
-            return this;
-        }
-
-        public PublisherQosPolicy build() {
-            return new PublisherQosPolicy(reliabilityKind, durabilityKind);
-        }
     }
 }

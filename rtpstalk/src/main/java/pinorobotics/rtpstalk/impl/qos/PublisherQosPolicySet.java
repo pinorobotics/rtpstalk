@@ -17,17 +17,25 @@
  */
 package pinorobotics.rtpstalk.impl.qos;
 
+import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class QosPoliciesTransformer {
+public record PublisherQosPolicySet(
+        ReliabilityQosPolicy.Kind reliabilityKind, DurabilityQosPolicy.Kind durabilityKind) {
 
-    public ReliabilityQosPolicy.Kind toRtpsInternal(ReliabilityKind kind) {
-        return switch (kind) {
-            case BEST_EFFORT -> ReliabilityQosPolicy.Kind.BEST_EFFORT;
-            case RELIABLE -> ReliabilityQosPolicy.Kind.RELIABLE;
-        };
+    public PublisherQosPolicySet() {
+        this(ReliabilityQosPolicy.Kind.RELIABLE, DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS);
+    }
+
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("reliabilityKind", reliabilityKind);
+        builder.append("durabilityKind", durabilityKind);
+        return builder.toString();
     }
 }

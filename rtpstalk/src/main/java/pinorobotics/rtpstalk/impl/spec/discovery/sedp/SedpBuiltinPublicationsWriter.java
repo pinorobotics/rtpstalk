@@ -21,11 +21,11 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
-import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
@@ -34,11 +34,10 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
  */
 public class SedpBuiltinPublicationsWriter
         extends StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> {
-    private static final PublisherQosPolicy DEFAULT_POLICY =
-            new PublisherQosPolicy.Builder()
-                    .reliabilityKind(ReliabilityKind.RELIABLE)
-                    .durabilityKind(DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS)
-                    .build();
+    private static final PublisherQosPolicySet DEFAULT_POLICY =
+            new PublisherQosPolicySet(
+                    ReliabilityQosPolicy.Kind.RELIABLE,
+                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
     public SedpBuiltinPublicationsWriter(
             RtpsTalkConfiguration config,

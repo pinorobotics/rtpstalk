@@ -17,8 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl;
 
+import id.xfunction.XJsonStringBuilder;
 import java.util.concurrent.Flow.Publisher;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
@@ -26,10 +27,14 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author lambdaprime intid@protonmail.com
  */
 public record PublisherDetails(
-        TopicId topicId, PublisherQosPolicy qosPolicy, Publisher<RtpsTalkDataMessage> publisher)
+        TopicId topicId, PublisherQosPolicySet qosPolicy, Publisher<RtpsTalkDataMessage> publisher)
         implements ActorDetails {
 
-    public PublisherDetails(TopicId topicId, Publisher<RtpsTalkDataMessage> subscriber) {
-        this(topicId, new PublisherQosPolicy.Builder().build(), subscriber);
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("topicId", topicId);
+        builder.append("qosPolicy", qosPolicy);
+        return builder.toString();
     }
 }

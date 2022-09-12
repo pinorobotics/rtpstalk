@@ -36,11 +36,10 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
-import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
-import pinorobotics.rtpstalk.impl.qos.ReliabilityKind;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -81,7 +80,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private OperatingEntities operatingEntities;
     private int historyCacheMaxSize;
     private WriterRtpsReader<D> writerReader;
-    private PublisherQosPolicy qosPolicy;
+    private PublisherQosPolicySet qosPolicy;
 
     private boolean isClosed;
 
@@ -92,10 +91,10 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
             EntityId writerEntiyId,
-            PublisherQosPolicy qosPolicy) {
+            PublisherQosPolicySet qosPolicy) {
         super(config, tracingToken, publisherExecutor, writerEntiyId, true);
         Preconditions.isTrue(
-                qosPolicy.reliabilityKind() == ReliabilityKind.RELIABLE,
+                qosPolicy.reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE,
                 "ReliabilityKind not supported: " + qosPolicy.reliabilityKind());
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
@@ -173,7 +172,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     private void cleanupCache() {
-        if (qosPolicy.durabilityKind() == DurabilityKind.TRANSIENT_LOCAL_DURABILITY_QOS) {
+        if (qosPolicy.durabilityKind() == DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS) {
             if (!isClosed) return;
             // On close we are not going to accept new Readers therefore
             // we can start cleanup the cache. That way we make sure that current

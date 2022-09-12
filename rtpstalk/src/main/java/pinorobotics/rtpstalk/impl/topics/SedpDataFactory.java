@@ -19,9 +19,8 @@ package pinorobotics.rtpstalk.impl.topics;
 
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicy;
-import pinorobotics.rtpstalk.impl.qos.QosPoliciesTransformer;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicy;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
@@ -41,7 +40,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 public class SedpDataFactory {
 
     private RtpsTalkConfigurationInternal config;
-    private QosPoliciesTransformer qosTransformer = new QosPoliciesTransformer();
 
     public SedpDataFactory(RtpsTalkConfigurationInternal config) {
         this.config = config;
@@ -51,7 +49,7 @@ public class SedpDataFactory {
             TopicId topicId,
             EntityId entityId,
             Locator defaultUnicastLocator,
-            PublisherQosPolicy qosPolicy) {
+            PublisherQosPolicySet qosPolicy) {
         var guid = new Guid(config.publicConfig().guidPrefix(), entityId);
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
@@ -70,8 +68,7 @@ public class SedpDataFactory {
         params.put(
                 ParameterId.PID_RELIABILITY,
                 new ReliabilityQosPolicy(
-                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
-                        Duration.Predefined.ZERO.getValue()));
+                        qosPolicy.reliabilityKind(), Duration.Predefined.ZERO.getValue()));
         params.put(
                 ParameterId.PID_DESTINATION_ORDER,
                 new DestinationOrderQosPolicy(
@@ -84,7 +81,7 @@ public class SedpDataFactory {
             TopicId topicId,
             EntityId readerEntityId,
             Locator defaultUnicastLocator,
-            SubscriberQosPolicy qosPolicy) {
+            SubscriberQosPolicySet qosPolicy) {
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
         params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
@@ -96,8 +93,7 @@ public class SedpDataFactory {
         params.put(
                 ParameterId.PID_RELIABILITY,
                 new ReliabilityQosPolicy(
-                        qosTransformer.toRtpsInternal(qosPolicy.reliabilityKind()),
-                        Duration.Predefined.ZERO.getValue()));
+                        qosPolicy.reliabilityKind(), Duration.Predefined.ZERO.getValue()));
         params.put(
                 ParameterId.PID_PROTOCOL_VERSION,
                 ProtocolVersion.Predefined.Version_2_3.getValue());

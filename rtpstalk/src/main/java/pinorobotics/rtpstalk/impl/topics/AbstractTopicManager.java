@@ -57,7 +57,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
 
     public EntityId addLocalActor(A actor) {
         var topicId = actor.topicId();
-        logger.fine("Adding {0} for topic id {1}", actorsType, topicId);
+        logger.fine("Adding {0} with following details {1}", actorsType, actor);
         var topic = createTopicIfMissing(topicId);
         if (!topic.hasLocalActors()) {
             announceTopicInterest(actor, topic);

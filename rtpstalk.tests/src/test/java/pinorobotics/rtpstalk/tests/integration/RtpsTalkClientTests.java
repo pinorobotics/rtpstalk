@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
-import pinorobotics.rtpstalk.impl.qos.DurabilityKind;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -91,7 +91,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     /**
      * Test that subscriber continues to receive messages when one publisher stopped and new one
      * joined. This makes sure that SEDP operates with {@link
-     * DurabilityKind#TRANSIENT_LOCAL_DURABILITY_QOS}
+     * DurabilityQosPolicy.Kind#TRANSIENT_LOCAL_DURABILITY_QOS}
      */
     @Test
     public void test_subscriber_when_topic_publisher_is_changed() throws Exception {
