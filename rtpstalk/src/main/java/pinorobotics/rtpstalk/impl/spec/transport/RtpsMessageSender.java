@@ -21,12 +21,10 @@ import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.List;
-import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.RtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 
@@ -60,7 +58,6 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
 
     private final XLogger logger;
     private DataChannel dataChannel;
-    private Optional<InfoDestination> infoDstOpt = Optional.empty();
     private Guid remoteReader;
     private EntityId writerEntityId;
 

@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
@@ -38,10 +36,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
  */
 public class Topic<A> extends XObservable<TopicMatchEvent<A>> {
 
-    private record TopicRemoteActor(Locator writerUnicastLocator, Guid endpointGuid) {}
-
     private TopicId topicId;
-    private List<TopicRemoteActor> remoteActors = new ArrayList<>();
+    private List<RemoteActorDetails> remoteActors = new ArrayList<>();
     private List<A> localActors = new ArrayList<>();
     private EntityId localTopicEntityId;
 
@@ -50,25 +46,15 @@ public class Topic<A> extends XObservable<TopicMatchEvent<A>> {
         this.localTopicEntityId = readerEntityId;
     }
 
-    public void addRemoteActor(Locator writerUnicastLocator, Guid endpointGuid) {
+    public void addRemoteActor(RemoteActorDetails remoteActor) {
         localActors.stream()
-                .forEach(
-                        subscriber ->
-                                updateAll(
-                                        new TopicMatchEvent<>(
-                                                writerUnicastLocator, endpointGuid, subscriber)));
-        remoteActors.add(new TopicRemoteActor(writerUnicastLocator, endpointGuid));
+                .forEach(subscriber -> updateAll(new TopicMatchEvent<>(remoteActor, subscriber)));
+        remoteActors.add(remoteActor);
     }
 
     public void addLocalActor(A localActor) {
         remoteActors.stream()
-                .forEach(
-                        remoteActor ->
-                                updateAll(
-                                        new TopicMatchEvent<>(
-                                                remoteActor.writerUnicastLocator,
-                                                remoteActor.endpointGuid,
-                                                localActor)));
+                .forEach(remoteActor -> updateAll(new TopicMatchEvent<>(remoteActor, localActor)));
         localActors.add(localActor);
     }
 

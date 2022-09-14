@@ -121,7 +121,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                     pubEndpointGuid);
             var topicId = new TopicId(pubTopic, pubType);
             var topic = createTopicIfMissing(topicId);
-            topic.addRemoteActor(pubUnicastLocator, pubEndpointGuid);
+            topic.addRemoteActor(
+                    new RemoteActorDetails(pubEndpointGuid, List.of(pubUnicastLocator)));
         } finally {
             subscription.request(1);
         }

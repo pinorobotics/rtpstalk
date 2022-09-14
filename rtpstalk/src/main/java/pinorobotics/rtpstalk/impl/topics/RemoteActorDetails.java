@@ -17,20 +17,21 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
+import id.xfunction.XJsonStringBuilder;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+
 /**
- * This event is triggered when there is a match between one of:
- *
- * <ul>
- *   <li>available remote topic publishers in the network and
- *   <li>user topic subscriber
- * </ul>
- *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record TopicMatchEvent<A>(RemoteActorDetails remoteActor, A localActor) {
+public record RemoteActorDetails(Guid endpointGuid, List<Locator> writerUnicastLocator) {
 
     @Override
     public String toString() {
-        return remoteActor.endpointGuid().toString();
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("endpointGuid", endpointGuid);
+        builder.append("writerUnicastLocator", writerUnicastLocator);
+        return builder.toString();
     }
 }

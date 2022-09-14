@@ -21,7 +21,6 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
-import java.util.List;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
@@ -85,10 +84,11 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
             Topic<PublisherDetails> topic) {
         return subEvent -> {
             var topicId = topic.getTopicId();
+            var remoteActor = subEvent.remoteActor();
             logger.fine(
-                    "New match event between local publisher and remote subscriber for topic id"
-                        + " {0}, subscriber endpoint is {1} and userdata unicast locator is {2}",
-                    topicId, subEvent.remoteEndpointGuid(), subEvent.remoteUnicastLocator());
+                    "New match event between local publisher and remote subscriber {0} for topic id"
+                            + " {1}",
+                    remoteActor, topicId);
             var writer = operatingEntities.getWriters().findEntity(topicId).orElse(null);
             if (writer == null) {
                 EntityId readerEntityId =
@@ -110,9 +110,9 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                                                                 + " topic "
                                                                 + topicId));
             }
-            var unicast = List.of(subEvent.remoteUnicastLocator());
             try {
-                writer.matchedReaderAdd(subEvent.remoteEndpointGuid(), unicast);
+                writer.matchedReaderAdd(
+                        remoteActor.endpointGuid(), remoteActor.writerUnicastLocator());
             } catch (IOException e) {
                 logger.severe(e);
             }

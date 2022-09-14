@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.logging.TracingToken;
-import java.util.List;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -72,10 +71,11 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
         return subEvent -> {
             logger.fine(
                     "New subscribe event for topic id" + " {0}: {1}", topic.getTopicId(), subEvent);
+            var remoteActor = subEvent.remoteActor();
             userService.subscribeToRemoteWriter(
                     topic.getLocalTopicEntityId(),
-                    List.of(subEvent.remoteUnicastLocator()),
-                    subEvent.remoteEndpointGuid(),
+                    remoteActor.writerUnicastLocator(),
+                    remoteActor.endpointGuid(),
                     subEvent.localActor().subscriber());
         };
     }
