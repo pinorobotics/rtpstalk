@@ -118,7 +118,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         historyCache.addChange(new CacheChange<>(getGuid(), getLastChangeNumber(), data));
     }
 
-    public synchronized void matchedReaderAdd(Guid remoteReaderGuid, List<Locator> unicast)
+    public synchronized void matchedReaderAdd(
+            Guid remoteReaderGuid, List<Locator> unicast, ReliabilityQosPolicy.Kind reliabilityKind)
             throws IOException {
         if (matchedReaders.containsKey(remoteReaderGuid)) {
             logger.fine(
@@ -132,8 +133,17 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         channelFactory.connect(getTracingToken(), unicast.get(0)),
                         remoteReaderGuid,
                         getGuid().entityId);
-        var proxy = new ReaderProxy(remoteReaderGuid, unicast, sender);
-        logger.fine("Adding reader proxy for reader with guid {0}", proxy.getRemoteReaderGuid());
+        var proxy =
+                switch (reliabilityKind) {
+                    case RELIABLE -> new ReliableReaderProxy(remoteReaderGuid, unicast, sender);
+                    case BEST_EFFORT -> new BestEffortReaderProxy(
+                            remoteReaderGuid, unicast, sender);
+                    default -> throw new UnsupportedOperationException(
+                            "ReliabilityQosPolicy " + reliabilityKind);
+                };
+        logger.fine(
+                "Adding reader proxy for reader with guid {0} and reliability {1}",
+                proxy.getRemoteReaderGuid(), reliabilityKind);
         var numOfReaders = matchedReaders.size();
         matchedReaders.put(proxy.getRemoteReaderGuid(), proxy);
         subscribe(proxy.getSender());
@@ -231,13 +241,26 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
          * <p>If we would be sending changes immediately + by request, it can lead to messages being
          * sent out-of-order:
          *
-         * <p>- Changes in cache [c1, c2, c3] with the corresponding {@link Data#writerSN} -
-         * Received acknack from Reader saying that it lost [c1, c2, c3] - New change c4 was
-         * published and immediately sent to Reader - Lost changes [c1, c2, c3] sent to Reader
+         * <ul>
+         *   <li>Changes in cache [c1, c2, c3] with the corresponding {@link Data#writerSN} -
+         *       Received acknack from Reader saying that it lost [c1, c2, c3]
+         *   <li>New change c4 was published and immediately sent to Reader
+         *   <li>Lost changes [c1, c2, c3] sent to Reader
+         * </ul>
          *
          * <p>In this case Reader will receive messages out-of-order [c4, c1, c2, c3] and since c4
          * will have greater {@link Data#writerSN} all previous will not be processed.
          */
+        matchedReaders.values().stream()
+                .filter(ReaderProxy.isBestEffort())
+                .map(
+                        readerProxy ->
+                                new RtpsDataMessageBuilder(
+                                                getConfig(),
+                                                getGuid().guidPrefix,
+                                                readerProxy.getRemoteReaderGuid().guidPrefix)
+                                        .addAll(getLastMessage()))
+                .forEach(this::submit);
     }
 
     private void sendHeartbeat() {
@@ -279,7 +302,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                 .findAll(getGuid(), requestedChanges)
                 .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));
         if (!builder.hasData()) return;
-        // all interested ReaderProxy subscribed to this writer
+        // changes requested by one matched Reader we submit to all the senders of matched Readers
+        // of the current Writer
+        // this requires each sender to filter the changes before sending them
         submit(builder);
         logger.fine("Submitted {0} requested changes", requestedChanges.size());
     }

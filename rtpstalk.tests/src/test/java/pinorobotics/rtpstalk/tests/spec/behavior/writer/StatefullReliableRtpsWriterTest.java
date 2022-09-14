@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWrit
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
@@ -85,7 +86,9 @@ public class StatefullReliableRtpsWriterTest {
             count++;
             Assertions.assertEquals(count, writer.getWriterCache().getNumberOfChanges(writerGuid));
             writer.matchedReaderAdd(
-                    readerGuid, List.of(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR));
+                    readerGuid,
+                    List.of(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR),
+                    Kind.RELIABLE);
             for (int i = 0; i < 5; i++) {
                 publisher.submit(new RtpsTalkDataMessage("hello"));
                 count++;

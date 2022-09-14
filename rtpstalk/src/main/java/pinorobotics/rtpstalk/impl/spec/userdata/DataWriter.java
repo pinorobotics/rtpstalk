@@ -23,8 +23,6 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
-import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -33,18 +31,14 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage> {
-    private static final PublisherQosPolicySet DEFAULT_POLICY =
-            new PublisherQosPolicySet(
-                    ReliabilityQosPolicy.Kind.RELIABLE,
-                    DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS);
-
     public DataWriter(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntityId) {
+            EntityId writerEntityId,
+            PublisherQosPolicySet qosPolicy) {
         super(
                 config,
                 tracingToken,
@@ -52,6 +46,6 @@ public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage>
                 channelFactory,
                 operatingEntities,
                 writerEntityId,
-                DEFAULT_POLICY);
+                qosPolicy);
     }
 }

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.userdata;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
@@ -44,13 +45,15 @@ public class DataObjectsFactory {
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
-            EntityId writerEntityId) {
+            EntityId writerEntityId,
+            PublisherQosPolicySet publisherQosPolicy) {
         return new DataWriter(
                 config,
                 tracingToken,
                 publisherExecutor,
                 channelFactory,
                 operatingEntities,
-                writerEntityId);
+                writerEntityId,
+                publisherQosPolicy);
     }
 }

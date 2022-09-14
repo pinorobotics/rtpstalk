@@ -30,6 +30,7 @@ import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -113,6 +114,16 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                     participantGuid.guidPrefix,
                     pubEndpointGuid.guidPrefix,
                     "Guid prefix missmatch for topic " + pubTopic);
+            var reliabilityKind =
+                    pl.getReliabilityKind()
+                            .orElseGet(
+                                    () -> {
+                                        logger.warning(
+                                                "Received subscription without"
+                                                    + " ReliabilityQosPolicy, assuming BEST_EFFORT"
+                                                    + " by default...");
+                                        return ReliabilityQosPolicy.Kind.BEST_EFFORT;
+                                    });
             logger.fine(
                     "Discovered {0} for topic {1} type {2} with endpoint {3}",
                     actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
@@ -122,7 +133,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             var topicId = new TopicId(pubTopic, pubType);
             var topic = createTopicIfMissing(topicId);
             topic.addRemoteActor(
-                    new RemoteActorDetails(pubEndpointGuid, List.of(pubUnicastLocator)));
+                    new RemoteActorDetails(
+                            pubEndpointGuid, List.of(pubUnicastLocator), reliabilityKind));
         } finally {
             subscription.request(1);
         }

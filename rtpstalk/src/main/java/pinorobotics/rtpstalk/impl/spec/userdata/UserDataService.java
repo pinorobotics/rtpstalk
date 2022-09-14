@@ -25,10 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Predicate;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -98,9 +98,7 @@ public class UserDataService implements AutoCloseable {
     }
 
     public void publish(
-            EntityId writerEntityId,
-            EntityId readerEntityId,
-            Publisher<RtpsTalkDataMessage> publisher) {
+            EntityId writerEntityId, EntityId readerEntityId, PublisherDetails publisherDetails) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         Preconditions.isTrue(
                 !writers.containsKey(writerEntityId),
@@ -112,9 +110,10 @@ public class UserDataService implements AutoCloseable {
                         publisherExecutor,
                         channelFactory,
                         operatingEntities,
-                        writerEntityId);
+                        writerEntityId,
+                        publisherDetails.qosPolicy());
         writers.put(writerEntityId, writer);
-        publisher.subscribe(writer);
+        publisherDetails.publisher().subscribe(writer);
         receiver.subscribe(writer.getWriterReader());
     }
 

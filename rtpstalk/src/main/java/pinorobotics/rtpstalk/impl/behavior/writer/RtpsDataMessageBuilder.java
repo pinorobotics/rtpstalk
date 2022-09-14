@@ -73,10 +73,16 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         Preconditions.isTrue(maxMessageSize > 0, "Unexpected maxMessageSize " + maxMessageSize);
     }
 
-    public void add(long seqNum, RtpsTalkMessage payload) {
+    public RtpsDataMessageBuilder add(long seqNum, RtpsTalkMessage payload) {
         Preconditions.isLess(lastSeqNum, seqNum, "Change is out of order");
         data.put(seqNum, payload);
         lastSeqNum = seqNum;
+        return this;
+    }
+
+    public RtpsDataMessageBuilder addAll(RtpsDataMessageBuilder other) {
+        data.putAll(other.data);
+        return this;
     }
 
     @Override

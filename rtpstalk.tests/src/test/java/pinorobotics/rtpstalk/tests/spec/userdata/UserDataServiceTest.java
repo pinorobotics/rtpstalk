@@ -30,6 +30,9 @@ import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.PublisherDetails;
+import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -110,22 +113,28 @@ public class UserDataServiceTest {
                         dataFactory,
                         receiverFactory); ) {
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
+            var topicId = new TopicId("topic", "type");
+            var qosPolicy = new PublisherQosPolicySet();
+            var details1 =
+                    new PublisherDetails(
+                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
+            var details2 =
+                    new PublisherDetails(
+                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
+            var details3 =
+                    new PublisherDetails(
+                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
             service.publish(
                     new EntityId(1, EntityKind.WRITER_NO_KEY),
                     TestConstants.TEST_READER_ENTITY_ID,
-                    new SubmissionPublisher<RtpsTalkDataMessage>());
+                    details1);
             var writerEntityId = new EntityId(2, EntityKind.WRITER_NO_KEY);
-            service.publish(
-                    writerEntityId,
-                    TestConstants.TEST_READER_ENTITY_ID,
-                    new SubmissionPublisher<RtpsTalkDataMessage>());
+            service.publish(writerEntityId, TestConstants.TEST_READER_ENTITY_ID, details2);
             assertThrows(
                     PreconditionException.class,
                     () ->
                             service.publish(
-                                    writerEntityId,
-                                    TestConstants.TEST_READER_ENTITY_ID,
-                                    new SubmissionPublisher<RtpsTalkDataMessage>()));
+                                    writerEntityId, TestConstants.TEST_READER_ENTITY_ID, details3));
             assertEquals(2, receiverFactory.getReceivers().get(0).getSubscribeCount());
         }
     }

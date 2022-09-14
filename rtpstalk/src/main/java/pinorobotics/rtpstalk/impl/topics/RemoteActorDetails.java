@@ -21,17 +21,22 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.List;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record RemoteActorDetails(Guid endpointGuid, List<Locator> writerUnicastLocator) {
+public record RemoteActorDetails(
+        Guid endpointGuid,
+        List<Locator> writerUnicastLocator,
+        ReliabilityQosPolicy.Kind reliabilityKind) {
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("endpointGuid", endpointGuid);
         builder.append("writerUnicastLocator", writerUnicastLocator);
+        builder.append("reliabilityKind", reliabilityKind);
         return builder.toString();
     }
 }

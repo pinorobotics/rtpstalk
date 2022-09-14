@@ -99,8 +99,12 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     /**
      * Internal counter used to assign increasing sequence number to each change made by the Writer.
      */
-    public long getLastChangeNumber() {
+    protected long getLastChangeNumber() {
         return lastChangeNumber;
+    }
+
+    protected RtpsDataMessageBuilder getLastMessage() {
+        return lastMessage;
     }
 
     public void repeatLastChange() {

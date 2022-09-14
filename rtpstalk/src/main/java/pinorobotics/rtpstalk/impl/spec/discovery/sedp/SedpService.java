@@ -37,6 +37,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.EndpointType;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -198,6 +199,12 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     }
 
     /** Configures all local builtin endpoints to work with new remote participant */
+    @RtpsSpecReference(
+            paragraph = "8.5.4.2",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "According to the DDS specification, the reliability QoS for these built-in"
+                            + " Entities is set to ‘reliable.’")
     private void configure(
             BuiltinEndpointSet availableRemoteEndpoints,
             GuidPrefix guidPrefix,
@@ -223,7 +230,8 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
                 break;
             case READER:
                 try {
-                    writer.matchedReaderAdd(remoteGuid, unicast);
+                    // use RELIABLE as per @RtpsSpecReference above
+                    writer.matchedReaderAdd(remoteGuid, unicast, Kind.RELIABLE);
                 } catch (IOException e) {
                     logger.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
                     e.printStackTrace();

@@ -70,7 +70,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                 operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
         // until user publisher is registered it may discard any submitted messages
         // to avoid losing them we register publisher here and not during match event
-        userService.publish(topic.getLocalTopicEntityId(), readerEntityId, actor.publisher());
+        userService.publish(topic.getLocalTopicEntityId(), readerEntityId, actor);
         var writerEntityId = super.addLocalActor(actor);
         Preconditions.equals(
                 writerEntityId,
@@ -96,9 +96,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                                 .getReaders()
                                 .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
                 userService.publish(
-                        topic.getLocalTopicEntityId(),
-                        readerEntityId,
-                        subEvent.localActor().publisher());
+                        topic.getLocalTopicEntityId(), readerEntityId, subEvent.localActor());
                 writer =
                         operatingEntities
                                 .getWriters()
@@ -112,7 +110,9 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
             }
             try {
                 writer.matchedReaderAdd(
-                        remoteActor.endpointGuid(), remoteActor.writerUnicastLocator());
+                        remoteActor.endpointGuid(),
+                        remoteActor.writerUnicastLocator(),
+                        remoteActor.reliabilityKind());
             } catch (IOException e) {
                 logger.severe(e);
             }

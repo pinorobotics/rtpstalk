@@ -38,9 +38,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
         text = "write")
 public class ReliabilityQosPolicy {
 
-    public static final ReliabilityQosPolicy BEST_EFFORT =
-            new ReliabilityQosPolicy(Kind.BEST_EFFORT);
-
     public enum Kind {
         UNKNOWN,
         BEST_EFFORT,
@@ -81,8 +78,12 @@ public class ReliabilityQosPolicy {
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("kind", Kind.values()[kind].toString());
+        builder.append("kind", getKind().toString());
         builder.append("maxBlockingTime", maxBlockingTime);
         return builder.toString();
+    }
+
+    public Kind getKind() {
+        return Kind.values()[kind];
     }
 }
