@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
+import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
@@ -160,5 +162,29 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             collector.getFuture().get();
         }
         LogUtils.validateNoExceptions();
+    }
+
+    @Test
+    public void test_best_effort_subscriber() throws Exception {
+        try (var client = new RtpsTalkClient()) {
+            var topicName = "HelloWorldTopic";
+            var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
+            var proc =
+                    tools.runHelloWorldExample(
+                            Map.of(
+                                    FastRtpsEnvironmentVariable.ReliabilityQosPolicyKind,
+                                    "BEST_EFFORT_RELIABILITY"),
+                            "subscriber",
+                            "100");
+            client.publish(topicName, "HelloWorld", publisher);
+            var remoteActor =
+                    TestEvents.waitForDiscoveredActor(topicName, ActorDetails.Type.Subscriber);
+            Assertions.assertEquals(Kind.BEST_EFFORT, remoteActor.reliabilityKind());
+            tools.generateMessages(1000).forEach(publisher::submit);
+            var output = proc.stdout();
+            var ids = tools.extractMessageIds(output);
+            Assertions.assertEquals(ids.stream().sorted().toList(), ids);
+            LogUtils.validateNoExceptions();
+        }
     }
 }

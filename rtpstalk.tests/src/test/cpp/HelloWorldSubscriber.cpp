@@ -24,6 +24,7 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/Domain.h>
 
+using namespace std;
 using namespace eprosima::fastrtps;
 using namespace eprosima::fastrtps::rtps;
 
@@ -67,7 +68,23 @@ bool HelloWorldSubscriber::init()
     Rparam.topic.historyQos.depth = 30;
     Rparam.topic.resourceLimitsQos.max_samples = 50;
     Rparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+
+    map<string, ReliabilityQosPolicyKind> reliabilityMap = {
+      {"RELIABLE_RELIABILITY", RELIABLE_RELIABILITY_QOS},
+      {"BEST_EFFORT_RELIABILITY", BEST_EFFORT_RELIABILITY_QOS}
+    };
+    cstr = getenv("RTPS_ReliabilityQosPolicyKind");
+    if (cstr != NULL) {
+      auto value = string(cstr);
+      if (reliabilityMap.find(value) == reliabilityMap.end()) {
+        std::cerr << "Value not understood: " << value <<std::endl;
+        return false;
+      }
+      Rparam.qos.m_reliability.kind = reliabilityMap[value];
+    } else {
+      Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+    }
+
     Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     mp_subscriber = Domain::createSubscriber(mp_participant, Rparam, (SubscriberListener*)&m_listener);
 

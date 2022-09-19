@@ -25,7 +25,6 @@ import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
 import id.xfunction.text.Substitutor;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
+import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
@@ -61,19 +61,44 @@ public class RtpsTalkClientPubSubPairsTests {
     private FastRtpsExamples tools;
     private RtpsTalkClient client;
 
+    private enum TestCondition {
+        LOCAL_SUBSCRIBER,
+        LOCAL_PUBLISHER,
+    }
+
     private record TestCase(
             int numberOfPubSubPairs,
             int numberOfMessages,
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
             List<String> templates,
-            List<String> subscribeTestTemplates,
+            Map<TestCondition, List<String>> conditionalTemplates,
             List<Runnable> validators,
-            Map<FastRtpsEnvironmentVariable, String> publisherParameters) {}
+            Map<TestCondition, Map<FastRtpsEnvironmentVariable, String>>
+                    remoteParticipantParameters) {
+        TestCase(
+                int numberOfPubSubPairs,
+                int numberOfMessages,
+                RtpsTalkConfiguration config,
+                boolean isSubscribeToFutureTopic,
+                List<String> templates,
+                Map<TestCondition, List<String>> conditionalTemplates,
+                List<Runnable> validators) {
+            this(
+                    numberOfPubSubPairs,
+                    numberOfMessages,
+                    config,
+                    isSubscribeToFutureTopic,
+                    templates,
+                    conditionalTemplates,
+                    validators,
+                    Map.of());
+        }
+    }
 
     static Stream<TestCase> dataProvider() {
         return Stream.of(
-                // 1
+                // Test case 1
                 new TestCase(
                         1,
                         5,
@@ -85,14 +110,15 @@ public class RtpsTalkClientPubSubPairsTests {
                         List.of(
                                 "service_close.template",
                                 "service_startup_ports_8080_8081.template"),
-                        List.of("topic_subscriptions_manager_future_topic.template"),
+                        Map.of(
+                                TestCondition.LOCAL_SUBSCRIBER,
+                                List.of("topic_subscriptions_manager_future_topic.template")),
                         List.of(
                                 () -> validateAcrossNetworkInterfaces("service_startup.template"),
                                 () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions),
-                        Map.of()),
-                // 2
+                                LogUtils::validateNoExceptions)),
+                // Test case 2
                 new TestCase(
                         1,
                         17,
@@ -102,14 +128,15 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .build(),
                         false,
                         List.of("service_startup_ports_8080_8081.template"),
-                        List.of("topic_subscriptions_manager.template"),
+                        Map.of(
+                                TestCondition.LOCAL_SUBSCRIBER,
+                                List.of("topic_subscriptions_manager.template")),
                         List.of(
                                 () -> validateAcrossNetworkInterfaces("service_startup.template"),
                                 () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions),
-                        Map.of()),
-                // 3
+                                LogUtils::validateNoExceptions)),
+                // Test case 3
                 new TestCase(
                         1,
                         50,
@@ -120,12 +147,13 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .build(),
                         false,
                         List.of("service_startup_loopback_iface.template"),
-                        List.of("topic_subscriptions_manager.template"),
+                        Map.of(
+                                TestCondition.LOCAL_SUBSCRIBER,
+                                List.of("topic_subscriptions_manager.template")),
                         List.of(
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions),
-                        Map.of()),
-                // 4
+                                LogUtils::validateNoExceptions)),
+                // Test case 4
                 new TestCase(
                         12,
                         5,
@@ -136,29 +164,35 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .build(),
                         false,
                         List.of("service_startup_ports_8080_8081.template"),
-                        List.of(),
+                        Map.of(),
                         List.of(
                                 () -> validateAcrossNetworkInterfaces("service_startup.template"),
                                 () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
-                                FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
-                                "TRANSIENT_LOCAL_DURABILITY_QOS")),
-                // 5
+                                TestCondition.LOCAL_PUBLISHER,
+                                Map.of(
+                                        FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                        "TRANSIENT_LOCAL_DURABILITY_QOS"))),
+                // Test case 5
                 new TestCase(
                         1,
                         1,
                         new RtpsTalkConfiguration.Builder().build(),
                         false,
                         List.of("service_startup_ports_default.template"),
-                        List.of("topic_subscriptions_manager.template"),
+                        Map.of(
+                                TestCondition.LOCAL_SUBSCRIBER,
+                                List.of("topic_subscriptions_manager.template")),
                         List.of(
                                 () -> validateAcrossNetworkInterfaces("service_startup.template"),
                                 () -> validateAcrossNetworkInterfaces("spdp_close.template"),
                                 RtpsTalkClientPubSubPairsTests::validateSedpClose),
                         Map.of(
-                                FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
-                                "VOLATILE_DURABILITY_QOS")));
+                                TestCondition.LOCAL_PUBLISHER,
+                                Map.of(
+                                        FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                        "VOLATILE_DURABILITY_QOS"))));
     }
 
     @BeforeEach
@@ -181,12 +215,12 @@ public class RtpsTalkClientPubSubPairsTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_subscriber_publisher_pairs(TestCase testCase) throws Exception {
+    public void test_local_subscriber_remote_publisher_pairs(TestCase testCase) throws Exception {
         client = new RtpsTalkClient(testCase.config);
 
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
         var expectedData =
-                generateMessages(testCase.numberOfMessages).stream()
+                tools.generateMessages(testCase.numberOfMessages).stream()
                         .map(RtpsTalkDataMessage::data)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
@@ -196,7 +230,11 @@ public class RtpsTalkClientPubSubPairsTests {
         Runnable publishersRunner =
                 () -> {
                     for (var topic : topics) {
-                        var vars = new HashMap<>(testCase.publisherParameters());
+                        var vars =
+                                new HashMap<>(
+                                        testCase.remoteParticipantParameters()
+                                                .getOrDefault(
+                                                        TestCondition.LOCAL_SUBSCRIBER, Map.of()));
                         vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
                         procs.add(
                                 tools.runHelloWorldExample(
@@ -207,7 +245,10 @@ public class RtpsTalkClientPubSubPairsTests {
         if (!testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
             client.start();
-            publisherGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Publisher");
+            publisherGuid =
+                    TestEvents.waitForDiscoveredActor(
+                                    "HelloWorldTopic0", ActorDetails.Type.Publisher)
+                            .endpointGuid();
         }
         var subscribers =
                 Stream.generate(
@@ -232,7 +273,10 @@ public class RtpsTalkClientPubSubPairsTests {
 
         if (testCase.isSubscribeToFutureTopic) {
             publishersRunner.run();
-            publisherGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Publisher");
+            publisherGuid =
+                    TestEvents.waitForDiscoveredActor(
+                                    "HelloWorldTopic0", ActorDetails.Type.Publisher)
+                            .endpointGuid();
         }
 
         for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
@@ -254,7 +298,8 @@ public class RtpsTalkClientPubSubPairsTests {
         procs.forEach(proc -> Assertions.assertEquals(expectedStdout, proc.stdout()));
 
         assertTemplates(testCase.templates);
-        assertTemplates(testCase.subscribeTestTemplates);
+        Optional.ofNullable(testCase.conditionalTemplates().get(TestCondition.LOCAL_SUBSCRIBER))
+                .ifPresent(this::assertTemplates);
         assertValidators(testCase.validators);
 
         System.out.println(Arrays.toString(entityIds));
@@ -277,30 +322,9 @@ public class RtpsTalkClientPubSubPairsTests {
         return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
     }
 
-    private List<RtpsTalkDataMessage> generateMessages(int count) {
-        var out = new ArrayList<RtpsTalkDataMessage>();
-        var text = "HelloWorld";
-        for (int i = 1; i <= count; i++) {
-            var buf =
-                    ByteBuffer.allocate(
-                            // unsigned long index
-                            Integer.BYTES
-
-                                    // string message;
-                                    + Integer.BYTES // length
-                                    + text.length()
-                                    + 2 /*null byte + padding*/);
-            buf.putInt(Integer.reverseBytes(i));
-            buf.putInt(Integer.reverseBytes(text.length() + 1));
-            buf.put(text.getBytes());
-            out.add(new RtpsTalkDataMessage(buf.array()));
-        }
-        return out;
-    }
-
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_publisher_subscriber_pairs(TestCase testCase) throws Exception {
+    public void test_local_publisher_remote_subscriber_pairs(TestCase testCase) throws Exception {
         client = new RtpsTalkClient(testCase.config);
 
         int numberOfPubSubPairs = testCase.numberOfPubSubPairs;
@@ -309,7 +333,11 @@ public class RtpsTalkClientPubSubPairsTests {
         Runnable subscribersRunner =
                 () -> {
                     for (var topic : topics) {
-                        var vars = new HashMap<>(testCase.publisherParameters());
+                        var vars =
+                                new HashMap<>(
+                                        testCase.remoteParticipantParameters()
+                                                .getOrDefault(
+                                                        TestCondition.LOCAL_PUBLISHER, Map.of()));
                         vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
                         procs.add(
                                 tools.runHelloWorldExample(
@@ -323,7 +351,10 @@ public class RtpsTalkClientPubSubPairsTests {
             // start client to do discovery of subscriber before the actual publisher will
             // be available
             client.start();
-            readerGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Subscriber");
+            readerGuid =
+                    TestEvents.waitForDiscoveredActor(
+                                    "HelloWorldTopic0", ActorDetails.Type.Subscriber)
+                            .endpointGuid();
         }
 
         var publishers =
@@ -338,10 +369,13 @@ public class RtpsTalkClientPubSubPairsTests {
 
         if (!testCase.isSubscribeToFutureTopic) {
             subscribersRunner.run();
-            readerGuid = TestEvents.waitForDiscoveredActor("HelloWorldTopic0", "Subscriber");
+            readerGuid =
+                    TestEvents.waitForDiscoveredActor(
+                                    "HelloWorldTopic0", ActorDetails.Type.Subscriber)
+                            .endpointGuid();
         }
 
-        var messagesToSubmit = generateMessages(testCase.numberOfMessages);
+        var messagesToSubmit = tools.generateMessages(testCase.numberOfMessages);
         for (int i = 0; i < numberOfPubSubPairs; i++) {
             var publisher = publishers.get(i);
             messagesToSubmit.forEach(publisher::submit);

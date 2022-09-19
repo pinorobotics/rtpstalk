@@ -124,17 +124,18 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                                                     + " by default...");
                                         return ReliabilityQosPolicy.Kind.BEST_EFFORT;
                                     });
+            var remoteActorDetails =
+                    new RemoteActorDetails(
+                            pubEndpointGuid, List.of(pubUnicastLocator), reliabilityKind);
             logger.fine(
-                    "Discovered {0} for topic {1} type {2} with endpoint {3}",
+                    "Discovered {0} for topic {1} type {2} with following details {3}",
                     actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
                     pubTopic,
                     pubType,
-                    pubEndpointGuid);
+                    remoteActorDetails);
             var topicId = new TopicId(pubTopic, pubType);
             var topic = createTopicIfMissing(topicId);
-            topic.addRemoteActor(
-                    new RemoteActorDetails(
-                            pubEndpointGuid, List.of(pubUnicastLocator), reliabilityKind));
+            topic.addRemoteActor(remoteActorDetails);
         } finally {
             subscription.request(1);
         }

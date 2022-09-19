@@ -22,6 +22,7 @@ package pinorobotics.rtpstalk.tests.integration;
  */
 public enum FastRtpsEnvironmentVariable {
     TopicName,
+    ReliabilityQosPolicyKind,
     DurabilityQosPolicyKind;
 
     public String getVariableName() {

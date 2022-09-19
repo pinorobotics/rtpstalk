@@ -188,15 +188,19 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             // we can start cleanup the cache. That way we make sure that current
             // Readers receive everything what was published in the cache.
         }
-        var oldestSeqNum =
-                matchedReaders.values().stream()
-                        .mapToLong(ReaderProxy::getHighestSeqNumSent)
-                        .min()
-                        .orElse(0);
-        // we delete only what all readers acked, if any of the
-        // readers did not acked anything we return
-        if (oldestSeqNum == 0) return;
-        historyCache.removeAllBelow(oldestSeqNum);
+        if (matchedReaders.isEmpty()) {
+            historyCache.removeAllBelow(getLastChangeNumber());
+        } else {
+            var oldestSeqNum =
+                    matchedReaders.values().stream()
+                            .mapToLong(ReaderProxy::getHighestSeqNumSent)
+                            .min()
+                            .orElse(0);
+            // we delete only what all readers acked, if any of the
+            // readers did not acked anything we return
+            if (oldestSeqNum == 0) return;
+            historyCache.removeAllBelow(oldestSeqNum);
+        }
         request();
     }
 

@@ -21,12 +21,14 @@ import static java.util.stream.Collectors.toMap;
 
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
+import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -91,5 +93,34 @@ public class FastRtpsExamples implements AutoCloseable {
         IntStream.rangeClosed(1, count)
                 .forEach(i -> stdout.append(String.format("Message HelloWorld %s RECEIVED\n", i)));
         return stdout.toString().trim();
+    }
+
+    public List<RtpsTalkDataMessage> generateMessages(int count) {
+        var out = new ArrayList<RtpsTalkDataMessage>();
+        var text = "HelloWorld";
+        for (int i = 1; i <= count; i++) {
+            var buf =
+                    ByteBuffer.allocate(
+                            // unsigned long index
+                            Integer.BYTES
+
+                                    // string message;
+                                    + Integer.BYTES // length
+                                    + text.length()
+                                    + 2 /*null byte + padding*/);
+            buf.putInt(Integer.reverseBytes(i));
+            buf.putInt(Integer.reverseBytes(text.length() + 1));
+            buf.put(text.getBytes());
+            out.add(new RtpsTalkDataMessage(buf.array()));
+        }
+        return out;
+    }
+
+    public List<Integer> extractMessageIds(String stdout) {
+        return stdout.lines()
+                .skip(4)
+                .map(line -> line.replaceAll("Message HelloWorld (\\d+) RECEIVED", "$1"))
+                .map(Integer::parseInt)
+                .toList();
     }
 }

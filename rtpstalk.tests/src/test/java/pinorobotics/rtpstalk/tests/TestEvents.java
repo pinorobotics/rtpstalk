@@ -19,8 +19,12 @@ package pinorobotics.rtpstalk.tests;
 
 import id.xfunction.nio.file.XFiles;
 import java.time.Duration;
+import java.util.List;
 import java.util.regex.Pattern;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.topics.ActorDetails;
+import pinorobotics.rtpstalk.impl.topics.RemoteActorDetails;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -29,20 +33,24 @@ public class TestEvents {
 
     private static final Duration DELAY = Duration.ofMillis(100);
 
-    public static Guid waitForDiscoveredActor(String topic, String actorType) throws Exception {
+    public static RemoteActorDetails waitForDiscoveredActor(
+            String topic, ActorDetails.Type actorType) throws Exception {
         var regexp =
                 Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
                         .asMatchPredicate();
         var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp, DELAY).get();
-        return extractGuid(line);
+        return extractRemoteActorDetails(line);
     }
 
-    private static Guid extractGuid(String line) {
+    private static RemoteActorDetails extractRemoteActorDetails(String line) {
         line =
                 line.replaceAll(
-                        ".*\"guidPrefix\": . .value.: \"(.*)\" ., .entityId.: \"(.*)\".*", "$1 $2");
+                        ".*\"guidPrefix\": . .value.: \"(.*)\" ., .entityId.: \"(\\d+)\" .*"
+                                + " \"reliabilityKind\": \"(.*)\".*",
+                        "$1 $2 $3");
         var a = line.split(" ");
-        return new Guid(a[0], a[1]);
+        return new RemoteActorDetails(
+                new Guid(a[0], a[1]), List.of(), ReliabilityQosPolicy.Kind.valueOf(a[2]));
     }
 
     public static void waitForDisposedParticipant(Guid participant) throws Exception {
