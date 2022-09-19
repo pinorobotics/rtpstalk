@@ -46,7 +46,7 @@ public class RtpsMessageTransportTest {
                                 new EntityId(0x12, EntityKind.READER_NO_KEY),
                                 new EntityId(0x01, EntityKind.WRITER_NO_KEY),
                                 new SequenceNumber(1),
-                                new SerializedPayload(new RawData(bigData))));
+                                new SerializedPayload(new RawData(bigData), true)));
         var buf = ByteBuffer.allocate(TestConstants.TEST_CONFIG.packetBufferSize());
         new RtpsMessageWriter().writeRtpsMessage(expected, buf);
         buf.limit(buf.position());

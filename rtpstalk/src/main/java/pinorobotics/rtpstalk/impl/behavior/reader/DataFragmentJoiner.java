@@ -84,11 +84,11 @@ public class DataFragmentJoiner {
         if (shouldAdd) {
             var rawData = ((RawData) dataFrag.getSerializedPayload().getPayload()).getData();
             var expected = dataFrag.fragmentSize.getUnsigned() * fragmentsInSubmessage;
-            var actualLen =
-                    dataFrag.getSerializedPayload().serializedPayloadHeader != null
-                            ? LengthCalculator.getInstance()
-                                    .getFixedLengthInternal(SerializedPayloadHeader.class)
-                            : 0;
+            var actualLen = 0;
+            if (dataFrag.getSerializedPayload().serializedPayloadHeader.isPresent())
+                actualLen +=
+                        LengthCalculator.getInstance()
+                                .getFixedLengthInternal(SerializedPayloadHeader.class);
             actualLen += rawData.length;
             if (actualLen != expected) {
                 // check if it was last fragment and we have all data

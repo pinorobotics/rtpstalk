@@ -152,7 +152,7 @@ public class LengthCalculator {
                             + calculateLength(d.inlineQos)
                             + calculateLength(d.serializedPayload));
         if (obj instanceof SerializedPayload p)
-            return getFixedLength(SerializedPayloadHeader.class) + calculateLength(p.payload);
+            return calculateLength(p.serializedPayloadHeader) + calculateLength(p.payload);
         if (obj instanceof ParameterList pl) return calculateParameterListLength(pl);
         if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);

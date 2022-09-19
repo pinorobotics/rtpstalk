@@ -93,7 +93,8 @@ public class DataProviders {
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                                         new SequenceNumber(1),
                                         new SerializedPayload(
-                                                new RawData(new byte[] {0x11, 0x22, 0x00, 0x0}))))),
+                                                new RawData(new byte[] {0x11, 0x22, 0x00, 0x0}),
+                                                true)))),
                 // 3
                 new TestCase(
                         "test_inlineqos",
@@ -114,7 +115,8 @@ public class DataProviders {
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(
-                                                new RawData(new byte[] {0x10, 0x11, 0x0, 0x0}))))),
+                                                new RawData(new byte[] {0x10, 0x11, 0x0, 0x0}),
+                                                true)))),
                 // 4
                 new TestCase(
                         "test_empty_data",
@@ -131,7 +133,7 @@ public class DataProviders {
                                                 Map.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
-                                        new SerializedPayload(new RawData(new byte[0]))))),
+                                        new SerializedPayload(new RawData(new byte[0]), true)))),
                 // 5
                 new TestCase(
                         "test_null_data",
@@ -148,6 +150,7 @@ public class DataProviders {
                                                 Map.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33}))))),
+                // 6
                 new TestCase(
                         "test_parameterlist",
                         new RtpsMessage(
@@ -164,7 +167,8 @@ public class DataProviders {
                                                         Map.of(
                                                                 ParameterId.PID_STATUS_INFO,
                                                                 new StatusInfo(Flags.DISPOSED)),
-                                                        Map.of()))))),
+                                                        Map.of()),
+                                                true)))),
                 new TestCase(
                         "test_multiple_data",
                         new RtpsMessage(
@@ -179,7 +183,8 @@ public class DataProviders {
                                                         new byte[] {
                                                             0x02, 0x00, 0x00, 0x00, 0x30, 0x00,
                                                             0x00, 0x00
-                                                        }))),
+                                                        }),
+                                                true)),
                                 new Data(
                                         new EntityId(0x12, EntityKind.READER_NO_KEY),
                                         new EntityId(0x01, EntityKind.WRITER_NO_KEY),
@@ -189,7 +194,8 @@ public class DataProviders {
                                                         new byte[] {
                                                             0x02, 0x00, 0x00, 0x00, 0x31, 0x00,
                                                             0x00, 0x00
-                                                        }))),
+                                                        }),
+                                                true)),
                                 new Data(
                                         new EntityId(0x12, EntityKind.READER_NO_KEY),
                                         new EntityId(0x01, EntityKind.WRITER_NO_KEY),
@@ -199,6 +205,7 @@ public class DataProviders {
                                                         new byte[] {
                                                             0x02, 0x00, 0x00, 0x00, 0x32, 0x00,
                                                             0x00, 0x00
-                                                        }))))));
+                                                        }),
+                                                true)))));
     }
 }

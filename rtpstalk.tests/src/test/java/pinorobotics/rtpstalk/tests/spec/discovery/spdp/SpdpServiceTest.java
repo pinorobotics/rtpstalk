@@ -71,7 +71,8 @@ public class SpdpServiceTest {
                             EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR,
                             EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER,
                             new SequenceNumber(1),
-                            new SerializedPayload(TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA)));
+                            new SerializedPayload(
+                                    TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA, true)));
 
     private TestDataChannelFactory channelFactory;
     private SpdpService service;

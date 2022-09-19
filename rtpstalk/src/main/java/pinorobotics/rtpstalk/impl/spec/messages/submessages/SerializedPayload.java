@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SubmessageElement;
 
@@ -26,18 +27,24 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SubmessageE
  */
 public class SerializedPayload implements SubmessageElement {
 
-    public SerializedPayloadHeader serializedPayloadHeader;
+    /**
+     * SerializedPayloadHeader can be missing if the payload is part of {@link DataFrag} submessage
+     */
+    public transient Optional<SerializedPayloadHeader> serializedPayloadHeader = Optional.empty();
 
     public Payload payload;
 
     public SerializedPayload() {}
 
-    public SerializedPayload(Payload payload) {
-        this(getPredefinedPayloadHeader(payload.getRepresentationIdentifier()), payload);
+    public SerializedPayload(Payload payload, boolean withHeader) {
+        this.payload = payload;
+        if (withHeader)
+            this.serializedPayloadHeader =
+                    Optional.of(getPredefinedPayloadHeader(payload.getRepresentationIdentifier()));
     }
 
     public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {
-        this.serializedPayloadHeader = payloadHeader;
+        this.serializedPayloadHeader = Optional.of(payloadHeader);
         this.payload = payload;
     }
 

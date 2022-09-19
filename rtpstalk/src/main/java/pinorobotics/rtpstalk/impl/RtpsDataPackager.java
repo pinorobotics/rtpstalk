@@ -38,7 +38,8 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);
 
     public Optional<D> extractMessage(Class<D> type, Data d) {
-        if (d.serializedPayload.isEmpty()) {
+        var serializedPayload = d.serializedPayload.orElse(null);
+        if (serializedPayload == null) {
             return d.inlineQos.map(
                     inlineQos -> {
                         RtpsTalkMessage message = null;
@@ -54,20 +55,24 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                         return (D) message;
                     });
         }
-        var serializedPayload = d.serializedPayload.get();
-        var representationId = serializedPayload.serializedPayloadHeader.representation_identifier;
-        var representationOpt =
-                serializedPayload.serializedPayloadHeader.representation_identifier
-                        .getPredefinedValue();
-        if (representationOpt.isEmpty()) {
+        var serializedPayloadHeader = serializedPayload.serializedPayloadHeader.orElse(null);
+        if (serializedPayloadHeader == null) {
             LOGGER.warning(
-                    "Received data submessage with unknown representation identifier {0}, ignoring"
-                            + " it...",
-                    representationId);
+                    "Cannot extract data submessage when serializedPayloadHeader is empty, ignoring"
+                            + " it...");
+            return Optional.empty();
+        }
+        var representationId = serializedPayloadHeader.representation_identifier;
+        var representation = representationId.getPredefinedValue().orElse(null);
+        if (representation == null) {
+            LOGGER.warning(
+                    "Cannot extract data submessage with unknown representation identifier {0},"
+                            + " ignoring it...",
+                    serializedPayloadHeader.representation_identifier);
             return Optional.empty();
         }
         var inlineQos = d.inlineQos;
-        switch (representationOpt.get()) {
+        switch (representation) {
             case CDR_LE:
                 Preconditions.equals(type, RtpsTalkDataMessage.class, "Data message type mismatch");
                 return Optional.of(
@@ -88,8 +93,8 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
             default:
                 {
                     LOGGER.warning(
-                            "Received data submessage with unsupported representation identifier"
-                                    + " {0}, ignoring it...",
+                            "Cannot extract data submessage with unsupported representation"
+                                    + " identifier {0}, ignoring it...",
                             representationId);
                     return Optional.empty();
                 }
@@ -101,9 +106,9 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
         var inlineQos = message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
         var payload = Optional.<SerializedPayload>empty();
         if (message instanceof RtpsTalkDataMessage data)
-            payload = data.data().map(RawData::new).map(SerializedPayload::new);
+            payload = data.data().map(RawData::new).map(d -> new SerializedPayload(d, true));
         else if (message instanceof RtpsTalkParameterListMessage params) {
-            payload = params.parameterList().map(SerializedPayload::new);
+            payload = params.parameterList().map(d -> new SerializedPayload(d, true));
             inlineQos = params.inlineQos();
         } else
             throw new UnsupportedOperationException(

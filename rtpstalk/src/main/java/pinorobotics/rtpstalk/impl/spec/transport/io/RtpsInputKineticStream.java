@@ -294,8 +294,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             if (data instanceof DataFrag dataFrag) {
                 isDataFragNoHeader = dataFrag.fragmentStartingNum.getUnsigned() > 1;
             }
-            Optional<RepresentationIdentifier.Predefined> representationId =
-                    Optional.of(RepresentationIdentifier.Predefined.CDR_LE);
+            var representationId = Optional.of(RepresentationIdentifier.Predefined.CDR_LE);
             if (!isDataFragNoHeader) {
                 payloadHeader = reader.read(SerializedPayloadHeader.class);
                 LOGGER.fine("payloadHeader: {0}", payloadHeader);

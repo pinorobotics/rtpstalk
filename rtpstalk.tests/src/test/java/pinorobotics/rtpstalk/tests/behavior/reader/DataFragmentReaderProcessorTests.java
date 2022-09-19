@@ -55,7 +55,7 @@ public class DataFragmentReaderProcessorTests {
                                 100,
                                 2800,
                                 Optional.empty(),
-                                new SerializedPayload(new RawData(fragment1.getBytes())))));
+                                new SerializedPayload(new RawData(fragment1.getBytes()), true))));
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
@@ -69,7 +69,7 @@ public class DataFragmentReaderProcessorTests {
                                 100,
                                 2800,
                                 Optional.empty(),
-                                new SerializedPayload(null, new RawData(fragment2.getBytes())))));
+                                new SerializedPayload(new RawData(fragment2.getBytes()), false))));
 
         var completeData = fragment1 + fragment2 + fragment3;
         Assertions.assertEquals(
@@ -86,7 +86,7 @@ public class DataFragmentReaderProcessorTests {
                                         2800,
                                         Optional.empty(),
                                         new SerializedPayload(
-                                                null, new RawData(fragment3.getBytes()))))
+                                                new RawData(fragment3.getBytes()), false)))
                         .get()
                         .toString());
     }
@@ -109,7 +109,7 @@ public class DataFragmentReaderProcessorTests {
                                 2,
                                 4,
                                 Optional.empty(),
-                                new SerializedPayload(null, new RawData("aa".getBytes())))));
+                                new SerializedPayload(new RawData("aa".getBytes()), false))));
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
@@ -123,7 +123,7 @@ public class DataFragmentReaderProcessorTests {
                                 3,
                                 6,
                                 Optional.empty(),
-                                new SerializedPayload(null, new RawData("eee".getBytes())))));
+                                new SerializedPayload(new RawData("eee".getBytes()), false))));
         Assertions.assertEquals(
                 new RtpsTalkDataMessage("eeefff").toString(),
                 proc.addDataFrag(
@@ -137,7 +137,8 @@ public class DataFragmentReaderProcessorTests {
                                         3,
                                         6,
                                         Optional.empty(),
-                                        new SerializedPayload(null, new RawData("fff".getBytes()))))
+                                        new SerializedPayload(
+                                                new RawData("fff".getBytes()), false)))
                         .get()
                         .toString());
         Assertions.assertEquals(
@@ -153,7 +154,7 @@ public class DataFragmentReaderProcessorTests {
                                         2,
                                         4,
                                         Optional.empty(),
-                                        new SerializedPayload(null, new RawData("bb".getBytes()))))
+                                        new SerializedPayload(new RawData("bb".getBytes()), false)))
                         .get()
                         .toString());
     }
