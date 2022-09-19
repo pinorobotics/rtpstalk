@@ -26,21 +26,20 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsTalkParameterListMessage implements RtpsTalkMessage {
-    private Optional<ParameterList> inlineQos = Optional.empty();
-    private Optional<ParameterList> parameterList = Optional.empty();
+public record RtpsTalkParameterListMessage(
+        Optional<ParameterList> inlineQos, Optional<ParameterList> parameterList)
+        implements RtpsTalkMessage {
 
     public RtpsTalkParameterListMessage(ParameterList inlineQos, ParameterList parameterList) {
-        this.inlineQos = Optional.ofNullable(inlineQos);
-        this.parameterList = Optional.ofNullable(parameterList);
+        this(Optional.of(inlineQos), Optional.of(parameterList));
     }
 
     public RtpsTalkParameterListMessage(ParameterList parameterList) {
-        this(null, parameterList);
+        this(Optional.empty(), Optional.of(parameterList));
     }
 
     public static RtpsTalkParameterListMessage withInlineQosOnly(ParameterList inlineQos) {
-        return new RtpsTalkParameterListMessage(inlineQos, null);
+        return new RtpsTalkParameterListMessage(Optional.of(inlineQos), Optional.empty());
     }
 
     @Override

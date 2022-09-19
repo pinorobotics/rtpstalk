@@ -28,27 +28,23 @@ import java.util.Optional;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsTalkDataMessage implements RtpsTalkMessage {
-
-    private Optional<Parameters> inlineQos = Optional.empty();
-    private Optional<byte[]> data = Optional.empty();
+public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<byte[]> data)
+        implements RtpsTalkMessage {
 
     public RtpsTalkDataMessage(Parameters inlineQos, byte[] data) {
-        this.inlineQos = Optional.ofNullable(inlineQos);
-        this.data = Optional.ofNullable(data);
+        this(Optional.of(inlineQos), Optional.of(data));
     }
 
     public RtpsTalkDataMessage(Optional<Parameters> inlineQos, byte[] data) {
-        this.inlineQos = inlineQos;
-        this.data = Optional.ofNullable(data);
+        this(inlineQos, Optional.of(data));
     }
 
     public RtpsTalkDataMessage(Parameters inlineQos) {
-        this(inlineQos, null);
+        this(Optional.of(inlineQos), Optional.empty());
     }
 
     public RtpsTalkDataMessage(byte[] data) {
-        this(Optional.empty(), data);
+        this(Optional.empty(), Optional.of(data));
     }
 
     public RtpsTalkDataMessage(String data) {
@@ -58,7 +54,7 @@ public class RtpsTalkDataMessage implements RtpsTalkMessage {
     /** RTPS inline QoS to be included with a data message */
     @Override
     public Optional<Parameters> userInlineQos() {
-        return inlineQos;
+        return userInlineQos;
     }
 
     /** Transfered user data */
@@ -69,7 +65,7 @@ public class RtpsTalkDataMessage implements RtpsTalkMessage {
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("inlineQos", inlineQos);
+        builder.append("inlineQos", userInlineQos);
         builder.append("data", data.map(XByte::toHexPairs));
         return builder.toString();
     }

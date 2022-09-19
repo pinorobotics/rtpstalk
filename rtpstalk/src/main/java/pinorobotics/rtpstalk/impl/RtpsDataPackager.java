@@ -75,8 +75,7 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                                 new RtpsTalkDataMessage(
                                         inlineQos
                                                 .map(ParameterList::getUserParameters)
-                                                .map(Parameters::new)
-                                                .orElse(null),
+                                                .map(Parameters::new),
                                         ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
                 Preconditions.equals(
@@ -84,8 +83,8 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                 return Optional.of(
                         (D)
                                 new RtpsTalkParameterListMessage(
-                                        inlineQos.orElse(null),
-                                        (ParameterList) serializedPayload.payload));
+                                        inlineQos,
+                                        Optional.of((ParameterList) serializedPayload.payload)));
             default:
                 {
                     LOGGER.warning(
