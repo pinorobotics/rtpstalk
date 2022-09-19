@@ -44,7 +44,11 @@ public class SerializedPayload implements SubmessageElement {
     }
 
     public SerializedPayload(SerializedPayloadHeader payloadHeader, Payload payload) {
-        this.serializedPayloadHeader = Optional.of(payloadHeader);
+        this(Optional.of(payloadHeader), payload);
+    }
+
+    public SerializedPayload(Optional<SerializedPayloadHeader> payloadHeader, Payload payload) {
+        this.serializedPayloadHeader = payloadHeader;
         this.payload = payload;
     }
 

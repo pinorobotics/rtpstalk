@@ -98,8 +98,7 @@ public class LengthCalculator {
         if (clazz == InfoTimestamp.class) return getFixedLength(Timestamp.class);
         if (clazz == InfoDestination.class) return getFixedLength(GuidPrefix.class);
         if (clazz == RepresentationIdentifier.class) return RepresentationIdentifier.SIZE;
-        if (clazz == SerializedPayloadHeader.class)
-            return SerializedPayloadHeader.SIZE + getFixedLength(RepresentationIdentifier.class);
+        if (clazz == SerializedPayloadHeader.class) return SerializedPayloadHeader.SIZE;
         if (clazz == SubmessageKind.class) return 1;
         if (clazz == SubmessageHeader.class)
             return getFixedLength(SubmessageKind.class) + 1 + Short.BYTES;
@@ -148,7 +147,7 @@ public class LengthCalculator {
                     Short.BYTES * 4
                             + getFixedLength(EntityId.class) * 2
                             + getFixedLength(SequenceNumber.class)
-                            + Integer.BYTES
+                            + Integer.BYTES * 2
                             + calculateLength(d.inlineQos)
                             + calculateLength(d.serializedPayload));
         if (obj instanceof SerializedPayload p)

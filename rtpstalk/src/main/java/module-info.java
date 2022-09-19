@@ -27,6 +27,7 @@
 module rtpstalk {
     requires id.xfunction;
     requires id.kineticstreamer;
+    requires java.logging;
 
     exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.messages;

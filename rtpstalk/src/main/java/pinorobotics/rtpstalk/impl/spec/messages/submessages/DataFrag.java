@@ -17,13 +17,16 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
@@ -32,7 +35,10 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  */
 public class DataFrag extends Submessage implements DataSubmessage {
 
-    public UnsignedShort extraFlags;
+    /** Size of the DataFrag submessage excluding sizze of data fragment */
+    public static final int EMPTY_SUBMESSAGE_SIZE = calcEmptySubmessageSize();
+
+    public short extraFlags;
 
     /**
      * Contains the number of octets starting from the first octet immediately following this field
@@ -95,9 +101,11 @@ public class DataFrag extends Submessage implements DataSubmessage {
             SerializedPayload serializedPayload) {
         this.octetsToInlineQos =
                 new UnsignedShort(
-                        (LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
+                        Short.BYTES * 2
+                                + Integer.BYTES * 2
+                                + LengthCalculator.getInstance().getFixedLength(EntityId.class) * 2
                                 + LengthCalculator.getInstance()
-                                        .getFixedLength(SequenceNumber.class)));
+                                        .getFixedLength(SequenceNumber.class));
         this.readerId = readerId;
         this.writerId = writerId;
         this.writerSN = writerSN;
@@ -108,14 +116,24 @@ public class DataFrag extends Submessage implements DataSubmessage {
         this.inlineQos = inlineQos;
         this.serializedPayload = serializedPayload;
         var flags = RtpsTalkConfiguration.ENDIANESS_BIT;
-        // data flag
-        flags |= 0b100;
         if (!inlineQos.isEmpty()) flags |= 2;
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.DATA_FRAG.getValue(),
                         flags,
                         LengthCalculator.getInstance().calculateLength(this));
+        validate();
+    }
+
+    @RtpsSpecReference(
+            paragraph = "8.3.7.3",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Validity")
+    private void validate() {
+        Preconditions.isTrue(writerSN.value >= 1, "writerSN must be greater than 0");
+        Preconditions.isTrue(
+                fragmentStartingNum.getUnsigned() >= 1,
+                "fragmentStartingNum must be greater than 0");
     }
 
     @Override
@@ -140,8 +158,14 @@ public class DataFrag extends Submessage implements DataSubmessage {
         return (getFlagsInternal() & 8) != 0;
     }
 
-    public SerializedPayload getSerializedPayload() {
-        return serializedPayload;
+    @Override
+    public Optional<SerializedPayload> getSerializedPayload() {
+        return Optional.of(serializedPayload);
+    }
+
+    @Override
+    public void setSerializedPayload(SerializedPayload serializedPayload) {
+        this.serializedPayload = serializedPayload;
     }
 
     @Override
@@ -161,13 +185,34 @@ public class DataFrag extends Submessage implements DataSubmessage {
     }
 
     @Override
+    public Optional<ParameterList> getInlineQos() {
+        return inlineQos;
+    }
+
+    @Override
     public void setInlineQos(ParameterList parameterList) {
         if (submessageHeader != null) submessageHeader.submessageFlag |= 2;
         inlineQos = Optional.of(parameterList);
     }
 
-    @Override
-    public void setSerializedPayload(SerializedPayload serializedPayload) {
-        this.serializedPayload = serializedPayload;
+    public static boolean hasSerializedPayloadHeader(long fragmentStartingNum) {
+        return fragmentStartingNum == 1;
+    }
+
+    private static int calcEmptySubmessageSize() {
+        var emptyFragment =
+                new DataFrag(
+                        new EntityId(),
+                        new EntityId(),
+                        new SequenceNumber(1),
+                        1,
+                        0,
+                        0,
+                        0,
+                        Optional.empty(),
+                        new SerializedPayload(
+                                SerializedPayloadHeader.DEFAULT_DATA_HEADER,
+                                new RawData(new byte[0])));
+        return LengthCalculator.getInstance().calculateLength(emptyFragment);
     }
 }

@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /**
@@ -24,11 +25,16 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
  */
 public interface DataSubmessage {
 
+    /** Check if isInlineQos flag is set */
     boolean isInlineQos();
 
     void setInlineQos(ParameterList readParameterList);
 
+    Optional<ParameterList> getInlineQos();
+
     int getSubmessageLength();
 
     void setSerializedPayload(SerializedPayload serializedPayload);
+
+    Optional<SerializedPayload> getSerializedPayload();
 }

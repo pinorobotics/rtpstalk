@@ -21,16 +21,19 @@ import id.xfunction.ResourceUtils;
 import id.xfunction.function.Unchecked;
 import id.xfunction.io.XInputStream;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo.Flags;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -169,6 +172,7 @@ public class DataProviders {
                                                                 new StatusInfo(Flags.DISPOSED)),
                                                         Map.of()),
                                                 true)))),
+                // 7
                 new TestCase(
                         "test_multiple_data",
                         new RtpsMessage(
@@ -206,6 +210,47 @@ public class DataProviders {
                                                             0x02, 0x00, 0x00, 0x00, 0x32, 0x00,
                                                             0x00, 0x00
                                                         }),
-                                                true)))));
+                                                true)))),
+                // Test Case 8: DataFrag with serializedPayloadHeader
+                new TestCase(
+                        "test_datafrag1",
+                        new RtpsMessage(
+                                TestConstants.TEST_HEADER,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new DataFrag(
+                                        new EntityId(123),
+                                        new EntityId(321),
+                                        new SequenceNumber(11),
+                                        1,
+                                        1,
+                                        30,
+                                        2345678,
+                                        Optional.empty(),
+                                        new SerializedPayload(
+                                                new RawData(
+                                                        "a"
+                                                                .repeat(
+                                                                        36
+                                                                                - SerializedPayloadHeader
+                                                                                        .SIZE)
+                                                                .getBytes()),
+                                                true)))),
+                // Test Case 9: DataFrag without serializedPayloadHeader
+                new TestCase(
+                        "test_datafragN",
+                        new RtpsMessage(
+                                TestConstants.TEST_HEADER,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new DataFrag(
+                                        new EntityId(123),
+                                        new EntityId(321),
+                                        new SequenceNumber(11),
+                                        7,
+                                        1,
+                                        30,
+                                        2345678,
+                                        Optional.empty(),
+                                        new SerializedPayload(
+                                                new RawData("a".repeat(36).getBytes()), false)))));
     }
 }

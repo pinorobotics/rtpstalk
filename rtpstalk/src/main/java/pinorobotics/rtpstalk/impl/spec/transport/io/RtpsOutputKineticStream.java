@@ -30,7 +30,7 @@ import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataSubmessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
@@ -75,7 +75,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         for (int i = 0; i < a.length; i++) {
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
-            if (a[i] instanceof Data data) writeData(data);
+            if (a[i] instanceof DataSubmessage data) writeData(data);
             else writer.write(a[i]);
 
             // The PSM aligns each Submessage on a 32-bit boundary with respect
@@ -188,17 +188,19 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         this.writer = writer;
     }
 
-    public void writeData(Data data) throws Exception {
+    public void writeData(DataSubmessage data) throws Exception {
         LOGGER.entering("writeData");
         writer.write(data);
-        if (data.inlineQos.isPresent()) writeParameterList(data.inlineQos.get());
-        var payload = data.serializedPayload.orElse(null);
-        if (payload != null) {
+        if (data.getInlineQos().isPresent()) writeParameterList(data.getInlineQos().get());
+        try {
+            var payload = data.getSerializedPayload().orElse(null);
+            if (payload == null) return;
             if (payload.serializedPayloadHeader.isPresent())
                 writer.write(payload.serializedPayloadHeader.get());
             writer.write(payload);
+        } finally {
+            LOGGER.exiting("writeData");
         }
-        LOGGER.exiting("writeData");
     }
 
     public void writeParameterList(ParameterList pl) throws Exception {

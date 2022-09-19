@@ -20,11 +20,13 @@ package pinorobotics.rtpstalk.impl.behavior.reader;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import id.xfunction.text.Ellipsizer;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
@@ -82,10 +84,12 @@ public class DataFragmentJoiner {
             receivedFragmentNums.add(i);
         }
         if (shouldAdd) {
-            var rawData = ((RawData) dataFrag.getSerializedPayload().getPayload()).getData();
+            var serializedPayload = dataFrag.getSerializedPayload().orElse(null);
+            if (serializedPayload == null) return;
+            var rawData = ((RawData) serializedPayload.getPayload()).getData();
             var expected = dataFrag.fragmentSize.getUnsigned() * fragmentsInSubmessage;
             var actualLen = 0;
-            if (dataFrag.getSerializedPayload().serializedPayloadHeader.isPresent())
+            if (serializedPayload.serializedPayloadHeader.isPresent())
                 actualLen +=
                         LengthCalculator.getInstance()
                                 .getFixedLengthInternal(SerializedPayloadHeader.class);
@@ -94,8 +98,9 @@ public class DataFragmentJoiner {
                 // check if it was last fragment and we have all data
                 if (availableSize + actualLen != initialFragment.dataSize) {
                     logger.warning(
-                            "DataFrag length mismatch, expected {0} received {1}, ignoring message",
-                            expected, actualLen);
+                            "DataFrag {0} length mismatch, expected {1} received {2}, ignoring"
+                                    + " message",
+                            fragmentStartingNum, expected, actualLen);
                     return;
                 }
             }
@@ -104,7 +109,7 @@ public class DataFragmentJoiner {
             userdataSize += rawData.length;
             availableSize += actualLen;
             logger.fine(
-                    "Data message with sequence number {0}: fragments {1}, total received {2},"
+                    "Data message sequence number {0}: fragments {1}, total received {2},"
                             + " total expected {3}",
                     initialFragment.writerSN.value,
                     receivedFragmentNums,
@@ -120,6 +125,12 @@ public class DataFragmentJoiner {
     public RtpsTalkDataMessage join() {
         var buf = ByteBuffer.allocate(userdataSize);
         userdataFragments.forEach(buf::put);
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(
+                    "Data message sequence number {0}: {1}",
+                    initialFragment.writerSN.value,
+                    new Ellipsizer(15).ellipsizeMiddle(buf.array()));
+        }
         return new RtpsTalkDataMessage(
                 initialFragment
                         .inlineQos

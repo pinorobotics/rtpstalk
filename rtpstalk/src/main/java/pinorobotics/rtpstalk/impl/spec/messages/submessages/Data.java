@@ -21,9 +21,11 @@ import id.xfunction.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
@@ -139,6 +141,15 @@ public class Data extends Submessage implements DataSubmessage {
                         SubmessageKind.Predefined.DATA.getValue(),
                         flags,
                         LengthCalculator.getInstance().calculateLength(this));
+        validate();
+    }
+
+    @RtpsSpecReference(
+            paragraph = "8.3.7.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Validity")
+    private void validate() {
+        Preconditions.isTrue(writerSN.value >= 1, "writerSN must be greater than 0");
     }
 
     @Override
@@ -168,8 +179,25 @@ public class Data extends Submessage implements DataSubmessage {
         return (getFlagsInternal() & 10) != 0;
     }
 
+    @Override
     public Optional<SerializedPayload> getSerializedPayload() {
         return serializedPayload;
+    }
+
+    @Override
+    public void setSerializedPayload(SerializedPayload serializedPayload) {
+        this.serializedPayload = Optional.of(serializedPayload);
+    }
+
+    @Override
+    public void setInlineQos(ParameterList parameterList) {
+        if (submessageHeader != null) submessageHeader.submessageFlag |= 2;
+        inlineQos = Optional.of(parameterList);
+    }
+
+    @Override
+    public Optional<ParameterList> getInlineQos() {
+        return inlineQos;
     }
 
     @Override
@@ -183,16 +211,5 @@ public class Data extends Submessage implements DataSubmessage {
             "inlineQos", inlineQos,
             "serializedPayload", serializedPayload.map(Object::toString).orElse("null")
         };
-    }
-
-    @Override
-    public void setInlineQos(ParameterList parameterList) {
-        if (submessageHeader != null) submessageHeader.submessageFlag |= 2;
-        inlineQos = Optional.of(parameterList);
-    }
-
-    @Override
-    public void setSerializedPayload(SerializedPayload serializedPayload) {
-        this.serializedPayload = Optional.of(serializedPayload);
     }
 }

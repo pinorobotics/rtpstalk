@@ -288,21 +288,24 @@ class RtpsInputKineticStream implements InputKineticStream {
         }
         var dataLen = data.getSubmessageLength();
         if (buf.position() < dataSubmessageStart + dataLen) {
-            SerializedPayloadHeader payloadHeader = null;
+            Optional<SerializedPayloadHeader> payloadHeaderOpt = Optional.empty();
             // is it DataFrag without header
             boolean isDataFragNoHeader = false;
             if (data instanceof DataFrag dataFrag) {
-                isDataFragNoHeader = dataFrag.fragmentStartingNum.getUnsigned() > 1;
+                isDataFragNoHeader =
+                        !DataFrag.hasSerializedPayloadHeader(
+                                dataFrag.fragmentStartingNum.getUnsigned());
             }
             var representationId = Optional.of(RepresentationIdentifier.Predefined.CDR_LE);
             if (!isDataFragNoHeader) {
-                payloadHeader = reader.read(SerializedPayloadHeader.class);
+                var payloadHeader = reader.read(SerializedPayloadHeader.class);
                 LOGGER.fine("payloadHeader: {0}", payloadHeader);
                 representationId = payloadHeader.representation_identifier.getPredefinedValue();
                 if (representationId.isEmpty())
                     throw new XRuntimeException(
                             "Unknown representation identifier %s",
                             payloadHeader.representation_identifier);
+                payloadHeaderOpt = Optional.of(payloadHeader);
             }
             Payload payload =
                     switch (representationId.get()) {
@@ -314,7 +317,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                     };
 
             LOGGER.fine("payload: {0}", payload);
-            data.setSerializedPayload(new SerializedPayload(payloadHeader, payload));
+            data.setSerializedPayload(new SerializedPayload(payloadHeaderOpt, payload));
         }
         LOGGER.exiting("readData");
         return data;
