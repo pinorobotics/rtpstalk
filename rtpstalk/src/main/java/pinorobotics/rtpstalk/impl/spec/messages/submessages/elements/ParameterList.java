@@ -69,10 +69,12 @@ public class ParameterList implements SubmessageElement, Payload {
         return RepresentationIdentifier.Predefined.PL_CDR_LE;
     }
 
+    /** Preserves the ordering of pairs */
     public void put(ParameterId parameterId, Object value) {
         params.putIfAbsent(parameterId, value);
     }
 
+    /** Preserves the ordering of pairs */
     public void putUserParameter(short parameterId, byte[] value) {
         userParams.putIfAbsent(parameterId, value);
     }

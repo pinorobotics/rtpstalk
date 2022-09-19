@@ -17,20 +17,36 @@
  */
 package pinorobotics.rtpstalk.impl;
 
+import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
+import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
 /**
- * Provides additional internal parameters on top of {@link RtpsTalkConfiguration}
+ * Provides additional internal parameters on top of {@link RtpsTalkConfiguration}. These are
+ * calculated based on {@link RtpsTalkConfiguration}
  *
  * @author lambdaprime intid@protonmail.com
  */
 public record RtpsTalkConfigurationInternal(
-        RtpsTalkConfiguration publicConfig, Guid localParticipantGuid) {
+        RtpsTalkConfiguration publicConfig, int maxSubmessageSize, Guid localParticipantGuid) {
 
     public RtpsTalkConfigurationInternal(RtpsTalkConfiguration config) {
-        this(config, Guid.newGuid(config.localParticipantGuid()));
+        this(config, calcMaxSubmessageSize(config), Guid.newGuid(config.localParticipantGuid()));
+    }
+
+    public RtpsTalkConfigurationInternal {
+        Preconditions.isTrue(
+                maxSubmessageSize > 0, "Unexpected maxMessageSize " + maxSubmessageSize);
+    }
+
+    private static int calcMaxSubmessageSize(RtpsTalkConfiguration config) {
+        var maxMessageSize =
+                config.packetBufferSize()
+                        - LengthCalculator.getInstance().getFixedLength(Header.class);
+        return maxMessageSize;
     }
 
     @Override
@@ -38,6 +54,7 @@ public record RtpsTalkConfigurationInternal(
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("config", publicConfig);
         builder.append("localParticpantGuid", localParticipantGuid);
+        builder.append("maxSubmessageSize", maxSubmessageSize);
         return builder.toString();
     }
 }

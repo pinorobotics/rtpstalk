@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
@@ -53,10 +54,11 @@ public class StatefullReliableRtpsWriterTest {
     public void test_history_cleanup() throws IOException {
         int millis = 100;
         var config =
-                TestConstants.TEST_CONFIG_BUILDER
-                        .historyCacheMaxSize(7)
-                        .heartbeatPeriod(Duration.ofMillis(millis))
-                        .build();
+                new RtpsTalkConfigurationInternal(
+                        TestConstants.TEST_CONFIG_BUILDER
+                                .historyCacheMaxSize(7)
+                                .heartbeatPeriod(Duration.ofMillis(millis))
+                                .build());
         var count = 0;
         var writerGuid =
                 new Guid(
@@ -70,7 +72,7 @@ public class StatefullReliableRtpsWriterTest {
                                 config,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 TestConstants.TEST_PUBLISHER_EXECUTOR,
-                                new TestDataChannelFactory(config),
+                                new TestDataChannelFactory(config.publicConfig()),
                                 operatingEntities,
                                 writerGuid.entityId,
                                 new PublisherQosPolicySet());

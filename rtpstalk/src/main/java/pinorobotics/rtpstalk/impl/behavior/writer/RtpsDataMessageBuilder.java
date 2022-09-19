@@ -23,12 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -50,14 +49,15 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     private Optional<GuidPrefix> readerGuidPrefix;
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
     private long lastSeqNum;
-    private int maxMessageSize;
+    private int maxSubmessageSize;
 
-    public RtpsDataMessageBuilder(RtpsTalkConfiguration config, GuidPrefix writerGuidPrefix) {
+    public RtpsDataMessageBuilder(
+            RtpsTalkConfigurationInternal config, GuidPrefix writerGuidPrefix) {
         this(config, writerGuidPrefix, null);
     }
 
     public RtpsDataMessageBuilder(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             GuidPrefix writerGuidPrefix,
             GuidPrefix readerGuidPrefix) {
         header =
@@ -67,10 +67,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                         VendorId.Predefined.RTPSTALK.getValue(),
                         writerGuidPrefix);
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
-        maxMessageSize =
-                config.packetBufferSize()
-                        - LengthCalculator.getInstance().getFixedLength(Header.class);
-        Preconditions.isTrue(maxMessageSize > 0, "Unexpected maxMessageSize " + maxMessageSize);
+        this.maxSubmessageSize = config.maxSubmessageSize();
     }
 
     public RtpsDataMessageBuilder add(long seqNum, RtpsTalkMessage payload) {
@@ -114,6 +111,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         return readerGuidPrefix.orElseGet(() -> MessageBuilder.super.getReaderGuidPrefix());
     }
 
+    /** Aggregates submessages into single message until it becomes full */
     private class InternalBuilder {
         static final int headerLen = LengthCalculator.getInstance().getFixedLength(Header.class);
         List<Submessage> submessages = new ArrayList<Submessage>();
@@ -126,9 +124,9 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             messageLen += LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class);
         }
 
-        boolean add(Data submessage) {
+        boolean add(Submessage submessage) {
             var submessageLen = submessage.submessageHeader.submessageLength.getUnsigned();
-            if (messageLen + submessageLen > maxMessageSize) return false;
+            if (messageLen + submessageLen > maxSubmessageSize) return false;
             submessages.add(submessage);
             messageLen += submessageLen;
             return true;

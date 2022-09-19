@@ -96,14 +96,10 @@ public class RtpsServiceManager implements AutoCloseable {
         try {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
             sedpService =
-                    new SedpService(
-                            config.publicConfig(),
-                            publisherExecutor,
-                            channelFactory,
-                            receiverFactory);
+                    new SedpService(config, publisherExecutor, channelFactory, receiverFactory);
             userService =
                     new UserDataService(
-                            config.publicConfig(),
+                            config,
                             publisherExecutor,
                             channelFactory,
                             new DataObjectsFactory(),

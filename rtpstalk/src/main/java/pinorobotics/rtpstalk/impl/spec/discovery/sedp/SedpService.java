@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.EndpointQos;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.liveliness.BuiltinParticipantMessageReader;
@@ -60,7 +60,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         implements AutoCloseable {
 
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
     private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
     private SedpBuiltinPublicationsReader publicationsReader;
@@ -74,7 +74,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     private Executor publisherExecutor;
 
     public SedpService(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             RtpsMessageReceiverFactory receiverFactory) {
@@ -91,7 +91,9 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
         metatrafficReceiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        config, new TracingToken(tracingToken, "SedpReceiver"), publisherExecutor);
+                        config.publicConfig(),
+                        new TracingToken(tracingToken, "SedpReceiver"),
+                        publisherExecutor);
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config,
@@ -110,16 +112,25 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         metatrafficReceiver.subscribe(publicationsWriter.getWriterReader());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(
-                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
+                        config.publicConfig(),
+                        tracingToken,
+                        publisherExecutor,
+                        iface.getOperatingEntities());
         metatrafficReceiver.subscribe(subscriptionsReader);
         publicationsReader =
                 new SedpBuiltinPublicationsReader(
-                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
+                        config.publicConfig(),
+                        tracingToken,
+                        publisherExecutor,
+                        iface.getOperatingEntities());
         metatrafficReceiver.subscribe(publicationsReader);
-        if (config.builtinEndpointQos() == EndpointQos.NONE)
+        if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
             metatrafficReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
-                            config, tracingToken, publisherExecutor, iface.getOperatingEntities()));
+                            config.publicConfig(),
+                            tracingToken,
+                            publisherExecutor,
+                            iface.getOperatingEntities()));
         metatrafficReceiver.start(iface.getMetatrafficUnicastChannel());
         this.iface = iface;
         isStarted = true;

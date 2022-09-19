@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
@@ -40,7 +40,7 @@ public class SedpBuiltinPublicationsWriter
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
     public SedpBuiltinPublicationsWriter(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,

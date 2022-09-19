@@ -55,7 +55,7 @@ public class TopicSubscriptionsManagerTest {
         var channelFactory = new TestDataChannelFactory();
         try (var service =
                         new UserDataService(
-                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_CONFIG_INTERNAL,
                                 TestConstants.TEST_PUBLISHER_EXECUTOR,
                                 channelFactory,
                                 new TestDataObjectsFactory(),
@@ -64,7 +64,7 @@ public class TopicSubscriptionsManagerTest {
             service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
             var publicationsWriter =
                     new SedpBuiltinPublicationsWriter(
-                            TestConstants.TEST_CONFIG,
+                            TestConstants.TEST_CONFIG_INTERNAL,
                             TestConstants.TEST_TRACING_TOKEN,
                             TestConstants.TEST_PUBLISHER_EXECUTOR,
                             channelFactory,

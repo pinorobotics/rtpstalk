@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -48,11 +48,12 @@ import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory
  */
 public class UserDataServiceTest {
 
-    private static final RtpsTalkConfiguration CONFIG =
-            TestConstants.TEST_CONFIG_BUILDER
-                    .publisherExecutor(new SameThreadExecutorService())
-                    .publisherMaxBufferSize(1)
-                    .build();
+    private static final RtpsTalkConfigurationInternal CONFIG =
+            new RtpsTalkConfigurationInternal(
+                    TestConstants.TEST_CONFIG_BUILDER
+                            .publisherExecutor(new SameThreadExecutorService())
+                            .publisherMaxBufferSize(1)
+                            .build());
 
     @Test
     public void test_subscribe() throws IOException {
@@ -62,7 +63,7 @@ public class UserDataServiceTest {
                 new UserDataService(
                         CONFIG,
                         TestConstants.TEST_PUBLISHER_EXECUTOR,
-                        new TestDataChannelFactory(CONFIG),
+                        new TestDataChannelFactory(CONFIG.publicConfig()),
                         dataFactory,
                         receiverFactory); ) {
             var counters = new int[2];
@@ -109,7 +110,7 @@ public class UserDataServiceTest {
                 new UserDataService(
                         CONFIG,
                         TestConstants.TEST_PUBLISHER_EXECUTOR,
-                        new TestDataChannelFactory(CONFIG),
+                        new TestDataChannelFactory(CONFIG.publicConfig()),
                         dataFactory,
                         receiverFactory); ) {
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());

@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Predicate;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -45,7 +45,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 public class UserDataService implements AutoCloseable {
 
     private XLogger logger;
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private RtpsMessageReceiver receiver;
     private DataChannelFactory channelFactory;
     private Map<EntityId, DataReader> readers = new HashMap<>();
@@ -58,7 +58,7 @@ public class UserDataService implements AutoCloseable {
     private Executor publisherExecutor;
 
     public UserDataService(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
             DataObjectsFactory dataObjectsfactory,
@@ -81,7 +81,7 @@ public class UserDataService implements AutoCloseable {
                         readerEntityId,
                         eid ->
                                 dataObjectsFactory.newDataReader(
-                                        config,
+                                        config.publicConfig(),
                                         tracingToken,
                                         publisherExecutor,
                                         operatingEntities,
@@ -123,7 +123,7 @@ public class UserDataService implements AutoCloseable {
         logger = XLogger.getLogger(getClass(), tracingToken);
         receiver =
                 receiverFactory.newRtpsMessageReceiver(
-                        config,
+                        config.publicConfig(),
                         new TracingToken(tracingToken, "UserDataServiceReceiver"),
                         publisherExecutor);
         logger.entering("start");

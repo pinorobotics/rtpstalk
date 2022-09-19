@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -58,7 +58,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
     protected final XLogger logger;
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
 
     private long lastChangeNumber;
     private Guid writerGuid;
@@ -68,7 +68,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     private TracingToken tracingToken;
 
     protected RtpsWriter(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             EntityId writerEntiyId) {
@@ -84,15 +84,15 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
             protocolVersion = Predefined.Version_2_3,
             text = "Writer always pushes out data as it becomes available")
     protected RtpsWriter(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken token,
             Executor publisherExecutor,
             EntityId writerEntityId,
             boolean pushMode) {
-        super(publisherExecutor, config.publisherMaxBufferSize());
+        super(publisherExecutor, config.publicConfig().publisherMaxBufferSize());
         this.config = config;
         this.tracingToken = new TracingToken(token, writerEntityId.toString());
-        this.writerGuid = new Guid(config.guidPrefix(), writerEntityId);
+        this.writerGuid = new Guid(config.publicConfig().guidPrefix(), writerEntityId);
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -167,7 +167,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         logger.fine("Closed");
     }
 
-    protected RtpsTalkConfiguration getConfig() {
+    protected RtpsTalkConfigurationInternal getConfig() {
         return config;
     }
 

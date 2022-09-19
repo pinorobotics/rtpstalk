@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.behavior.writer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
@@ -36,7 +37,10 @@ public class RtpsDataMessageBuilderTest {
     public void test_multiple_messages() {
         var builder =
                 new RtpsDataMessageBuilder(
-                        new RtpsTalkConfiguration.Builder().packetBufferSize(10_000).build(),
+                        new RtpsTalkConfigurationInternal(
+                                new RtpsTalkConfiguration.Builder()
+                                        .packetBufferSize(10_000)
+                                        .build()),
                         TestConstants.TEST_GUID_PREFIX);
         for (int i = 1; i <= 10; i++) {
             builder.add(i, new RtpsTalkDataMessage(new byte[1300]));

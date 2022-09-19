@@ -33,7 +33,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
 import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
@@ -85,7 +85,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private boolean isClosed;
 
     public StatefullReliableRtpsWriter(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
@@ -98,8 +98,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                 "ReliabilityKind not supported: " + qosPolicy.reliabilityKind());
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
-        this.heartbeatPeriod = config.heartbeatPeriod();
-        this.historyCacheMaxSize = config.historyCacheMaxSize();
+        this.heartbeatPeriod = config.publicConfig().heartbeatPeriod();
+        this.historyCacheMaxSize = config.publicConfig().historyCacheMaxSize();
         operatingEntities.getWriters().add(this);
         // for heartbeat purposes (to process ackNacks) we create reader
         writerReader = new WriterRtpsReader<>(getTracingToken(), this);
@@ -199,6 +199,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             // we delete only what all readers acked, if any of the
             // readers did not acked anything we return
             if (oldestSeqNum == 0) return;
+            if (oldestSeqNum == Integer.MAX_VALUE) oldestSeqNum = getLastChangeNumber();
             historyCache.removeAllBelow(oldestSeqNum);
         }
         request();

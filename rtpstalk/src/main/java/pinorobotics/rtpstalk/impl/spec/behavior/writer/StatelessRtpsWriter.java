@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
@@ -35,7 +35,7 @@ public class StatelessRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D
     private EntityId readerEntiyId;
 
     public StatelessRtpsWriter(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,

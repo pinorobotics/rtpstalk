@@ -109,11 +109,7 @@ public class SpdpService implements AutoCloseable {
         receiver.subscribe(reader);
         writer =
                 new SpdpBuiltinParticipantWriter(
-                        config.publicConfig(),
-                        tracingToken,
-                        publisherExecutor,
-                        channelFactory,
-                        networkInterface);
+                        config, tracingToken, publisherExecutor, channelFactory, networkInterface);
         writer.readerLocatorAdd(metatrafficMulticastLocator);
         writer.setSpdpDiscoveredParticipantDataMessage(
                 new RtpsTalkParameterListMessage(

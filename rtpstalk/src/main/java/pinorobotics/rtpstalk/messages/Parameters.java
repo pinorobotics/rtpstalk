@@ -39,7 +39,7 @@ public class Parameters {
      * @param params parameters to add
      */
     public Parameters(Map<Short, byte[]> params) {
-        params.forEach(this.params::put);
+        this.params = new LinkedHashMap<>(params);
     }
 
     public Map<Short, byte[]> getParameters() {
