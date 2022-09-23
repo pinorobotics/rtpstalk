@@ -32,11 +32,14 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
+import pinorobotics.rtpstalk.messages.Parameters;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -82,6 +85,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         return this;
     }
 
+    public boolean hasData() {
+        return !data.isEmpty();
+    }
+
     @Override
     public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
         var messages = new ArrayList<RtpsMessage>();
@@ -89,21 +96,59 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         for (var e : data.entrySet()) {
             var seqNum = e.getKey();
             var message = e.getValue();
-            var submessage = packager.packMessage(readerEntiyId, writerEntityId, seqNum, message);
-            if (messageBuilder.add(submessage)) continue;
-
-            // the message is already full so we reset it
-            messageBuilder.build().ifPresent(messages::add);
-            messageBuilder = new InternalBuilder();
-            if (messageBuilder.add(submessage)) continue;
-            throw new RuntimeException("Data size is too big");
+            if (!needsFragmentation(message)) {
+                var submessage =
+                        packager.packMessage(readerEntiyId, writerEntityId, seqNum, message);
+                if (messageBuilder.add(submessage)) continue;
+                // the message builder is already full so we reset it
+                messageBuilder.build().ifPresent(messages::add);
+                messageBuilder = new InternalBuilder();
+                if (messageBuilder.add(submessage)) continue;
+                // we could not added the submessage into empty message
+                // trying to use fragmentation
+            }
+            if (message instanceof RtpsTalkDataMessage dataMessage) {
+                // reset submessages in the builder if any
+                messageBuilder.build().ifPresent(messages::add);
+                messageBuilder = new InternalBuilder();
+                var inlineQos =
+                        message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
+                for (var fragment :
+                        new DataFragmentSplitter(
+                                readerEntiyId,
+                                writerEntityId,
+                                seqNum,
+                                inlineQos,
+                                dataMessage.data().get(),
+                                maxSubmessageSize - messageBuilder.getSize())) {
+                    Preconditions.isTrue(
+                            messageBuilder.add(fragment),
+                            "DataFrag submessage cannot be added to RTPS message");
+                    messages.add(messageBuilder.build().get());
+                    messageBuilder = new InternalBuilder();
+                }
+            } else {
+                throw new UnsupportedOperationException(
+                        "Fragmentation of " + message.getClass().getSimpleName());
+            }
         }
         messageBuilder.build().ifPresent(messages::add);
         return messages;
     }
 
-    public boolean hasData() {
-        return !data.isEmpty();
+    private boolean needsFragmentation(RtpsTalkMessage message) {
+        if (message instanceof RtpsTalkDataMessage dataMessage) {
+            return message.userInlineQos().map(this::calculateSize).orElse(0)
+                            + dataMessage.data().map(a -> a.length).orElse(0)
+                    > maxSubmessageSize;
+        }
+        return false;
+    }
+
+    private int calculateSize(Parameters parameters) {
+        var params = parameters.getParameters();
+        return params.keySet().size() * Short.BYTES
+                + params.values().stream().mapToInt(a -> a.length).sum();
     }
 
     @Override
@@ -122,6 +167,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             // submessage, instead we include InfoTimestamp per entire message and only once
             submessages.add(InfoTimestamp.now());
             messageLen += LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class);
+        }
+
+        public int getSize() {
+            return messageLen;
         }
 
         boolean add(Submessage submessage) {

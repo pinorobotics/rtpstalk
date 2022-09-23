@@ -106,10 +106,10 @@ public class DataFragmentReaderProcessorTests {
                                 new SequenceNumber(100),
                                 1,
                                 1,
-                                2,
-                                4,
+                                5,
+                                10,
                                 Optional.empty(),
-                                new SerializedPayload(new RawData("aa".getBytes()), false))));
+                                new SerializedPayload(new RawData("aPADDING".getBytes()), true))));
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
@@ -120,12 +120,13 @@ public class DataFragmentReaderProcessorTests {
                                 new SequenceNumber(100),
                                 1,
                                 1,
-                                3,
-                                6,
+                                7,
+                                14,
                                 Optional.empty(),
-                                new SerializedPayload(new RawData("eee".getBytes()), false))));
+                                new SerializedPayload(
+                                        new RawData("eeePADDING".getBytes()), true))));
         Assertions.assertEquals(
-                new RtpsTalkDataMessage("eeefff").toString(),
+                new RtpsTalkDataMessage("eeefffffff").toString(),
                 proc.addDataFrag(
                                 writer2,
                                 new DataFrag(
@@ -134,15 +135,15 @@ public class DataFragmentReaderProcessorTests {
                                         new SequenceNumber(100),
                                         4,
                                         1,
-                                        3,
-                                        6,
+                                        7,
+                                        14,
                                         Optional.empty(),
                                         new SerializedPayload(
-                                                new RawData("fff".getBytes()), false)))
+                                                new RawData("fffffffPADDING".getBytes()), false)))
                         .get()
                         .toString());
         Assertions.assertEquals(
-                new RtpsTalkDataMessage("aabb").toString(),
+                new RtpsTalkDataMessage("aaabbb").toString(),
                 proc.addDataFrag(
                                 writer1,
                                 new DataFrag(
@@ -151,10 +152,85 @@ public class DataFragmentReaderProcessorTests {
                                         new SequenceNumber(100),
                                         3,
                                         1,
-                                        2,
-                                        4,
+                                        5,
+                                        10,
                                         Optional.empty(),
-                                        new SerializedPayload(new RawData("bb".getBytes()), false)))
+                                        new SerializedPayload(
+                                                new RawData("aabbb".getBytes()), false)))
+                        .get()
+                        .toString());
+    }
+
+    @Test
+    public void test_no_padding_no_fragment_underflow() {
+        var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
+        var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        Assertions.assertEquals(
+                Optional.empty(),
+                proc.addDataFrag(
+                        writer,
+                        new DataFrag(
+                                new EntityId(),
+                                writer.entityId,
+                                new SequenceNumber(16),
+                                1,
+                                1,
+                                8,
+                                16,
+                                Optional.empty(),
+                                new SerializedPayload(new RawData("aaaa".getBytes()), true))));
+        Assertions.assertEquals(
+                new RtpsTalkDataMessage("aaaabbbbbbbb").toString(),
+                proc.addDataFrag(
+                                writer,
+                                new DataFrag(
+                                        new EntityId(),
+                                        writer.entityId,
+                                        new SequenceNumber(16),
+                                        3,
+                                        1,
+                                        8,
+                                        16,
+                                        Optional.empty(),
+                                        new SerializedPayload(
+                                                new RawData("bbbbbbbb".getBytes()), false)))
+                        .get()
+                        .toString());
+    }
+
+    @Test
+    public void test_last_fragment_underflow() {
+        var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
+        var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        Assertions.assertEquals(
+                Optional.empty(),
+                proc.addDataFrag(
+                        writer,
+                        new DataFrag(
+                                new EntityId(),
+                                writer.entityId,
+                                new SequenceNumber(16),
+                                1,
+                                1,
+                                10,
+                                16,
+                                Optional.empty(),
+                                new SerializedPayload(new RawData("aaaabb".getBytes()), true))));
+        Assertions.assertEquals(
+                new RtpsTalkDataMessage("aaaabbbbbbbb").toString(),
+                proc.addDataFrag(
+                                writer,
+                                new DataFrag(
+                                        new EntityId(),
+                                        writer.entityId,
+                                        new SequenceNumber(16),
+                                        3,
+                                        1,
+                                        10,
+                                        16,
+                                        Optional.empty(),
+                                        new SerializedPayload(
+                                                new RawData("bbbbbb".getBytes()), false)))
                         .get()
                         .toString());
     }

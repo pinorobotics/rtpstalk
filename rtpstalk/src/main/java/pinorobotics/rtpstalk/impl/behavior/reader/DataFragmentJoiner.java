@@ -31,7 +31,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
@@ -40,16 +39,19 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  */
 public class DataFragmentJoiner {
 
-    private int availableSize;
+    /** Fragmented data message size includes size of metadata + user data */
+    private static final int METADATA_SIZE = SerializedPayloadHeader.SIZE;
 
     /**
-     * The availableSize may include serializedPayloadHeader and other metadata which is not part of
-     * user data itself
+     * The available size may include serializedPayloadHeader and other metadata which is not part
+     * of user data itself
      */
-    private int userdataSize;
+    private int availableDataSize;
+
+    private int availableUserdataSize;
 
     private Set<Long> availableFragmentsNums = new HashSet<>();
-    private List<byte[]> userdataFragments = new LinkedList<>();
+    private List<ByteBuffer> userdataFragments = new LinkedList<>();
     private DataFrag initialFragment;
     private XLogger logger;
 
@@ -59,7 +61,7 @@ public class DataFragmentJoiner {
     }
 
     public boolean isEmpty() {
-        return availableSize == 0;
+        return availableDataSize == 0;
     }
 
     public void add(DataFrag dataFrag) {
@@ -86,44 +88,67 @@ public class DataFragmentJoiner {
         if (shouldAdd) {
             var serializedPayload = dataFrag.getSerializedPayload().orElse(null);
             if (serializedPayload == null) return;
-            var rawData = ((RawData) serializedPayload.getPayload()).getData();
-            var expected = dataFrag.fragmentSize.getUnsigned() * fragmentsInSubmessage;
-            var actualLen = 0;
+            // rawData is a user data and is part of message Data
+            // message Data additionally may contain metadata
+            var rawData = ByteBuffer.wrap(((RawData) serializedPayload.getPayload()).getData());
+            var expectedDataLen = dataFrag.fragmentSize.getUnsigned() * fragmentsInSubmessage;
+            var actuaDatalLen = 0;
             if (serializedPayload.serializedPayloadHeader.isPresent())
-                actualLen +=
-                        LengthCalculator.getInstance()
-                                .getFixedLengthInternal(SerializedPayloadHeader.class);
-            actualLen += rawData.length;
-            if (actualLen != expected) {
-                // check if it was last fragment and we have all data
-                if (availableSize + actualLen != initialFragment.dataSize) {
+                actuaDatalLen += SerializedPayloadHeader.SIZE;
+            actuaDatalLen += rawData.capacity();
+            // strip any padding
+            if (actuaDatalLen > expectedDataLen) {
+                actuaDatalLen = expectedDataLen;
+                Preconditions.isTrue(
+                        actuaDatalLen > SerializedPayloadHeader.SIZE,
+                        "Data length cannot be less than metadata length");
+                rawData.limit(
+                        actuaDatalLen
+                                - (serializedPayload.serializedPayloadHeader.isPresent()
+                                        ? SerializedPayloadHeader.SIZE
+                                        : 0));
+            }
+            if (actuaDatalLen != expectedDataLen) {
+                var delta = availableDataSize + actuaDatalLen - initialFragment.dataSize;
+                // check if we need to expect more fragments or if we received all data already
+                if (delta > 0) {
+                    // we have all data, strip padding
+                    rawData.limit(rawData.capacity() - delta);
+                    actuaDatalLen -= delta;
+                } else if (delta < 0) {
+                    // some data is still missing
                     logger.warning(
                             "DataFrag {0} length mismatch, expected {1} received {2}, ignoring"
                                     + " message",
-                            fragmentStartingNum, expected, actualLen);
+                            fragmentStartingNum, expectedDataLen, actuaDatalLen);
                     return;
+                } else {
+                    // all data is present
                 }
             }
             availableFragmentsNums.addAll(receivedFragmentNums);
             userdataFragments.add(rawData);
-            userdataSize += rawData.length;
-            availableSize += actualLen;
+            availableUserdataSize += rawData.limit();
+            availableDataSize += actuaDatalLen;
             logger.fine(
                     "Data message sequence number {0}: fragments {1}, total received {2},"
                             + " total expected {3}",
                     initialFragment.writerSN.value,
                     receivedFragmentNums,
-                    availableSize,
+                    availableDataSize,
                     initialFragment.dataSize);
         }
     }
 
     public boolean hasAllFragments() {
-        return availableSize == initialFragment.dataSize;
+        return availableDataSize == initialFragment.dataSize;
     }
 
     public RtpsTalkDataMessage join() {
-        var buf = ByteBuffer.allocate(userdataSize);
+        Preconditions.isTrue(
+                availableDataSize - availableUserdataSize == METADATA_SIZE,
+                "Mismatch between available user data and metadata");
+        var buf = ByteBuffer.allocate(availableUserdataSize);
         userdataFragments.forEach(buf::put);
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(
