@@ -148,7 +148,9 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         }
         var isAdded = cache.addChange(cacheChange);
         if (isAdded) {
-            logger.fine("Submitting new change to subscribers");
+            logger.fine(
+                    "Submitting new change with sequence number {0} to subscribers",
+                    cacheChange.getSequenceNumber());
             submit(cacheChange.getDataValue());
         }
         logger.exiting("addChange");

@@ -189,6 +189,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             // Readers receive everything what was published in the cache.
         }
         if (matchedReaders.isEmpty()) {
+            logger.fine("Cleaning up all changes since there is no matched readers available");
             historyCache.removeAllBelow(getLastChangeNumber());
         } else {
             var oldestSeqNum =
@@ -199,7 +200,11 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             // we delete only what all readers acked, if any of the
             // readers did not acked anything we return
             if (oldestSeqNum == 0) return;
-            if (oldestSeqNum == Integer.MAX_VALUE) oldestSeqNum = getLastChangeNumber();
+            if (oldestSeqNum == Long.MAX_VALUE) oldestSeqNum = getLastChangeNumber();
+            logger.fine(
+                    "Cleaning up all changes up to {0} since they are acknowledged by all the"
+                            + " readers",
+                    oldestSeqNum);
             historyCache.removeAllBelow(oldestSeqNum);
         }
         request();

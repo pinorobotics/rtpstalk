@@ -131,8 +131,8 @@ public class DataFragmentJoiner {
             availableUserdataSize += rawData.limit();
             availableDataSize += actuaDatalLen;
             logger.fine(
-                    "Data message sequence number {0}: fragments {1}, total received {2},"
-                            + " total expected {3}",
+                    "Data message sequence number {0}: received fragments {1}, total bytes received"
+                            + " {2}, total bytes expected {3}",
                     initialFragment.writerSN.value,
                     receivedFragmentNums,
                     availableDataSize,
