@@ -26,7 +26,7 @@ import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -75,7 +75,7 @@ public class StatefullReliableRtpsWriterTest {
                                 new TestDataChannelFactory(config.publicConfig()),
                                 operatingEntities,
                                 writerGuid.entityId,
-                                new PublisherQosPolicySet());
+                                new WriterQosPolicySet());
                 var publisher =
                         new SubmissionPublisher<RtpsTalkDataMessage>(
                                 new SameThreadExecutorService(), 1);

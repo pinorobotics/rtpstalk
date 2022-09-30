@@ -24,10 +24,10 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record PublisherQosPolicySet(
+public record WriterQosPolicySet(
         ReliabilityQosPolicy.Kind reliabilityKind, DurabilityQosPolicy.Kind durabilityKind) {
 
-    public PublisherQosPolicySet() {
+    public WriterQosPolicySet() {
         this(ReliabilityQosPolicy.Kind.RELIABLE, DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS);
     }
 

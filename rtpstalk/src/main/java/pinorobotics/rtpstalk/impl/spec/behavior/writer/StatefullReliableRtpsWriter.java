@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
@@ -80,7 +80,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private OperatingEntities operatingEntities;
     private int historyCacheMaxSize;
     private WriterRtpsReader<D> writerReader;
-    private PublisherQosPolicySet qosPolicy;
+    private WriterQosPolicySet qosPolicy;
 
     private boolean isClosed;
 
@@ -91,7 +91,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             DataChannelFactory channelFactory,
             OperatingEntities operatingEntities,
             EntityId writerEntiyId,
-            PublisherQosPolicySet qosPolicy) {
+            WriterQosPolicySet qosPolicy) {
         super(config, tracingToken, publisherExecutor, writerEntiyId, true);
         Preconditions.isTrue(
                 qosPolicy.reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE,

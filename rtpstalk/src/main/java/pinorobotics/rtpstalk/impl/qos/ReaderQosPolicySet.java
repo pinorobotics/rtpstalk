@@ -23,9 +23,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record SubscriberQosPolicySet(ReliabilityQosPolicy.Kind reliabilityKind) {
+public record ReaderQosPolicySet(ReliabilityQosPolicy.Kind reliabilityKind) {
 
-    public SubscriberQosPolicySet() {
+    public ReaderQosPolicySet() {
         this(ReliabilityQosPolicy.Kind.RELIABLE);
     }
 

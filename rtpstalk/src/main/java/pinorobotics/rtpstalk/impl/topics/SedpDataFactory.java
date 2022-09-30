@@ -19,8 +19,8 @@ package pinorobotics.rtpstalk.impl.topics;
 
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
@@ -49,7 +49,7 @@ public class SedpDataFactory {
             TopicId topicId,
             EntityId entityId,
             Locator defaultUnicastLocator,
-            PublisherQosPolicySet qosPolicy) {
+            WriterQosPolicySet qosPolicy) {
         var guid = new Guid(config.publicConfig().guidPrefix(), entityId);
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
@@ -81,7 +81,7 @@ public class SedpDataFactory {
             TopicId topicId,
             EntityId readerEntityId,
             Locator defaultUnicastLocator,
-            SubscriberQosPolicySet qosPolicy) {
+            ReaderQosPolicySet qosPolicy) {
         var params = new ParameterList();
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
         params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());

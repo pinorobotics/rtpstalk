@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.impl.qos.SubscriberQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
@@ -27,9 +27,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author lambdaprime intid@protonmail.com
  */
 public record SubscriberDetails(
-        TopicId topicId,
-        SubscriberQosPolicySet qosPolicy,
-        Subscriber<RtpsTalkDataMessage> subscriber)
+        TopicId topicId, ReaderQosPolicySet qosPolicy, Subscriber<RtpsTalkDataMessage> subscriber)
         implements ActorDetails {
 
     @Override

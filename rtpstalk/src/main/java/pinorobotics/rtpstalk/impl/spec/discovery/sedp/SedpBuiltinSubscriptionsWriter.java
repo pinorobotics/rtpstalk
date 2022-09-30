@@ -21,7 +21,7 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
@@ -34,8 +34,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
  */
 public class SedpBuiltinSubscriptionsWriter
         extends StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> {
-    private static final PublisherQosPolicySet DEFAULT_POLICY =
-            new PublisherQosPolicySet(
+    private static final WriterQosPolicySet DEFAULT_POLICY =
+            new WriterQosPolicySet(
                     ReliabilityQosPolicy.Kind.RELIABLE,
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 

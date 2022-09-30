@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.qos.PublisherQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -115,7 +115,7 @@ public class UserDataServiceTest {
                         receiverFactory); ) {
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
             var topicId = new TopicId("topic", "type");
-            var qosPolicy = new PublisherQosPolicySet();
+            var qosPolicy = new WriterQosPolicySet();
             var details1 =
                     new PublisherDetails(
                             topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
