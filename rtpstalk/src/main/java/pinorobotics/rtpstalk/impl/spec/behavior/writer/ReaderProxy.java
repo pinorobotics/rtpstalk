@@ -67,7 +67,7 @@ public interface ReaderProxy extends AutoCloseable {
     void ackedChanges(long seqNum);
 
     /** If ReaderProxy does not track such information it should return Long.MAX_VALUE */
-    long getHighestSeqNumSent();
+    long getHighestAckedSeqNum();
 
     RtpsMessageSender getSender();
 

@@ -79,11 +79,11 @@ public class ReliableReaderProxy implements ReaderProxy {
 
     @Override
     public void ackedChanges(long seqNum) {
-        highestSeqNumSent = seqNum;
+        highestSeqNumSent = Math.max(highestSeqNumSent, seqNum);
     }
 
     @Override
-    public long getHighestSeqNumSent() {
+    public long getHighestAckedSeqNum() {
         return highestSeqNumSent;
     }
 

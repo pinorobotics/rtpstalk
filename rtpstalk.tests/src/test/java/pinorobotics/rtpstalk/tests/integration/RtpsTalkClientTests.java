@@ -30,12 +30,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkClient;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.qos.DurabilityType;
+import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestEvents;
 
@@ -59,6 +63,34 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     @AfterEach
     public void clean() {
         tools.close();
+    }
+
+    @Test
+    public void test_publish_single_message() throws Exception {
+        try (var subscriberClient = new RtpsTalkClient();
+                var publisherClient = new RtpsTalkClient(); ) {
+            var topicName = "HelloWorldTopic";
+            var topicType = "HelloWorld";
+            var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
+            var data = new RtpsTalkDataMessage("1234");
+            publisherClient.publish(
+                    topicName,
+                    topicType,
+                    new PublisherQosPolicy(
+                            ReliabilityType.RELIABLE,
+                            DurabilityType.TRANSIENT_LOCAL_DURABILITY_QOS),
+                    publisher);
+            var collector =
+                    new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 1) {
+                        public void onNext(RtpsTalkDataMessage item) {
+                            System.out.println(item.data());
+                            super.onNext(item);
+                        }
+                    };
+            subscriberClient.subscribe(topicName, topicType, collector);
+            publisher.submit(data);
+            Assertions.assertEquals(data.toString(), collector.getFuture().get().get(0).toString());
+        }
     }
 
     @Test
@@ -164,23 +196,38 @@ public class RtpsTalkClientTests extends PubSubClientTests {
         LogUtils.validateNoExceptions();
     }
 
+    /**
+     * Test that we replay changes in the history cache for BEST_EFFORT Subscribers. For RELIABLE
+     * Subscribers it is not required as they suppose to request them through ACKNACKs
+     */
     @Test
     public void test_best_effort_subscriber() throws Exception {
-        try (var client = new RtpsTalkClient()) {
+        var maxHistoryCacheSize = 200;
+        try (var client =
+                new RtpsTalkClient(
+                        new RtpsTalkConfiguration.Builder()
+                                .historyCacheMaxSize(maxHistoryCacheSize)
+                                .build())) {
             var topicName = "HelloWorldTopic";
             var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
+            client.publish(
+                    topicName,
+                    "HelloWorld",
+                    new PublisherQosPolicy(
+                            ReliabilityType.RELIABLE,
+                            DurabilityType.TRANSIENT_LOCAL_DURABILITY_QOS),
+                    publisher);
+            tools.generateMessages(maxHistoryCacheSize).forEach(publisher::submit);
             var proc =
                     tools.runHelloWorldExample(
                             Map.of(
                                     FastRtpsEnvironmentVariable.ReliabilityQosPolicyKind,
                                     "BEST_EFFORT_RELIABILITY"),
                             "subscriber",
-                            "100");
-            client.publish(topicName, "HelloWorld", publisher);
+                            "" + maxHistoryCacheSize);
             var remoteActor =
                     TestEvents.waitForDiscoveredActor(topicName, ActorDetails.Type.Subscriber);
             Assertions.assertEquals(Kind.BEST_EFFORT, remoteActor.reliabilityKind());
-            tools.generateMessages(1000).forEach(publisher::submit);
             var output = proc.stdout();
             var ids = tools.extractMessageIds(output);
             Assertions.assertEquals(ids.stream().sorted().toList(), ids);

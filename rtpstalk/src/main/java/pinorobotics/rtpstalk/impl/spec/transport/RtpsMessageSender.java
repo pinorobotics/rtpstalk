@@ -76,6 +76,15 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
     public void onNext(MessageBuilder messageBuilder) {
         logger.entering("onNext");
         try {
+            send(messageBuilder);
+        } finally {
+            subscription.request(1);
+        }
+        logger.exiting("onNext");
+    }
+
+    private void send(MessageBuilder messageBuilder) {
+        try {
             var guidPrefix = messageBuilder.getReaderGuidPrefix();
             if (guidPrefix == GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue()
                     || guidPrefix.equals(remoteReader.guidPrefix)) {
@@ -87,10 +96,7 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
             }
         } catch (Exception e) {
             logger.severe(e);
-        } finally {
-            subscription.request(1);
         }
-        logger.exiting("onNext");
     }
 
     @Override
@@ -107,5 +113,10 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
 
     private void send(RtpsMessage message) {
         dataChannel.send(remoteReader, message);
+    }
+
+    @Override
+    public void replay(MessageBuilder messageBuilder) {
+        send(messageBuilder);
     }
 }

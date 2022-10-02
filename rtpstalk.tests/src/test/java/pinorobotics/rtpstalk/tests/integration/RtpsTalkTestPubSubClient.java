@@ -26,6 +26,9 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.qos.DurabilityType;
+import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.qos.ReliabilityType;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -68,6 +71,11 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
         var transformer =
                 new TransformProcessor<>(this::packString, new SameThreadExecutorService(), 1);
         publisher.subscribe(transformer);
-        client.publish(topic, asType(topic), transformer);
+        client.publish(
+                topic,
+                asType(topic),
+                new PublisherQosPolicy(
+                        ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS),
+                transformer);
     }
 }

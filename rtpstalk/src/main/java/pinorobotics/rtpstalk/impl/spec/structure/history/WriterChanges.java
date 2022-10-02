@@ -42,6 +42,7 @@ public class WriterChanges<D extends RtpsTalkMessage> {
 
     private void updateSeqNums(long seqNum, boolean firstChange) {
         if (firstChange) {
+            LOGGER.fine("First change with sequence number {0}", seqNum);
             seqNumMin = seqNumMax = seqNum;
         } else {
             if (seqNumMin > seqNum) {
@@ -91,5 +92,9 @@ public class WriterChanges<D extends RtpsTalkMessage> {
 
     public int getNumberOfChanges() {
         return changes.size();
+    }
+
+    public Stream<CacheChange<D>> getAll() {
+        return changes.values().stream();
     }
 }

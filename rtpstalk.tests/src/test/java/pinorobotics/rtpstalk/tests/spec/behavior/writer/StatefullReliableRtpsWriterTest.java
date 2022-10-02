@@ -29,9 +29,11 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
@@ -75,7 +77,9 @@ public class StatefullReliableRtpsWriterTest {
                                 new TestDataChannelFactory(config.publicConfig()),
                                 operatingEntities,
                                 writerGuid.entityId,
-                                new WriterQosPolicySet());
+                                new WriterQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS));
                 var publisher =
                         new SubmissionPublisher<RtpsTalkDataMessage>(
                                 new SameThreadExecutorService(), 1);
@@ -115,6 +119,7 @@ public class StatefullReliableRtpsWriterTest {
                 publisher.submit(new RtpsTalkDataMessage("hello"));
                 count++;
             }
+            // ack all except last one
             ackNack.readerSNState = new SequenceNumberSet(count, 0);
             receiver.submit(message);
 

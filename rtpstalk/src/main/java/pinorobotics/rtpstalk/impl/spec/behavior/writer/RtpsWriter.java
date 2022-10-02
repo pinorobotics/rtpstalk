@@ -114,13 +114,14 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         logger.exiting("repeatLastChange");
     }
 
-    public void newChange(D data) {
+    public long newChange(D data) {
         logger.entering("newChange");
         lastChangeNumber++;
         lastMessage = new RtpsDataMessageBuilder(config, writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);
         sendLastChangeToAllReaders();
         logger.exiting("newChange");
+        return lastChangeNumber;
     }
 
     protected void request() {

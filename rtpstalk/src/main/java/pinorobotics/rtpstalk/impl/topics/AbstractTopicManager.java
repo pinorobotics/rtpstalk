@@ -143,8 +143,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
 
     protected abstract ParameterList createAnnouncementData(A actor, Topic<A> topic);
 
-    private void announceTopicInterest(A actor, Topic<A> topic) {
-        announcementsWriter.newChange(
+    protected long announceTopicInterest(A actor, Topic<A> topic) {
+        return announcementsWriter.newChange(
                 new RtpsTalkParameterListMessage(createAnnouncementData(actor, topic)));
     }
 

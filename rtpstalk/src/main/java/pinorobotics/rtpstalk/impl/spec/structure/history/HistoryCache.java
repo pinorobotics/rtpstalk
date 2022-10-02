@@ -82,6 +82,12 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         return true;
     }
 
+    public Stream<CacheChange<D>> getAll(Guid writerGuid) {
+        var writerChanges = changes.get(writerGuid);
+        if (writerChanges == null) return Stream.of();
+        return writerChanges.getAll();
+    }
+
     public Stream<CacheChange<D>> findAll(Guid writerGuid, List<Long> seqNums) {
         var writerChanges = changes.get(writerGuid);
         if (writerChanges == null) return Stream.of();

@@ -43,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
@@ -112,10 +113,11 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     @Override
-    public void newChange(D data) {
-        super.newChange(data);
+    public long newChange(D data) {
+        var seqNum = super.newChange(data);
         logger.fine("New change submitted");
         historyCache.addChange(new CacheChange<>(getGuid(), getLastChangeNumber(), data));
+        return seqNum;
     }
 
     public synchronized void matchedReaderAdd(
@@ -141,6 +143,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                     default -> throw new UnsupportedOperationException(
                             "ReliabilityQosPolicy " + reliabilityKind);
                 };
+        replayHistoryCacheIfNeeded(proxy);
         logger.fine(
                 "Adding reader proxy for reader with guid {0} and reliability {1}",
                 proxy.getRemoteReaderGuid(), reliabilityKind);
@@ -151,6 +154,23 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             executor.scheduleWithFixedDelay(
                     this, 0, heartbeatPeriod.toMillis(), TimeUnit.MILLISECONDS);
         }
+    }
+
+    private void replayHistoryCacheIfNeeded(ReaderProxy proxy) {
+        if (qosPolicy.durabilityKind() != DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)
+            return;
+        if (proxy.getReliabilityKind() != Kind.BEST_EFFORT) return;
+        logger.fine("Replaying history changes for Reader {0}", proxy.getRemoteReaderGuid());
+        var builder =
+                new RtpsDataMessageBuilder(
+                        getConfig(), getGuid().guidPrefix, proxy.getRemoteReaderGuid().guidPrefix);
+        historyCache
+                .getAll(getGuid())
+                .forEach(
+                        change -> {
+                            builder.add(change.getSequenceNumber(), change.getDataValue());
+                        });
+        proxy.getSender().replay(builder);
     }
 
     public void matchedReaderRemove(Guid remoteGuid) {
@@ -194,7 +214,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         } else {
             var oldestSeqNum =
                     matchedReaders.values().stream()
-                            .mapToLong(ReaderProxy::getHighestSeqNumSent)
+                            .mapToLong(ReaderProxy::getHighestAckedSeqNum)
                             .min()
                             .orElse(0);
             // we delete only what all readers acked, if any of the
@@ -205,7 +225,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                     "Cleaning up all changes up to {0} since they are acknowledged by all the"
                             + " readers",
                     oldestSeqNum);
-            historyCache.removeAllBelow(oldestSeqNum);
+            historyCache.removeAllBelow(oldestSeqNum + 1);
         }
         request();
     }

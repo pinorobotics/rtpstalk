@@ -62,9 +62,7 @@ public class SedpDataFactory {
                 ParameterId.PID_PROTOCOL_VERSION,
                 ProtocolVersion.Predefined.Version_2_3.getValue());
         params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
-        params.put(
-                ParameterId.PID_DURABILITY,
-                new DurabilityQosPolicy(DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
+        params.put(ParameterId.PID_DURABILITY, new DurabilityQosPolicy(qosPolicy.durabilityKind()));
         params.put(
                 ParameterId.PID_RELIABILITY,
                 new ReliabilityQosPolicy(

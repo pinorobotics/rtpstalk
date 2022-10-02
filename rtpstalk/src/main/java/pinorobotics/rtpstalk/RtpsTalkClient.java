@@ -27,6 +27,7 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 
 /**
  * RTPS client
@@ -75,7 +76,7 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     /**
-     * Register RTPS topic publisher.
+     * Register RTPS topic publisher with default {@link PublisherQosPolicy}.
      *
      * <p>This client subscribes to the given publisher and announces its presence to all RTPS
      * Participants in the network. Each message received by this client from the publisher will be
@@ -86,10 +87,21 @@ public class RtpsTalkClient implements AutoCloseable {
      * @param publisher user publisher which emits RTPS Data messages for the given topic
      */
     public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
+        publish(topic, type, new PublisherQosPolicy(), publisher);
+    }
+
+    /**
+     * @see #publish
+     */
+    public void publish(
+            String topic,
+            String type,
+            PublisherQosPolicy policy,
+            Publisher<RtpsTalkDataMessage> publisher) {
         if (!isStarted) {
             start();
         }
-        serviceManager.publish(topic, type, publisher);
+        serviceManager.publish(topic, type, policy, publisher);
     }
 
     /**
