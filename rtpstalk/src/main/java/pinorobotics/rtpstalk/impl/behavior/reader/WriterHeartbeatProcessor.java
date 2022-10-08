@@ -51,7 +51,7 @@ public class WriterHeartbeatProcessor {
     private WriterProxy writerProxy;
 
     /** Counter of Acks */
-    private int count;
+    private int count = 1;
 
     private Heartbeat lastHeartbeat;
 

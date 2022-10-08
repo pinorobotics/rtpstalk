@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Preconditions;
 import java.util.List;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -53,6 +54,10 @@ public class AckNack extends Submessage {
      * A counter that is incremented each time a new AckNack message is sent. Provides the means for
      * a Writer to detect duplicate AckNack messages that can result from the presence of redundant
      * communication paths.
+     *
+     * <p>RTPS specification does not say from which value it should start so presumably it can
+     * start from 0. But it was observed that FastDDS ignores acknacks which has count 0. For that
+     * reason we always start it from 1.
      */
     public Count count;
 
@@ -60,6 +65,7 @@ public class AckNack extends Submessage {
 
     public AckNack(
             EntityId readerId, EntityId writerId, SequenceNumberSet readerSNState, Count count) {
+        Preconditions.isTrue(count.value > 0, "Count cannot be less than 1");
         this.readerId = readerId;
         this.writerId = writerId;
         this.readerSNState = readerSNState;

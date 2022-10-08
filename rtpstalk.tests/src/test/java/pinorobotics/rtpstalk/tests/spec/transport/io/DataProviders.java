@@ -82,7 +82,7 @@ public class DataProviders {
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
                                                 .getValue(),
                                         new SequenceNumberSet(1, 9, 511),
-                                        new Count()))),
+                                        new Count(1)))),
                 // 2
                 new TestCase(
                         "test_submessages_padding",
