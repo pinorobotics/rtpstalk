@@ -81,17 +81,18 @@ public class SedpDataFactory {
             Locator defaultUnicastLocator,
             ReaderQosPolicySet qosPolicy) {
         var params = new ParameterList();
+        var guid = new Guid(config.publicConfig().guidPrefix(), readerEntityId);
         params.put(ParameterId.PID_UNICAST_LOCATOR, defaultUnicastLocator);
         params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
         params.put(ParameterId.PID_TOPIC_NAME, topicId.name());
         params.put(ParameterId.PID_TYPE_NAME, topicId.type());
-        params.put(
-                ParameterId.PID_ENDPOINT_GUID,
-                new Guid(config.publicConfig().guidPrefix(), readerEntityId));
+        params.put(ParameterId.PID_ENDPOINT_GUID, guid);
         params.put(
                 ParameterId.PID_RELIABILITY,
                 new ReliabilityQosPolicy(
                         qosPolicy.reliabilityKind(), Duration.Predefined.ZERO.getValue()));
+        params.put(ParameterId.PID_DURABILITY, new DurabilityQosPolicy(qosPolicy.durabilityKind()));
+        params.put(ParameterId.PID_KEY_HASH, guid);
         params.put(
                 ParameterId.PID_PROTOCOL_VERSION,
                 ProtocolVersion.Predefined.Version_2_3.getValue());

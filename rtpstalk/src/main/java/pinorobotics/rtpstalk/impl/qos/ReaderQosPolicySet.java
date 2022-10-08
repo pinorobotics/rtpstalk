@@ -18,15 +18,19 @@
 package pinorobotics.rtpstalk.impl.qos;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record ReaderQosPolicySet(ReliabilityQosPolicy.Kind reliabilityKind) {
+public record ReaderQosPolicySet(
+        ReliabilityQosPolicy.Kind reliabilityKind, DurabilityQosPolicy.Kind durabilityKind) {
 
     public ReaderQosPolicySet() {
-        this(ReliabilityQosPolicy.Kind.RELIABLE);
+        this(
+                ReliabilityQosPolicy.Kind.RELIABLE,
+                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
     }
 
     @Override
