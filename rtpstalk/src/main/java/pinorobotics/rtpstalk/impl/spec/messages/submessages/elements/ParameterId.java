@@ -22,12 +22,15 @@ import java.util.Map;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
+import pinorobotics.rtpstalk.impl.spec.messages.LatencyBudgetQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.LifespanQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
@@ -54,6 +57,9 @@ public enum ParameterId {
     PID_ENDPOINT_GUID(0x005a, Guid.class),
     PID_BUILTIN_ENDPOINT_QOS(0x0077, BuiltinEndpointQos.class),
     PID_KEY_HASH(0x0070, KeyHash.class),
+    PID_DEADLINE(0x0023, DeadlineQosPolicy.class),
+    PID_LATENCY_BUDGET(0x0027, LatencyBudgetQosPolicy.class),
+    PID_LIFESPAN(0x002b, LifespanQosPolicy.class),
 
     @RtpsSpecReference(
             paragraph = "8.7.2.2",

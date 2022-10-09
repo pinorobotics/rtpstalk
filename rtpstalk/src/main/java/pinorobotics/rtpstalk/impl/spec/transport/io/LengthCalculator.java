@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
+import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
@@ -35,6 +36,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.HistoryQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.IntSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
+import pinorobotics.rtpstalk.impl.spec.messages.LatencyBudgetQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.LifespanQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
@@ -112,6 +115,9 @@ public class LengthCalculator {
             return Integer.BYTES + getFixedLength(Duration.class);
         if (clazz == DestinationOrderQosPolicy.class) return Integer.BYTES;
         if (clazz == DurabilityQosPolicy.class) return Integer.BYTES;
+        if (clazz == DeadlineQosPolicy.class) return getFixedLengthInternal(Duration.class);
+        if (clazz == LatencyBudgetQosPolicy.class) return getFixedLengthInternal(Duration.class);
+        if (clazz == LifespanQosPolicy.class) return getFixedLengthInternal(Duration.class);
         if (clazz == DurabilityServiceQosPolicy.class)
             return getFixedLength(Duration.class)
                     + getFixedLength(HistoryQosPolicy.class)
@@ -198,10 +204,13 @@ public class LengthCalculator {
                             PID_PROTOCOL_VERSION,
                             PID_VENDORID,
                             PID_BUILTIN_ENDPOINT_QOS,
+                            PID_LATENCY_BUDGET,
+                            PID_LIFESPAN,
                             PID_RELIABILITY,
                             PID_DURABILITY,
                             PID_DURABILITY_SERVICE,
                             PID_STATUS_INFO,
+                            PID_DEADLINE,
                             PID_DESTINATION_ORDER -> getFixedLength(id.getParameterClass());
                     default -> throw new XRE(
                             "Cannot calculate length for an unknown parameter id %s", id);
