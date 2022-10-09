@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Preconditions;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
@@ -52,7 +53,11 @@ public class Heartbeat extends Submessage {
     /**
      * A counter that is incremented each time a new Heartbeat message is sent. Provides the means
      * for a Reader to detect duplicate Heartbeat messages that can result from the presence of
-     * redundant communication paths
+     * redundant communication paths.
+     *
+     * <p>RTPS specification does not say from which value it should start so presumably it can
+     * start from 0. But it was observed that FastDDS ignores heartbeats which has count 0. For that
+     * reason we always start it from 1.
      */
     public Count count;
 
@@ -64,6 +69,7 @@ public class Heartbeat extends Submessage {
             SequenceNumber firstSN,
             SequenceNumber lastSN,
             Count count) {
+        Preconditions.isTrue(count.value > 0, "Count cannot be less than 1");
         this.readerId = readerId;
         this.writerId = writerId;
         this.firstSN = firstSN;

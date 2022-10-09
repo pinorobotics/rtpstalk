@@ -76,7 +76,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private Duration heartbeatPeriod;
 
     private HistoryCache<D> historyCache = new HistoryCache<>();
-    private int heartbeatCount;
+    private int heartbeatCount = 1;
     private DataChannelFactory channelFactory;
     private OperatingEntities operatingEntities;
     private int historyCacheMaxSize;
