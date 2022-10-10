@@ -173,7 +173,7 @@ public class LengthCalculator {
                     + Integer.BYTES * set.bitmap.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
-        if (obj instanceof RawData rawData) return rawData.getData().length;
+        if (obj instanceof RawData rawData) return rawData.getData().limit();
         if (obj instanceof Optional<?> opt) return opt.isEmpty() ? 0 : calculateLength(opt.get());
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }

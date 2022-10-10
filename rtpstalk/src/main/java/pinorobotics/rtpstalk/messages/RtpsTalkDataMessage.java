@@ -17,8 +17,8 @@
  */
 package pinorobotics.rtpstalk.messages;
 
-import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
+import java.nio.ByteBuffer;
 import java.util.Optional;
 
 /**
@@ -28,14 +28,14 @@ import java.util.Optional;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<byte[]> data)
+public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<ByteBuffer> data)
         implements RtpsTalkMessage {
 
-    public RtpsTalkDataMessage(Parameters inlineQos, byte[] data) {
+    public RtpsTalkDataMessage(Parameters inlineQos, ByteBuffer data) {
         this(Optional.of(inlineQos), Optional.of(data));
     }
 
-    public RtpsTalkDataMessage(Optional<Parameters> inlineQos, byte[] data) {
+    public RtpsTalkDataMessage(Optional<Parameters> inlineQos, ByteBuffer data) {
         this(inlineQos, Optional.of(data));
     }
 
@@ -43,12 +43,12 @@ public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<b
         this(Optional.of(inlineQos), Optional.empty());
     }
 
-    public RtpsTalkDataMessage(byte[] data) {
+    public RtpsTalkDataMessage(ByteBuffer data) {
         this(Optional.empty(), Optional.of(data));
     }
 
     public RtpsTalkDataMessage(String data) {
-        this(data.getBytes());
+        this(ByteBuffer.wrap(data.getBytes()));
     }
 
     /** RTPS inline QoS to be included with a data message */
@@ -58,7 +58,7 @@ public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<b
     }
 
     /** Transfered user data */
-    public Optional<byte[]> data() {
+    public Optional<ByteBuffer> data() {
         return data;
     }
 
@@ -66,7 +66,7 @@ public record RtpsTalkDataMessage(Optional<Parameters> userInlineQos, Optional<b
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("inlineQos", userInlineQos);
-        builder.append("data", data.map(XByte::toHexPairs));
+        builder.append("data", data);
         return builder.toString();
     }
 }

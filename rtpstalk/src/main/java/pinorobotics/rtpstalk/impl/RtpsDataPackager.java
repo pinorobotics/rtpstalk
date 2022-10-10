@@ -81,7 +81,7 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                                         inlineQos
                                                 .map(ParameterList::getUserParameters)
                                                 .map(Parameters::new),
-                                        ((RawData) serializedPayload.payload).data));
+                                        ((RawData) serializedPayload.payload).getData()));
             case PL_CDR_LE:
                 Preconditions.equals(
                         type, RtpsTalkParameterListMessage.class, "Data message type mismatch");

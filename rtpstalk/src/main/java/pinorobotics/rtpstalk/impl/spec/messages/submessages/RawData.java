@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJson;
 import id.xfunction.XUtils;
+import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 
 /**
@@ -34,8 +35,12 @@ public class RawData implements Payload {
         this.data = data;
     }
 
-    public byte[] getData() {
-        return data;
+    public RawData(ByteBuffer data) {
+        this.data = data.array();
+    }
+
+    public ByteBuffer getData() {
+        return ByteBuffer.wrap(data);
     }
 
     @Override
