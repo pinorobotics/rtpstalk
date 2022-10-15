@@ -1,4 +1,4 @@
 *.TopicSubscriptionsManager#* - Discovered Publisher for topic HelloWorldTopic0 type HelloWorld with following details { "endpointGuid": { "guidPrefix": *, "entityId": "00000103" }, *, "reliabilityKind": "RELIABLE" }
-*.TopicSubscriptionsManager#* - Adding Subscriber with following details { "topicId": { "name": "HelloWorldTopic0", "type": "HelloWorld" }, "qosPolicy": { "reliabilityKind": "RELIABLE" } }
+*.TopicSubscriptionsManager#* - Adding Subscriber with following details { "topicId": { "name": "HelloWorldTopic0", "type": "HelloWorld" }, "qosPolicy": { "reliabilityKind": "RELIABLE", "durabilityKind": "TRANSIENT_LOCAL_DURABILITY_QOS" } }
 *.TopicSubscriptionsManager#* - New subscribe event for topic id { "name": "HelloWorldTopic0", "type": "HelloWorld" }: { "guidPrefix": *, "entityId": "00000103" }
 *

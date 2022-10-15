@@ -28,6 +28,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
 
 /**
  * RTPS client
@@ -59,7 +60,7 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     /**
-     * Subscribe to RTPS topic
+     * Subscribe to RTPS topic with default {@link SubscriberQosPolicy}
      *
      * @param topic topic name
      * @param type topic type
@@ -68,10 +69,21 @@ public class RtpsTalkClient implements AutoCloseable {
      *     topic
      */
     public int subscribe(String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
+        return subscribe(topic, type, new SubscriberQosPolicy(), subscriber);
+    }
+
+    /**
+     * @see #subscribe
+     */
+    public int subscribe(
+            String topic,
+            String type,
+            SubscriberQosPolicy policy,
+            Subscriber<RtpsTalkDataMessage> subscriber) {
         if (!isStarted) {
             start();
         }
-        var entityId = serviceManager.subscribe(topic, type, subscriber);
+        var entityId = serviceManager.subscribe(topic, type, policy, subscriber);
         return entityId.value;
     }
 

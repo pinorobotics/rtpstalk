@@ -42,6 +42,7 @@ import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
 
 /**
  * Responsible for starting and managing RTPS services for each network interface specified in
@@ -163,10 +164,13 @@ public class RtpsServiceManager implements AutoCloseable {
     }
 
     public EntityId subscribe(
-            String topic, String type, Subscriber<RtpsTalkDataMessage> subscriber) {
+            String topic,
+            String type,
+            SubscriberQosPolicy policy,
+            Subscriber<RtpsTalkDataMessage> subscriber) {
         return subscriptionsManager.addLocalActor(
                 new SubscriberDetails(
-                        new TopicId(topic, type), new ReaderQosPolicySet(), subscriber));
+                        new TopicId(topic, type), new ReaderQosPolicySet(policy), subscriber));
     }
 
     public void publish(
