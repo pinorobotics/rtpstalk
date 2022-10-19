@@ -18,6 +18,8 @@
 /**
  * Java client for RTPS (Real-time Publish-Subscribe) protocol.
  *
+ * <p>For usage examples see <a href="http://pinoweb.freetzi.com/rtpstalk">Documentation</a>
+ *
  * @see <a href="https://github.com/pinorobotics/rtpstalk/releases">Download</a>
  * @see <a href="https://github.com/pinorobotics/rtpstalk">Github</a>
  * @see <a href="http://pinoweb.freetzi.com/rtpstalk">Documentation</a>

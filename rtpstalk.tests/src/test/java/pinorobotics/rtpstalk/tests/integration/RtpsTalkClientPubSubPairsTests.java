@@ -302,6 +302,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 .ifPresent(this::assertTemplates);
         assertValidators(testCase.validators);
 
+        // test that readers entity ids are properly assigned
         System.out.println(Arrays.toString(entityIds));
         for (int i = 0; i < entityIds.length; i++) {
             var entityId = new EntityId(i + 1, EntityKind.READER_NO_KEY);
@@ -314,6 +315,7 @@ public class RtpsTalkClientPubSubPairsTests {
     }
 
     private void assertTemplates(List<String> templates) {
+        System.out.println("Asserting templates " + templates);
         var log = LogUtils.readLogFile();
         templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
     }

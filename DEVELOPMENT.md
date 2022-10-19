@@ -13,7 +13,7 @@ gradle eclipse
 # Release steps
 
 - Close version in gradle.properties
-- Run `gradle clean build javadoc`
+- Run `gradle clean build javadoc` (Linux, Windows)
 - Publish
 - Open next SNAPSHOT version
 - Commit changes

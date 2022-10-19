@@ -4,7 +4,6 @@ First we need publish main project to staging repo.
 
 Run following command in the root folder of the project:
 
-gradle clean build
 gradle publish \
  -Ppublish=true \
  -Psigning.secretKeyRingFile=XXX \

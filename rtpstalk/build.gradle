@@ -23,11 +23,11 @@ eclipse.classpath.file {
 }
 
 dependencies {
-   implementation 'io.github.lambdaprime:id.xfunction:19.0-SNAPSHOT'
+   implementation 'io.github.lambdaprime:id.xfunction:19.0'
    implementation 'io.github.lambdaprime:kineticstreamer:4.0'
 
    // transitively export following dependency to tests project
-   apiElements 'io.github.lambdaprime:id.xfunction:19.0-SNAPSHOT'
+   apiElements 'io.github.lambdaprime:id.xfunction:19.0'
    apiElements 'io.github.lambdaprime:kineticstreamer:4.0'
 }
 

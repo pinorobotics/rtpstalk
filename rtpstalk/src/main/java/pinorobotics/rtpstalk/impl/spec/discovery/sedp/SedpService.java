@@ -215,7 +215,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
             protocolVersion = Predefined.Version_2_3,
             text =
                     "According to the DDS specification, the reliability QoS for these built-in"
-                            + " Entities is set to ‘reliable.’")
+                            + " Entities is set to reliable.")
     private void configure(
             BuiltinEndpointSet availableRemoteEndpoints,
             GuidPrefix guidPrefix,
