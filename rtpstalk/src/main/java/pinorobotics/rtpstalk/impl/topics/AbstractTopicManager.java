@@ -21,9 +21,9 @@ import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -37,13 +37,16 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.topics.ActorDetails.Type;
 
 /**
+ * Must be thread safe because it can be used by multiple threads. For example new remote and local
+ * actors can be added by different threads at the same time.
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public abstract class AbstractTopicManager<A extends ActorDetails>
         extends SimpleSubscriber<RtpsTalkParameterListMessage> implements AutoCloseable {
 
     protected XLogger logger;
-    protected List<Topic<A>> topics = new ArrayList<>();
+    protected List<Topic<A>> topics = new CopyOnWriteArrayList<>();
     protected StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> announcementsWriter;
     private ActorDetails.Type actorsType;
 

@@ -17,12 +17,14 @@
  */
 package pinorobotics.rtpstalk.impl.behavior.reader;
 
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 
@@ -40,10 +42,17 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
         this.nextVisitor = nextVisitor;
     }
 
+    @RtpsSpecReference(
+            protocolVersion = Predefined.Version_2_3,
+            paragraph = "8.3.7.2.5",
+            text =
+                    "The Data.readerId can be ENTITYID_UNKNOWN, in which case the Data applies to"
+                            + " all Readers of that writerGUID")
     @Override
     public Result onData(GuidPrefix guidPrefix, Data data) {
-        if (!readerEntityId.equals(data.readerId)) return Result.CONTINUE;
-        return nextVisitor.onData(guidPrefix, data);
+        var visit = readerEntityId.equals(data.readerId);
+        if (EntityId.Predefined.ENTITYID_UNKNOWN.getValue().equals(data.readerId)) visit = true;
+        return visit ? nextVisitor.onData(guidPrefix, data) : Result.CONTINUE;
     }
 
     @Override
@@ -52,10 +61,18 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
         return nextVisitor.onDataFrag(guidPrefix, data);
     }
 
+    @RtpsSpecReference(
+            protocolVersion = Predefined.Version_2_3,
+            paragraph = "8.3.7.5.5",
+            text =
+                    "The Heartbeat.readerId can be ENTITYID_UNKNOWN, in which case the Heartbeat"
+                            + " applies to all Readers of that writerGUID within the Participant.")
     @Override
     public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
-        if (!readerEntityId.equals(heartbeat.readerId)) return Result.CONTINUE;
-        return nextVisitor.onHeartbeat(guidPrefix, heartbeat);
+        var visit = readerEntityId.equals(heartbeat.readerId);
+        if (EntityId.Predefined.ENTITYID_UNKNOWN.getValue().equals(heartbeat.readerId))
+            visit = true;
+        return visit ? nextVisitor.onHeartbeat(guidPrefix, heartbeat) : Result.CONTINUE;
     }
 
     @Override

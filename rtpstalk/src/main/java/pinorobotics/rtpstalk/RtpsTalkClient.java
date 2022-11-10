@@ -94,6 +94,8 @@ public class RtpsTalkClient implements AutoCloseable {
      * Participants in the network. Each message received by this client from the publisher will be
      * sent only to those Participants which announce their interest in the given topic.
      *
+     * <p>Only one publisher allowed per topic.
+     *
      * @param topic topic name
      * @param type topic type
      * @param publisher user publisher which emits RTPS Data messages for the given topic

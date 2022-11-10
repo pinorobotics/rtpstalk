@@ -18,5 +18,5 @@ gradle eclipse
 - Open next SNAPSHOT version
 - Commit changes
 - Push
-- Create new release in GitHub
+- Create new release in GitHub (for changelog use `git log --format=%s`)
 - Upload documentation to website

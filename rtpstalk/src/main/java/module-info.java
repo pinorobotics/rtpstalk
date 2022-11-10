@@ -48,6 +48,8 @@ module rtpstalk {
     exports pinorobotics.rtpstalk.impl.spec.messages to
             id.kineticstreamer,
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.spec.messages.walk to
+            rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.spec.messages.submessages to
             id.kineticstreamer,
             rtpstalk.tests;
