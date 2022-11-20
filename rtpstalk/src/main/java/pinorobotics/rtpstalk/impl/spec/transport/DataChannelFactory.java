@@ -83,6 +83,7 @@ public class DataChannelFactory {
                 socket -> {
                     socket.setReceiveBufferSize(config.receiveBufferSize());
                     if (socket.getReceiveBufferSize() != config.receiveBufferSize()) {
+                        // logger formats long numbers, so we convert them to strings
                         LOGGER.warning(
                                 """
                         Could not set size of receive buffer, current size {0}, expected {1}. This may cause message loss.
@@ -92,7 +93,8 @@ public class DataChannelFactory {
                         sudo sysctl -w net.core.rmem_default={1}
                         sudo sysctl -w net.ipv4.udp_mem={1}
                         """,
-                                socket.getReceiveBufferSize(), config.receiveBufferSize());
+                                "" + socket.getReceiveBufferSize(),
+                                "" + config.receiveBufferSize());
                     }
                 };
         if (port.isEmpty()) {

@@ -56,7 +56,11 @@ public class DataChannel implements AutoCloseable {
         this.target = target;
         this.guidPrefix = new GuidPrefix(guidPrefix);
         this.packetBufferSize = packetBufferSize;
-        logger = XLogger.getLogger(getClass(), tracingToken);
+        logger =
+                XLogger.getLogger(
+                        getClass(),
+                        new TracingToken(
+                                tracingToken, "" + datagramChannel.socket().getLocalPort()));
     }
 
     /**

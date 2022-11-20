@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.tests.spec.discovery.spdp;
 
+import id.xfunction.function.Unchecked;
 import id.xfunction.logging.TracingToken;
+import java.nio.channels.DatagramChannel;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +43,7 @@ public class TestDataChannel extends DataChannel {
     }
 
     public TestDataChannel(byte[] prefix, boolean blockReceiveForever) {
-        super(new TracingToken("test"), null, null, prefix, 0);
+        super(new TracingToken("test"), Unchecked.get(DatagramChannel::open), null, prefix, 0);
         this.blockReceiveForever = blockReceiveForever;
     }
 
