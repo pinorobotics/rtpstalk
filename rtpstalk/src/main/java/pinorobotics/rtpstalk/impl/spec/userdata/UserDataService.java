@@ -102,7 +102,8 @@ public class UserDataService implements AutoCloseable {
         Preconditions.isTrue(isStarted, "User data service is not started");
         Preconditions.isTrue(
                 !writers.containsKey(writerEntityId),
-                "Publisher for entity id " + writerEntityId + " already exist");
+                "Publisher for entity id %s already exist",
+                writerEntityId);
         var writer =
                 dataObjectsFactory.newDataWriter(
                         config,

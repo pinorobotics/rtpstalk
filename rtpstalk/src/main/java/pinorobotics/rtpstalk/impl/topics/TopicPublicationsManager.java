@@ -76,7 +76,8 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
         var topicId = actor.topicId();
         Preconditions.isTrue(
                 !findTopicById(topicId).map(Topic::hasLocalActors).orElse(false),
-                "Only one local writer per topic " + topicId + " allowed");
+                "Only one local writer per topic %s is allowed",
+                topicId);
         var topic = createTopic(topicId);
         EntityId readerEntityId =
                 operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);

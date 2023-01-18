@@ -27,12 +27,8 @@ import id.xfunction.logging.TracingToken;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Flow.Subscription;
-import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -40,6 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestRtpsNetworkInterface;
+import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory;
 
@@ -114,17 +111,9 @@ public class UserDataServiceTest {
                         dataFactory,
                         receiverFactory); ) {
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
-            var topicId = new TopicId("topic", "type");
-            var qosPolicy = new WriterQosPolicySet();
-            var details1 =
-                    new PublisherDetails(
-                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
-            var details2 =
-                    new PublisherDetails(
-                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
-            var details3 =
-                    new PublisherDetails(
-                            topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
+            var details1 = TestUtils.newPublisherDetails();
+            var details2 = TestUtils.newPublisherDetails();
+            var details3 = TestUtils.newPublisherDetails();
             service.publish(
                     new EntityId(1, EntityKind.WRITER_NO_KEY),
                     TestConstants.TEST_READER_ENTITY_ID,

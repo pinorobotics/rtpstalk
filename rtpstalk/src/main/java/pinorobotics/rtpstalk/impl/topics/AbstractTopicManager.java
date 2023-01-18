@@ -116,7 +116,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             Preconditions.equals(
                     participantGuid.guidPrefix,
                     pubEndpointGuid.guidPrefix,
-                    "Guid prefix missmatch for topic " + pubTopic);
+                    "Guid prefix missmatch for topic %s",
+                    pubTopic);
             var reliabilityKind =
                     pl.getReliabilityKind()
                             .orElseGet(

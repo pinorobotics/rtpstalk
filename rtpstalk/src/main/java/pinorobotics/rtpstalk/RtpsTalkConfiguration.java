@@ -72,7 +72,8 @@ public record RtpsTalkConfiguration(
     public RtpsTalkConfiguration {
         Preconditions.isTrue(
                 packetBufferSize >= MIN_PACKET_BUFFER_SIZE,
-                "packetBufferSize is less than " + MIN_PACKET_BUFFER_SIZE);
+                "packetBufferSize is less than %s",
+                MIN_PACKET_BUFFER_SIZE);
         Preconditions.isTrue(
                 packetBufferSize <= UDP_MAX_PACKET_SIZE,
                 "packetBufferSize cannot exceed UDP packet maximum size");

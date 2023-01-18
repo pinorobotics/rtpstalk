@@ -243,7 +243,8 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             var len = lenCalculator.apply(param);
             Preconditions.isTrue(
                     (buf.position() - paramListStart) % 4 == 0,
-                    "Invalid param alignment: " + param.getKey());
+                    "Invalid param alignment: %s",
+                    param.getKey());
             writeShort(paramIdMapper.apply(param.getKey()));
             writeShort(len.shortValue());
             var endPos = buf.position() + len;

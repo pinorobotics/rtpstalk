@@ -52,12 +52,11 @@ public class EntityRegistry<E extends RtpsEntity> {
         var entityKind = EntityKind.valueOf(entityId.entityKind());
         Preconditions.isTrue(
                 kinds.contains(entityKind),
-                "Entity kind missmatch: registry "
-                        + kinds.toString()
-                        + ", new entity "
-                        + entityKind);
+                "Entity kind missmatch: registry %s, new entity %s",
+                kinds.toString(),
+                entityKind);
         Preconditions.isTrue(
-                !entities.containsKey(entityId), "Entity " + entityId + " already present");
+                !entities.containsKey(entityId), "Entity %s already present", entityId);
         entities.put(entityId, entity);
     }
 
@@ -76,7 +75,9 @@ public class EntityRegistry<E extends RtpsEntity> {
     public synchronized EntityId assignNewEntityId(TopicId topicId, EntityKind kind) {
         Preconditions.isTrue(
                 kinds.contains(kind),
-                "Entity kind missmatch: registry " + kinds.toString() + ", new entity " + kind);
+                "Entity kind missmatch: registry %s, new entity %s",
+                kinds.toString(),
+                kind);
         var entityId = entityIds.get(topicId);
         if (entityId == null) {
             entityId = new EntityId(entityIdCounter++, kind);

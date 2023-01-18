@@ -42,7 +42,7 @@ public class Locator {
     public Locator(LocatorKind kind, int port, InetAddress address) {
         if (kind == LocatorKind.LOCATOR_KIND_UDPv4)
             Preconditions.isTrue(
-                    InternalUtils.isIpv4().test(address), "Non IPv4 address " + address);
+                    InternalUtils.isIpv4().test(address), "Non IPv4 address %s", address);
         this.kind = kind;
         this.port = new UnsignedInt(port);
         this.address = address;

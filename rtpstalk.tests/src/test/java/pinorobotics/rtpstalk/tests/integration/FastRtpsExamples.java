@@ -44,7 +44,7 @@ public class FastRtpsExamples implements AutoCloseable {
         var argsList = new ArrayList<String>();
         argsList.add(HELLOWORLDEXAMPLE_PATH);
         argsList.addAll(List.of(args));
-        var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).run();
+        var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.outputAsync(false);
         return proc;

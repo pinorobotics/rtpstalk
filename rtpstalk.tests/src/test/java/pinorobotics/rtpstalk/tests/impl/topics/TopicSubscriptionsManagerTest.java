@@ -26,11 +26,11 @@ import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.XAsserts;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 import pinorobotics.rtpstalk.tests.spec.transport.TestRtpsMessageReceiverFactory;
@@ -63,10 +63,7 @@ public class TopicSubscriptionsManagerTest {
                 var publisher = new SameThreadSubmissionPublisher<RtpsTalkParameterListMessage>()) {
             service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
             var publicationsWriter =
-                    new SedpBuiltinPublicationsWriter(
-                            TestConstants.TEST_CONFIG_INTERNAL,
-                            TestConstants.TEST_TRACING_TOKEN,
-                            TestConstants.TEST_PUBLISHER_EXECUTOR,
+                    TestUtils.newSedpPublicationsWriter(
                             channelFactory,
                             TestConstants.TEST_NETWORK_IFACE.getOperatingEntities());
             var manager =

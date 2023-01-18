@@ -67,11 +67,10 @@ public class DataFragmentJoiner {
     public void add(DataFrag dataFrag) {
         Preconditions.isTrue(
                 initialFragment.writerSN.equals(dataFrag.writerSN),
-                "DataFrag belongs to the change "
-                        + dataFrag.writerSN
-                        + " and does not match current change "
-                        + initialFragment.writerSN
-                        + ", ignoring it...");
+                "DataFrag belongs to the change %s and does not match current change %s ignoring"
+                        + " it...",
+                dataFrag.writerSN,
+                initialFragment.writerSN);
 
         boolean shouldAdd = true;
         var fragmentStartingNum = dataFrag.fragmentStartingNum.getUnsigned();

@@ -68,7 +68,7 @@ public enum EntityKind {
 
     public static EntityKind valueOf(byte b) {
         var kind = MAP.get(b);
-        Preconditions.notNull(kind, "Value " + b + " does not exist");
+        Preconditions.notNull(kind, "Value %s does not exist", b);
         return kind;
     }
 }

@@ -96,7 +96,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         super(config, tracingToken, publisherExecutor, writerEntiyId, true);
         Preconditions.isTrue(
                 qosPolicy.reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE,
-                "ReliabilityKind not supported: " + qosPolicy.reliabilityKind());
+                "ReliabilityKind not supported: %s",
+                qosPolicy.reliabilityKind());
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.publicConfig().heartbeatPeriod();

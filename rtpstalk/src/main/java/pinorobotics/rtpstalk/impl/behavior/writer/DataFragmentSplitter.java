@@ -57,7 +57,7 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
         this.data = data;
         this.fragmentSize = maxSubmessageSize - DataFrag.EMPTY_SUBMESSAGE_SIZE;
         this.dataSize = data.length + SerializedPayloadHeader.SIZE;
-        Preconditions.isTrue(fragmentSize > 0, "Unexpected fragmentSize " + fragmentSize);
+        Preconditions.isTrue(fragmentSize > 0, "Unexpected fragmentSize %s", fragmentSize);
     }
 
     @Override

@@ -39,7 +39,7 @@ public record RtpsTalkConfigurationInternal(
 
     public RtpsTalkConfigurationInternal {
         Preconditions.isTrue(
-                maxSubmessageSize > 0, "Unexpected maxMessageSize " + maxSubmessageSize);
+                maxSubmessageSize > 0, "Unexpected maxMessageSize %s", maxSubmessageSize);
     }
 
     private static int calcMaxSubmessageSize(RtpsTalkConfiguration config) {
