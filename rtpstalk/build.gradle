@@ -25,7 +25,7 @@ dependencies {
   addDependencies(this, ["implementation", "apiElements"], "20.0", [
     "io.github.lambdaprime:id.xfunction"
   ]);
-  addDependencies(this, ["implementation", "apiElements"], "5.0-SNAPSHOT", [
+  addDependencies(this, ["implementation", "apiElements"], "5.0", [
     "io.github.lambdaprime:kineticstreamer"
   ]);
 }

@@ -1,5 +1,8 @@
 /*************************************************
 
+Since publish is done rarely it is extracted (including all its dependencies)
+from main gradle file to this one.
+
 First we need publish main project to staging repo.
 
 Run following command in the root folder of the project:
@@ -24,31 +27,31 @@ gradle closeAndReleaseRepository -PnexusUsername=XXX -PnexusPassword=XXX
  * It is used to publish from staging to release repo
  */
 buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
-    }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
+  }
 
 }
 
 plugins {
-    id 'java'
-    id 'com.diffplug.spotless' version '6.7.2'
+  id 'java'
+  id 'com.diffplug.spotless' version '6.7.2'
 }
 
 apply plugin: 'io.codearte.nexus-staging'
 
 allprojects {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
 }
 
 subprojects {
-    apply plugin: 'java'
+  apply plugin: 'java'
 }
 
 nexusStaging {
@@ -64,10 +67,14 @@ Properties props = new Properties()
 InputStream ins = new FileInputStream("../gradle.properties")
 props.load(ins)
 props.each { prop ->
-    project.ext.set(prop.key, prop.value)
+  project.ext.set(prop.key, prop.value)
 }
 ins.close()
 
+void addDependencies(project, configurations, version,  packages) {
+  // providing stub method from main build.gradle
+}
+
 ext {
-    releaseFileName = "${projectName}-v${version}.zip"
+  releaseFileName = "${projectName}-v${version}.zip"
 }
