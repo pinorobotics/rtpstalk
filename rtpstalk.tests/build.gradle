@@ -1,71 +1,73 @@
 plugins {
-    id 'com.diffplug.spotless'
-    id 'jacoco'
+  id 'com.diffplug.spotless'
+  id 'jacoco'
 }
 
 eclipse.classpath.file {
-    // instruct eclipse plugin to put everything to module path
-    whenMerged {
-        entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
-    }
+  // instruct eclipse plugin to put everything to module path
+  whenMerged {
+    entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
+  }
 }
 
 dependencies {
-    testImplementation(project ':rtpstalk')
-    testImplementation 'io.github.lambdaprime:pubsubtests:1.0-SNAPSHOT'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-commons:1.7.0'
+  testImplementation(project ':rtpstalk')
+  testImplementation 'io.github.lambdaprime:pubsubtests:1.0-SNAPSHOT'
+
+  def junitVersion = "5.8.1"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+  testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
 }
 
 jacoco {
-    // Java 17 support
-    toolVersion = "0.8.7"
+  // Java 17 support
+  toolVersion = "0.8.7"
 }
 
 test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+  useJUnitPlatform()
+  finalizedBy jacocoTestReport, jacocoTestCoverageVerification
 
-    testLogging {
-        events "started", "failed"
-    }
+  testLogging {
+    events "started", "failed"
+  }
 }
 
 jacocoTestReport {
-    // generate only HTML report
-    reports {
-        xml.enabled = false
-        csv.enabled = false
-        html.enabled = true
-    }
-    sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
-    classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
+  // generate only HTML report
+  reports {
+    xml.enabled = false
+    csv.enabled = false
+    html.enabled = true
+  }
+  sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
+  classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
 }
 
 jacocoTestCoverageVerification {
-    sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
-    classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude:  [
-                'pinorobotics/rtpstalk/impl/spec/transport/io/exceptions/*',
-                'pinorobotics/rtpstalk/exceptions/*',
-            ])
-        }))
+  sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
+  classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
+  afterEvaluate {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+      fileTree(dir: it, exclude:  [
+        'pinorobotics/rtpstalk/impl/spec/transport/io/exceptions/*',
+        'pinorobotics/rtpstalk/exceptions/*',
+      ])
+    }))
+  }
+  violationRules {
+    rule {
+    enabled = true
+      element = 'PACKAGE'
+      limit {
+        counter = 'LINE'
+        value = 'COVEREDRATIO'
+        minimum = 0.5
+      }
     }
-    violationRules {
-        rule {
-        enabled = true
-            element = 'PACKAGE'
-            limit {
-                counter = 'LINE'
-                value = 'COVEREDRATIO'
-                minimum = 0.5
-            }
-        }
-    }
+  }
 }
 
 // run spotless and format code before the build

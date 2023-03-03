@@ -1,34 +1,33 @@
 // include xfunction for updateVersion
 buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.github.lambdaprime:id.xfunction:14.0"
-    }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "io.github.lambdaprime:id.xfunction:14.0"
+  }
 }
 
 plugins {
-    id 'java'
-    id 'com.diffplug.spotless'
+  id 'com.diffplug.spotless'
 }
 
 apply plugin : 'eclipse'
 
 eclipse.classpath.file {
-    // instruct eclipse plugin to put everything to module path
-    whenMerged {
-        entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
-    }
+  // instruct eclipse plugin to put everything to module path
+  whenMerged {
+    entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
+  }
 }
 
 dependencies {
-   implementation 'io.github.lambdaprime:id.xfunction:20.0-SNAPSHOT'
-   implementation 'io.github.lambdaprime:kineticstreamer:5.0-SNAPSHOT'
-
-   // transitively export following dependency to tests project
-   apiElements 'io.github.lambdaprime:id.xfunction:20.0-SNAPSHOT'
-   apiElements 'io.github.lambdaprime:kineticstreamer:5.0-SNAPSHOT'
+  addDependencies(this, ["implementation", "apiElements"], "20.0", [
+    "io.github.lambdaprime:id.xfunction"
+  ]);
+  addDependencies(this, ["implementation", "apiElements"], "5.0-SNAPSHOT", [
+    "io.github.lambdaprime:kineticstreamer"
+  ]);
 }
 
 javadoc {
@@ -45,26 +44,26 @@ javadoc {
 def packageDir = "$buildDir/package/${projectName}"
 
 task createRelease(type: Zip) {
-    archiveFileName = "$releaseFileName"
-    destinationDirectory = file("$projectDir/release")
-    from file("$packageDir/..")
+  archiveFileName = "$releaseFileName"
+  destinationDirectory = file("$projectDir/release")
+  from file("$packageDir/..")
 }
 
 task copyLibs(type: Copy) {
-    from configurations.runtimeClasspath
-    from jar.archiveFile
-    into "${packageDir}/libs"
+  from configurations.runtimeClasspath
+  from jar.archiveFile
+  into "${packageDir}/libs"
 }
 
 task createPackage(type: Copy, dependsOn: copyLibs) {
-    from "${project.rootDir}/README.md"
-    from "${project.rootDir}/LICENSE-2.0.txt"
-    into packageDir
+  from "${project.rootDir}/README.md"
+  from "${project.rootDir}/LICENSE-2.0.txt"
+  into packageDir
 }
 
 task cleanRelease(type: Delete) {
-    delete "$packageDir"
-    delete "$projectDir/release"
+  delete "$packageDir"
+  delete "$projectDir/release/*-SNAPSHOT.zip"
 }
 
 createRelease.dependsOn createPackage
@@ -78,13 +77,13 @@ if (project.hasProperty('publish')) {
 
   // update version only during publishing
   task updateVersion() {
-      if (version.contains("SNAPSHOT")) return;
-      println "Updating version to " + version
-      new id.xfunction.text.Substitutor()
-          .withRegexpSupport()
-          .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
-              "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
-          ));
+    if (version.contains("SNAPSHOT")) return;
+    println "Updating version to " + version
+    new id.xfunction.text.Substitutor()
+      .withRegexpSupport()
+      .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
+        "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
+    ));
   }
   createPackage.dependsOn updateVersion
 
