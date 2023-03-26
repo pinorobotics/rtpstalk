@@ -10,6 +10,7 @@ buildscript {
 
 plugins {
   id 'com.diffplug.spotless'
+  id 'java-library'
 }
 
 apply plugin : 'eclipse'
@@ -22,23 +23,19 @@ eclipse.classpath.file {
 }
 
 dependencies {
-  addDependencies(this, ["implementation", "apiElements"], "20.0", [
-    "io.github.lambdaprime:id.xfunction"
-  ]);
-  addDependencies(this, ["implementation", "apiElements"], "5.0", [
-    "io.github.lambdaprime:kineticstreamer"
-  ]);
+  api "io.github.lambdaprime:id.xfunction:20.0"
+  api "io.github.lambdaprime:kineticstreamer:5.0"
 }
 
 javadoc {
-    options.noTimestamp = true
-    options.noQualifiers = ["all"]
-    options.noTree = true
-    options.noIndex = true
-    options.noNavBar = true
-    // ignore missing @return, @param etc
-    options.addBooleanOption('Xdoclint:all,-missing', true)
-    exclude 'pinorobotics/rtpstalk/impl/**'
+  options.noTimestamp = true
+  options.noQualifiers = ["all"]
+  options.noTree = true
+  options.noIndex = true
+  options.noNavBar = true
+  // ignore missing @return, @param etc
+  options.addBooleanOption('Xdoclint:all,-missing', true)
+  exclude 'pinorobotics/rtpstalk/impl/**'
 }
 
 def packageDir = "$buildDir/package/${projectName}"
@@ -73,26 +70,27 @@ clean.dependsOn cleanRelease
 // run spotless and format code before the build
 classes.dependsOn spotlessApply
 
-if (project.hasProperty('publish')) {
-
-  // update version only during publishing
-  task updateVersion() {
-    if (version.contains("SNAPSHOT")) return;
-    println "Updating version to " + version
-    new id.xfunction.text.Substitutor()
-      .withRegexpSupport()
-      .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
-        "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
+task updateVersion() {
+  // update version only when it is specified and non SNAPSHOT version is built
+  // 'unspecified' is the default value for the version in Gradle if it is not set
+  if (!version || version == "unspecified" || version.contains("SNAPSHOT")) return;
+  println "Updating version to " + version
+  new id.xfunction.text.Substitutor()
+    .withRegexpSupport()
+    .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
+      "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
     ));
-  }
-  createPackage.dependsOn updateVersion
+}
+createRelease.dependsOn updateVersion
+
+if (project.hasProperty('publish')) {
 
   // Initially it was taken from https://central.sonatype.org/publish/publish-gradle/
   // but since Gradle removed this plugin https://docs.gradle.org/7.0/userguide/upgrading_version_6.html#removal_of_the_legacy_maven_plugin
   // it was rewritten for new one
 
   task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from "README-javadoc.txt"
   }
 

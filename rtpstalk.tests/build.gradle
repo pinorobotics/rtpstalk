@@ -38,9 +38,9 @@ test {
 jacocoTestReport {
   // generate only HTML report
   reports {
-    xml.enabled = false
-    csv.enabled = false
-    html.enabled = true
+    xml.required = false
+    csv.required = false
+    html.required = true
   }
   sourceDirectories.from = project(':rtpstalk').sourceSets.main.java.srcDirs
   classDirectories.from = project(':rtpstalk').sourceSets.main.java.classesDirectory
@@ -59,7 +59,7 @@ jacocoTestCoverageVerification {
   }
   violationRules {
     rule {
-    enabled = true
+      enabled = true
       element = 'PACKAGE'
       limit {
         counter = 'LINE'

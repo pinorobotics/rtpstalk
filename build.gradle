@@ -65,42 +65,8 @@ ext {
   releaseFileName = "${projectName}-v${version}.zip"
 }
 
-/**
- * Following function simplifies declaring multiple packages with same versions
- * across different configurations. For example, instead of writing:
- *
- * implementation 'org.apache.maven.resolver:maven-resolver:1.7.2'
- * implementation 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
- * apiElements 'org.apache.maven.resolver:maven-resolver:1.7.2'
- * apiElements 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
- *
- * You can do:
- *
- * addDependencies(this, ["implementation", "apiElements"], "1.7.2", [
- *   'org.apache.maven.resolver:maven-resolver',
- *   'org.apache.maven.resolver:maven-resolver-impl',
- * ]);
- *
- */
-void addDependencies(project, configurations, version,  packages) {
-  for (def pkg: packages) {
-    for (def config: configurations) {
-      switch (config) {
-        case "implementation":
-          project.dependencies.implementation pkg + ":" + version
-          break
-        case "apiElements":
-          project.dependencies.apiElements pkg + ":" + version
-          break
-        default:
-          throw new UnsupportedOperationException("Configuration \"${config}\" is not supported")
-      }
-    }
-  }
-}
-
 // gradlew requires execution of gradle-wrapper.jar which trustworthy needs to
 // be checked everytime when it is updated (otherwise it do not seems secure)
 // To avoid using it we rely on manual version check
-if ("$gradle.gradleVersion" != "7.5")
+if ("$gradle.gradleVersion" != "8.0.2")
   throw new RuntimeException("Running gradle version $gradle.gradleVersion, required 7.5");
