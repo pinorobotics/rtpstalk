@@ -18,13 +18,26 @@
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
 import id.kineticstreamer.KineticStreamWriter;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageWriter {
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(RtpsMessageWriter.class.getSimpleName());
+    private final LongHistogram WRITE_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.WRITE_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.WRITE_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
 
     public void writeRtpsMessage(RtpsMessage data, ByteBuffer buf) throws Exception {
         var out = new RtpsOutputKineticStream(buf);
@@ -32,6 +45,11 @@ public class RtpsMessageWriter {
                 new KineticStreamWriter(out)
                         .withController(new RtpsKineticStreamWriterController());
         out.setWriter(ksw);
-        ksw.write(data);
+        var startAt = Instant.now();
+        try {
+            ksw.write(data);
+        } finally {
+            WRITE_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
+        }
     }
 }

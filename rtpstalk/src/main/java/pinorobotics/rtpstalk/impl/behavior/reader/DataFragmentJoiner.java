@@ -21,12 +21,19 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.text.Ellipsizer;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
@@ -42,6 +49,13 @@ public class DataFragmentJoiner {
     /** Fragmented data message size includes size of metadata + user data */
     private static final int METADATA_SIZE = SerializedPayloadHeader.SIZE;
 
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(DataFragmentJoiner.class.getSimpleName());
+    private final LongHistogram JOIN_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.JOIN_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.JOIN_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
     /**
      * The available size may include serializedPayloadHeader and other metadata which is not part
      * of user data itself
@@ -54,6 +68,7 @@ public class DataFragmentJoiner {
     private List<ByteBuffer> userdataFragments = new LinkedList<>();
     private DataFrag initialFragment;
     private XLogger logger;
+    private Optional<Instant> startAt = Optional.empty();
 
     public DataFragmentJoiner(TracingToken token, DataFrag initialFragment) {
         logger = XLogger.getLogger(getClass(), token);
@@ -71,7 +86,6 @@ public class DataFragmentJoiner {
                         + " it...",
                 dataFrag.writerSN,
                 initialFragment.writerSN);
-
         boolean shouldAdd = true;
         var fragmentStartingNum = dataFrag.fragmentStartingNum.getUnsigned();
         var fragmentsInSubmessage = dataFrag.fragmentsInSubmessage.getUnsigned();
@@ -125,6 +139,7 @@ public class DataFragmentJoiner {
                     // all data is present
                 }
             }
+            if (startAt.isEmpty() && isEmpty()) startAt = Optional.of(Instant.now());
             availableFragmentsNums.addAll(receivedFragmentNums);
             userdataFragments.add(rawData);
             availableUserdataSize += rawData.limit();
@@ -154,6 +169,10 @@ public class DataFragmentJoiner {
                     "Data message sequence number {0}: {1}",
                     initialFragment.writerSN.value,
                     new Ellipsizer(15).ellipsizeMiddle(buf.array()));
+        }
+        if (startAt.isPresent()) {
+            JOIN_TIME_METER.record(Duration.between(startAt.get(), Instant.now()).toMillis());
+            startAt = Optional.empty();
         }
         return new RtpsTalkDataMessage(
                 initialFragment

@@ -17,6 +17,14 @@
  */
 package pinorobotics.rtpstalk.tests;
 
+import id.opentelemetry.exporters.ElasticSearchMetricExporter;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import java.net.URI;
+import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -52,5 +60,19 @@ public class TestUtils {
                 TestConstants.TEST_PUBLISHER_EXECUTOR,
                 channelFactory,
                 operatingEntities);
+    }
+
+    public static SdkMeterProvider setupMetrics() {
+        GlobalOpenTelemetry.resetForTest();
+        var exporter =
+                new ElasticSearchMetricExporter(
+                        URI.create("https://elastic:99L8efwboWanFxBq95I1@172.19.0.2:9200/rtpstalk"),
+                        Optional.empty(),
+                        true);
+        var metricReader =
+                PeriodicMetricReader.builder(exporter).setInterval(Duration.ofSeconds(3)).build();
+        var provider = SdkMeterProvider.builder().registerMetricReader(metricReader).build();
+        OpenTelemetrySdk.builder().setMeterProvider(provider).buildAndRegisterGlobal();
+        return provider;
     }
 }

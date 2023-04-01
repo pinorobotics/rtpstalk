@@ -21,10 +21,14 @@ import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.EndpointQos;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
@@ -59,7 +63,11 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
         text = "Discovery of a new remote Participant")
 public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         implements AutoCloseable {
-
+    private final Meter METER = GlobalOpenTelemetry.getMeter(SedpService.class.getSimpleName());
+    private final LongCounter PARTICIPANTS_COUNT_METER =
+            METER.counterBuilder(RtpsTalkMetrics.PARTICIPANTS_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.PARTICIPANTS_COUNT_METRIC_DESCRIPTION)
+                    .build();
     private RtpsTalkConfigurationInternal config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
     private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
@@ -139,6 +147,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     @Override
     public void onNext(RtpsTalkParameterListMessage participantDataMessage) {
         logger.entering("onNext");
+        PARTICIPANTS_COUNT_METER.add(1);
         participantDataMessage.parameterList().ifPresent(this::configureEndpoints);
         subscription.request(1);
         logger.exiting("onNext");

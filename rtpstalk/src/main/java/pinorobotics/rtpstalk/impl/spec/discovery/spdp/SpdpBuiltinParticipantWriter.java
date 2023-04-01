@@ -20,6 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.time.Duration;
@@ -27,6 +30,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatelessRtpsWriter;
@@ -42,7 +46,13 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
  */
 public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkParameterListMessage>
         implements Runnable, AutoCloseable {
-
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(SpdpBuiltinParticipantWriter.class.getSimpleName());
+    private final LongHistogram ANNOUNCEMENTS_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.ANNOUNCEMENTS_METRIC)
+                    .setDescription(RtpsTalkMetrics.ANNOUNCEMENTS_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(
@@ -107,6 +117,7 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
             default:
                 throw new RuntimeException("Unexpected last change value " + getLastChangeNumber());
         }
+        ANNOUNCEMENTS_METER.record(1);
         LOGGER.fine("Sent SpdpDiscoveredParticipantData");
     }
 

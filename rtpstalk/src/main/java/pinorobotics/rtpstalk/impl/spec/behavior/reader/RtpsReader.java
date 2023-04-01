@@ -20,12 +20,19 @@ package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentReaderProcessor;
 import pinorobotics.rtpstalk.impl.behavior.reader.FilterByEntityIdRtpsSubmessageVisitor;
@@ -69,6 +76,21 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
     protected final XLogger logger;
+    private final Meter METER = GlobalOpenTelemetry.getMeter(RtpsReader.class.getSimpleName());
+    private final LongHistogram PROCESS_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.PROCESS_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.PROCESS_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
+    private final LongHistogram DATA_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.DATA_METRIC)
+                    .setDescription(RtpsTalkMetrics.DATA_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
+    private final LongCounter RTPS_READER_COUNT_METER =
+            METER.counterBuilder(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC_DESCRIPTION)
+                    .build();
 
     private HistoryCache<D> cache = new HistoryCache<>();
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
@@ -96,6 +118,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         processor = new DataFragmentReaderProcessor(tracingToken);
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
         logger = XLogger.getLogger(getClass(), tracingToken);
+        RTPS_READER_COUNT_METER.add(1);
     }
 
     /** Contains the history of CacheChange changes for this RTPS Reader. */
@@ -114,6 +137,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
+        DATA_METER.record(1);
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
         packager.extractMessage(messageType, d)
@@ -128,6 +152,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     @Override
     public Result onDataFrag(GuidPrefix guidPrefix, DataFrag dataFrag) {
+        DATA_METER.record(1);
         var writerGuid = new Guid(guidPrefix, dataFrag.writerId);
         processor
                 .addDataFrag(writerGuid, dataFrag)
@@ -170,11 +195,13 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     @Override
     public void onNext(RtpsMessage message) {
+        var startAt = Instant.now();
         try {
             process(message);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            PROCESS_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
             subscription.get().request(1);
         }
     }

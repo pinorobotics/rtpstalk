@@ -23,8 +23,9 @@ eclipse.classpath.file {
 }
 
 dependencies {
-  api "io.github.lambdaprime:id.xfunction:20.0"
+  api "io.github.lambdaprime:id.xfunction:22.0-SNAPSHOT"
   api "io.github.lambdaprime:kineticstreamer:5.0"
+  api "io.opentelemetry:opentelemetry-api:1.22.0"
 }
 
 javadoc {

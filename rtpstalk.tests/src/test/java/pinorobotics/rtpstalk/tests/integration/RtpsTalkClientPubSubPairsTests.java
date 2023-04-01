@@ -24,6 +24,7 @@ import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
 import id.xfunction.text.Substitutor;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +35,10 @@ import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -50,6 +53,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
+import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
@@ -58,6 +62,7 @@ import pinorobotics.rtpstalk.tests.XAsserts;
  */
 public class RtpsTalkClientPubSubPairsTests {
 
+    private static SdkMeterProvider sdkMeterProvider;
     private FastRtpsExamples tools;
     private RtpsTalkClient client;
 
@@ -193,6 +198,16 @@ public class RtpsTalkClientPubSubPairsTests {
                                 Map.of(
                                         FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
                                         "VOLATILE_DURABILITY_QOS"))));
+    }
+
+    @BeforeAll
+    public static void setupAll() {
+        sdkMeterProvider = TestUtils.setupMetrics();
+    }
+
+    @AfterAll
+    public static void cleanupAll() {
+        sdkMeterProvider.close();
     }
 
     @BeforeEach

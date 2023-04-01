@@ -21,12 +21,18 @@ import id.xfunction.Preconditions;
 import id.xfunction.function.Unchecked;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
+import java.time.Duration;
+import java.time.Instant;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -38,6 +44,18 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
  */
 public class DataChannel implements AutoCloseable {
 
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(RtpsMessageWriter.class.getSimpleName());
+    private final LongHistogram SEND_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.SEND_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.SEND_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
+    private final LongHistogram RECEIVE_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.RECEIVE_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.RECEIVE_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
     private RtpsMessageReader reader = new RtpsMessageReader();
     private RtpsMessageWriter writer = new RtpsMessageWriter();
     private DatagramChannel datagramChannel;
@@ -69,7 +87,12 @@ public class DataChannel implements AutoCloseable {
     public RtpsMessage receive() throws Exception {
         while (true) {
             var buf = ByteBuffer.allocate(packetBufferSize);
-            datagramChannel.receive(buf);
+            var startAt = Instant.now();
+            try {
+                datagramChannel.receive(buf);
+            } finally {
+                RECEIVE_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
+            }
             var len = buf.position();
             buf.rewind();
             buf.limit(len);
@@ -94,7 +117,12 @@ public class DataChannel implements AutoCloseable {
             writer.writeRtpsMessage(message, buf);
             buf.limit(buf.position());
             buf.rewind();
-            datagramChannel.send(buf, target);
+            var startAt = Instant.now();
+            try {
+                datagramChannel.send(buf, target);
+            } finally {
+                SEND_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
+            }
         } catch (Throwable e) {
             logger.severe(e);
             return;

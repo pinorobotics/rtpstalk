@@ -19,8 +19,14 @@ package pinorobotics.rtpstalk.impl.spec.transport.io;
 
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.UnsupportedProtocolVersion;
@@ -31,6 +37,13 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.UnsupportedProtoc
 public class RtpsMessageReader {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsMessageReader.class);
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(RtpsMessageReader.class.getSimpleName());
+    private final LongHistogram READ_TIME_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.READ_TIME_METRIC)
+                    .setDescription(RtpsTalkMetrics.READ_TIME_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
 
     /** Returns empty when there is no RTPS message in the buffer or in case it is invalid. */
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
@@ -38,6 +51,7 @@ public class RtpsMessageReader {
         var ksr =
                 new KineticStreamReader(in).withController(new RtpsKineticStreamReaderController());
         in.setKineticStreamReader(ksr);
+        var startAt = Instant.now();
         try {
             return Optional.of(ksr.read(RtpsMessage.class));
         } catch (NotRtpsPacketException e) {
@@ -46,6 +60,8 @@ public class RtpsMessageReader {
         } catch (UnsupportedProtocolVersion e) {
             LOGGER.fine("RTPS protocol version {0} not supported", e.getProtocolVersion());
             return Optional.empty();
+        } finally {
+            READ_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
         }
     }
 }

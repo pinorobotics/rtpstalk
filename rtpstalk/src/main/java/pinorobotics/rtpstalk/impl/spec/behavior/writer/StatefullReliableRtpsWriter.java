@@ -21,6 +21,9 @@ import id.xfunction.Preconditions;
 import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.lang.XThread;
 import id.xfunction.logging.TracingToken;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -33,6 +36,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
@@ -61,6 +65,14 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D>
         implements Runnable, AutoCloseable {
+
+    private final Meter METER =
+            GlobalOpenTelemetry.getMeter(StatefullReliableRtpsWriter.class.getSimpleName());
+    private final LongHistogram HEARTBEATS_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.HEARTBEATS_METRIC)
+                    .setDescription(RtpsTalkMetrics.HEARTBEATS_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
 
     private ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(
@@ -314,6 +326,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         var heartbeat =
                 new RtpsHeartbeatMessageBuilder(
                         getGuid().guidPrefix, seqNumMin, seqNumMax, heartbeatCount++);
+        HEARTBEATS_METER.record(1);
         return Optional.of(heartbeat);
     }
 

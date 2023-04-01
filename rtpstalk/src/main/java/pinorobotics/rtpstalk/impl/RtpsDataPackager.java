@@ -33,26 +33,26 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsDataPackager<D extends RtpsTalkMessage> {
+public class RtpsDataPackager<M extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);
 
-    public Optional<D> extractMessage(Class<D> type, Data d) {
+    public Optional<M> extractMessage(Class<M> messageType, Data d) {
         var serializedPayload = d.serializedPayload.orElse(null);
         if (serializedPayload == null) {
             return d.inlineQos.map(
                     inlineQos -> {
                         RtpsTalkMessage message = null;
-                        if (type == RtpsTalkParameterListMessage.class)
+                        if (messageType == RtpsTalkParameterListMessage.class)
                             message = RtpsTalkParameterListMessage.withInlineQosOnly(inlineQos);
-                        else if (type == RtpsTalkDataMessage.class)
+                        else if (messageType == RtpsTalkDataMessage.class)
                             message =
                                     new RtpsTalkDataMessage(
                                             new Parameters(inlineQos.getUserParameters()));
                         else
                             throw new IllegalArgumentException(
-                                    "Type " + type.getName() + " is not supported");
-                        return (D) message;
+                                    "Type " + messageType.getName() + " is not supported");
+                        return (M) message;
                     });
         }
         var serializedPayloadHeader = serializedPayload.serializedPayloadHeader.orElse(null);
@@ -74,9 +74,10 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
         var inlineQos = d.inlineQos;
         switch (representation) {
             case CDR_LE:
-                Preconditions.equals(type, RtpsTalkDataMessage.class, "Data message type mismatch");
+                Preconditions.equals(
+                        messageType, RtpsTalkDataMessage.class, "Data message type mismatch");
                 return Optional.of(
-                        (D)
+                        (M)
                                 new RtpsTalkDataMessage(
                                         inlineQos
                                                 .map(ParameterList::getUserParameters)
@@ -84,9 +85,11 @@ public class RtpsDataPackager<D extends RtpsTalkMessage> {
                                         ((RawData) serializedPayload.payload).data));
             case PL_CDR_LE:
                 Preconditions.equals(
-                        type, RtpsTalkParameterListMessage.class, "Data message type mismatch");
+                        messageType,
+                        RtpsTalkParameterListMessage.class,
+                        "Data message type mismatch");
                 return Optional.of(
-                        (D)
+                        (M)
                                 new RtpsTalkParameterListMessage(
                                         inlineQos,
                                         Optional.of((ParameterList) serializedPayload.payload)));

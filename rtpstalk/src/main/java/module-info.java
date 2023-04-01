@@ -30,6 +30,7 @@ module rtpstalk {
     requires id.xfunction;
     requires id.kineticstreamer;
     requires java.logging;
+    requires io.opentelemetry.api;
 
     exports pinorobotics.rtpstalk;
     exports pinorobotics.rtpstalk.messages;

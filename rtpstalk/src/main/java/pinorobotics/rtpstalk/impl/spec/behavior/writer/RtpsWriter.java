@@ -20,11 +20,15 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
@@ -57,6 +61,12 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 public abstract class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
+    private final Meter METER = GlobalOpenTelemetry.getMeter(RtpsWriter.class.getSimpleName());
+    private final LongHistogram SUBMITTED_CHANGES_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.SUBMITTED_CHANGES_METRIC)
+                    .setDescription(RtpsTalkMetrics.SUBMITTED_CHANGES_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
     protected final XLogger logger;
     private RtpsTalkConfigurationInternal config;
 
@@ -116,6 +126,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
 
     public long newChange(D data) {
         logger.entering("newChange");
+        SUBMITTED_CHANGES_METER.record(1);
         lastChangeNumber++;
         lastMessage = new RtpsDataMessageBuilder(config, writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);

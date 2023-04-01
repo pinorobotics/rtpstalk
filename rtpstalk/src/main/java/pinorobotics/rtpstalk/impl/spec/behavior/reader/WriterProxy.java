@@ -22,6 +22,9 @@ import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterSt
 
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -41,6 +45,12 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class WriterProxy {
+
+    private final Meter METER = GlobalOpenTelemetry.getMeter(WriterProxy.class.getSimpleName());
+    private final LongCounter LOST_CHANGES_COUNT_METER =
+            METER.counterBuilder(RtpsTalkMetrics.LOST_CHANGES_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.LOST_CHANGES_COUNT_METRIC_DESCRIPTION)
+                    .build();
 
     private Guid readerGuid;
     private Guid remoteWriterGuid;
@@ -124,6 +134,7 @@ public class WriterProxy {
                 newChangesFromWriter.put(entry.getKey(), entry.getValue());
             }
         }
+        LOST_CHANGES_COUNT_METER.add(lostChanges.size());
         if (!lostChanges.isEmpty()) {
             Collections.sort(lostChanges);
             logger.fine(
