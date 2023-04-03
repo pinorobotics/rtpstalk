@@ -90,7 +90,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
     @Override
     protected ParameterList createAnnouncementData(
             SubscriberDetails actor, Topic<SubscriberDetails> topic) {
-        return sedpDataFactory.createSubscriptionData(
+        return sedpDataFactory.createDiscoveredReaderData(
                 topic.getTopicId(),
                 topic.getLocalTopicEntityId(),
                 networkIface.getLocalDefaultUnicastLocator(),

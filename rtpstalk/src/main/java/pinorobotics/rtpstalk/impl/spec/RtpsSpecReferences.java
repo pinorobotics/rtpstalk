@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2023 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -17,18 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec;
 
-import java.lang.annotation.Repeatable;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
-
 /**
- * @author lambdaprime intid@protonmail.com
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-@Repeatable(RtpsSpecReferences.class)
-public @interface RtpsSpecReference {
-
-    ProtocolVersion.Predefined protocolVersion();
-
-    String paragraph();
-
-    String text();
+public @interface RtpsSpecReferences {
+    RtpsSpecReference[] value();
 }

@@ -31,6 +31,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
+ * Serves mainly for heartbeat purposes of local writer and process ackNacks from remote readers.
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public class WriterRtpsReader<D extends RtpsTalkMessage> extends SimpleSubscriber<RtpsMessage>
@@ -75,7 +77,7 @@ public class WriterRtpsReader<D extends RtpsTalkMessage> extends SimpleSubscribe
         try {
             walker.walk(message, this);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.severe(e);
         } finally {
             subscription.request(1);
         }

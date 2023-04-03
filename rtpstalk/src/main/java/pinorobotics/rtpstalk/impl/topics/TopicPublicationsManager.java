@@ -215,7 +215,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
     @Override
     protected ParameterList createAnnouncementData(
             PublisherDetails actor, Topic<PublisherDetails> topic) {
-        return dataFactory.createPublicationData(
+        return dataFactory.createDiscoveredWriterData(
                 topic.getTopicId(),
                 topic.getLocalTopicEntityId(),
                 networkIface.getLocalDefaultUnicastLocator(),

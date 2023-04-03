@@ -47,7 +47,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
-import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
+import pinorobotics.rtpstalk.impl.spec.transport.MetatrafficUnicastReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 
 /**
@@ -73,7 +73,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
     private SedpBuiltinSubscriptionsWriter subscriptionsWriter;
     private SedpBuiltinPublicationsReader publicationsReader;
     private SedpBuiltinPublicationsWriter publicationsWriter;
-    private RtpsMessageReceiver metatrafficReceiver;
+    private MetatrafficUnicastReceiver metatrafficUnicastReceiver;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
     private RtpsNetworkInterface iface;
@@ -97,11 +97,9 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
-        metatrafficReceiver =
-                receiverFactory.newRtpsMessageReceiver(
-                        config.publicConfig(),
-                        new TracingToken(tracingToken, "SedpReceiver"),
-                        publisherExecutor);
+        metatrafficUnicastReceiver =
+                receiverFactory.newMetatrafficUnicastReceiver(
+                        config.publicConfig(), tracingToken, publisherExecutor);
         subscriptionsWriter =
                 new SedpBuiltinSubscriptionsWriter(
                         config,
@@ -109,7 +107,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
                         publisherExecutor,
                         channelFactory,
                         iface.getOperatingEntities());
-        metatrafficReceiver.subscribe(subscriptionsWriter.getWriterReader());
+        metatrafficUnicastReceiver.subscribe(subscriptionsWriter.getWriterReader());
         publicationsWriter =
                 new SedpBuiltinPublicationsWriter(
                         config,
@@ -117,29 +115,29 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
                         publisherExecutor,
                         channelFactory,
                         iface.getOperatingEntities());
-        metatrafficReceiver.subscribe(publicationsWriter.getWriterReader());
+        metatrafficUnicastReceiver.subscribe(publicationsWriter.getWriterReader());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(
                         config.publicConfig(),
                         tracingToken,
                         publisherExecutor,
                         iface.getOperatingEntities());
-        metatrafficReceiver.subscribe(subscriptionsReader);
+        metatrafficUnicastReceiver.subscribe(subscriptionsReader);
         publicationsReader =
                 new SedpBuiltinPublicationsReader(
                         config.publicConfig(),
                         tracingToken,
                         publisherExecutor,
                         iface.getOperatingEntities());
-        metatrafficReceiver.subscribe(publicationsReader);
+        metatrafficUnicastReceiver.subscribe(publicationsReader);
         if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
-            metatrafficReceiver.subscribe(
+            metatrafficUnicastReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
                             config.publicConfig(),
                             tracingToken,
                             publisherExecutor,
                             iface.getOperatingEntities()));
-        metatrafficReceiver.start(iface.getMetatrafficUnicastChannel());
+        metatrafficUnicastReceiver.start(iface.getMetatrafficUnicastChannel());
         this.iface = iface;
         isStarted = true;
     }
@@ -254,7 +252,6 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
                     writer.matchedReaderAdd(remoteGuid, unicast, Kind.RELIABLE);
                 } catch (IOException e) {
                     logger.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
-                    e.printStackTrace();
                 }
                 break;
             default:
@@ -284,7 +281,7 @@ public class SedpService extends SimpleSubscriber<RtpsTalkParameterListMessage>
         subscriptionsReader.close();
         publicationsReader.close();
         publicationsWriter.close();
-        metatrafficReceiver.close();
+        metatrafficUnicastReceiver.close();
         logger.fine("Closed");
     }
 }

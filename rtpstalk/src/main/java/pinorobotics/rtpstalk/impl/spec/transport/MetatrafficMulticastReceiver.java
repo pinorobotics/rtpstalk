@@ -15,20 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.spec;
+package pinorobotics.rtpstalk.impl.spec.transport;
 
-import java.lang.annotation.Repeatable;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import id.xfunction.logging.TracingToken;
+import java.util.concurrent.Executor;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 
 /**
- * @author lambdaprime intid@protonmail.com
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-@Repeatable(RtpsSpecReferences.class)
-public @interface RtpsSpecReference {
-
-    ProtocolVersion.Predefined protocolVersion();
-
-    String paragraph();
-
-    String text();
+public class MetatrafficMulticastReceiver extends RtpsMessageReceiver {
+    public MetatrafficMulticastReceiver(
+            RtpsTalkConfiguration config, TracingToken tracingToken, Executor publisherExecutor) {
+        super(config, tracingToken, publisherExecutor);
+    }
 }

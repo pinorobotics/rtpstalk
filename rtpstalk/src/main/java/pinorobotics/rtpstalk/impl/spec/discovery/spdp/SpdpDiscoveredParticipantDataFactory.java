@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 import java.util.EnumSet;
 import pinorobotics.rtpstalk.EndpointQos;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
@@ -27,11 +28,21 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@RtpsSpecReference(
+        protocolVersion = Predefined.Version_2_3,
+        paragraph = "9.6.2.2",
+        text =
+                """
+            The discovery data is sent using standard Data Submessages. In order to allow for QoS extensibility while preserving
+            interoperability between versions of the protocol, the wire-representation of the SerializedData within the Data
+            Submessage uses a the format of a ParameterList SubmessageElement.
+            """)
 public class SpdpDiscoveredParticipantDataFactory {
 
     public ParameterList createData(

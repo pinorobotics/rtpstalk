@@ -1,4 +1,4 @@
-*.RtpsMessageReceiver#*-${IFACE}-SpdpReceiver - Closed
+*.MetatrafficMulticastReceiver#*-${IFACE} - Closed
 *.SpdpBuiltinParticipantWriter#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
 *.SpdpBuiltinParticipantWriter - Closed
 *.SpdpBuiltinParticipantReader#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed

@@ -30,4 +30,18 @@ public class RtpsMessageReceiverFactory {
             RtpsTalkConfiguration config, TracingToken token, Executor publisherExecutor) {
         return new RtpsMessageReceiver(config, token, publisherExecutor);
     }
+
+    public MetatrafficUnicastReceiver newMetatrafficUnicastReceiver(
+            RtpsTalkConfiguration publicConfig,
+            TracingToken tracingToken,
+            Executor publisherExecutor) {
+        return new MetatrafficUnicastReceiver(publicConfig, tracingToken, publisherExecutor);
+    }
+
+    public MetatrafficMulticastReceiver newMetatrafficMulticastReceiver(
+            RtpsTalkConfiguration publicConfig,
+            TracingToken tracingToken,
+            Executor publisherExecutor) {
+        return new MetatrafficMulticastReceiver(publicConfig, tracingToken, publisherExecutor);
+    }
 }

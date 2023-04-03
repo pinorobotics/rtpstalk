@@ -21,6 +21,7 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
@@ -31,12 +32,29 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@RtpsSpecReference(
+        protocolVersion = Predefined.Version_2_3,
+        paragraph = "9.6.2.2",
+        text =
+                """
+The discovery data is sent using standard Data Submessages. In order to allow for QoS extensibility while preserving
+interoperability between versions of the protocol, the wire-representation of the SerializedData within the Data
+Submessage uses a the format of a ParameterList SubmessageElement.
+""")
+@RtpsSpecReference(
+        protocolVersion = Predefined.Version_2_3,
+        paragraph = "8.5.4.4",
+        text =
+                """
+Data Types associated with built-in Endpoints used by the Simple Endpoint Discovery Protocol
+""")
 public class SedpDataFactory {
 
     private RtpsTalkConfigurationInternal config;
@@ -45,7 +63,8 @@ public class SedpDataFactory {
         this.config = config;
     }
 
-    public ParameterList createPublicationData(
+    /** PublicationData */
+    public ParameterList createDiscoveredWriterData(
             TopicId topicId,
             EntityId entityId,
             Locator defaultUnicastLocator,
@@ -75,7 +94,8 @@ public class SedpDataFactory {
         return params;
     }
 
-    public ParameterList createSubscriptionData(
+    /** SubscriptionData */
+    public ParameterList createDiscoveredReaderData(
             TopicId topicId,
             EntityId readerEntityId,
             Locator defaultUnicastLocator,
