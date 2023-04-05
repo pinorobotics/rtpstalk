@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
-import id.xfunction.concurrent.flow.MergeProcessor;
 import id.xfunction.lang.XRE;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
@@ -106,14 +105,12 @@ public class RtpsServiceManager implements AutoCloseable {
                             channelFactory,
                             new DataObjectsFactory(),
                             receiverFactory);
-            var participantsPublisher = new MergeProcessor<RtpsTalkParameterListMessage>();
 
             // Setup SEDP before SPDP to avoid race conditions when SPDP discovers participants
             // but SEDP is not subscribed to them yet (and since SPDP cache them it will
             // not notify SEDP about them anymore)
             sedpService.start(tracingToken, rtpsIface);
-            participantsPublisher.subscribe(sedpService);
-            startSpdp(tracingToken, rtpsIface, participantsPublisher);
+            startSpdp(tracingToken, rtpsIface);
             userService.start(tracingToken, rtpsIface);
 
             subscriptionsManager =
@@ -139,10 +136,7 @@ public class RtpsServiceManager implements AutoCloseable {
         isStarted = true;
     }
 
-    private void startSpdp(
-            TracingToken tracingToken,
-            RtpsNetworkInterface rtpsIface,
-            MergeProcessor<RtpsTalkParameterListMessage> participantsPublisher)
+    private void startSpdp(TracingToken tracingToken, RtpsNetworkInterface rtpsIface)
             throws Exception {
         var networkInterfaces =
                 config.publicConfig()
@@ -155,7 +149,7 @@ public class RtpsServiceManager implements AutoCloseable {
             try {
                 var spdp =
                         new SpdpService(config, publisherExecutor, channelFactory, receiverFactory);
-                spdp.start(tracingToken, rtpsIface, iface, participantsPublisher.newSubscriber());
+                spdp.start(tracingToken, rtpsIface, iface, sedpService.newSedpConfigurator());
                 spdpServices.add(spdp);
             } catch (Exception e) {
                 logger.severe("Error starting SPDP on network interface " + iface, e);
