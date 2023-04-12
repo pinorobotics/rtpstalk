@@ -36,6 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
@@ -223,6 +224,9 @@ class RtpsInputKineticStream implements InputKineticStream {
             }
             Object value = null;
             switch (parameterId) {
+                case PID_DOMAIN_ID:
+                    value = new UnsignedInt(readInt());
+                    break;
                 case PID_ENTITY_NAME:
                 case PID_TYPE_NAME:
                 case PID_TOPIC_NAME:
@@ -234,7 +238,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                     value = readLocator();
                     break;
                 case PID_USER_DATA:
-                    value = new UserDataQosPolicy(readSequence());
+                    value = new UserDataQosPolicy(readByteSequence());
                     break;
                 case PID_EXPECTS_INLINE_QOS:
                     value = readBool();
@@ -404,7 +408,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         return reader.read(Heartbeat.class);
     }
 
-    private ByteSequence readSequence() throws Exception {
+    private ByteSequence readByteSequence() throws Exception {
         var value = new byte[readInt()];
         readByteArray(value);
         return new ByteSequence(value);

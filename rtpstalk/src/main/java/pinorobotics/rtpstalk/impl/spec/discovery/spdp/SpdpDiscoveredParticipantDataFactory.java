@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
@@ -72,6 +73,7 @@ public class SpdpDiscoveredParticipantDataFactory {
         params.put(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, metatrafficUnicastLocator);
         params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator);
         params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
+        params.put(ParameterId.PID_DOMAIN_ID, new UnsignedInt(config.publicConfig().domainId()));
         params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
         params.put(ParameterId.PID_ENTITY_NAME, "/");
         return params;

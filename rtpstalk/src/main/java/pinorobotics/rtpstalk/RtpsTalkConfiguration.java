@@ -119,12 +119,14 @@ public record RtpsTalkConfiguration(
 
         public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 26214400;
 
+        public static final int DEFAULT_DOMAIN_ID = 0;
+
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
         private Optional<Integer> builtinEnpointsPort = Optional.empty();
         private Optional<Integer> userEndpointsPort = Optional.empty();
         private int packetBufferSize = UDP_MAX_PACKET_SIZE;
-        private int domainId = 0;
+        private int domainId = DEFAULT_DOMAIN_ID;
         private int appEntityKey = 0x000012;
         private byte[] guidPrefix = GuidPrefix.generate().value;
         private EndpointQos builtinEndpointQos = EndpointQos.NONE;

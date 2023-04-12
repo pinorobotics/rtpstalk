@@ -99,7 +99,7 @@ public class SedpBuiltinEndpointsConfigurator extends SimpleSubscriber<RtpsTalkP
             logger.warning("Received participant data without PID_PARTICIPANT_GUID");
             return;
         }
-        logger.fine("Configuring builtin endpoints for Participant {0}", guid.guidPrefix);
+        logger.fine("Configuring builtin endpoints for Participant {0}", guid);
         var params = participantData.getParameters();
         var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
         if (value instanceof BuiltinEndpointSet availableEndpoints) {

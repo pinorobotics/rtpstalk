@@ -43,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
@@ -89,6 +90,7 @@ public class LengthCalculator {
     // TODO add all to HashMap to avoid recalculations
     public int getFixedLengthInternal(Class<?> clazz) {
         if (clazz == EntityId.class) return EntityId.SIZE;
+        if (clazz == UnsignedInt.class) return Integer.BYTES;
         if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
         if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
         if (clazz == Timestamp.class) return Integer.BYTES * 2;
@@ -161,7 +163,6 @@ public class LengthCalculator {
         if (obj instanceof ParameterList pl) return calculateParameterListLength(pl);
         if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);
-        if (obj instanceof ByteSequence seq) return Integer.BYTES + seq.length;
         if (obj instanceof AckNack ackNack) {
             return getFixedLength(EntityId.class) * 2
                     + calculateLength(ackNack.readerSNState)
@@ -171,6 +172,7 @@ public class LengthCalculator {
             return getFixedLength(SequenceNumber.class)
                     + Integer.BYTES
                     + Integer.BYTES * set.bitmap.length;
+        if (obj instanceof ByteSequence seq) return Integer.BYTES + seq.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
         if (obj instanceof RawData rawData) return rawData.getData().length;
@@ -194,6 +196,7 @@ public class LengthCalculator {
                     case PID_SENTINEL -> 0;
                     case PID_USER_DATA -> calculateLength(param.getValue());
                     case PID_KEY_HASH,
+                            PID_DOMAIN_ID,
                             PID_BUILTIN_ENDPOINT_SET,
                             PID_PARTICIPANT_LEASE_DURATION,
                             PID_DEFAULT_UNICAST_LOCATOR,

@@ -34,6 +34,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.LifespanQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
+import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
@@ -42,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
  */
 public enum ParameterId {
     PID_ENTITY_NAME(0x0062, String.class),
+    PID_DOMAIN_ID(0x000f, UnsignedInt.class),
     PID_BUILTIN_ENDPOINT_SET(0x0058, BuiltinEndpointSet.class),
     PID_PARTICIPANT_LEASE_DURATION(0x0002, Duration.class),
     PID_DEFAULT_UNICAST_LOCATOR(0x0031, Locator.class),

@@ -171,8 +171,12 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeShortArray(short[] arg0) throws Exception {
-        throw new UnsupportedOperationException();
+    public void writeShortArray(short[] a) throws Exception {
+        LOGGER.entering("writeShortArray");
+        for (int i = 0; i < a.length; i++) {
+            writeShort(a[i]);
+        }
+        LOGGER.exiting("writeShortArray");
     }
 
     @Override

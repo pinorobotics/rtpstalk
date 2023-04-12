@@ -45,19 +45,19 @@ public class Duration {
         }
     }
 
-    public int seconds;
+    public UnsignedInt seconds;
 
     /** Time in sec/2^32 */
     public UnsignedInt fraction;
 
     public Duration() {}
 
-    public Duration(int seconds, long fraction) {
-        this.seconds = seconds;
+    public Duration(long seconds, long fraction) {
+        this.seconds = new UnsignedInt(seconds);
         this.fraction = new UnsignedInt(fraction);
     }
 
-    public Duration(int seconds) {
+    public Duration(long seconds) {
         this(seconds, 0);
     }
 
