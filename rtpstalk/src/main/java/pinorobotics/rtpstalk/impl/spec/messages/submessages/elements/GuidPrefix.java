@@ -55,7 +55,7 @@ public class GuidPrefix implements SubmessageElement {
     public GuidPrefix() {}
 
     public GuidPrefix(byte[] value) {
-        Preconditions.isTrue(value.length == SIZE);
+        Preconditions.equals(SIZE, value.length, "Value length is not correct");
         this.value = value;
     }
 

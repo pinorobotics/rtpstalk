@@ -25,8 +25,10 @@ import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -53,4 +55,20 @@ public class RtpsDataMessageBuilderTest {
         Assertions.assertEquals(InfoTimestamp.class, actual.get(1).submessages[0].getClass());
         Assertions.assertEquals(Data.class, actual.get(1).submessages[1].getClass());
     }
+
+    @Test
+    public void test_infodst() {
+        var builder =
+                new RtpsDataMessageBuilder(
+                        new RtpsTalkConfigurationInternal(
+                                new RtpsTalkConfiguration.Builder()
+                                        .packetBufferSize(10_000)
+                                        .build()),
+                        TestConstants.TEST_GUID_PREFIX,
+                        new GuidPrefix("aaaaaaaaaaaaaaaaaaaaaaaa"));
+        builder.add(1, new RtpsTalkDataMessage(new byte[13]));
+        var actual = builder.build(new EntityId(), new EntityId());
+        XAsserts.assertMatches(getClass(), "test_infodst", actual.toString());
+    }
+    
 }

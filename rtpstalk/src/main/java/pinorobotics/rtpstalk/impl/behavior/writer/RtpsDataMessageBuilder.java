@@ -28,6 +28,7 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -104,7 +105,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                 messageBuilder.build().ifPresent(messages::add);
                 messageBuilder = new InternalBuilder();
                 if (messageBuilder.add(submessage)) continue;
-                // we could not added the submessage into empty message
+                // we could not add the submessage into empty message
                 // trying to use fragmentation
             }
             if (message instanceof RtpsTalkDataMessage dataMessage) {
@@ -163,8 +164,18 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         int messageLen = headerLen;
 
         InternalBuilder() {
+            if (readerGuidPrefix.isPresent()) {
+                // RTPS specification does not explicitly tell all the cases when INFO_DST should be included.
+                // To cover situations when there are
+                // multiple participants running on same unicast locator we include it as part of
+                // DATA
+                // See: https://github.com/eclipse-cyclonedds/cyclonedds/issues/1605
+                submessages.add(new InfoDestination(readerGuidPrefix.get()));
+                messageLen += LengthCalculator.getInstance().getFixedLength(InfoDestination.class);
+            }
             // we do not timestamp data changes so we do not include InfoTimestamp per each Data
-            // submessage, instead we include InfoTimestamp per entire message and only once
+            // submessage, instead we include InfoTimestamp per entire RtpsMessage message and only
+            // once
             submessages.add(InfoTimestamp.now());
             messageLen += LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class);
         }

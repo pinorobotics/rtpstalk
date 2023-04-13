@@ -42,9 +42,15 @@ public class RtpsHeartbeatMessageBuilder implements RtpsMessageSender.MessageBui
     private long seqNumMin;
     private long seqNumMax;
     private int heartbeatCount;
+    private GuidPrefix readerGuidPrefix;
 
     public RtpsHeartbeatMessageBuilder(
-            GuidPrefix writerGuidPrefix, long seqNumMin, long seqNumMax, int heartbeatCount) {
+            GuidPrefix writerGuidPrefix,
+            GuidPrefix readerGuidPrefix,
+            long seqNumMin,
+            long seqNumMax,
+            int heartbeatCount) {
+        this.readerGuidPrefix = readerGuidPrefix;
         this.seqNumMin = seqNumMin;
         this.seqNumMax = seqNumMax;
         this.heartbeatCount = heartbeatCount;
@@ -59,8 +65,12 @@ public class RtpsHeartbeatMessageBuilder implements RtpsMessageSender.MessageBui
     @Override
     public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
         var submessages = new ArrayList<Submessage>();
-        if (getReaderGuidPrefix() != GuidPrefix.Predefined.GUIDPREFIX_UNKNOWN.getValue())
-            submessages.add(new InfoDestination(getReaderGuidPrefix()));
+        // RTPS specification does not explicitly tell all cases when INFO_DST should be included.
+        // To cover situations when there are
+        // multiple participants are running on same unicast locator we include it as part of
+        // HEARTBEAT
+        // See: https://github.com/eclipse-cyclonedds/cyclonedds/issues/1605
+        submessages.add(new InfoDestination(readerGuidPrefix));
         var heartbeat =
                 new Heartbeat(
                         readerEntiyId,

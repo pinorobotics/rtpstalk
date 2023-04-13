@@ -55,7 +55,6 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
-import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -207,7 +206,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         try {
             if (executor.isShutdown()) return;
             sendRequested();
-            sendHeartbeat();
+            sendHeartbeats();
             cleanupCache();
         } catch (Exception e) {
             logger.severe("Writer heartbeat error", e);
@@ -306,28 +305,34 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                 .forEach(this::submit);
     }
 
-    private void sendHeartbeat() {
-        nextHeartbeatMessage()
-                .ifPresent(
-                        message -> {
-                            submit(message);
-                            logger.fine("Heartbeat submitted");
-                        });
-    }
-
-    private Optional<MessageBuilder> nextHeartbeatMessage() {
+    private void sendHeartbeats() {
         var seqNumMin = historyCache.getSeqNumMin(getGuid());
         if (seqNumMin <= 0) {
             logger.fine("Skipping heartbeat since history cache is empty");
-            return Optional.empty();
+            return;
         }
         var seqNumMax = historyCache.getSeqNumMax(getGuid());
         Preconditions.isLess(0, seqNumMax, "Negative sequence number");
-        var heartbeat =
-                new RtpsHeartbeatMessageBuilder(
-                        getGuid().guidPrefix, seqNumMin, seqNumMax, heartbeatCount++);
+        var readers = matchedReaders.values();
+        if (readers.isEmpty()) {
+            logger.fine("Skipping heartbeat since there is no readers available");
+            return;
+        }
+        readers.stream()
+                .filter(ReaderProxy.isReliable())
+                .map(readerProxy -> readerProxy.getRemoteReaderGuid().guidPrefix)
+                .map(
+                        readerGuidPrefix ->
+                                new RtpsHeartbeatMessageBuilder(
+                                        getGuid().guidPrefix,
+                                        readerGuidPrefix,
+                                        seqNumMin,
+                                        seqNumMax,
+                                        heartbeatCount))
+                .forEach(this::submit);
+        logger.fine("Heartbeat {0} submitted to {1} readers", heartbeatCount, readers.size());
+        heartbeatCount++;
         HEARTBEATS_METER.record(1);
-        return Optional.of(heartbeat);
     }
 
     private void sendRequested() {
