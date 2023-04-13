@@ -31,10 +31,12 @@ import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
+import pinorobotics.rtpstalk.impl.spec.messages.DataRepresentationQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.spec.messages.ShortSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
@@ -240,6 +242,9 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_USER_DATA:
                     value = new UserDataQosPolicy(readByteSequence());
                     break;
+                case PID_DATA_REPRESENTATION:
+                    value = new DataRepresentationQosPolicy(readShortSequence());
+                    break;
                 case PID_EXPECTS_INLINE_QOS:
                     value = readBool();
                     break;
@@ -412,6 +417,12 @@ class RtpsInputKineticStream implements InputKineticStream {
         var value = new byte[readInt()];
         readByteArray(value);
         return new ByteSequence(value);
+    }
+
+    private ShortSequence readShortSequence() throws Exception {
+        var value = new short[readInt()];
+        readShortArray(value);
+        return new ShortSequence(value);
     }
 
     private Locator readLocator() throws Exception {

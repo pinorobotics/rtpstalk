@@ -22,6 +22,7 @@ import java.util.Map;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
+import pinorobotics.rtpstalk.impl.spec.messages.DataRepresentationQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
@@ -54,6 +55,7 @@ public enum ParameterId {
     PID_PROTOCOL_VERSION(0x0015, ProtocolVersion.class),
     PID_USER_DATA(0x002c, UserDataQosPolicy.class),
     PID_TOPIC_NAME(0x0005, String.class),
+    PID_DATA_REPRESENTATION(0x0073, DataRepresentationQosPolicy.class),
     PID_EXPECTS_INLINE_QOS(0x0043, Boolean.class),
     PID_TYPE_NAME(0x0007, String.class),
     PID_ENDPOINT_GUID(0x005a, Guid.class),

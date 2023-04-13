@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.ByteSequence;
+import pinorobotics.rtpstalk.impl.spec.messages.DataRepresentationQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
@@ -42,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ShortSequence;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
@@ -163,6 +165,7 @@ public class LengthCalculator {
         if (obj instanceof ParameterList pl) return calculateParameterListLength(pl);
         if (obj instanceof String s) return s.length() + 1 + Integer.BYTES;
         if (obj instanceof UserDataQosPolicy policy) return calculateLength(policy.value);
+        if (obj instanceof DataRepresentationQosPolicy policy) return calculateLength(policy.value);
         if (obj instanceof AckNack ackNack) {
             return getFixedLength(EntityId.class) * 2
                     + calculateLength(ackNack.readerSNState)
@@ -175,6 +178,8 @@ public class LengthCalculator {
         if (obj instanceof ByteSequence seq) return Integer.BYTES + seq.length;
         if (obj instanceof IntSequence intSeq)
             return Integer.BYTES + Integer.BYTES * intSeq.data.length;
+        if (obj instanceof ShortSequence shortSeq)
+            return Integer.BYTES + Short.BYTES * shortSeq.data.length;
         if (obj instanceof RawData rawData) return rawData.getData().length;
         if (obj instanceof Optional<?> opt) return opt.isEmpty() ? 0 : calculateLength(opt.get());
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
@@ -195,6 +200,7 @@ public class LengthCalculator {
                     case PID_TYPE_NAME -> calculateLength(param.getValue());
                     case PID_SENTINEL -> 0;
                     case PID_USER_DATA -> calculateLength(param.getValue());
+                    case PID_DATA_REPRESENTATION -> calculateLength(param.getValue());
                     case PID_KEY_HASH,
                             PID_DOMAIN_ID,
                             PID_BUILTIN_ENDPOINT_SET,
