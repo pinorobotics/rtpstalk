@@ -27,11 +27,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails.Type;
@@ -48,13 +50,16 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     protected XLogger logger;
     protected List<Topic<A>> topics = new CopyOnWriteArrayList<>();
     protected StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> announcementsWriter;
+    private ParticipantsRegistry participantsRegistry;
     private ActorDetails.Type actorsType;
 
     public AbstractTopicManager(
             TracingToken tracingToken,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
+            ParticipantsRegistry participantsRegistry,
             ActorDetails.Type actorsType) {
         this.announcementsWriter = subscriptionsWriter;
+        this.participantsRegistry = participantsRegistry;
         this.actorsType = actorsType;
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
@@ -106,13 +111,41 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
             var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
             Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
-            var participantGuid = (Guid) pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
-            Preconditions.notNull(pubType, "Received subscription without PID_PARTICIPANT_GUID");
             var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
             Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
+
+            var topicId = new TopicId(pubTopic, pubType);
+
+            var participantGuid =
+                    (Guid)
+                            findParticipantInfo(
+                                            pubEndpointGuid.guidPrefix,
+                                            pl,
+                                            ParameterId.PID_PARTICIPANT_GUID)
+                                    .orElse(null);
+            if (participantGuid == null) {
+                logger.warning(
+                        "Could not find participant for endpoint Guid {0}, ignoring subscription"
+                                + " for topic {1}",
+                        pubEndpointGuid, topicId);
+                return;
+            }
+
             var pubUnicastLocator =
-                    (Locator) pl.getParameters().get(ParameterId.PID_UNICAST_LOCATOR);
-            Preconditions.notNull(pubType, "Received subscription without PID_UNICAST_LOCATOR");
+                    (Locator)
+                            findParticipantInfo(
+                                            pubEndpointGuid.guidPrefix,
+                                            pl,
+                                            ParameterId.PID_DEFAULT_UNICAST_LOCATOR)
+                                    .orElse(null);
+            if (pubUnicastLocator == null) {
+                logger.warning(
+                        "Could not find locator for endpoint Guid {0}, ignoring subscription for"
+                                + " topic {1}",
+                        pubEndpointGuid, topicId);
+                return;
+            }
+
             Preconditions.equals(
                     participantGuid.guidPrefix,
                     pubEndpointGuid.guidPrefix,
@@ -137,12 +170,29 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                     pubTopic,
                     pubType,
                     remoteActorDetails);
-            var topicId = new TopicId(pubTopic, pubType);
             var topic = createTopicIfMissing(topicId);
             topic.addRemoteActor(remoteActorDetails);
         } finally {
             subscription.request(1);
         }
+    }
+
+    private Optional<Object> findParticipantInfo(
+            GuidPrefix guidPrefix, ParameterList pl, ParameterId parameterId) {
+        var participantInfo = pl.getParameters().get(parameterId);
+        if (participantInfo != null) return Optional.of(participantInfo);
+        logger.fine(
+                "Received subscription without {0}, trying to find it in Participants Registry by"
+                        + " guid prefix {1}",
+                parameterId, guidPrefix);
+        pl = participantsRegistry.getSpdpDiscoveredParticipantData(guidPrefix).orElse(null);
+        if (pl == null) {
+            logger.fine(
+                    "Could not find participant with guid prefix {0} in Participants Registry",
+                    guidPrefix);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(pl.getParameters().get(parameterId));
     }
 
     protected abstract ParameterList createAnnouncementData(A actor, Topic<A> topic);
@@ -153,10 +203,9 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     }
 
     private boolean isValid(ParameterList pl) {
-        return pl.getParameters().containsKey(ParameterId.PID_PARTICIPANT_GUID)
-                && pl.getParameters().containsKey(ParameterId.PID_TOPIC_NAME)
-                && pl.getParameters().containsKey(ParameterId.PID_ENDPOINT_GUID)
-                && pl.getParameters().containsKey(ParameterId.PID_UNICAST_LOCATOR);
+        return pl.getParameters().containsKey(ParameterId.PID_TOPIC_NAME)
+                && pl.getParameters().containsKey(ParameterId.PID_TYPE_NAME)
+                && pl.getParameters().containsKey(ParameterId.PID_ENDPOINT_GUID);
     }
 
     @Override

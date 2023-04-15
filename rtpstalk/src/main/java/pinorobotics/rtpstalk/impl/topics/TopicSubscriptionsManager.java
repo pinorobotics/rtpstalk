@@ -57,7 +57,11 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
             UserDataService userService) {
-        super(tracingToken, subscriptionsWriter, ActorDetails.Type.Subscriber);
+        super(
+                tracingToken,
+                subscriptionsWriter,
+                networkIface.getParticipantsRegistry(),
+                ActorDetails.Type.Subscriber);
         this.sedpDataFactory = new SedpDataFactory(config);
         dataFactory = new DataFactory();
         localGuidPrefix = config.localParticipantGuid().guidPrefix;
@@ -69,8 +73,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
     protected Consumer<TopicMatchEvent<SubscriberDetails>> createListener(
             Topic<SubscriberDetails> topic) {
         return subEvent -> {
-            logger.fine(
-                    "New subscribe event for topic id" + " {0}: {1}", topic.getTopicId(), subEvent);
+            logger.fine("New subscribe event for topic id {0}: {1}", topic.getTopicId(), subEvent);
             var remoteActor = subEvent.remoteActor();
             userService.subscribeToRemoteWriter(
                     topic.getLocalTopicEntityId(),

@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl;
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.logging.TracingToken;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 
@@ -32,9 +33,10 @@ public class RtpsNetworkInterface {
 
     private Locator defaultUnicastLocator;
     private Locator metatrafficUnicastLocator;
-    private OperatingEntities operatingEntities;
     private DataChannel defaultUnicastChannel;
     private DataChannel metatrafficUnicastChannel;
+    private OperatingEntities operatingEntities;
+    private ParticipantsRegistry participantsRegistry;
 
     public RtpsNetworkInterface(
             TracingToken tracingToken,
@@ -47,6 +49,7 @@ public class RtpsNetworkInterface {
         this.metatrafficUnicastChannel = metatrafficUnicastChannel;
         this.metatrafficUnicastLocator = metatrafficUnicastLocator;
         operatingEntities = new OperatingEntities(tracingToken);
+        participantsRegistry = new ParticipantsRegistry(tracingToken);
     }
 
     public Locator getLocalDefaultUnicastLocator() {
@@ -57,23 +60,27 @@ public class RtpsNetworkInterface {
         return metatrafficUnicastLocator;
     }
 
-    @Override
-    public String toString() {
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
-        builder.append("defaultUnicastLocator", defaultUnicastLocator);
-        return builder.toString();
-    }
-
-    public OperatingEntities getOperatingEntities() {
-        return operatingEntities;
-    }
-
     public DataChannel getDefaultUnicastChannel() {
         return defaultUnicastChannel;
     }
 
     public DataChannel getMetatrafficUnicastChannel() {
         return metatrafficUnicastChannel;
+    }
+
+    public OperatingEntities getOperatingEntities() {
+        return operatingEntities;
+    }
+
+    public ParticipantsRegistry getParticipantsRegistry() {
+        return participantsRegistry;
+    }
+
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("metatrafficUnicastLocator", metatrafficUnicastLocator);
+        builder.append("defaultUnicastLocator", defaultUnicastLocator);
+        return builder.toString();
     }
 }

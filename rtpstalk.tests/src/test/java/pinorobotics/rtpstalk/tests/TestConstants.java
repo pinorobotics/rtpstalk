@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  */
 public interface TestConstants {
 
+    TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");
     GuidPrefix TEST_GUID_PREFIX = new GuidPrefix(XByte.fromHex("cafe3d7efd6c2e0b46d2ee00"));
     EntityId TEST_READER_ENTITY_ID = new EntityId(1, EntityKind.READER_NO_KEY);
     EntityId TEST_WRITER_ENTITY_ID = new EntityId(2, EntityKind.WRITER_NO_KEY);
@@ -65,7 +66,6 @@ public interface TestConstants {
             new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 7013, TEST_REMOTE_ADDRESS);
     TestRtpsNetworkInterface TEST_NETWORK_IFACE = new TestRtpsNetworkInterface();
     NetworkInterface LOOPBACK_NETWORK_IFACE = Unchecked.get(() -> NetworkInterface.getByName("lo"));
-    TracingToken TEST_TRACING_TOKEN = new TracingToken("TEST");
     Executor TEST_PUBLISHER_EXECUTOR =
             RtpsTalkConfiguration.Builder.DEFAULT_PUBLISHER_EXECUTOR.get();
     Header TEST_HEADER =

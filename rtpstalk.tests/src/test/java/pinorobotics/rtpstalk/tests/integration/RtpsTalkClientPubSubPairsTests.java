@@ -114,7 +114,8 @@ public class RtpsTalkClientPubSubPairsTests {
                         true,
                         List.of(
                                 "service_close.template",
-                                "service_startup_ports_8080_8081.template"),
+                                "service_startup_ports_8080_8081.template",
+                                "ParticipantsRegistry.template"),
                         Map.of(
                                 TestCondition.LOCAL_SUBSCRIBER,
                                 List.of("topic_subscriptions_manager_future_topic.template")),

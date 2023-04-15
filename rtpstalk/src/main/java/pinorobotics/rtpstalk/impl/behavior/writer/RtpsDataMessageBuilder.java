@@ -165,7 +165,8 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
 
         InternalBuilder() {
             if (readerGuidPrefix.isPresent()) {
-                // RTPS specification does not explicitly tell all the cases when INFO_DST should be included.
+                // RTPS specification does not explicitly tell all the cases when INFO_DST should be
+                // included.
                 // To cover situations when there are
                 // multiple participants running on same unicast locator we include it as part of
                 // DATA

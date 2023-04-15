@@ -96,7 +96,8 @@ public class SpdpService implements AutoCloseable {
                         tracingToken,
                         publisherExecutor,
                         config.publicConfig().guidPrefix(),
-                        iface.getOperatingEntities());
+                        iface.getOperatingEntities(),
+                        iface.getParticipantsRegistry());
         reader.subscribe(participantsSubscriber);
         Locator metatrafficMulticastLocator =
                 Locator.createDefaultMulticastLocator(config.publicConfig().domainId());

@@ -70,5 +70,4 @@ public class RtpsDataMessageBuilderTest {
         var actual = builder.build(new EntityId(), new EntityId());
         XAsserts.assertMatches(getClass(), "test_infodst", actual.toString());
     }
-    
 }

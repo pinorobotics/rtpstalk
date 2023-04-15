@@ -1,0 +1,3 @@
+*.ParticipantsRegistry#* - Adding new participant { "guidPrefix": { "value": "*" }, "entityId": "ENTITYID_PARTICIPANT" } to the registry
+*.ParticipantsRegistry#* - Removing participant { "guidPrefix": { "value": "*" }, "entityId": "ENTITYID_PARTICIPANT" } from the registry
+*

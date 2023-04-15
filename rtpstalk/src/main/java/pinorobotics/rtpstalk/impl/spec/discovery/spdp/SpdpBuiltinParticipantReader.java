@@ -18,20 +18,18 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
 import id.xfunction.logging.TracingToken;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
@@ -48,15 +46,16 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
  */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
 
-    private Map<Guid, ParameterList> participants = new HashMap<>();
     private OperatingEntities operatingEntities;
+    private ParticipantsRegistry participantsRegistry;
 
     public SpdpBuiltinParticipantReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             byte[] guidPrefix,
-            OperatingEntities operatingEntities) {
+            OperatingEntities operatingEntities,
+            ParticipantsRegistry participantsRegistry) {
         super(
                 config,
                 tracingToken,
@@ -67,6 +66,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
                 ReliabilityQosPolicy.Kind.BEST_EFFORT);
         this.operatingEntities = operatingEntities;
+        this.participantsRegistry = participantsRegistry;
     }
 
     @Override
@@ -77,18 +77,10 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                 pl -> {
                     if (pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID)
                             instanceof Guid guid) {
-                        participants.put(guid, pl);
+                        participantsRegistry.add(guid, pl);
                     }
                 });
         return true;
-    }
-
-    public Optional<ParameterList> getSpdpDiscoveredParticipantData(
-            GuidPrefix participantGuidPrefix) {
-        var guid =
-                new Guid(
-                        participantGuidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
-        return Optional.ofNullable(participants.get(guid));
     }
 
     @Override
@@ -136,6 +128,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                                     .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
                         }
                     }
+                    participantsRegistry.remove(participantGuid);
                 }
             }
         }
