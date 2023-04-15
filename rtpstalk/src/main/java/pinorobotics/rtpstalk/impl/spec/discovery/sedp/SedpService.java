@@ -33,6 +33,7 @@ import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.liveliness.BuiltinParticipantMessageReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpBuiltinParticipantReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.MetatrafficUnicastReceiver;
@@ -57,6 +58,7 @@ public class SedpService implements AutoCloseable {
     private SedpBuiltinPublicationsReader publicationsReader;
     private SedpBuiltinPublicationsWriter publicationsWriter;
     private List<SedpBuiltinEndpointsConfigurator> configurators = new ArrayList<>();
+    private SpdpBuiltinParticipantReader spdpReader;
     private MetatrafficUnicastReceiver metatrafficUnicastReceiver;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
@@ -79,6 +81,7 @@ public class SedpService implements AutoCloseable {
     public void start(TracingToken tracingToken, RtpsNetworkInterface iface) throws IOException {
         Preconditions.isTrue(!isStarted, "Already started");
         this.tracingToken = tracingToken;
+        this.iface = iface;
         logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
@@ -115,6 +118,7 @@ public class SedpService implements AutoCloseable {
                         publisherExecutor,
                         iface.getOperatingEntities());
         metatrafficUnicastReceiver.subscribe(publicationsReader);
+        registerSpdpReader();
         if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
             metatrafficUnicastReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
@@ -123,8 +127,26 @@ public class SedpService implements AutoCloseable {
                             publisherExecutor,
                             iface.getOperatingEntities()));
         metatrafficUnicastReceiver.start(iface.getMetatrafficUnicastChannel());
-        this.iface = iface;
         isStarted = true;
+        spdpReader.subscribe(newSedpConfigurator());
+    }
+
+    @RtpsSpecReference(
+            paragraph = "8.5.3.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The pre-configured list of locators may include both unicast and multicast"
+                            + " locators.")
+    private void registerSpdpReader() {
+        spdpReader =
+                new SpdpBuiltinParticipantReader(
+                        config.publicConfig(),
+                        new TracingToken(tracingToken, "sedp"),
+                        publisherExecutor,
+                        config.publicConfig().guidPrefix(),
+                        iface.getOperatingEntities(),
+                        iface.getParticipantsRegistry());
+        metatrafficUnicastReceiver.subscribe(spdpReader);
     }
 
     public StatefullReliableRtpsReader<RtpsTalkParameterListMessage> getPublicationsReader() {
@@ -157,6 +179,7 @@ public class SedpService implements AutoCloseable {
         subscriptionsReader.close();
         publicationsReader.close();
         publicationsWriter.close();
+        spdpReader.close();
         metatrafficUnicastReceiver.close();
         logger.fine("Closed");
     }

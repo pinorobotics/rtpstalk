@@ -199,7 +199,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         try {
             process(message);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.severe(e);
         } finally {
             PROCESS_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
             subscription.get().request(1);
