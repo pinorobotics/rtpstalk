@@ -5,5 +5,5 @@
 *.RtpsMessageSender#*-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER - Closed*
 *.RtpsMessageSender#*-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER - Closed*
 *.MetatrafficUnicastReceiver#* - Closed*
-*.SedpService#* - Closed*
+*.MetatrafficUnicastService#* - Closed*
 *

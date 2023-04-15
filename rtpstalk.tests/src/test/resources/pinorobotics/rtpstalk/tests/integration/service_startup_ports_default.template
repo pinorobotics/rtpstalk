@@ -1,3 +1,3 @@
-*.SedpService#* - Starting SEDP service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "74*", "address": "/*" }
+*.MetatrafficUnicastService#* - Starting metatraffic unicast service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "74*", "address": "/*" }
 *.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "74*", "address": "/*" }
 *

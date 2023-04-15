@@ -33,9 +33,11 @@ import pinorobotics.rtpstalk.impl.spec.transport.MetatrafficMulticastReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 
 /**
+ * Manages metatraffic multicast locator.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SpdpService implements AutoCloseable {
+public class MetatrafficMulticastService implements AutoCloseable {
 
     private RtpsTalkConfigurationInternal config;
     private MetatrafficMulticastReceiver metatrafficMulticastReceiver;
@@ -49,7 +51,7 @@ public class SpdpService implements AutoCloseable {
     private Executor publisherExecutor;
     private DataFactory dataFactory;
 
-    public SpdpService(
+    public MetatrafficMulticastService(
             RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
@@ -62,7 +64,7 @@ public class SpdpService implements AutoCloseable {
                 new SpdpDiscoveredParticipantDataFactory());
     }
 
-    public SpdpService(
+    public MetatrafficMulticastService(
             RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
@@ -89,7 +91,7 @@ public class SpdpService implements AutoCloseable {
         metatrafficMulticastReceiver =
                 receiverFactory.newMetatrafficMulticastReceiver(
                         config.publicConfig(), tracingToken, publisherExecutor);
-        logger.fine("Starting SPDP service on {0}", networkInterface.getName());
+        logger.fine("Starting metatraffic multicast service on {0}", networkInterface.getName());
         reader =
                 new SpdpBuiltinParticipantReader(
                         config.publicConfig(),

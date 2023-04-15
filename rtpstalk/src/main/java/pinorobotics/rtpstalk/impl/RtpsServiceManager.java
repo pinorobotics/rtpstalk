@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpService;
-import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.MetatrafficUnicastService;
+import pinorobotics.rtpstalk.impl.spec.discovery.spdp.MetatrafficMulticastService;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
@@ -54,8 +54,8 @@ public class RtpsServiceManager implements AutoCloseable {
     private RtpsTalkConfigurationInternal config;
     private boolean isStarted;
     private DataChannelFactory channelFactory;
-    private List<SpdpService> spdpServices = new ArrayList<>();
-    private SedpService sedpService;
+    private List<MetatrafficMulticastService> spdpServices = new ArrayList<>();
+    private MetatrafficUnicastService sedpService;
     private UserDataService userService;
     private TopicSubscriptionsManager subscriptionsManager;
     private TopicPublicationsManager publicationsManager;
@@ -97,7 +97,8 @@ public class RtpsServiceManager implements AutoCloseable {
         try {
             var rtpsIface = networkIfaceFactory.createRtpsNetworkInterface(tracingToken);
             sedpService =
-                    new SedpService(config, publisherExecutor, channelFactory, receiverFactory);
+                    new MetatrafficUnicastService(
+                            config, publisherExecutor, channelFactory, receiverFactory);
             userService =
                     new UserDataService(
                             config,
@@ -148,7 +149,8 @@ public class RtpsServiceManager implements AutoCloseable {
         for (var iface : networkInterfaces) {
             try {
                 var spdp =
-                        new SpdpService(config, publisherExecutor, channelFactory, receiverFactory);
+                        new MetatrafficMulticastService(
+                                config, publisherExecutor, channelFactory, receiverFactory);
                 spdp.start(tracingToken, rtpsIface, iface, sedpService.newSedpConfigurator());
                 spdpServices.add(spdp);
             } catch (Exception e) {
@@ -185,7 +187,7 @@ public class RtpsServiceManager implements AutoCloseable {
         // we need to keep SPDP still open at that point in case if any of the remote
         // Participants initiate close operation as well
         sedpService.close();
-        spdpServices.forEach(SpdpService::close);
+        spdpServices.forEach(MetatrafficMulticastService::close);
         // close DataReader/DataWriter only after we announce to all Participants
         // that publications/subscriptions are disposed. Otherwise if we close
         // userdata port early, Participants may get an exceptions trying to send us anything

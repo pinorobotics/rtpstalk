@@ -2,5 +2,5 @@
 *.SpdpBuiltinParticipantWriter#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
 *.SpdpBuiltinParticipantWriter - Closed
 *.SpdpBuiltinParticipantReader#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed
-*.SpdpService#*-${IFACE} - Closed
+*.MetatrafficMulticastService#*-${IFACE} - Closed
 *

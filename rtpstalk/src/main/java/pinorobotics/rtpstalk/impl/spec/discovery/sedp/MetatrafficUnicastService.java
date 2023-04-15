@@ -40,7 +40,9 @@ import pinorobotics.rtpstalk.impl.spec.transport.MetatrafficUnicastReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 
 /**
- * Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
+ * Manages metatraffic unicast locator.
+ *
+ * <p>Using the SPDPbuiltinParticipantReader, a local Participant local_participant discovers the
  * existence of another Participant described by the DiscoveredParticipantData participant_data. The
  * discovered Participant uses the SEDP
  *
@@ -50,7 +52,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
         paragraph = "8.5.5.1",
         protocolVersion = Predefined.Version_2_3,
         text = "Discovery of a new remote Participant")
-public class SedpService implements AutoCloseable {
+public class MetatrafficUnicastService implements AutoCloseable {
     private TracingToken tracingToken;
     private RtpsTalkConfigurationInternal config;
     private SedpBuiltinSubscriptionsReader subscriptionsReader;
@@ -67,7 +69,7 @@ public class SedpService implements AutoCloseable {
     private RtpsMessageReceiverFactory receiverFactory;
     private Executor publisherExecutor;
 
-    public SedpService(
+    public MetatrafficUnicastService(
             RtpsTalkConfigurationInternal config,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
@@ -84,7 +86,9 @@ public class SedpService implements AutoCloseable {
         this.iface = iface;
         logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
-        logger.fine("Starting SEDP service on {0}", iface.getLocalMetatrafficUnicastLocator());
+        logger.fine(
+                "Starting metatraffic unicast service on {0}",
+                iface.getLocalMetatrafficUnicastLocator());
         metatrafficUnicastReceiver =
                 receiverFactory.newMetatrafficUnicastReceiver(
                         config.publicConfig(), tracingToken, publisherExecutor);
@@ -185,7 +189,7 @@ public class SedpService implements AutoCloseable {
     }
 
     public Subscriber<RtpsTalkParameterListMessage> newSedpConfigurator() {
-        Preconditions.isTrue(isStarted, "SEDP service is not started");
+        Preconditions.isTrue(isStarted, "Metatraffic unicast service is not started");
         logger.fine("Creating new SEDP configurator");
         var configurator =
                 new SedpBuiltinEndpointsConfigurator(

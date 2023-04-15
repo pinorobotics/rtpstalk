@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpService;
+import pinorobotics.rtpstalk.impl.spec.discovery.spdp.MetatrafficMulticastService;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
@@ -75,7 +75,7 @@ public class SpdpServiceTest {
                                     TEST_REMOTE_SPDP_DISCOVERED_PARTICIPANT_DATA, true)));
 
     private TestDataChannelFactory channelFactory;
-    private SpdpService service;
+    private MetatrafficMulticastService service;
     private RtpsMessageReceiverFactory receiverFactory;
 
     @BeforeEach
@@ -84,7 +84,7 @@ public class SpdpServiceTest {
         channelFactory = new TestDataChannelFactory(CONFIG);
         receiverFactory = new RtpsMessageReceiverFactory();
         service =
-                new SpdpService(
+                new MetatrafficMulticastService(
                         TestConstants.TEST_CONFIG_INTERNAL,
                         TestConstants.TEST_PUBLISHER_EXECUTOR,
                         channelFactory,
@@ -120,7 +120,7 @@ public class SpdpServiceTest {
                 new TestDataChannel(TestConstants.TEST_GUID_PREFIX, true);
         channelFactory.addChannel(TestConstants.TEST_DEFAULT_MULTICAST_LOCATOR, metatrafficChannel);
         try (var service =
-                new SpdpService(
+                new MetatrafficMulticastService(
                         new RtpsTalkConfigurationInternal(
                                 new RtpsTalkConfiguration.Builder()
                                         .spdpDiscoveredParticipantDataPublishPeriod(
