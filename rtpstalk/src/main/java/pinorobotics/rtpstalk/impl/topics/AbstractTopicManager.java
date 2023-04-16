@@ -33,6 +33,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -111,10 +112,16 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
             var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
             Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
+            var topicId = new TopicId(pubTopic, pubType);
             var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
             Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
 
-            var topicId = new TopicId(pubTopic, pubType);
+            if (!isEndpointSupported(topicId, pubEndpointGuid)) {
+                logger.warning(
+                        "Endpoint Guid {0} for topic {1} is not supported",
+                        pubEndpointGuid, topicId);
+                return;
+            }
 
             var participantGuid =
                     (Guid)
@@ -175,6 +182,22 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
         } finally {
             subscription.request(1);
         }
+    }
+
+    private boolean isEndpointSupported(TopicId topicId, Guid pubEndpointGuid) {
+        boolean isSupported = true;
+        if (pubEndpointGuid.entityId.entityKind() == EntityKind.READER.getValue())
+            isSupported = false;
+        if (pubEndpointGuid.entityId.entityKind() == EntityKind.WRITER.getValue())
+            isSupported = false;
+        if (!isSupported) {
+            logger.warning(
+                    "Remote participant for topic {0} is using keyed endpoint and will be ignored."
+                        + " Only NOKEY readers and writers are supported. Check that there is no"
+                        + " fields in IDL files annotated with @key.",
+                    topicId);
+        }
+        return isSupported;
     }
 
     private Optional<Object> findParticipantInfo(
