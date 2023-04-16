@@ -16,8 +16,8 @@ Build Fast-RTPS:
 git clone https://github.com/eProsima/Fast-DDS.git
 cd Fast-DDS/
 git checkout v2.1.1
-mkdir build
-cd build/
+mkdir build_v2.1.1
+cd build_v2.1.1/
 cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON ..
 make
 DESTDIR=$(pwd)/install make install
@@ -27,9 +27,9 @@ DESTDIR=$(pwd)/install make install
 
 ``` bash
 cd rtpstalk.tests
-mkdir bld
-cd bld
-cmake -DCMAKE_PREFIX_PATH=<PATH TO Fast-RTPS>/build/install/usr/local/share/fastrtps/cmake ../src/test/cpp/
+mkdir -p bld/fastdds
+cd bld/fastdds
+cmake -DCMAKE_PREFIX_PATH=<PATH TO Fast-RTPS>/build/install/usr/local/share/fastrtps/cmake ../../src/test/cpp/fastdds
 make
 ```
 

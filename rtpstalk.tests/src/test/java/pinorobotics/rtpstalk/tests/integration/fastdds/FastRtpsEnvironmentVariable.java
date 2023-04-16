@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration;
+package pinorobotics.rtpstalk.tests.integration.fastdds;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

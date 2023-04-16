@@ -42,6 +42,8 @@ import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestEvents;
+import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsEnvironmentVariable;
+import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsExamples;
 
 /**
  * @author lambdaprime intid@protonmail.com

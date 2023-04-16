@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration;
+package pinorobotics.rtpstalk.tests.integration.fastdds;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -36,7 +36,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 public class FastRtpsExamples implements AutoCloseable {
 
     private static final String HELLOWORLDEXAMPLE_PATH =
-            Paths.get("").toAbsolutePath().resolve("bld/HelloWorldExample").toString();
+            Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
     public XProcess runHelloWorldExample(
