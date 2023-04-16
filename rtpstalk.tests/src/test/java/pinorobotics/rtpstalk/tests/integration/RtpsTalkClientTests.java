@@ -42,15 +42,14 @@ import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestEvents;
-import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsEnvironmentVariable;
-import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsExamples;
+import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
 public class RtpsTalkClientTests extends PubSubClientTests {
 
-    private FastRtpsExamples tools;
+    private FastRtpsHelloWorldExample tools;
 
     static Stream<TestCase> dataProvider() {
         return Stream.of(new TestCase(RtpsTalkTestPubSubClient::new));
@@ -59,7 +58,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     @BeforeEach
     public void setup() throws IOException {
         LogUtils.setupLog();
-        tools = new FastRtpsExamples();
+        tools = new FastRtpsHelloWorldExample();
     }
 
     @AfterEach
@@ -223,7 +222,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var proc =
                     tools.runHelloWorldExample(
                             Map.of(
-                                    FastRtpsEnvironmentVariable.ReliabilityQosPolicyKind,
+                                    HelloWorldExampleVariable.ReliabilityQosPolicyKind,
                                     "BEST_EFFORT_RELIABILITY"),
                             "subscriber",
                             "" + maxHistoryCacheSize);

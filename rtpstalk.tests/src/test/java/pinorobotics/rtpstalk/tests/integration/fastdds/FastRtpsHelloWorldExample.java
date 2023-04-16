@@ -29,18 +29,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.tests.integration.HelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class FastRtpsExamples implements AutoCloseable {
+public class FastRtpsHelloWorldExample implements HelloWorldExample {
 
     private static final String HELLOWORLDEXAMPLE_PATH =
             Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
     public XProcess runHelloWorldExample(
-            Map<FastRtpsEnvironmentVariable, String> env, String... args) {
+            Map<HelloWorldExampleVariable, String> env, String... args) {
         var argsList = new ArrayList<String>();
         argsList.add(HELLOWORLDEXAMPLE_PATH);
         argsList.addAll(List.of(args));
@@ -50,7 +52,7 @@ public class FastRtpsExamples implements AutoCloseable {
         return proc;
     }
 
-    private Map<String, String> toStringKeys(Map<FastRtpsEnvironmentVariable, String> env) {
+    private Map<String, String> toStringKeys(Map<HelloWorldExampleVariable, String> env) {
         return env.entrySet().stream()
                 .collect(toMap(e -> e.getKey().getVariableName(), Entry::getValue));
     }
@@ -60,6 +62,7 @@ public class FastRtpsExamples implements AutoCloseable {
         procs.forEach(proc -> proc.destroyAllForcibly());
     }
 
+    @Override
     public String generateExpectedPublisherStdout(int count) {
         var stdout = new StringBuilder();
         stdout.append(
@@ -79,6 +82,7 @@ public class FastRtpsExamples implements AutoCloseable {
         return stdout.toString().trim();
     }
 
+    @Override
     public String generateExpectedSubscriberStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
@@ -95,6 +99,7 @@ public class FastRtpsExamples implements AutoCloseable {
         return stdout.toString().trim();
     }
 
+    @Override
     public List<RtpsTalkDataMessage> generateMessages(int count) {
         var out = new ArrayList<RtpsTalkDataMessage>();
         var text = "HelloWorld";

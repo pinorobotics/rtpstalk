@@ -55,8 +55,7 @@ import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.XAsserts;
-import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsEnvironmentVariable;
-import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsExamples;
+import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -65,7 +64,7 @@ import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsExamples;
 public class RtpsTalkClientPubSubPairsTests {
 
     private static SdkMeterProvider sdkMeterProvider;
-    private FastRtpsExamples tools;
+    private HelloWorldExample helloWorldExample;
     private RtpsTalkClient client;
 
     private enum TestCondition {
@@ -81,7 +80,7 @@ public class RtpsTalkClientPubSubPairsTests {
             List<String> templates,
             Map<TestCondition, List<String>> conditionalTemplates,
             List<Runnable> validators,
-            Map<TestCondition, Map<FastRtpsEnvironmentVariable, String>>
+            Map<TestCondition, Map<HelloWorldExampleVariable, String>>
                     remoteParticipantParameters) {
         TestCase(
                 int numberOfPubSubPairs,
@@ -180,7 +179,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         Map.of(
                                 TestCondition.LOCAL_PUBLISHER,
                                 Map.of(
-                                        FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                        HelloWorldExampleVariable.DurabilityQosPolicyKind,
                                         "TRANSIENT_LOCAL_DURABILITY_QOS"))),
                 // Test case 5
                 new TestCase(
@@ -199,7 +198,7 @@ public class RtpsTalkClientPubSubPairsTests {
                         Map.of(
                                 TestCondition.LOCAL_PUBLISHER,
                                 Map.of(
-                                        FastRtpsEnvironmentVariable.DurabilityQosPolicyKind,
+                                        HelloWorldExampleVariable.DurabilityQosPolicyKind,
                                         "VOLATILE_DURABILITY_QOS"))));
     }
 
@@ -222,13 +221,13 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build());
-        tools = new FastRtpsExamples();
+        helloWorldExample = new FastRtpsHelloWorldExample();
     }
 
     @AfterEach
     public void clean() {
         client.close();
-        tools.close();
+        helloWorldExample.close();
     }
 
     @ParameterizedTest
@@ -238,7 +237,7 @@ public class RtpsTalkClientPubSubPairsTests {
 
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
         var expectedData =
-                tools.generateMessages(testCase.numberOfMessages).stream()
+                helloWorldExample.generateMessages(testCase.numberOfMessages).stream()
                         .map(RtpsTalkDataMessage::data)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
@@ -253,9 +252,9 @@ public class RtpsTalkClientPubSubPairsTests {
                                         testCase.remoteParticipantParameters()
                                                 .getOrDefault(
                                                         TestCondition.LOCAL_SUBSCRIBER, Map.of()));
-                        vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
+                        vars.put(HelloWorldExampleVariable.TopicName, topic);
                         procs.add(
-                                tools.runHelloWorldExample(
+                                helloWorldExample.runHelloWorldExample(
                                         vars, "publisher", "" + testCase.numberOfMessages));
                     }
                 };
@@ -312,7 +311,8 @@ public class RtpsTalkClientPubSubPairsTests {
                 new Guid(publisherGuid.guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT));
         client.close();
 
-        var expectedStdout = tools.generateExpectedPublisherStdout(testCase.numberOfMessages);
+        var expectedStdout =
+                helloWorldExample.generateExpectedPublisherStdout(testCase.numberOfMessages);
         procs.forEach(proc -> Assertions.assertEquals(expectedStdout, proc.stdout()));
 
         assertTemplates(testCase.templates);
@@ -358,9 +358,9 @@ public class RtpsTalkClientPubSubPairsTests {
                                         testCase.remoteParticipantParameters()
                                                 .getOrDefault(
                                                         TestCondition.LOCAL_PUBLISHER, Map.of()));
-                        vars.put(FastRtpsEnvironmentVariable.TopicName, topic);
+                        vars.put(HelloWorldExampleVariable.TopicName, topic);
                         procs.add(
-                                tools.runHelloWorldExample(
+                                helloWorldExample.runHelloWorldExample(
                                         vars, "subscriber", "" + testCase.numberOfMessages));
                     }
                 };
@@ -395,7 +395,7 @@ public class RtpsTalkClientPubSubPairsTests {
                             .endpointGuid();
         }
 
-        var messagesToSubmit = tools.generateMessages(testCase.numberOfMessages);
+        var messagesToSubmit = helloWorldExample.generateMessages(testCase.numberOfMessages);
         for (int i = 0; i < numberOfPubSubPairs; i++) {
             var publisher = publishers.get(i);
             messagesToSubmit.forEach(publisher::submit);
@@ -404,7 +404,8 @@ public class RtpsTalkClientPubSubPairsTests {
         for (int i = 0; i < numberOfPubSubPairs; i++) {
             var topic = topics.get(i);
             var expectedStdout =
-                    tools.generateExpectedSubscriberStdout(testCase.numberOfMessages, topic);
+                    helloWorldExample.generateExpectedSubscriberStdout(
+                            testCase.numberOfMessages, topic);
             var actual = procs.get(i).stdout();
             System.out.println("Process for topic " + topic);
             System.out.println(actual);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2023 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -15,17 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration.fastdds;
+package pinorobotics.rtpstalk.tests.integration;
+
+import id.xfunction.lang.XProcess;
+import java.util.Collection;
+import java.util.Map;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public enum FastRtpsEnvironmentVariable {
-    TopicName,
-    ReliabilityQosPolicyKind,
-    DurabilityQosPolicyKind;
+public interface HelloWorldExample extends AutoCloseable {
 
-    public String getVariableName() {
-        return "RTPS_" + toString();
-    }
+    Collection<RtpsTalkDataMessage> generateMessages(int numberOfMessages);
+
+    XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env, String... args);
+
+    String generateExpectedPublisherStdout(int numberOfMessages);
+
+    String generateExpectedSubscriberStdout(int numberOfMessages, String topic);
+
+    @Override
+    void close();
 }
