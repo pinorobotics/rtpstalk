@@ -145,7 +145,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                         message -> {
                             addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
                             d.inlineQos.ifPresent(
-                                    inlineQos -> processInlineQos(writerGuid, inlineQos));
+                                    inlineQos -> processInlineQos(writerGuid, message, inlineQos));
                         });
         return Result.CONTINUE;
     }
@@ -215,7 +215,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     @Override
     public void onComplete() {}
 
-    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
+    protected void processInlineQos(Guid writer, D message, ParameterList inlineQos) {
         logger.fine("Ignoring inlineQos");
     }
 

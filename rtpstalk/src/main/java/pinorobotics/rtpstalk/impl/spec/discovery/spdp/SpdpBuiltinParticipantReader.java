@@ -84,53 +84,54 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     }
 
     @Override
-    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
+    protected void processInlineQos(
+            Guid writer, RtpsTalkParameterListMessage message, ParameterList inlineQos) {
         var params = inlineQos.getParameters();
         if (params.isEmpty()) return;
         logger.fine("Processing inlineQos");
-        processStatusInfo(writer, params);
+        processStatusInfo(writer, message, params);
     }
 
-    private void processStatusInfo(Guid writerGuid, Map<ParameterId, ?> params) {
-        if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
+    private void processStatusInfo(
+            Guid writerGuid, RtpsTalkParameterListMessage message, Map<ParameterId, ?> inlineQos) {
+        if (inlineQos.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
             if (info.isDisposed()) {
-                if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
-                    var participantGuid = keyHash.asGuid();
-                    if (EntityId.Predefined.ENTITYID_PARTICIPANT
-                            .getValue()
-                            .equals(participantGuid.entityId)) {
-                        logger.fine("Writer marked participant {0} as disposed", participantGuid);
-                        var writersToReaders =
-                                Map.of(
-                                        EntityId.Predefined
-                                                .ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER
-                                                .getValue(),
-                                        EntityId.Predefined
-                                                .ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
-                                                .getValue(),
-                                        EntityId.Predefined
-                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
-                                                .getValue(),
-                                        EntityId.Predefined
-                                                .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
-                                                .getValue());
-                        // find and remove all readers which belong to the disposed participant
-                        for (var pair : writersToReaders.entrySet()) {
-                            var readerGuid = new Guid(participantGuid.guidPrefix, pair.getValue());
-                            operatingEntities
-                                    .getWriters()
-                                    .find(pair.getKey())
-                                    // check if reader was already removed
-                                    .filter(
-                                            writer ->
-                                                    writer.matchedReaderLookup(readerGuid)
-                                                            .isPresent())
-                                    .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
-                        }
-                    }
-                    participantsRegistry.remove(participantGuid);
+                if (inlineQos.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
+                    removeParticipant(keyHash.asGuid());
+                } else if (message.parameterList()
+                                .map(pl -> pl.getParameters().get(ParameterId.PID_PARTICIPANT_GUID))
+                                .orElse(null)
+                        instanceof Guid participantGuid) {
+                    removeParticipant(participantGuid);
                 }
             }
         }
+    }
+
+    private void removeParticipant(Guid participantGuid) {
+        if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(participantGuid.entityId)) {
+            logger.fine("Writer marked participant {0} as disposed", participantGuid);
+            var writersToReaders =
+                    Map.of(
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER
+                                    .getValue(),
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
+                                    .getValue(),
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
+                                    .getValue(),
+                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
+                                    .getValue());
+            // find and remove all readers which belong to the disposed participant
+            for (var pair : writersToReaders.entrySet()) {
+                var readerGuid = new Guid(participantGuid.guidPrefix, pair.getValue());
+                operatingEntities
+                        .getWriters()
+                        .find(pair.getKey())
+                        // check if reader was already removed
+                        .filter(writer -> writer.matchedReaderLookup(readerGuid).isPresent())
+                        .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
+            }
+        }
+        participantsRegistry.remove(participantGuid);
     }
 }

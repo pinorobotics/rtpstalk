@@ -54,7 +54,8 @@ public class SedpBuiltinSubscriptionsReader
     }
 
     @Override
-    protected void processInlineQos(Guid writer, ParameterList inlineQos) {
+    protected void processInlineQos(
+            Guid writer, RtpsTalkParameterListMessage message, ParameterList inlineQos) {
         var params = inlineQos.getParameters();
         if (params.isEmpty()) return;
         logger.fine("Processing inlineQos");
