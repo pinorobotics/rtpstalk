@@ -2,7 +2,7 @@
 *.MetatrafficUnicastService#* - Starting metatraffic unicast service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8080", "address": "/127.0.0.1" }
 *.MetatrafficUnicastReceiver#* - Subscribing *-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
 *.MetatrafficUnicastReceiver#* - Subscribing *-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
+*.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8081", "address": "/127.0.0.1" }
 *.MetatrafficMulticastService#*-lo - Starting metatraffic multicast service on lo
 *.MetatrafficMulticastReceiver#*-lo - Subscribing *-lo-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR
-*.UserDataService#* - Starting user service on { "transportType": "LOCATOR_KIND_UDPv4", "port": "8081", "address": "/127.0.0.1" }
 *

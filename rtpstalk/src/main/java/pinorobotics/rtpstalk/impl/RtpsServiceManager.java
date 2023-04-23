@@ -111,7 +111,6 @@ public class RtpsServiceManager implements AutoCloseable {
             // but SEDP is not subscribed to them yet (and since SPDP cache them it will
             // not notify SEDP about them anymore)
             sedpService.start(tracingToken, rtpsIface);
-            startSpdp(tracingToken, rtpsIface);
             userService.start(tracingToken, rtpsIface);
 
             subscriptionsManager =
@@ -131,6 +130,10 @@ public class RtpsServiceManager implements AutoCloseable {
                             sedpService.getPublicationsWriter(),
                             userService);
             sedpService.getSubscriptionsReader().subscribe(publicationsManager);
+
+            // announce itself only when SEDP, TopicPublicationsManager and
+            // TopicSubscriptionsManager are ready
+            startSpdp(tracingToken, rtpsIface);
         } catch (Exception e) {
             logger.severe("Failed to start one of the RTPS services", e);
         }
