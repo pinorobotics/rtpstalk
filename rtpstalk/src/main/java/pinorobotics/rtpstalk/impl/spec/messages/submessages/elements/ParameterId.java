@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Duration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.HistoryQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.LatencyBudgetQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.LifespanQosPolicy;
@@ -53,6 +54,7 @@ public enum ParameterId {
     PID_PARTICIPANT_GUID(0x0050, Guid.class),
     PID_VENDORID(0x0016, VendorId.class),
     PID_PROTOCOL_VERSION(0x0015, ProtocolVersion.class),
+    PID_HISTORY(0x0040, HistoryQosPolicy.class),
     PID_USER_DATA(0x002c, UserDataQosPolicy.class),
     PID_TOPIC_NAME(0x0005, String.class),
     PID_DATA_REPRESENTATION(0x0073, DataRepresentationQosPolicy.class),

@@ -41,6 +41,9 @@ public class DurabilityQosPolicy {
         /**
          * For TRANSIENT_LOCAL, the service is only required to keep the data in the memory of the
          * DataWriter that wrote the data and the data is not required to survive the DataWriter.
+         *
+         * <p>For data to be replayed for late-joining reader(s) they should have {@link
+         * DurabilityQosPolicy.Kind#TRANSIENT_LOCAL_DURABILITY_QOS}
          */
         TRANSIENT_LOCAL_DURABILITY_QOS,
 

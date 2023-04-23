@@ -341,7 +341,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     private void sendRequested(ReaderProxy readerProxy) {
         var requestedChanges = readerProxy.requestedChanges();
-        if (requestedChanges.isEmpty()) return;
+        if (requestedChanges.isEmpty()) {
+            logger.fine(
+                    "Nothing to submit for reader {0} as it did not request any changes, ignoring",
+                    readerProxy.getRemoteReaderGuid());
+            return;
+        }
         var builder =
                 new RtpsDataMessageBuilder(
                         getConfig(),

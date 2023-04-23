@@ -263,6 +263,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_DURABILITY:
                 case PID_DEADLINE:
                 case PID_LATENCY_BUDGET:
+                case PID_HISTORY:
                 case PID_LIFESPAN:
                 case PID_DURABILITY_SERVICE:
                 case PID_DESTINATION_ORDER:

@@ -31,18 +31,20 @@ public class HistoryQosPolicy {
     }
 
     public int kind;
+    public int depth;
 
     public HistoryQosPolicy() {
-        this(Kind.KEEP_LAST_HISTORY_QOS);
+        this(Kind.KEEP_LAST_HISTORY_QOS, 1);
     }
 
-    public HistoryQosPolicy(Kind kind) {
+    public HistoryQosPolicy(Kind kind, int depth) {
         this.kind = kind.ordinal();
+        this.depth = depth;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kind);
+        return Objects.hash(kind, depth);
     }
 
     @Override
@@ -51,13 +53,14 @@ public class HistoryQosPolicy {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         HistoryQosPolicy other = (HistoryQosPolicy) obj;
-        return kind == other.kind;
+        return kind == other.kind && depth == other.depth;
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("kind", Kind.values()[kind].toString());
+        builder.append("depth", depth);
         return builder.toString();
     }
 }

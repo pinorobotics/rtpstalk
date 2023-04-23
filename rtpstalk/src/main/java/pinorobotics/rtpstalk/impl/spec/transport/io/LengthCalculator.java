@@ -126,7 +126,7 @@ public class LengthCalculator {
             return getFixedLength(Duration.class)
                     + getFixedLength(HistoryQosPolicy.class)
                     + Integer.BYTES * 4;
-        if (clazz == HistoryQosPolicy.class) return Integer.BYTES;
+        if (clazz == HistoryQosPolicy.class) return 2 * Integer.BYTES;
         if (clazz == KeyHash.class) return KeyHash.SIZE;
         if (clazz == Heartbeat.class)
             return getFixedLength(EntityId.class) * 2
@@ -220,6 +220,7 @@ public class LengthCalculator {
                             PID_DURABILITY_SERVICE,
                             PID_STATUS_INFO,
                             PID_DEADLINE,
+                            PID_HISTORY,
                             PID_DESTINATION_ORDER -> getFixedLength(id.getParameterClass());
                     default -> throw new XRE(
                             "Cannot calculate length for an unknown parameter id %s", id);

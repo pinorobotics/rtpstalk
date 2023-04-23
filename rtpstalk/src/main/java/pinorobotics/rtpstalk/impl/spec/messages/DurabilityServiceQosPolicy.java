@@ -25,7 +25,7 @@ import id.xfunction.XJsonStringBuilder;
 public class DurabilityServiceQosPolicy {
 
     public Duration serviceCleanupDelay;
-    public HistoryQosPolicy historyKind;
+    public int historyKind;
     public int historyDepth;
     public int maxDamples;
     public int maxInstances;
@@ -35,13 +35,13 @@ public class DurabilityServiceQosPolicy {
 
     public DurabilityServiceQosPolicy(
             Duration serviceCleanupDelay,
-            HistoryQosPolicy historyKind,
+            HistoryQosPolicy.Kind historyQosPolicyKind,
             int historyDepth,
             int maxDamples,
             int maxInstances,
             int maxSamplesPerInstance) {
         this.serviceCleanupDelay = serviceCleanupDelay;
-        this.historyKind = historyKind;
+        this.historyKind = historyQosPolicyKind.ordinal();
         this.historyDepth = historyDepth;
         this.maxDamples = maxDamples;
         this.maxInstances = maxInstances;
