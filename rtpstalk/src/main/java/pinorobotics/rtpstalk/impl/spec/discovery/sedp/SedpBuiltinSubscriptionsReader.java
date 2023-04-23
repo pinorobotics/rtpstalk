@@ -59,31 +59,39 @@ public class SedpBuiltinSubscriptionsReader
         var params = inlineQos.getParameters();
         if (params.isEmpty()) return;
         logger.fine("Processing inlineQos");
-        processStatusInfo(writer, params);
+        processStatusInfo(writer, message, params);
     }
 
-    private void processStatusInfo(Guid writerGuid, Map<ParameterId, ?> params) {
+    private void processStatusInfo(
+            Guid writerGuid, RtpsTalkParameterListMessage message, Map<ParameterId, ?> params) {
         if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
             if (info.isDisposed()) {
                 if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
-                    var readerGuid = keyHash.asGuid();
-                    logger.fine("Reader {0} marked subscription as disposed", readerGuid);
-                    boolean isRemoved = false;
-                    for (var writer : operatingEntities.getWriters().getEntities()) {
-                        if (writer.matchedReaderLookup(readerGuid).isPresent()) {
-                            writer.matchedReaderRemove(readerGuid);
-                            isRemoved = true;
-                            break;
-                        }
-                    }
-                    if (!isRemoved) {
-                        logger.fine(
-                                "Reader {0} does not match any of the available writers, ignoring"
-                                        + " it...",
-                                readerGuid);
-                    }
+                    removeReader(keyHash.asGuid());
+                } else if (message.parameterList()
+                                .map(pl -> pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID))
+                                .orElse(null)
+                        instanceof Guid readerGuid) {
+                    removeReader(readerGuid);
                 }
             }
+        }
+    }
+
+    private void removeReader(Guid readerGuid) {
+        logger.fine("Reader {0} marked subscription as disposed", readerGuid);
+        boolean isRemoved = false;
+        for (var writer : operatingEntities.getWriters().getEntities()) {
+            if (writer.matchedReaderLookup(readerGuid).isPresent()) {
+                writer.matchedReaderRemove(readerGuid);
+                isRemoved = true;
+                break;
+            }
+        }
+        if (!isRemoved) {
+            logger.fine(
+                    "Reader {0} does not match any of the available writers, ignoring it...",
+                    readerGuid);
         }
     }
 }
