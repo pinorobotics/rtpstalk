@@ -26,6 +26,7 @@ import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
@@ -34,6 +35,7 @@ import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
+import pinorobotics.rtpstalk.impl.RtpsDataPackager.MessageTypeMismatchException;
 import pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentReaderProcessor;
 import pinorobotics.rtpstalk.impl.behavior.reader.FilterByEntityIdRtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -41,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
@@ -140,13 +143,25 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         DATA_METER.record(1);
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
-        packager.extractMessage(messageType, d)
-                .ifPresent(
-                        message -> {
-                            addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
-                            d.inlineQos.ifPresent(
-                                    inlineQos -> processInlineQos(writerGuid, message, inlineQos));
-                        });
+        try {
+            packager.extractMessage(messageType, d)
+                    .ifPresent(
+                            message -> {
+                                addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
+                                d.inlineQos.ifPresent(
+                                        inlineQos ->
+                                                processInlineQos(writerGuid, message, inlineQos));
+                            });
+        } catch (MessageTypeMismatchException e) {
+            if (Objects.equals(d.readerId, EntityId.Predefined.ENTITYID_UNKNOWN.getValue()))
+                logger.warning(
+                        "Mismatch between message types. Message directed to reader"
+                            + " ENTITYID_UNKNOWN but since current reader message type differs, it"
+                            + " is ignored: {0}",
+                        e.getMessage());
+            else logger.warning("Mismatch between message types, message will be ignored: {0}", e);
+        }
+
         return Result.CONTINUE;
     }
 
@@ -165,6 +180,9 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         return Result.CONTINUE;
     }
 
+    /**
+     * @see HistoryCache#addChange(CacheChange)
+     */
     protected boolean addChange(CacheChange<D> cacheChange) {
         logger.entering("addChange");
         if (isClosed()) {

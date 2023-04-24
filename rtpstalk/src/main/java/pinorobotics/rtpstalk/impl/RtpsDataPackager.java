@@ -17,7 +17,6 @@
  */
 package pinorobotics.rtpstalk.impl;
 
-import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
@@ -37,7 +36,18 @@ public class RtpsDataPackager<M extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsDataPackager.class);
 
-    public Optional<M> extractMessage(Class<M> messageType, Data d) {
+    public static class MessageTypeMismatchException extends Exception {
+        private static final long serialVersionUID = 1L;
+        private static final String EQUALS_MESSAGE_FORMAT =
+                "%s: expected value <%s>, actual value <%s>";
+
+        MessageTypeMismatchException(String message, Class<?> expected, Class<?> actual) {
+            super(String.format(EQUALS_MESSAGE_FORMAT, message, expected, actual));
+        }
+    }
+
+    public Optional<M> extractMessage(Class<M> messageType, Data d)
+            throws MessageTypeMismatchException {
         var serializedPayload = d.serializedPayload.orElse(null);
         if (serializedPayload == null) {
             return d.inlineQos.map(
@@ -72,36 +82,41 @@ public class RtpsDataPackager<M extends RtpsTalkMessage> {
             return Optional.empty();
         }
         var inlineQos = d.inlineQos;
-        switch (representation) {
-            case CDR_LE:
-                Preconditions.equals(
-                        messageType, RtpsTalkDataMessage.class, "Data message type mismatch");
-                return Optional.of(
-                        (M)
-                                new RtpsTalkDataMessage(
+        @SuppressWarnings("unchecked")
+        M message =
+                (M)
+                        switch (representation) {
+                            case CDR_LE -> {
+                                if (messageType != RtpsTalkDataMessage.class)
+                                    throw new MessageTypeMismatchException(
+                                            "Data message type mismatch",
+                                            messageType,
+                                            RtpsTalkDataMessage.class);
+                                yield new RtpsTalkDataMessage(
                                         inlineQos
                                                 .map(ParameterList::getUserParameters)
                                                 .map(Parameters::new),
-                                        ((RawData) serializedPayload.payload).data));
-            case PL_CDR_LE:
-                Preconditions.equals(
-                        messageType,
-                        RtpsTalkParameterListMessage.class,
-                        "Data message type mismatch");
-                return Optional.of(
-                        (M)
-                                new RtpsTalkParameterListMessage(
+                                        ((RawData) serializedPayload.payload).data);
+                            }
+                            case PL_CDR_LE -> {
+                                if (messageType != RtpsTalkParameterListMessage.class)
+                                    throw new MessageTypeMismatchException(
+                                            "Data message type mismatch",
+                                            messageType,
+                                            RtpsTalkParameterListMessage.class);
+                                yield new RtpsTalkParameterListMessage(
                                         inlineQos,
-                                        Optional.of((ParameterList) serializedPayload.payload)));
-            default:
-                {
-                    LOGGER.warning(
-                            "Cannot extract data submessage with unsupported representation"
-                                    + " identifier {0}, ignoring it...",
-                            representationId);
-                    return Optional.empty();
-                }
-        }
+                                        Optional.of((ParameterList) serializedPayload.payload));
+                            }
+                            default -> {
+                                LOGGER.warning(
+                                        "Cannot extract data submessage with unsupported"
+                                                + " representation identifier {0}, ignoring it...",
+                                        representationId);
+                                yield null;
+                            }
+                        };
+        return Optional.ofNullable(message);
     }
 
     public Data packMessage(
