@@ -29,6 +29,7 @@ public class VendorId {
 
     public static enum Predefined {
         RTPSTALK(new VendorId(0xca, 0xfe)),
+        CYCLONEDDS(new VendorId(0x01, 0x10)),
         FASTRTPS(new VendorId(0x01, 0x0f));
 
         static final Map<VendorId, Predefined> MAP =

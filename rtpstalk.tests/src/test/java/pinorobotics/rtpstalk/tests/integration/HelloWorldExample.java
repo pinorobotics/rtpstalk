@@ -29,7 +29,7 @@ public interface HelloWorldExample extends AutoCloseable {
 
     Collection<RtpsTalkDataMessage> generateMessages(int numberOfMessages);
 
-    XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env, String... args);
+    XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> config);
 
     String generateExpectedPublisherStdout(int numberOfMessages);
 

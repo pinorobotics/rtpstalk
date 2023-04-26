@@ -55,6 +55,7 @@ import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.XAsserts;
+import pinorobotics.rtpstalk.tests.integration.cyclonedds.CycloneDdsHelloWorldExample;
 import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample;
 
 /**
@@ -73,6 +74,7 @@ public class RtpsTalkClientPubSubPairsTests {
     }
 
     private record TestCase(
+            HelloWorldExample helloWorldExample,
             int numberOfPubSubPairs,
             int numberOfMessages,
             RtpsTalkConfiguration config,
@@ -83,6 +85,7 @@ public class RtpsTalkClientPubSubPairsTests {
             Map<TestCondition, Map<HelloWorldExampleVariable, String>>
                     remoteParticipantParameters) {
         TestCase(
+                HelloWorldExample helloWorldExample,
                 int numberOfPubSubPairs,
                 int numberOfMessages,
                 RtpsTalkConfiguration config,
@@ -91,6 +94,7 @@ public class RtpsTalkClientPubSubPairsTests {
                 Map<TestCondition, List<String>> conditionalTemplates,
                 List<Runnable> validators) {
             this(
+                    helloWorldExample,
                     numberOfPubSubPairs,
                     numberOfMessages,
                     config,
@@ -103,103 +107,133 @@ public class RtpsTalkClientPubSubPairsTests {
     }
 
     static Stream<TestCase> dataProvider() {
-        return Stream.of(
-                // Test case 1
-                new TestCase(
-                        1,
-                        5,
-                        new RtpsTalkConfiguration.Builder()
-                                .builtinEnpointsPort(8080)
-                                .userEndpointsPort(8081)
-                                .build(),
-                        true,
-                        List.of(
-                                "service_close.template",
-                                "service_startup_ports_8080_8081.template",
-                                "ParticipantsRegistry.template"),
-                        Map.of(
-                                TestCondition.LOCAL_SUBSCRIBER,
-                                List.of("topic_subscriptions_manager_future_topic.template")),
-                        List.of(
-                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
-                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
-                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions)),
-                // Test case 2
-                new TestCase(
-                        1,
-                        17,
-                        new RtpsTalkConfiguration.Builder()
-                                .builtinEnpointsPort(8080)
-                                .userEndpointsPort(8081)
-                                .build(),
-                        false,
-                        List.of("service_startup_ports_8080_8081.template"),
-                        Map.of(
-                                TestCondition.LOCAL_SUBSCRIBER,
-                                List.of("topic_subscriptions_manager.template")),
-                        List.of(
-                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
-                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
-                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions)),
-                // Test case 3
-                new TestCase(
-                        1,
-                        50,
-                        new RtpsTalkConfiguration.Builder()
-                                .networkInterface("lo")
-                                .builtinEnpointsPort(8080)
-                                .userEndpointsPort(8081)
-                                .build(),
-                        false,
-                        List.of("service_startup_loopback_iface.template"),
-                        Map.of(
-                                TestCondition.LOCAL_SUBSCRIBER,
-                                List.of("topic_subscriptions_manager.template")),
-                        List.of(
-                                RtpsTalkClientPubSubPairsTests::validateSedpClose,
-                                LogUtils::validateNoExceptions)),
-                // Test case 4
-                new TestCase(
-                        12,
-                        5,
-                        new RtpsTalkConfiguration.Builder()
-                                .guidPrefix(TestConstants.TEST_GUID_PREFIX.value)
-                                .builtinEnpointsPort(8080)
-                                .userEndpointsPort(8081)
-                                .build(),
-                        false,
-                        List.of("service_startup_ports_8080_8081.template"),
-                        Map.of(),
-                        List.of(
-                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
-                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
-                                RtpsTalkClientPubSubPairsTests::validateSedpClose),
-                        Map.of(
-                                TestCondition.LOCAL_PUBLISHER,
-                                Map.of(
-                                        HelloWorldExampleVariable.DurabilityQosPolicyKind,
-                                        "TRANSIENT_LOCAL_DURABILITY_QOS"))),
-                // Test case 5
-                new TestCase(
-                        1,
-                        1,
-                        new RtpsTalkConfiguration.Builder().build(),
-                        false,
-                        List.of("service_startup_ports_default.template"),
-                        Map.of(
-                                TestCondition.LOCAL_SUBSCRIBER,
-                                List.of("topic_subscriptions_manager.template")),
-                        List.of(
-                                () -> validateAcrossNetworkInterfaces("service_startup.template"),
-                                () -> validateAcrossNetworkInterfaces("spdp_close.template"),
-                                RtpsTalkClientPubSubPairsTests::validateSedpClose),
-                        Map.of(
-                                TestCondition.LOCAL_PUBLISHER,
-                                Map.of(
-                                        HelloWorldExampleVariable.DurabilityQosPolicyKind,
-                                        "VOLATILE_DURABILITY_QOS"))));
+        var testCases = new ArrayList<TestCase>();
+        for (var helloWorldExample :
+                List.of(new CycloneDdsHelloWorldExample(), new FastRtpsHelloWorldExample())) {
+            Stream.of(
+                            // Test case 1
+                            new TestCase(
+                                    helloWorldExample,
+                                    1,
+                                    5,
+                                    new RtpsTalkConfiguration.Builder()
+                                            .builtinEnpointsPort(8080)
+                                            .userEndpointsPort(8081)
+                                            .build(),
+                                    true,
+                                    List.of(
+                                            "service_close.template",
+                                            "service_startup_ports_8080_8081.template",
+                                            "ParticipantsRegistry.template"),
+                                    Map.of(
+                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            List.of(
+                                                    "topic_subscriptions_manager_future_topic.template")),
+                                    List.of(
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "service_startup.template"),
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "spdp_close.template"),
+                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            LogUtils::validateNoExceptions)),
+                            // Test case 2
+                            new TestCase(
+                                    helloWorldExample,
+                                    1,
+                                    17,
+                                    new RtpsTalkConfiguration.Builder()
+                                            .builtinEnpointsPort(8080)
+                                            .userEndpointsPort(8081)
+                                            .build(),
+                                    false,
+                                    List.of("service_startup_ports_8080_8081.template"),
+                                    Map.of(
+                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            List.of("topic_subscriptions_manager.template")),
+                                    List.of(
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "service_startup.template"),
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "spdp_close.template"),
+                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            LogUtils::validateNoExceptions)),
+                            // Test case 3
+                            new TestCase(
+                                    helloWorldExample,
+                                    1,
+                                    50,
+                                    new RtpsTalkConfiguration.Builder()
+                                            .networkInterface("lo")
+                                            .builtinEnpointsPort(8080)
+                                            .userEndpointsPort(8081)
+                                            .build(),
+                                    false,
+                                    List.of("service_startup_loopback_iface.template"),
+                                    Map.of(
+                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            List.of("topic_subscriptions_manager.template")),
+                                    List.of(
+                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            LogUtils::validateNoExceptions)),
+                            // Test case 4
+                            new TestCase(
+                                    helloWorldExample,
+                                    12,
+                                    5,
+                                    new RtpsTalkConfiguration.Builder()
+                                            .guidPrefix(TestConstants.TEST_GUID_PREFIX.value)
+                                            .builtinEnpointsPort(8080)
+                                            .userEndpointsPort(8081)
+                                            .build(),
+                                    false,
+                                    List.of("service_startup_ports_8080_8081.template"),
+                                    Map.of(),
+                                    List.of(
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "service_startup.template"),
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "spdp_close.template"),
+                                            RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                                    Map.of(
+                                            TestCondition.LOCAL_PUBLISHER,
+                                            Map.of(
+                                                    HelloWorldExampleVariable
+                                                            .DurabilityQosPolicyKind,
+                                                    "TRANSIENT_LOCAL_DURABILITY_QOS"))),
+                            // Test case 5
+                            new TestCase(
+                                    helloWorldExample,
+                                    1,
+                                    1,
+                                    new RtpsTalkConfiguration.Builder().build(),
+                                    false,
+                                    List.of("service_startup_ports_default.template"),
+                                    Map.of(
+                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            List.of("topic_subscriptions_manager.template")),
+                                    List.of(
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "service_startup.template"),
+                                            () ->
+                                                    validateAcrossNetworkInterfaces(
+                                                            "spdp_close.template"),
+                                            RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                                    Map.of(
+                                            TestCondition.LOCAL_PUBLISHER,
+                                            Map.of(
+                                                    HelloWorldExampleVariable
+                                                            .DurabilityQosPolicyKind,
+                                                    "VOLATILE_DURABILITY_QOS"))))
+                    .forEach(testCases::add);
+        }
+        return testCases.stream();
     }
 
     @BeforeAll
@@ -221,7 +255,6 @@ public class RtpsTalkClientPubSubPairsTests {
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
                                 .build());
-        helloWorldExample = new FastRtpsHelloWorldExample();
     }
 
     @AfterEach
@@ -233,6 +266,7 @@ public class RtpsTalkClientPubSubPairsTests {
     @ParameterizedTest
     @MethodSource("dataProvider")
     public void test_local_subscriber_remote_publisher_pairs(TestCase testCase) throws Exception {
+        helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkClient(testCase.config);
 
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
@@ -253,9 +287,11 @@ public class RtpsTalkClientPubSubPairsTests {
                                                 .getOrDefault(
                                                         TestCondition.LOCAL_SUBSCRIBER, Map.of()));
                         vars.put(HelloWorldExampleVariable.TopicName, topic);
-                        procs.add(
-                                helloWorldExample.runHelloWorldExample(
-                                        vars, "publisher", "" + testCase.numberOfMessages));
+                        vars.put(HelloWorldExampleVariable.RunPublisher, "true");
+                        vars.put(
+                                HelloWorldExampleVariable.NumberOfMesages,
+                                "" + testCase.numberOfMessages);
+                        procs.add(helloWorldExample.runHelloWorldExample(vars));
                     }
                 };
         Guid publisherGuid = null;
@@ -345,6 +381,7 @@ public class RtpsTalkClientPubSubPairsTests {
     @ParameterizedTest
     @MethodSource("dataProvider")
     public void test_local_publisher_remote_subscriber_pairs(TestCase testCase) throws Exception {
+        helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkClient(testCase.config);
 
         int numberOfPubSubPairs = testCase.numberOfPubSubPairs;
@@ -359,9 +396,11 @@ public class RtpsTalkClientPubSubPairsTests {
                                                 .getOrDefault(
                                                         TestCondition.LOCAL_PUBLISHER, Map.of()));
                         vars.put(HelloWorldExampleVariable.TopicName, topic);
-                        procs.add(
-                                helloWorldExample.runHelloWorldExample(
-                                        vars, "subscriber", "" + testCase.numberOfMessages));
+                        vars.put(HelloWorldExampleVariable.RunSubscriber, "true");
+                        vars.put(
+                                HelloWorldExampleVariable.NumberOfMesages,
+                                "" + testCase.numberOfMessages);
+                        procs.add(helloWorldExample.runHelloWorldExample(vars));
                     }
                 };
 

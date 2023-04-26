@@ -1,0 +1,6 @@
+struct HelloWorld
+  {
+    long index;
+    string message;
+  };
+

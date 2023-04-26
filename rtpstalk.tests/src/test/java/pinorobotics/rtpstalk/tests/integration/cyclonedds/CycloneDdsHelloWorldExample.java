@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration.fastdds;
+package pinorobotics.rtpstalk.tests.integration.cyclonedds;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -33,27 +33,33 @@ import pinorobotics.rtpstalk.tests.integration.HelloWorldExample;
 import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
 
 /**
- * @author lambdaprime intid@protonmail.com
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class FastRtpsHelloWorldExample implements HelloWorldExample {
+public class CycloneDdsHelloWorldExample implements HelloWorldExample {
 
-    private static final String HELLOWORLDEXAMPLE_PATH =
-            Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
+    private static final String PUBLISHER_PATH =
+            Paths.get("").toAbsolutePath().resolve("bld/cyclonedds/HelloworldPublisher").toString();
+    private static final String SUBSCRIBER_PATH =
+            Paths.get("")
+                    .toAbsolutePath()
+                    .resolve("bld/cyclonedds/HelloworldSubscriber")
+                    .toString();
     private List<XProcess> procs = new ArrayList<>();
 
     @Override
     public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
         var argsList = new ArrayList<String>();
-        argsList.add(HELLOWORLDEXAMPLE_PATH);
         if (env.containsKey(HelloWorldExampleVariable.RunPublisher)) {
-            argsList.add("publisher");
+            argsList.add(PUBLISHER_PATH);
         } else if (env.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
-            argsList.add("subscriber");
+            argsList.add(SUBSCRIBER_PATH);
         } else {
             throw new UnsupportedOperationException();
         }
-        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages))
+        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages)) {
             argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
+        }
+        System.out.println("Running command: " + argsList);
         var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
@@ -74,19 +80,21 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
     public String generateExpectedPublisherStdout(int count) {
         var stdout = new StringBuilder();
         stdout.append(
-                String.format(
-                        """
-                Starting\s
-                Publisher running %s samples.
-                Publisher matched
-                """,
-                        count));
+                """
+                Num of samples: %s
+                === [Publisher]  Waiting for a reader to be discovered ...
+                """
+                        .formatted(count));
         IntStream.rangeClosed(1, count)
                 .forEach(
                         i ->
                                 stdout.append(
-                                        String.format(
-                                                "Message: HelloWorld with index: %s SENT\n", i)));
+                                        """
+                                        === [Publisher]  Writing :$
+                                        Message (%s, HelloWorld)
+                                        """
+                                                .replace("$", " ")
+                                                .formatted(i)));
         return stdout.toString().trim();
     }
 
@@ -94,16 +102,20 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
     public String generateExpectedSubscriberStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
-                String.format(
-                        """
-                Starting\s
-                Using topic %s
-                Subscriber running until %ssamples have been received
-                Subscriber matched
-                """,
-                        topicName, count));
+                """
+                Num of samples: %s
+
+                === [Subscriber] Waiting for a sample ...
+                """
+                        .formatted(count));
         IntStream.rangeClosed(1, count)
-                .forEach(i -> stdout.append(String.format("Message HelloWorld %s RECEIVED\n", i)));
+                .forEach(
+                        i ->
+                                stdout.append(
+                                        """
+                                === [Subscriber] Received : Message (%s, HelloWorld)
+                                """
+                                                .formatted(i)));
         return stdout.toString().trim();
     }
 
@@ -116,7 +128,6 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
                     ByteBuffer.allocate(
                             // unsigned long index
                             Integer.BYTES
-
                                     // string message;
                                     + Integer.BYTES // length
                                     + text.length()
@@ -139,6 +150,6 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
 
     @Override
     public String toString() {
-        return "FastRtpsHelloWorldExample";
+        return "CycloneDdsHelloWorldExample";
     }
 }

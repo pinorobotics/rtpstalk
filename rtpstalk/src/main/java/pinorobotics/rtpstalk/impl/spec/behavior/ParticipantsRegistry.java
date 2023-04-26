@@ -27,12 +27,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * One of the reasons for this class is that not all RTPS vendors include {@link
- * ParameterId#PID_PARTICIPANT_GUID} and {@link ParameterId#PID_DEFAULT_UNICAST_LOCATOR} to SEDP
- * data. When this happens we fallback to finding this data from ParticipantData available from
- * SPDP.
+ * ParameterId#PID_PARTICIPANT_GUID} and {@link ParameterId#PID_DEFAULT_UNICAST_LOCATOR} (example
+ * {@link VendorId.Predefined#CYCLONEDDS}) to SEDP data. When this happens we fallback to finding
+ * this data from ParticipantData available from SPDP.
  *
  * <p>Must be thread-safe since new participants may be added from both SPDP and SEDP.
  *

@@ -142,9 +142,10 @@ public class RtpsTalkClientTests extends PubSubClientTests {
                         }
                     };
             client.subscribe(topicName, topicType, collector);
-            tools.runHelloWorldExample(Map.of(), "publisher").await();
-            tools.runHelloWorldExample(Map.of(), "publisher").await();
-            tools.runHelloWorldExample(Map.of(), "publisher").await();
+            var config = Map.of(HelloWorldExampleVariable.RunPublisher, "true");
+            tools.runHelloWorldExample(config).await();
+            tools.runHelloWorldExample(config).await();
+            tools.runHelloWorldExample(config).await();
             collector.getFuture().get();
         }
     }
@@ -191,7 +192,12 @@ public class RtpsTalkClientTests extends PubSubClientTests {
                         }
                     };
             client.subscribe(topicName, topicType, collector);
-            tools.runHelloWorldExample(Map.of(), "publisher", "" + count);
+            tools.runHelloWorldExample(
+                    Map.of(
+                            HelloWorldExampleVariable.RunPublisher,
+                            "true",
+                            HelloWorldExampleVariable.NumberOfMesages,
+                            "" + count));
             collector.getFuture().get();
         }
         LogUtils.validateNoExceptions();
@@ -222,10 +228,12 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var proc =
                     tools.runHelloWorldExample(
                             Map.of(
+                                    HelloWorldExampleVariable.RunSubscriber,
+                                    "true",
                                     HelloWorldExampleVariable.ReliabilityQosPolicyKind,
-                                    "BEST_EFFORT_RELIABILITY"),
-                            "subscriber",
-                            "" + maxHistoryCacheSize);
+                                    "BEST_EFFORT_RELIABILITY",
+                                    HelloWorldExampleVariable.NumberOfMesages,
+                                    "" + maxHistoryCacheSize));
             var remoteActor =
                     TestEvents.waitForDiscoveredActor(topicName, ActorDetails.Type.Subscriber);
             Assertions.assertEquals(Kind.BEST_EFFORT, remoteActor.reliabilityKind());

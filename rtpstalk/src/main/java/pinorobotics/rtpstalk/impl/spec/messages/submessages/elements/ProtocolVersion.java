@@ -30,11 +30,12 @@ import java.util.stream.Collectors;
 public class ProtocolVersion {
 
     public static enum Predefined {
+        Version_2_1(new ProtocolVersion(2, 1)),
         Version_2_2(new ProtocolVersion(2, 2)),
         Version_2_3(new ProtocolVersion(2, 3));
 
         static final EnumSet<Predefined> SUPPORTED =
-                EnumSet.of(Predefined.Version_2_2, Predefined.Version_2_3);
+                EnumSet.of(Version_2_1, Version_2_2, Version_2_3);
         static final Map<ProtocolVersion, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
         private ProtocolVersion value;
