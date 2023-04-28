@@ -185,7 +185,14 @@ public class RtpsServiceManager implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
+        logger.fine("Closing");
+        publicationsManager.close();
         subscriptionsManager.close();
+        // closing DataWriters before SEDP so that we could unsubscribe from user publishers
+        // and send all data from the history cache. If we close them after SEDP we would not
+        // be able to send the data from the history cache as remote participants may stop
+        // requesting for it through ACKNACK
+        userService.closeDataWriters();
         // announce that all local publications/subscriptions are disposed
         // we need to keep SPDP still open at that point in case if any of the remote
         // Participants initiate close operation as well

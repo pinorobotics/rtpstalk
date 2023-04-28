@@ -137,12 +137,19 @@ public class UserDataService implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
-        // close non builtin writers before builtin one
-        Predicate<DataWriter> isBuiltin = w -> w.getGuid().entityId.isBuiltin();
-        writers.values().stream().filter(isBuiltin.negate()).forEach(DataWriter::close);
-        writers.values().stream().filter(isBuiltin).forEach(DataWriter::close);
+        logger.fine("Closing");
+        closeDataWriters();
         receiver.close();
         // close DataReader only after all pending changes in DataWriter were sent
         readers.values().forEach(DataReader::close);
+    }
+
+    public void closeDataWriters() {
+        // close non builtin writers before builtin one
+        Predicate<DataWriter> isBuiltin = w -> w.getGuid().entityId.isBuiltin();
+        logger.fine("Closing non builtin writers");
+        writers.values().stream().filter(isBuiltin.negate()).forEach(DataWriter::close);
+        logger.fine("Closing builtin writers");
+        writers.values().stream().filter(isBuiltin).forEach(DataWriter::close);
     }
 }

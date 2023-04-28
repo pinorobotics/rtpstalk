@@ -244,6 +244,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     @Override
     public void close() {
+        if (isClosed) return;
+        logger.fine("Closing");
         cancelSubscription();
         isClosed = true;
         var numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());

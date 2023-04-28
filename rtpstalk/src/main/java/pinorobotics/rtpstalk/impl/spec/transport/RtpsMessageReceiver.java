@@ -98,7 +98,9 @@ public class RtpsMessageReceiver extends SubmissionPublisher<RtpsMessage> implem
         if (!isStarted) return;
         if (isClosed) return;
         isClosed = true;
+        logger.fine("Closing executor");
         executor.shutdown();
+        logger.fine("Closing data channel");
         dataChannel.close();
         super.close();
         logger.fine("Closed");

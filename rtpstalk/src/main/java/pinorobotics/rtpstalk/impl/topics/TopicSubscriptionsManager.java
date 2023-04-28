@@ -102,6 +102,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
 
     @Override
     public void close() {
+        logger.fine("Closing");
         for (var topic : topics) {
             logger.fine("Disposing subscription for topic {0}", topic);
             announcementsWriter.newChange(

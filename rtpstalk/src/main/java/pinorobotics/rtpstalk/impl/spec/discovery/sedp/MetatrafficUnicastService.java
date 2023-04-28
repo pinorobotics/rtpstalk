@@ -176,6 +176,7 @@ public class MetatrafficUnicastService implements AutoCloseable {
     @Override
     public void close() {
         if (!isStarted) return;
+        logger.fine("Closing");
         configurators.forEach(SedpBuiltinEndpointsConfigurator::close);
         subscriptionsWriter.close();
         // close Reader only after the Writer so that Writer could properly ack any

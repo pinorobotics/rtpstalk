@@ -136,8 +136,11 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     }
 
     protected void request() {
-        logger.fine("Requesting next message from the local publisher");
-        subscriptionOpt.ifPresent(sub -> sub.request(1));
+        subscriptionOpt.ifPresent(
+                sub -> {
+                    logger.fine("Requesting next message from the local publisher");
+                    sub.request(1);
+                });
     }
 
     protected void sendLastChangeToAllReaders() {
@@ -189,6 +192,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
      */
     protected void cancelSubscription() {
         subscriptionOpt.ifPresent(Subscription::cancel);
+        subscriptionOpt = Optional.empty();
     }
 
     public TracingToken getTracingToken() {

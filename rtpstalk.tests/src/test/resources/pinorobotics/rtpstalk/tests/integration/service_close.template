@@ -1,3 +1,8 @@
+*.RtpsServiceManager#* - Closing
+*.UserDataService#* - Closing non builtin writers
+*.UserDataService#* - Closing builtin writers
+*.MetatrafficUnicastService#* - Closing
+*.UserDataService#* - Closing
 *.RtpsServiceManager#* - Closing publisherExecutor
 *.RtpsServiceManager#* - Closed
 *
