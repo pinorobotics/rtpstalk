@@ -108,8 +108,10 @@ public class RtpsTalkClientPubSubPairsTests {
 
     static Stream<TestCase> dataProvider() {
         var testCases = new ArrayList<TestCase>();
-        for (var helloWorldExample :
-                List.of(new CycloneDdsHelloWorldExample(), new FastRtpsHelloWorldExample())) {
+        var examples = new ArrayList<HelloWorldExample>();
+        if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldExample());
+        examples.add(new FastRtpsHelloWorldExample());
+        for (var helloWorldExample : examples) {
             Stream.of(
                             // Test case 1
                             new TestCase(

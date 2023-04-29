@@ -123,9 +123,9 @@ Open Developer Command Prompt and run following commands:
 
 ```
 cd rtpstalk.tests
-mkdir bld
-cd bld
-cmake ..\src\test\cpp
+mkdir bld\fastdds
+cd bld\fastdds
+cmake ..\..\src\test\cpp\fastdds
 msbuild ALL_BUILD.vcxproj
 move Debug\HelloWorldExample.exe HelloWorldExample
 ```
