@@ -77,14 +77,15 @@ public class CycloneDdsHelloWorldExample implements HelloWorldExample {
     }
 
     @Override
-    public String generateExpectedPublisherStdout(int count) {
+    public String generateExpectedPublisherStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
                 """
                 Num of samples: %s
+                Topic name: %s
                 === [Publisher]  Waiting for a reader to be discovered ...
                 """
-                        .formatted(count));
+                        .formatted(count, topicName));
         IntStream.rangeClosed(1, count)
                 .forEach(
                         i ->

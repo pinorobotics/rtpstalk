@@ -71,7 +71,7 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
     }
 
     @Override
-    public String generateExpectedPublisherStdout(int count) {
+    public String generateExpectedPublisherStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
                 String.format(

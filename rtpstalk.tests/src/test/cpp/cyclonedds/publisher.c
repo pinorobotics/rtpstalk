@@ -30,8 +30,10 @@ int main (int argc, char ** argv)
   char* cstr = getenv("RTPS_TopicName");
 
   /* Create a Topic. */
+  char* topicName = cstr != NULL? cstr: "HelloWorldTopic";
+  printf("Topic name: %s\n", topicName);
   topic = dds_create_topic (
-    participant, &HelloWorld_desc, cstr != NULL? cstr: "HelloWorldTopic", qos, NULL);
+    participant, &HelloWorld_desc, topicName, qos, NULL);
   if (topic < 0)
     DDS_FATAL("dds_create_topic: %s\n", dds_strretcode(-topic));
 

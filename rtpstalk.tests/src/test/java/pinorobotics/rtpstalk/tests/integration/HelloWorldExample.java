@@ -31,7 +31,7 @@ public interface HelloWorldExample extends AutoCloseable {
 
     XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> config);
 
-    String generateExpectedPublisherStdout(int numberOfMessages);
+    String generateExpectedPublisherStdout(int numberOfMessages, String topicName);
 
     String generateExpectedSubscriberStdout(int numberOfMessages, String topic);
 

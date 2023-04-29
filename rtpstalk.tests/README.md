@@ -49,6 +49,7 @@ mkdir build_v0.10.x
 cd build_v0.10.x/
 cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install ..
 cmake --build .
+make install
 ```
 
 ### Compiling HelloWorldExample
@@ -67,11 +68,15 @@ If compilation fails with:
 ``` 
 ../../../bin/idlc: symbol lookup error: ../../../bin/idlc: undefined symbol: DDS_XTypes_TypeInformation_desc
 ```
-Make sure that no other cyclonedds is installed:
-
+It is most likely due to ROS rmw-cyclonedds-cpp installed in the system and being imported as part of ROS `source setup.bash` command. You can remove it:
 ``` bash
 sudo apt purge cyclonedds-tools
 sudo apt purge ros-humble-cyclonedds
+```
+
+Or better build cyclonedds inside a clean bash session:
+``` bash
+env -i /bin/bash
 ```
 
 ### Enable logging

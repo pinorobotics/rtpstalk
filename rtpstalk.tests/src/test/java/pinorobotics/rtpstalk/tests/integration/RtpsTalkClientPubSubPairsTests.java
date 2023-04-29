@@ -347,9 +347,14 @@ public class RtpsTalkClientPubSubPairsTests {
                 new Guid(publisherGuid.guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT));
         client.close();
 
-        var expectedStdout =
-                helloWorldExample.generateExpectedPublisherStdout(testCase.numberOfMessages);
-        procs.forEach(proc -> Assertions.assertEquals(expectedStdout, proc.stdout()));
+        for (int i = 0; i < testCase.numberOfPubSubPairs; i++) {
+            var topic = topics.get(i);
+            var expectedStdout =
+                    helloWorldExample.generateExpectedPublisherStdout(
+                            testCase.numberOfMessages, topic);
+            var actual = procs.get(i).stdout();
+            Assertions.assertEquals(expectedStdout, actual);
+        }
 
         assertTemplates(testCase.templates);
         Optional.ofNullable(testCase.conditionalTemplates().get(TestCondition.LOCAL_SUBSCRIBER))
