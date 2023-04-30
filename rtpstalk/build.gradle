@@ -37,6 +37,18 @@ javadoc {
   // ignore missing @return, @param etc
   options.addBooleanOption('Xdoclint:all,-missing', true)
   exclude 'pinorobotics/rtpstalk/impl/**'
+
+  // Gradle does not support exclude correctly:
+  // https://github.com/gradle/gradle/issues/19726
+  def sourceSetDirectories = sourceSets
+    .main
+    .java
+    .sourceDirectories
+    .getFiles()
+    .stream()
+    .map({f -> f.toString() })
+    .collect(java.util.stream.Collectors.joining(":"))
+  options.addStringOption("-source-path", sourceSetDirectories)
 }
 
 def packageDir = "$buildDir/package/${projectName}"
