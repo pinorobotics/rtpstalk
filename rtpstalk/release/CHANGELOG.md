@@ -23,7 +23,7 @@
 - Implementing metrics
 - Updating Gradle to 8.0.2
 
-[rtpstalk-v4.0.zip](https://github.com/lambdaprime/xfunction/raw/master/rtpstalk/rtpstalk/release/rtpstalk-v4.0.zip)
+[rtpstalk-v4.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v4.0.zip)
 
 # Previous versions
 

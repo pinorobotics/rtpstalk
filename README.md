@@ -6,7 +6,7 @@ Java 17+
 
 # Download
 
-Download [release versions](https://github.com/pinorobotics/rtpstalk/releases)
+Download [release versions](rtpstalk/release/CHANGELOG.md)
 
 Or you can add dependency to it as follows:
 
