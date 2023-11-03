@@ -56,6 +56,7 @@ public class DataFragmentJoiner {
                     .setDescription(RtpsTalkMetrics.JOIN_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
+
     /**
      * The available size may include serializedPayloadHeader and other metadata which is not part
      * of user data itself

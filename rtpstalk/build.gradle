@@ -4,12 +4,13 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath "io.github.lambdaprime:id.xfunction:14.0"
+    classpath "io.github.lambdaprime:id.xfunction:23.0"
   }
 }
 
 plugins {
   id 'com.diffplug.spotless'
+  // only if you build Java library
   id 'java-library'
 }
 
@@ -28,6 +29,16 @@ dependencies {
   api "io.opentelemetry:opentelemetry-api:1.22.0"
 }
 
+configurations {
+  customConfig.extendsFrom implementation
+}
+
+jar {
+  manifest { 
+    attributes 'Implementation-Version': "${rootProject.version}"
+  }
+}
+
 javadoc {
   options.noTimestamp = true
   options.noQualifiers = ["all"]
@@ -36,6 +47,7 @@ javadoc {
   options.noNavBar = true
   // ignore missing @return, @param etc
   options.addBooleanOption('Xdoclint:all,-missing', true)
+  options.addStringOption('-show-packages', 'exported')
   exclude 'pinorobotics/rtpstalk/impl/**'
 
   // Gradle does not support exclude correctly:
@@ -49,6 +61,30 @@ javadoc {
     .map({f -> f.toString() })
     .collect(java.util.stream.Collectors.joining(":"))
   options.addStringOption("-source-path", sourceSetDirectories)
+}
+
+/**
+ * If certain packages are not public and are exported only to specific modules
+ * like "export foo.pkg.impl to bar_module;" then javadoc will generate documentation
+ * for them as well (in example it will be foo.pkg.impl).
+ * There is no way to ask javadoc to include documentation to only publicly available
+ * packages (and drop foo.pkg.impl).
+ * To fix this following task patches module-info during javadoc execution and removes
+ * any "export ... to ...". After javadoc task completes the module-info restored back.
+ */
+javadoc.doFirst {
+  var path = java.nio.file.Paths.get("${projectDir}/src/main/java/module-info.java")
+  println "Patching ${path}"
+  new id.xfunction.text.Substitutor()
+    .withRegexpSupport()
+    .withBackup()
+    .substitute(path, Map.of(
+      "(?s)(?m)exports \\S* to.*;", ""
+    ));
+}.doLast {
+  var path = java.nio.file.Paths.get("${projectDir}/src/main/java/module-info.java")
+  println "Restoring ${path}"
+  id.xfunction.text.Substitutor.restoreBackup(path)
 }
 
 def packageDir = "$buildDir/package/${projectName}"
