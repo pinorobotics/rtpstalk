@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.behavior.reader;
 
+import id.xfunction.PreconditionException;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,14 @@ public class DataFragmentReaderProcessorTests {
     public void test_fragmentation() {
         var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
         var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        var dataFragGenerator =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer.entityId,
+                        new SequenceNumber(100),
+                        100,
+                        2800,
+                        Optional.empty());
         var fragment1 = "a".repeat(996);
         var fragment2 = "b".repeat(1000);
         var fragment3 = "c".repeat(800);
@@ -46,29 +55,17 @@ public class DataFragmentReaderProcessorTests {
                 Optional.empty(),
                 proc.addDataFrag(
                         writer,
-                        new DataFrag(
-                                new EntityId(),
-                                writer.entityId,
-                                new SequenceNumber(100),
+                        dataFragGenerator.generate(
                                 1,
                                 10,
-                                100,
-                                2800,
-                                Optional.empty(),
                                 new SerializedPayload(new RawData(fragment1.getBytes()), true))));
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
                         writer,
-                        new DataFrag(
-                                new EntityId(),
-                                writer.entityId,
-                                new SequenceNumber(100),
+                        dataFragGenerator.generate(
                                 11,
                                 10,
-                                100,
-                                2800,
-                                Optional.empty(),
                                 new SerializedPayload(new RawData(fragment2.getBytes()), false))));
 
         var completeData = fragment1 + fragment2 + fragment3;
@@ -76,15 +73,9 @@ public class DataFragmentReaderProcessorTests {
                 new RtpsTalkDataMessage(completeData).toString(),
                 proc.addDataFrag(
                                 writer,
-                                new DataFrag(
-                                        new EntityId(),
-                                        writer.entityId,
-                                        new SequenceNumber(100),
+                                dataFragGenerator.generate(
                                         21,
                                         8,
-                                        100,
-                                        2800,
-                                        Optional.empty(),
                                         new SerializedPayload(
                                                 new RawData(fragment3.getBytes()), false)))
                         .get()
@@ -96,65 +87,52 @@ public class DataFragmentReaderProcessorTests {
         var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
         var writer1 = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
         var writer2 = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(2));
+        var dataFragGenerator1 =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer1.entityId,
+                        new SequenceNumber(100),
+                        5,
+                        10,
+                        Optional.empty());
+        var dataFragGenerator2 =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer2.entityId,
+                        new SequenceNumber(100),
+                        7,
+                        14,
+                        Optional.empty());
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
                         writer1,
-                        new DataFrag(
-                                new EntityId(),
-                                writer1.entityId,
-                                new SequenceNumber(100),
-                                1,
-                                1,
-                                5,
-                                10,
-                                Optional.empty(),
-                                new SerializedPayload(new RawData("aPADDING".getBytes()), true))));
+                        dataFragGenerator1.generate(
+                                1, 1, new SerializedPayload(new RawData("a".getBytes()), true))));
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
                         writer2,
-                        new DataFrag(
-                                new EntityId(),
-                                writer2.entityId,
-                                new SequenceNumber(100),
-                                1,
-                                1,
-                                7,
-                                14,
-                                Optional.empty(),
-                                new SerializedPayload(
-                                        new RawData("eeePADDING".getBytes()), true))));
+                        dataFragGenerator2.generate(
+                                1, 1, new SerializedPayload(new RawData("eee".getBytes()), true))));
         Assertions.assertEquals(
                 new RtpsTalkDataMessage("eeefffffff").toString(),
                 proc.addDataFrag(
                                 writer2,
-                                new DataFrag(
-                                        new EntityId(),
-                                        writer2.entityId,
-                                        new SequenceNumber(100),
-                                        4,
+                                dataFragGenerator2.generate(
+                                        2,
                                         1,
-                                        7,
-                                        14,
-                                        Optional.empty(),
                                         new SerializedPayload(
-                                                new RawData("fffffffPADDING".getBytes()), false)))
+                                                new RawData("fffffff".getBytes()), false)))
                         .get()
                         .toString());
         Assertions.assertEquals(
                 new RtpsTalkDataMessage("aaabbb").toString(),
                 proc.addDataFrag(
                                 writer1,
-                                new DataFrag(
-                                        new EntityId(),
-                                        writer1.entityId,
-                                        new SequenceNumber(100),
-                                        3,
+                                dataFragGenerator1.generate(
+                                        2,
                                         1,
-                                        5,
-                                        10,
-                                        Optional.empty(),
                                         new SerializedPayload(
                                                 new RawData("aabbb".getBytes()), false)))
                         .get()
@@ -165,33 +143,29 @@ public class DataFragmentReaderProcessorTests {
     public void test_no_padding_no_fragment_underflow() {
         var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
         var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        var dataFragGenerator =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer.entityId,
+                        new SequenceNumber(16),
+                        8,
+                        16,
+                        Optional.empty());
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
                         writer,
-                        new DataFrag(
-                                new EntityId(),
-                                writer.entityId,
-                                new SequenceNumber(16),
+                        dataFragGenerator.generate(
                                 1,
                                 1,
-                                8,
-                                16,
-                                Optional.empty(),
                                 new SerializedPayload(new RawData("aaaa".getBytes()), true))));
         Assertions.assertEquals(
                 new RtpsTalkDataMessage("aaaabbbbbbbb").toString(),
                 proc.addDataFrag(
                                 writer,
-                                new DataFrag(
-                                        new EntityId(),
-                                        writer.entityId,
-                                        new SequenceNumber(16),
-                                        3,
+                                dataFragGenerator.generate(
+                                        2,
                                         1,
-                                        8,
-                                        16,
-                                        Optional.empty(),
                                         new SerializedPayload(
                                                 new RawData("bbbbbbbb".getBytes()), false)))
                         .get()
@@ -199,39 +173,109 @@ public class DataFragmentReaderProcessorTests {
     }
 
     @Test
-    public void test_last_fragment_underflow() {
+    public void test_inorder_order_with_non_last_fragment_underflow() {
         var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
         var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        var dataFragGenerator =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer.entityId,
+                        new SequenceNumber(160),
+                        7,
+                        16,
+                        Optional.empty());
         Assertions.assertEquals(
                 Optional.empty(),
                 proc.addDataFrag(
                         writer,
-                        new DataFrag(
-                                new EntityId(),
-                                writer.entityId,
-                                new SequenceNumber(16),
-                                1,
-                                1,
-                                10,
-                                16,
-                                Optional.empty(),
-                                new SerializedPayload(new RawData("aaaabb".getBytes()), true))));
+                        dataFragGenerator.generate(
+                                1, 1, new SerializedPayload(new RawData("aaa".getBytes()), true))));
         Assertions.assertEquals(
-                new RtpsTalkDataMessage("aaaabbbbbbbb").toString(),
+                Optional.empty(),
+                proc.addDataFrag(
+                        writer,
+                        dataFragGenerator.generate(
+                                2,
+                                1,
+                                new SerializedPayload(new RawData("bbbbbff".getBytes()), false))));
+        Assertions.assertEquals(
+                // 4 bytes for header
+                new RtpsTalkDataMessage("aaabbbbbffcc").toString(),
                 proc.addDataFrag(
                                 writer,
-                                new DataFrag(
-                                        new EntityId(),
-                                        writer.entityId,
-                                        new SequenceNumber(16),
+                                dataFragGenerator.generate(
                                         3,
                                         1,
-                                        10,
-                                        16,
-                                        Optional.empty(),
-                                        new SerializedPayload(
-                                                new RawData("bbbbbb".getBytes()), false)))
+                                        new SerializedPayload(new RawData("cc".getBytes()), false)))
                         .get()
                         .toString());
+    }
+
+    /**
+     * Expected fragments size is 10 but last fragment has only 6 bytes of data. Because we expect 6
+     * bytes from last fragment we join the message and return it.
+     */
+    @Test
+    public void test_random_order_with_last_fragment_underflow() {
+        var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
+        var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        var dataFragGenerator =
+                new DataFragGenerator(
+                        new EntityId(),
+                        writer.entityId,
+                        new SequenceNumber(16),
+                        10,
+                        16,
+                        Optional.empty());
+        Assertions.assertEquals(
+                Optional.empty(),
+                proc.addDataFrag(
+                        writer,
+                        dataFragGenerator.generate(
+                                2,
+                                1,
+                                new SerializedPayload(new RawData("cbbbbf".getBytes()), false))));
+        Assertions.assertEquals(
+                // 4 bytes for header
+                new RtpsTalkDataMessage("aaaabbcbbbbf").toString(),
+                proc.addDataFrag(
+                                writer,
+                                dataFragGenerator.generate(
+                                        1,
+                                        1,
+                                        new SerializedPayload(
+                                                new RawData("aaaabb".getBytes()), true)))
+                        .get()
+                        .toString());
+    }
+
+    /**
+     * Expected fragments size is 10 but last fragment has only 4 bytes of data. Because we expect 5
+     * bytes from last fragment but it has 1 byte missing - throw exception.
+     */
+    @Test
+    public void test_random_order_with_last_fragment_data_missing() {
+        var proc = new DataFragmentReaderProcessor(TestConstants.TEST_TRACING_TOKEN);
+        var writer = new Guid(TestConstants.TEST_GUID_PREFIX, new EntityId(1));
+        var e =
+                Assertions.assertThrows(
+                        PreconditionException.class,
+                        () ->
+                                proc.addDataFrag(
+                                        writer,
+                                        new DataFrag(
+                                                new EntityId(),
+                                                writer.entityId,
+                                                new SequenceNumber(16),
+                                                3,
+                                                1,
+                                                10,
+                                                25,
+                                                Optional.empty(),
+                                                new SerializedPayload(
+                                                        new RawData("bfbb".getBytes()), false))));
+        Assertions.assertEquals(
+                "TEST-dataSequenceNumber16: Last fragment length delta underflow: -1",
+                e.getMessage());
     }
 }

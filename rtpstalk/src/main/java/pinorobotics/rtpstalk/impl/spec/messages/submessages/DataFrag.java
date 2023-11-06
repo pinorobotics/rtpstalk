@@ -35,7 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  */
 public class DataFrag extends Submessage implements DataSubmessage {
 
-    /** Size of the DataFrag submessage excluding sizze of data fragment */
+    /** Size of the DataFrag submessage excluding size of data fragment */
     public static final int EMPTY_SUBMESSAGE_SIZE = calcEmptySubmessageSize();
 
     public short extraFlags;
@@ -73,7 +73,14 @@ public class DataFrag extends Submessage implements DataSubmessage {
      */
     public UnsignedShort fragmentsInSubmessage;
 
-    /** The size of an individual fragment in bytes. The maximum fragment size equals 64K. */
+    /**
+     * The size of an individual fragment in bytes. The maximum fragment size equals 64K. [{@link
+     * RtpsSpecReference#RTPS23}]
+     *
+     * <p>Since it does not contain "InSubmessage" postfix as {@link #fragmentsInSubmessage} we
+     * assume it should be same across all {@link DataFrag} which belongs to same {@link #writerSN}
+     * (similar to {@link #dataSize}).
+     */
     public UnsignedShort fragmentSize;
 
     /** The total size in bytes of the original data before fragmentation. */

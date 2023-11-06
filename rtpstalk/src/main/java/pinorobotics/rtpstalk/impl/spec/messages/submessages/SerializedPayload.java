@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Optional;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SubmessageElement;
 
@@ -28,7 +29,12 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SubmessageE
 public class SerializedPayload implements SubmessageElement {
 
     /**
-     * SerializedPayloadHeader can be missing if the payload is part of {@link DataFrag} submessage
+     * All SerializedPayload shall start with the SerializedPayloadHeader defined below. The header
+     * provides information about the representation of the data that follows. [{@link
+     * RtpsSpecReference#RTPS23}]
+     *
+     * <p>SerializedPayloadHeader can be missing if the payload is part of {@link DataFrag}
+     * submessage
      */
     public transient Optional<SerializedPayloadHeader> serializedPayloadHeader = Optional.empty();
 

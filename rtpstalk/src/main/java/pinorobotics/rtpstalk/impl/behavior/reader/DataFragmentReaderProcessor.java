@@ -45,6 +45,6 @@ public class DataFragmentReaderProcessor {
                 joiners.computeIfAbsent(
                         dataKey, i -> new DataFragmentJoiner(tracingToken, dataFrag));
         joiner.add(dataFrag);
-        return joiner.hasAllFragments() ? Optional.of(joiner.join()) : Optional.empty();
+        return joiner.join();
     }
 }
