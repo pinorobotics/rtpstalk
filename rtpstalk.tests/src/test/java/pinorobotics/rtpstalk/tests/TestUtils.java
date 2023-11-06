@@ -66,7 +66,14 @@ public class TestUtils {
         GlobalOpenTelemetry.resetForTest();
         var exporter =
                 new ElasticSearchMetricExporter(
-                        URI.create("https://elastic:99L8efwboWanFxBq95I1@172.19.0.2:9200/rtpstalk"),
+                        URI.create(
+                                Optional.ofNullable(System.getenv("ELASTIC_URL"))
+                                                .orElseThrow(
+                                                        () ->
+                                                                new RuntimeException(
+                                                                        "ELASTIC_URL env variable"
+                                                                                + " is missing"))
+                                        + "/rtpstalk"),
                         Optional.empty(),
                         true);
         var metricReader =

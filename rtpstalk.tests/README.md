@@ -5,6 +5,7 @@ Tests for `rtpstalk` library.
 - Following network interfaces available in the system: lo, eth0
 - Fast-DDS v2.1.1
 - compiled `rtpstalk` version of HelloWorldExample
+- export ELASTIC_URL="https://LOGIN:PASSWD@ELASTICSEARCH_HOST_NAME:9200"
 
 # Linux setup
 
@@ -129,3 +130,7 @@ cmake ..\..\src\test\cpp\fastdds
 msbuild ALL_BUILD.vcxproj
 move Debug\HelloWorldExample.exe HelloWorldExample
 ```
+
+# Metrics
+
+By default metrics are enabled for tests and they are sent to Elasticsearch index `rtpstalk`.
