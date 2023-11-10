@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.impl.topics;
+package pinorobotics.rtpstalk.tests.topics;
 
 import id.xfunction.concurrent.flow.SameThreadSubmissionPublisher;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
