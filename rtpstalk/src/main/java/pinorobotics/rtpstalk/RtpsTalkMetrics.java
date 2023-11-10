@@ -35,7 +35,8 @@ public interface RtpsTalkMetrics {
 
     String LOST_CHANGES_COUNT_METRIC = "lost_messages_total";
     String LOST_CHANGES_COUNT_METRIC_DESCRIPTION =
-            "Total number of messages which were lost by local reader";
+            "Total number of messages which were lost by the local reader (it means such messages"
+                    + " are not available on the writer anymore)";
 
     String SUBMITTED_CHANGES_METRIC = "submitted_changes";
     String SUBMITTED_CHANGES_METRIC_DESCRIPTION =

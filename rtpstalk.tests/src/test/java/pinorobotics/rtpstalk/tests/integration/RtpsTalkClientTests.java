@@ -84,7 +84,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 1) {
                         public void onNext(RtpsTalkDataMessage item) {
-                            System.out.println(item.data());
+                            System.out.println(item);
                             super.onNext(item);
                         }
                     };
@@ -104,7 +104,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 3) {
                         public void onNext(RtpsTalkDataMessage item) {
-                            System.out.println(item.data());
+                            System.out.println(item);
                             super.onNext(item);
                         }
                     };
@@ -137,7 +137,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 30) {
                         public void onNext(RtpsTalkDataMessage item) {
-                            System.out.println(item.data());
+                            System.out.println(item);
                             super.onNext(item);
                         }
                     };
@@ -159,7 +159,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 1) {
                         public void onNext(RtpsTalkDataMessage item) {
-                            System.out.println(item.data());
+                            System.out.println(item);
                             super.onNext(item);
                         }
                     };
@@ -187,7 +187,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), count) {
                         public void onNext(RtpsTalkDataMessage item) {
-                            System.out.println(item.data());
+                            System.out.println(item);
                             super.onNext(item);
                         }
                     };

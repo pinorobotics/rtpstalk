@@ -37,7 +37,7 @@ public class KeyHash implements Sequence {
 
     public KeyHash(int... value) {
         Preconditions.equals(SIZE, value.length, "Value size is wrong");
-        this.value = XByte.copyToByteArray(value);
+        this.value = XByte.copyAsByteLiterals(value);
     }
 
     public KeyHash(Guid guid) {

@@ -18,13 +18,17 @@
 package pinorobotics.rtpstalk.tests.integration;
 
 import id.pubsubtests.TestPubSubClient;
+import id.xfunction.XByte;
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.TransformProcessor;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.DurabilityType;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
@@ -35,6 +39,7 @@ import pinorobotics.rtpstalk.qos.ReliabilityType;
  */
 public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
+    private static final short LENGTH_KEY = 0xbe;
     private RtpsTalkClient client =
             new RtpsTalkClient(
                     new RtpsTalkConfiguration.Builder()
@@ -48,18 +53,24 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     }
 
     @Override
-    public void subscribe(String topic, Subscriber<String> subscriber) {
-        var transformer = new TransformProcessor<>(this::extractString);
+    public void subscribe(String topic, Subscriber<byte[]> subscriber) {
+        var transformer = new TransformProcessor<>(this::extractUserdata);
         transformer.subscribe(subscriber);
         client.subscribe(topic, asType(topic), transformer);
     }
 
-    private Optional<String> extractString(RtpsTalkDataMessage message) {
-        return message.data().map(v -> new String(v).trim());
+    private Optional<byte[]> extractUserdata(RtpsTalkDataMessage message) {
+        var length =
+                XByte.toInt(message.userInlineQos().orElseThrow().getParameters().get(LENGTH_KEY));
+        var userData = Arrays.copyOf(message.data().orElseThrow(), length);
+        return Optional.of(userData);
     }
 
-    private Optional<RtpsTalkDataMessage> packString(String message) {
-        return Optional.of(new RtpsTalkDataMessage(message.getBytes()));
+    private Optional<RtpsTalkDataMessage> packUserdata(byte[] data) {
+        return Optional.of(
+                new RtpsTalkDataMessage(
+                        new Parameters(Map.of(LENGTH_KEY, XByte.copyToByteArray(data.length))),
+                        data));
     }
 
     private String asType(String topic) {
@@ -67,9 +78,9 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     }
 
     @Override
-    public void publish(String topic, Publisher<String> publisher) {
+    public void publish(String topic, Publisher<byte[]> publisher) {
         var transformer =
-                new TransformProcessor<>(this::packString, new SameThreadExecutorService(), 1);
+                new TransformProcessor<>(this::packUserdata, new SameThreadExecutorService(), 1);
         publisher.subscribe(transformer);
         client.publish(
                 topic,

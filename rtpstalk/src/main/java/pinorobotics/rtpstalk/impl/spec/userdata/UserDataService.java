@@ -74,7 +74,7 @@ public class UserDataService implements AutoCloseable {
             EntityId readerEntityId,
             List<Locator> remoteWriterDefaultUnicastLocators,
             Guid remoteWriterEndpointGuid,
-            Subscriber<RtpsTalkDataMessage> subscriber) {
+            Subscriber<RtpsTalkDataMessage> userSubscriber) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         var reader =
                 readers.computeIfAbsent(
@@ -87,12 +87,12 @@ public class UserDataService implements AutoCloseable {
                                         operatingEntities,
                                         eid));
         reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
-        if (reader.isSubscribed(subscriber)) {
+        if (reader.isSubscribed(userSubscriber)) {
             // this happens when there are several publishers for same topic
             // since subscriber already subscribed to DataReader we don't
             // subscribe it
         } else {
-            reader.subscribe(subscriber);
+            reader.subscribe(userSubscriber);
         }
         if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
