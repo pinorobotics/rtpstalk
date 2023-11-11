@@ -43,6 +43,7 @@ public class RtpsDataMessageBuilderTest {
                                 new RtpsTalkConfiguration.Builder()
                                         .packetBufferSize(10_000)
                                         .build()),
+                        TestConstants.TEST_TRACING_TOKEN,
                         TestConstants.TEST_GUID_PREFIX);
         for (int i = 1; i <= 10; i++) {
             builder.add(i, new RtpsTalkDataMessage(new byte[1300]));
@@ -64,6 +65,7 @@ public class RtpsDataMessageBuilderTest {
                                 new RtpsTalkConfiguration.Builder()
                                         .packetBufferSize(10_000)
                                         .build()),
+                        TestConstants.TEST_TRACING_TOKEN,
                         TestConstants.TEST_GUID_PREFIX,
                         new GuidPrefix("aaaaaaaaaaaaaaaaaaaaaaaa"));
         builder.add(1, new RtpsTalkDataMessage(new byte[13]));

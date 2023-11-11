@@ -18,6 +18,8 @@
 package pinorobotics.rtpstalk.impl.behavior.writer;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
+import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +50,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
+    private XLogger logger;
     private Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
     private Header header;
     private Optional<GuidPrefix> readerGuidPrefix;
@@ -56,12 +59,15 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     private int maxSubmessageSize;
 
     public RtpsDataMessageBuilder(
-            RtpsTalkConfigurationInternal config, GuidPrefix writerGuidPrefix) {
-        this(config, writerGuidPrefix, null);
+            RtpsTalkConfigurationInternal config,
+            TracingToken tracingToken,
+            GuidPrefix writerGuidPrefix) {
+        this(config, tracingToken, writerGuidPrefix, null);
     }
 
     public RtpsDataMessageBuilder(
             RtpsTalkConfigurationInternal config,
+            TracingToken tracingToken,
             GuidPrefix writerGuidPrefix,
             GuidPrefix readerGuidPrefix) {
         header =
@@ -72,6 +78,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                         writerGuidPrefix);
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
         this.maxSubmessageSize = config.maxSubmessageSize();
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     public RtpsDataMessageBuilder add(long seqNum, RtpsTalkMessage payload) {
@@ -187,7 +194,13 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
 
         boolean add(Submessage submessage) {
             var submessageLen = submessage.submessageHeader.submessageLength.getUnsigned();
-            if (messageLen + submessageLen > maxSubmessageSize) return false;
+            if (messageLen + submessageLen > maxSubmessageSize) {
+                logger.fine(
+                        "Not enough space to add new submessage with size {0}. Current size {1},"
+                                + " max size {2}",
+                        submessageLen, messageLen, maxSubmessageSize);
+                return false;
+            }
             submessages.add(submessage);
             messageLen += submessageLen;
             return true;

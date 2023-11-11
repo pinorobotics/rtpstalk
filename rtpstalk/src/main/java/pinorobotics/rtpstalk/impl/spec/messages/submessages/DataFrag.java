@@ -35,7 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  */
 public class DataFrag extends Submessage implements DataSubmessage {
 
-    /** Size of the DataFrag submessage excluding size of data fragment */
+    /** Size of the DataFrag submessage without SerializedPayloadHeader and empty data fragment */
     public static final int EMPTY_SUBMESSAGE_SIZE = calcEmptySubmessageSize();
 
     public short extraFlags;
@@ -217,9 +217,7 @@ public class DataFrag extends Submessage implements DataSubmessage {
                         0,
                         0,
                         Optional.empty(),
-                        new SerializedPayload(
-                                SerializedPayloadHeader.DEFAULT_DATA_HEADER,
-                                new RawData(new byte[0])));
+                        new SerializedPayload(new RawData(new byte[0]), false));
         return LengthCalculator.getInstance().calculateLength(emptyFragment);
     }
 }

@@ -129,7 +129,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         logger.entering("newChange");
         SUBMITTED_CHANGES_METER.record(1);
         lastChangeNumber++;
-        lastMessage = new RtpsDataMessageBuilder(config, writerGuid.guidPrefix);
+        lastMessage = new RtpsDataMessageBuilder(config, tracingToken, writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);
         sendLastChangeToAllReaders();
         logger.exiting("newChange");

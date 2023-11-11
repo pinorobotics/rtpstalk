@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
+import id.xfunction.Preconditions;
 import id.xfunction.lang.XRE;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -247,8 +248,8 @@ public class LengthCalculator {
             text =
                     "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
                             + " of the Message")
-    private int calculateSubmessagePadding(int len) {
-        return len + InternalUtils.getInstance().padding(len, 4);
+    private int calculateSubmessagePadding(int lenInBytes) {
+        return lenInBytes + InternalUtils.getInstance().padding(lenInBytes, 4);
     }
 
     private int calculateParameterListLength(ParameterList parameterList) {
@@ -271,5 +272,18 @@ public class LengthCalculator {
     public int calculateUserParameterValueLength(Entry<Short, byte[]> param) {
         var len = param.getValue().length;
         return calculateParameterListValuePadding(len);
+    }
+
+    @RtpsSpecReference(
+            paragraph = "9.4.1",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
+                            + " of the Message")
+    public void validateSubmessageSize(int submessageSizeInBytes) {
+        Preconditions.isTrue(
+                submessageSizeInBytes % 4 == 0,
+                "submessageSizeInBytes must be aligned on 32-bit boundary: "
+                        + submessageSizeInBytes);
     }
 }

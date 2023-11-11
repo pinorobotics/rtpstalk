@@ -46,6 +46,7 @@ public record RtpsTalkConfigurationInternal(
         var maxMessageSize =
                 config.packetBufferSize()
                         - LengthCalculator.getInstance().getFixedLength(Header.class);
+        LengthCalculator.getInstance().validateSubmessageSize(maxMessageSize);
         return maxMessageSize;
     }
 

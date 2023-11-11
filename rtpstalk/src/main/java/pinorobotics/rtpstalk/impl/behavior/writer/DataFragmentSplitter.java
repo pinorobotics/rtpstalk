@@ -28,6 +28,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHea
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -42,6 +43,7 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
     private byte[] data;
     private int currentPos, currentFragmentNum = 1;
     private int dataSize;
+    private int maxSubmessageSize;
 
     public DataFragmentSplitter(
             EntityId readerId,
@@ -52,12 +54,18 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
             int maxSubmessageSize) {
         this.readerId = readerId;
         this.writerId = writerId;
+        this.maxSubmessageSize = maxSubmessageSize;
         this.writerSN = new SequenceNumber(writerSN);
         this.inlineQos = inlineQos;
         this.data = data;
-        this.fragmentSize = maxSubmessageSize - DataFrag.EMPTY_SUBMESSAGE_SIZE;
         this.dataSize = data.length + SerializedPayloadHeader.SIZE;
-        Preconditions.isTrue(fragmentSize > 0, "Unexpected fragmentSize %s", fragmentSize);
+        LengthCalculator.getInstance().validateSubmessageSize(maxSubmessageSize);
+        this.fragmentSize =
+                maxSubmessageSize
+                        - DataFrag.EMPTY_SUBMESSAGE_SIZE
+                        - inlineQos.map(LengthCalculator.getInstance()::calculateLength).orElse(0);
+        Preconditions.isLessOrEqual(
+                SerializedPayloadHeader.SIZE, fragmentSize, "fragmentSize is too small");
     }
 
     @Override
@@ -79,15 +87,21 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
         if (currentPos + len > data.length) len = data.length - currentPos;
         var fragment = Arrays.copyOfRange(data, currentPos, currentPos + len);
         currentPos += len;
-        return new DataFrag(
-                readerId,
-                writerId,
-                writerSN,
-                currentFragmentNum++,
-                1,
-                fragmentSize,
-                dataSize,
-                inlineQos,
-                new SerializedPayload(new RawData(fragment), hasSerializedPayloadHeader));
+        var dataFrag =
+                new DataFrag(
+                        readerId,
+                        writerId,
+                        writerSN,
+                        currentFragmentNum++,
+                        1,
+                        fragmentSize,
+                        dataSize,
+                        inlineQos,
+                        new SerializedPayload(new RawData(fragment), hasSerializedPayloadHeader));
+        Preconditions.isLessOrEqual(
+                dataFrag.getSubmessageLength(),
+                maxSubmessageSize,
+                "DataFrag exceeds allowed maxSubmessageSize");
+        return dataFrag;
     }
 }

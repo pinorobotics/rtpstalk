@@ -175,7 +175,10 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         logger.fine("Replaying history changes for Reader {0}", proxy.getRemoteReaderGuid());
         var builder =
                 new RtpsDataMessageBuilder(
-                        getConfig(), getGuid().guidPrefix, proxy.getRemoteReaderGuid().guidPrefix);
+                        getConfig(),
+                        getTracingToken(),
+                        getGuid().guidPrefix,
+                        proxy.getRemoteReaderGuid().guidPrefix);
         historyCache
                 .getAll(getGuid())
                 .forEach(
@@ -301,6 +304,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         readerProxy ->
                                 new RtpsDataMessageBuilder(
                                                 getConfig(),
+                                                getTracingToken(),
                                                 getGuid().guidPrefix,
                                                 readerProxy.getRemoteReaderGuid().guidPrefix)
                                         .addAll(getLastMessage()))
@@ -352,6 +356,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         var builder =
                 new RtpsDataMessageBuilder(
                         getConfig(),
+                        getTracingToken(),
                         getGuid().guidPrefix,
                         readerProxy.getRemoteReaderGuid().guidPrefix);
         historyCache

@@ -65,7 +65,7 @@ public record RtpsTalkConfiguration(
      *
      * @see <a href="https://datatracker.ietf.org/doc/html/rfc8085">UDP RFC</a>
      */
-    public static final int UDP_MAX_PACKET_SIZE = 65_507;
+    public static final int UDP_MAX_PACKET_SIZE = 65_508;
 
     public static final int MIN_PACKET_BUFFER_SIZE = 10_000;
 
@@ -77,6 +77,8 @@ public record RtpsTalkConfiguration(
         Preconditions.isTrue(
                 packetBufferSize <= UDP_MAX_PACKET_SIZE,
                 "packetBufferSize cannot exceed UDP packet maximum size");
+        Preconditions.isTrue(
+                packetBufferSize % 4 == 0, "packetBufferSize must be aligned on 32-bit boundary");
     }
 
     /** E=0 means big-endian, E=1 means little-endian. */
