@@ -57,6 +57,11 @@ public class DataFragmentJoiner {
                     .setDescription(RtpsTalkMetrics.JOIN_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
+    private final LongHistogram FRAGMENTS_JOIN_COMPLETE_METER =
+            METER.histogramBuilder(RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_METRIC)
+                    .setDescription(RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_METRIC_DESCRIPTION)
+                    .ofLongs()
+                    .build();
 
     private XLogger logger;
     private TracingToken tracingToken;
@@ -242,6 +247,7 @@ public class DataFragmentJoiner {
             JOIN_TIME_METER.record(Duration.between(startAt.get(), Instant.now()).toMillis());
             startAt = Optional.empty();
         }
+        FRAGMENTS_JOIN_COMPLETE_METER.record(1);
         completeDataMessage =
                 Optional.of(
                         new RtpsTalkDataMessage(

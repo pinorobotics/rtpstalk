@@ -65,4 +65,8 @@ public interface RtpsTalkMetrics {
 
     String RTPS_READER_COUNT_METRIC = "rtps_reader_count";
     String RTPS_READER_COUNT_METRIC_DESCRIPTION = "Total number of local RTPS readers";
+
+    String FRAGMENTED_MESSAGES_READ_METRIC = "fragmented_messages_read";
+    String FRAGMENTED_MESSAGES_READ_METRIC_DESCRIPTION =
+            "Number of fragmented data messages which were joined back to original data message";
 }

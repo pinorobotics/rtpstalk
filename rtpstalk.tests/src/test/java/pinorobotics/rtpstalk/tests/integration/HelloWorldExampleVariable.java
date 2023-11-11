@@ -26,7 +26,8 @@ public enum HelloWorldExampleVariable {
     NumberOfMesages,
     TopicName,
     ReliabilityQosPolicyKind,
-    DurabilityQosPolicyKind;
+    DurabilityQosPolicyKind,
+    SleepBetweenMessagesInMillis;
 
     public String getVariableName() {
         return "RTPS_" + toString();

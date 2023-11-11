@@ -79,8 +79,8 @@ public class RtpsTalkClientPubSubPairsTests {
             int numberOfMessages,
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
-            List<String> templates,
-            Map<TestCondition, List<String>> conditionalTemplates,
+            List<String> logTemplates,
+            Map<TestCondition, List<String>> conditionalLogTemplates,
             List<Runnable> validators,
             Map<TestCondition, Map<HelloWorldExampleVariable, String>>
                     remoteParticipantParameters) {
@@ -309,8 +309,9 @@ public class RtpsTalkClientPubSubPairsTests {
                 Stream.generate(
                                 () ->
                                         new FixedCollectorSubscriber<>(
-                                                new ArrayList<RtpsTalkDataMessage>(),
-                                                testCase.numberOfMessages))
+                                                        new ArrayList<RtpsTalkDataMessage>(),
+                                                        testCase.numberOfMessages)
+                                                .withMessageConsumer(System.out::println))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
 
@@ -358,13 +359,13 @@ public class RtpsTalkClientPubSubPairsTests {
             Assertions.assertEquals(expectedStdout, actual);
         }
 
-        assertTemplates(testCase.templates);
-        Optional.ofNullable(testCase.conditionalTemplates().get(TestCondition.LOCAL_SUBSCRIBER))
-                .ifPresent(this::assertTemplates);
+        assertLogWithTemplates(testCase.logTemplates);
+        Optional.ofNullable(testCase.conditionalLogTemplates().get(TestCondition.LOCAL_SUBSCRIBER))
+                .ifPresent(this::assertLogWithTemplates);
         assertValidators(testCase.validators);
 
         // test that readers entity ids are properly assigned
-        System.out.println(Arrays.toString(entityIds));
+        System.out.println("List of Entity ids: " + Arrays.toString(entityIds));
         for (int i = 0; i < entityIds.length; i++) {
             var entityId = new EntityId(i + 1, EntityKind.READER_NO_KEY);
             Assertions.assertEquals(entityId.value, entityIds[i]);
@@ -375,7 +376,7 @@ public class RtpsTalkClientPubSubPairsTests {
         validators.forEach(Runnable::run);
     }
 
-    private void assertTemplates(List<String> templates) {
+    private void assertLogWithTemplates(List<String> templates) {
         System.out.println("Asserting templates " + templates);
         var log = LogUtils.readLogFile();
         templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
@@ -463,7 +464,7 @@ public class RtpsTalkClientPubSubPairsTests {
         // close only after all subscribers received all data
         client.close();
 
-        assertTemplates(testCase.templates);
+        assertLogWithTemplates(testCase.logTemplates);
         assertValidators(testCase.validators);
     }
 

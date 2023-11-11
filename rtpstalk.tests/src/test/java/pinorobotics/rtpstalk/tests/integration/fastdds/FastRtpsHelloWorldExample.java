@@ -54,6 +54,8 @@ public class FastRtpsHelloWorldExample implements HelloWorldExample {
         }
         if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages))
             argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
+        if (env.containsKey(HelloWorldExampleVariable.SleepBetweenMessagesInMillis))
+            argsList.add(env.get(HelloWorldExampleVariable.SleepBetweenMessagesInMillis));
         var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
