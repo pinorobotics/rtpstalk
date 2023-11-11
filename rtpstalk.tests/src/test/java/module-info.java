@@ -31,4 +31,5 @@ open module rtpstalk.tests {
     requires id.opentelemetry.exporters.pack;
     requires io.opentelemetry.sdk;
     requires io.opentelemetry.api;
+    requires id.xfunctiontests;
 }

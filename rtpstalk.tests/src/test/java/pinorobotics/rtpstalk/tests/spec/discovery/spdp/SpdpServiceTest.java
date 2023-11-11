@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.spec.discovery.spdp;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
+import id.xfunctiontests.XAsserts;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import org.junit.jupiter.api.AfterEach;
@@ -50,7 +51,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
-import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
  * @author lambdaprime intid@protonmail.com

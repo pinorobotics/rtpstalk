@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.behavior.writer;
 
 import id.xfunction.PreconditionException;
 import id.xfunction.util.stream.XStream;
+import id.xfunctiontests.XAsserts;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -31,7 +32,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

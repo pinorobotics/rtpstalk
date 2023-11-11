@@ -13,6 +13,7 @@ eclipse.classpath.file {
 dependencies {
   testImplementation(project ':rtpstalk')
   testImplementation 'io.github.lambdaprime:pubsubtests:1.0-SNAPSHOT'
+  testImplementation 'io.github.lambdaprime:id.xfunctiontests:1.0-SNAPSHOT'
   testImplementation "io.github.lambdaprime:id.opentelemetry-exporters-pack:2.0-SNAPSHOT"
 
   def junitVersion = "5.8.1"

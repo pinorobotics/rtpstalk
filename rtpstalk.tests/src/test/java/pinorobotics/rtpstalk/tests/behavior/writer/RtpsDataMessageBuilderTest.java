@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.behavior.writer;
 
+import id.xfunctiontests.XAsserts;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
@@ -28,7 +29,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
-import pinorobotics.rtpstalk.tests.XAsserts;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
