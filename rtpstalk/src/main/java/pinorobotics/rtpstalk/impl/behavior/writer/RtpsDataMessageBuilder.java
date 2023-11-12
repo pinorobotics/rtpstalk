@@ -119,6 +119,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                 // reset submessages in the builder if any
                 messageBuilder.build().ifPresent(messages::add);
                 messageBuilder = new InternalBuilder();
+                logger.fine(
+                        "Data from message with sequence number {0} does not fit into RTPS Data"
+                                + " message and will be fragmented",
+                        seqNum);
                 var inlineQos =
                         message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
                 for (var fragment :

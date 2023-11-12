@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
@@ -47,7 +48,7 @@ public class RtpsMessageReader {
 
     /** Returns empty when there is no RTPS message in the buffer or in case it is invalid. */
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
-        var in = new RtpsInputKineticStream(buf);
+        var in = new RtpsInputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
         var ksr =
                 new KineticStreamReader(in).withController(new RtpsKineticStreamReaderController());
         in.setKineticStreamReader(ksr);

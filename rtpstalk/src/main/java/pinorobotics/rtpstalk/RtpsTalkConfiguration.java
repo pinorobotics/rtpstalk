@@ -22,6 +22,7 @@ import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.function.Unchecked;
 import java.net.NetworkInterface;
+import java.nio.ByteOrder;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -83,6 +84,13 @@ public record RtpsTalkConfiguration(
 
     /** E=0 means big-endian, E=1 means little-endian. */
     public static final int ENDIANESS_BIT = 0b1;
+
+    public static ByteOrder getByteOrder() {
+        return switch (ENDIANESS_BIT) {
+            case 0b1 -> ByteOrder.LITTLE_ENDIAN;
+            default -> ByteOrder.LITTLE_ENDIAN;
+        };
+    }
 
     @Override
     public String toString() {

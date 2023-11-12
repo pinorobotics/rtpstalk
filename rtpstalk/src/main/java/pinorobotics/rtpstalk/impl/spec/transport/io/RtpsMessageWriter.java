@@ -24,6 +24,7 @@ import io.opentelemetry.api.metrics.Meter;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 
@@ -40,7 +41,7 @@ public class RtpsMessageWriter {
                     .build();
 
     public void writeRtpsMessage(RtpsMessage data, ByteBuffer buf) throws Exception {
-        var out = new RtpsOutputKineticStream(buf);
+        var out = new RtpsOutputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
         var ksw =
                 new KineticStreamWriter(out)
                         .withController(new RtpsKineticStreamWriterController());

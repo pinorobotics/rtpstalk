@@ -138,7 +138,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     @Override
     public int readInt() throws Exception {
         LOGGER.entering("readInt");
-        var ret = Integer.reverseBytes(buf.getInt());
+        var ret = buf.getInt();
         LOGGER.exiting("readInt");
         return ret;
     }
@@ -168,7 +168,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     @Override
     public long readLong() throws Exception {
         LOGGER.entering("readLong");
-        var ret = Long.reverseBytes(buf.getLong());
+        var ret = buf.getLong();
         LOGGER.exiting("readLong");
         return ret;
     }
@@ -181,7 +181,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     @Override
     public short readShort() throws Exception {
         LOGGER.entering("readShort");
-        var ret = Short.reverseBytes(buf.getShort());
+        var ret = buf.getShort();
         LOGGER.exiting("readShort");
         return ret;
     }
@@ -484,21 +484,21 @@ class RtpsInputKineticStream implements InputKineticStream {
         var numBits = readInt();
         var bits = new int[(numBits + 31) / 32];
         for (int i = 0; i < bits.length; i++) {
-            bits[i] = XByte.reverseBitsInBytes(buf.getInt());
+            bits[i] = XByte.reverseBitsInBytes(Integer.reverseBytes(buf.getInt()));
         }
         LOGGER.exiting("readSequenceNumberSet");
         return new SequenceNumberSet(bitmapBase, numBits, bits);
     }
 
     public EntityId readEntityId() throws Exception {
-        var val = buf.getInt();
+        var val = Integer.reverseBytes(buf.getInt());
         int entityKey = val >> 8;
         var entityKind = (byte) (val & 0x000000ff);
         return new EntityId(entityKey, entityKind);
     }
 
     public StatusInfo readStatusInfo() {
-        return new StatusInfo(buf.getInt());
+        return new StatusInfo(Integer.reverseBytes(buf.getInt()));
     }
 
     @Override

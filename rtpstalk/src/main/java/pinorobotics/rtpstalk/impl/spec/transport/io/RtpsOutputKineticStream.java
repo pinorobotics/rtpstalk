@@ -143,7 +143,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     @Override
     public void writeInt(Integer i) throws Exception {
         LOGGER.entering("writeInt");
-        buf.putInt(Integer.reverseBytes(i));
+        buf.putInt(i);
         LOGGER.exiting("writeInt");
     }
 
@@ -159,14 +159,14 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     @Override
     public void writeLong(Long l) throws Exception {
         LOGGER.entering("writeLong");
-        buf.putLong(Long.reverseBytes(l));
+        buf.putLong(l);
         LOGGER.exiting("writeLong");
     }
 
     @Override
     public void writeShort(Short s) throws Exception {
         LOGGER.entering("writeShort");
-        buf.putShort(Short.reverseBytes(s));
+        buf.putShort(s);
         LOGGER.exiting("writeShort");
     }
 
@@ -300,20 +300,20 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         writeSequenceNumber(set.bitmapBase);
         writeInt(set.numBits.value);
         for (var i : set.bitmap) {
-            buf.putInt(XByte.reverseBitsInBytes(i));
+            buf.putInt(XByte.reverseBitsInBytes(Integer.reverseBytes(i)));
         }
         LOGGER.exiting("writeSequenceNumberSet");
     }
 
     public void writeEntityId(EntityId entiyId) throws Exception {
         LOGGER.entering("writeEntityId");
-        buf.putInt(entiyId.value);
+        buf.putInt(Integer.reverseBytes(entiyId.value));
         LOGGER.exiting("writeEntityId");
     }
 
     public void writeStatusInfo(StatusInfo statusInfo) {
         LOGGER.entering("writeStatusInfo");
-        buf.putInt(statusInfo.value);
+        buf.putInt(Integer.reverseBytes(statusInfo.value));
         LOGGER.exiting("writeStatusInfo");
     }
 
