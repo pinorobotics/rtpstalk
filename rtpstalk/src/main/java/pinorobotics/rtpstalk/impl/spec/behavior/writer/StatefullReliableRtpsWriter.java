@@ -86,7 +86,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
      */
     private Duration heartbeatPeriod;
 
-    private HistoryCache<D> historyCache = new HistoryCache<>();
+    private HistoryCache<D> historyCache;
     private int heartbeatCount = 1;
     private DataChannelFactory channelFactory;
     private OperatingEntities operatingEntities;
@@ -113,6 +113,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.publicConfig().heartbeatPeriod();
         this.historyCacheMaxSize = config.publicConfig().historyCacheMaxSize();
+        this.historyCache = new HistoryCache<>(tracingToken);
         operatingEntities.getWriters().add(this);
         // for heartbeat purposes (to process ackNacks) we create reader
         writerReader = new WriterRtpsReader<>(getTracingToken(), this);

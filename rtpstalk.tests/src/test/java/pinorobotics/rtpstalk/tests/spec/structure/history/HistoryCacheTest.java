@@ -33,7 +33,7 @@ public class HistoryCacheTest {
 
     @Test
     public void test_out_of_order() {
-        var cache = new HistoryCache<RtpsTalkDataMessage>();
+        var cache = new HistoryCache<RtpsTalkDataMessage>(TestConstants.TEST_TRACING_TOKEN);
         var guid =
                 new Guid(
                         TestConstants.TEST_GUID_PREFIX,

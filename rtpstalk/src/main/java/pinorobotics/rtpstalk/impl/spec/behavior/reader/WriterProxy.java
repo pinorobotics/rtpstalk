@@ -80,7 +80,9 @@ public class WriterProxy {
 
     public void receivedChangeSet(long seqNum) {
         if (changesFromWriter.get(seqNum) == RECEIVED) {
-            logger.fine("Change already present in the cache, ignoring...");
+            logger.fine(
+                    "Change with sequence number {0} already present in the cache, ignoring...",
+                    seqNum);
             return;
         }
         changesFromWriter.put(seqNum, RECEIVED);

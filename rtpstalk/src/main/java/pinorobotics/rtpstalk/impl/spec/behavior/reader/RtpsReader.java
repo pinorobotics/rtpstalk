@@ -95,7 +95,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                     .setDescription(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC_DESCRIPTION)
                     .build();
 
-    private HistoryCache<D> cache = new HistoryCache<>();
+    private HistoryCache<D> cache;
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();
     private Guid guid;
     private RtpsSubmessageVisitor filterVisitor;
@@ -118,6 +118,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
+        this.cache = new HistoryCache<>(token);
         processor = new DataFragmentReaderProcessor(tracingToken);
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
         logger = XLogger.getLogger(getClass(), tracingToken);

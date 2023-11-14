@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.structure.history;
 
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +35,6 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class HistoryCache<D extends RtpsTalkMessage> {
 
-    private static final XLogger LOGGER = XLogger.getLogger(HistoryCache.class);
-
     /**
      * The list of CacheChanges contained in the HistoryCache
      *
@@ -51,6 +50,12 @@ public class HistoryCache<D extends RtpsTalkMessage> {
             text = "The RTPS HistoryCache")
     private Map<Guid, WriterChanges<D>> changes = new HashMap<>();
 
+    private XLogger logger;
+
+    public HistoryCache(TracingToken tracingToken) {
+        logger = XLogger.getLogger(getClass(), tracingToken);
+    }
+
     /**
      * Add change to the cache.
      *
@@ -64,19 +69,20 @@ public class HistoryCache<D extends RtpsTalkMessage> {
             text = "Writers must not send data out-of-order")
     public boolean addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
-        if (writerChanges != null && writerChanges.containsChange(change.getSequenceNumber())) {
-            LOGGER.fine("Change already present in the cache, ignoring...");
-            return false;
-        }
         if (writerChanges == null) {
             writerChanges = new WriterChanges<>();
             changes.put(change.getWriterGuid(), writerChanges);
+        } else if (writerChanges.containsChange(change.getSequenceNumber())) {
+            logger.fine(
+                    "Change with sequence number {0} already present in the cache, ignoring...",
+                    change.getSequenceNumber());
+            return false;
         }
         var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
         writerChanges.addChange(change);
-        LOGGER.fine("New change added into the cache");
+        logger.fine("New change added into the cache");
         if (isOutOfOrder) {
-            LOGGER.fine("Change is out-of-order");
+            logger.fine("Change is out-of-order");
             return false;
         }
         return true;
