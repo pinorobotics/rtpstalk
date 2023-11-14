@@ -36,6 +36,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -110,9 +111,9 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     }
 
     @Override
-    protected boolean addChange(CacheChange<D> cacheChange) {
-        var isAdded = super.addChange(cacheChange);
-        if (!isAdded) return false;
+    protected AddResult addChange(CacheChange<D> cacheChange) {
+        var result = super.addChange(cacheChange);
+        if (result == AddResult.NOT_ADDED) return result;
         var writerProxy = matchedWriters.get(cacheChange.getWriterGuid());
         if (writerProxy != null) {
             writerProxy.receivedChangeSet(cacheChange.getSequenceNumber());
@@ -121,7 +122,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                     "No matched writer with guid {0} found for a new change, ignoring...",
                     cacheChange.getWriterGuid());
         }
-        return true;
+        return result;
     }
 
     @Override

@@ -52,6 +52,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
@@ -184,21 +185,21 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     /**
      * @see HistoryCache#addChange(CacheChange)
      */
-    protected boolean addChange(CacheChange<D> cacheChange) {
+    protected AddResult addChange(CacheChange<D> cacheChange) {
         logger.entering("addChange");
         if (isClosed()) {
             logger.fine("Reader is closed, ignoring the change");
-            return false;
+            return AddResult.NOT_ADDED;
         }
-        var isAdded = cache.addChange(cacheChange);
-        if (isAdded) {
+        var result = cache.addChange(cacheChange);
+        if (result == AddResult.ADDED) {
             logger.fine(
                     "Submitting new change with sequence number {0} to subscribers",
                     cacheChange.getSequenceNumber());
             submit(cacheChange.getDataValue());
         }
         logger.exiting("addChange");
-        return isAdded;
+        return result;
     }
 
     protected void process(RtpsMessage message) {

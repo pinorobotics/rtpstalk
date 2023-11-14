@@ -23,6 +23,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
@@ -39,12 +40,16 @@ public class HistoryCacheTest {
                         TestConstants.TEST_GUID_PREFIX,
                         EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
         Assertions.assertEquals(
-                true, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 1, null)));
+                AddResult.ADDED,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 1, null)));
         Assertions.assertEquals(
-                true, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
+                AddResult.ADDED,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
         Assertions.assertEquals(
-                false, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 2, null)));
+                AddResult.ADDED_OUT_OF_ORDER,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 2, null)));
         Assertions.assertEquals(
-                false, cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
+                AddResult.NOT_ADDED,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
     }
 }

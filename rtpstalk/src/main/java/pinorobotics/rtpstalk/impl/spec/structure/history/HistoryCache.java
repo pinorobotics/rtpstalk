@@ -56,6 +56,12 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
+    public enum AddResult {
+        NOT_ADDED,
+        ADDED_OUT_OF_ORDER,
+        ADDED
+    }
+
     /**
      * Add change to the cache.
      *
@@ -66,8 +72,11 @@ public class HistoryCache<D extends RtpsTalkMessage> {
     @RtpsSpecReference(
             paragraph = "8.4.2.2.1",
             protocolVersion = Predefined.Version_2_3,
-            text = "Writers must not send data out-of-order")
-    public boolean addChange(CacheChange<D> change) {
+            text =
+                    "Writers must not send"
+                        + " data"
+                        + " out-of-order" /* But due to UDP Reader may receive it out-of-order */)
+    public AddResult addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
         if (writerChanges == null) {
             writerChanges = new WriterChanges<>();
@@ -76,16 +85,17 @@ public class HistoryCache<D extends RtpsTalkMessage> {
             logger.fine(
                     "Change with sequence number {0} already present in the cache, ignoring...",
                     change.getSequenceNumber());
-            return false;
+            return AddResult.NOT_ADDED;
         }
         var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
         writerChanges.addChange(change);
         logger.fine("New change added into the cache");
         if (isOutOfOrder) {
-            logger.fine("Change is out-of-order");
-            return false;
+            logger.fine(
+                    "Change with sequence number {0} is out-of-order", change.getSequenceNumber());
+            return AddResult.ADDED_OUT_OF_ORDER;
         }
-        return true;
+        return AddResult.ADDED;
     }
 
     public Stream<CacheChange<D>> getAll(Guid writerGuid) {
