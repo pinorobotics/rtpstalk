@@ -32,6 +32,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -81,6 +82,7 @@ public class DataFragmentSplitterTests {
         var writerSN = 17;
         var splitter =
                 new DataFragmentSplitter(
+                        TestConstants.TEST_TRACING_TOKEN,
                         new EntityId(1),
                         new EntityId(2),
                         writerSN,
@@ -99,6 +101,7 @@ public class DataFragmentSplitterTests {
                         PreconditionException.class,
                         () ->
                                 new DataFragmentSplitter(
+                                        TestConstants.TEST_TRACING_TOKEN,
                                         new EntityId(1),
                                         new EntityId(2),
                                         writerSN,
@@ -112,6 +115,7 @@ public class DataFragmentSplitterTests {
                         PreconditionException.class,
                         () ->
                                 new DataFragmentSplitter(
+                                        TestConstants.TEST_TRACING_TOKEN,
                                         new EntityId(1),
                                         new EntityId(2),
                                         writerSN,

@@ -57,6 +57,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
     private long lastSeqNum;
     private int maxSubmessageSize;
+    private TracingToken tracingToken;
 
     public RtpsDataMessageBuilder(
             RtpsTalkConfigurationInternal config,
@@ -70,6 +71,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             TracingToken tracingToken,
             GuidPrefix writerGuidPrefix,
             GuidPrefix readerGuidPrefix) {
+        this.tracingToken = tracingToken;
         header =
                 new Header(
                         ProtocolId.Predefined.RTPS.getValue(),
@@ -127,6 +129,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                         message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
                 for (var fragment :
                         new DataFragmentSplitter(
+                                tracingToken,
                                 readerEntiyId,
                                 writerEntityId,
                                 seqNum,

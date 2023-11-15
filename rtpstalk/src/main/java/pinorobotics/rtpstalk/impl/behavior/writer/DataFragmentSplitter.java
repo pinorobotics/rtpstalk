@@ -18,6 +18,8 @@
 package pinorobotics.rtpstalk.impl.behavior.writer;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
+import id.xfunction.logging.XLogger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
@@ -44,8 +46,10 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
     private int currentPos, currentFragmentNum = 1;
     private int dataSize;
     private int maxSubmessageSize;
+    private XLogger logger;
 
     public DataFragmentSplitter(
+            TracingToken tracingToken,
             EntityId readerId,
             EntityId writerId,
             long writerSN,
@@ -66,6 +70,7 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
                         - inlineQos.map(LengthCalculator.getInstance()::calculateLength).orElse(0);
         Preconditions.isLessOrEqual(
                 SerializedPayloadHeader.SIZE, fragmentSize, "fragmentSize is too small");
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     @Override
@@ -80,6 +85,9 @@ public class DataFragmentSplitter implements Iterable<DataFrag>, Iterator<DataFr
 
     @Override
     public DataFrag next() {
+        if (currentFragmentNum == 1) {
+            logger.fine("Start splitting message with sequence number {0}", writerSN);
+        }
         var len = fragmentSize;
         boolean hasSerializedPayloadHeader =
                 DataFrag.hasSerializedPayloadHeader(currentFragmentNum);
