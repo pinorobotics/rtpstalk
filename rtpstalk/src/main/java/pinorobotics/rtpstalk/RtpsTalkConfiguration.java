@@ -58,7 +58,8 @@ public record RtpsTalkConfiguration(
         int appEntityKey,
         Optional<ExecutorService> publisherExecutor,
         int publisherMaxBufferSize,
-        int receiveBufferSize) {
+        int receiveBufferSize,
+        int sendBufferSize) {
 
     /**
      * A UDP datagram is carried in a single IP packet and is hence limited to a maximum payload of
@@ -127,7 +128,9 @@ public record RtpsTalkConfiguration(
                 () -> Executors.newCachedThreadPool();
         public static final int DEFAULT_PUBLISHER_BUFFER_SIZE = 32;
 
-        public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 26214400;
+        public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 26_214_400;
+
+        public static final int DEFAULT_SEND_BUFFER_SIZE = 26_214_400;
 
         public static final int DEFAULT_DOMAIN_ID = 0;
 
@@ -147,6 +150,7 @@ public record RtpsTalkConfiguration(
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
         private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
+        private int sendBufferSize = DEFAULT_SEND_BUFFER_SIZE;
 
         /**
          * @see #networkInterface(String)
@@ -271,6 +275,30 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /**
+         * When Writer sends many large messages it adds them to the system UDP network queue. When
+         * Writer publishes them faster than system sends them this queue will run out of space and
+         * result in:
+         *
+         * <pre>{@code
+         * java.io.IOException: No buffer space available
+         * at java.base/sun.nio.ch.DatagramDispatcher.write0(Native Method)
+         * at java.base/sun.nio.ch.DatagramDispatcher.write(DatagramDispatcher.java:51)
+         * at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:132)
+         * at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:97)
+         * at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:53)
+         * at java.base/sun.nio.ch.DatagramChannelImpl.send(DatagramChannelImpl.java:797)
+         * at rtpstalk/pinorobotics.rtpstalk.impl.spec.transport.DataChannel.send(DataChannel.java:123)
+         * }</pre>
+         *
+         * <p>Increasing send buffer allows to store more messages giving more time system to send
+         * them.
+         */
+        public Builder sendBufferSize(int sendBufferSize) {
+            this.sendBufferSize = sendBufferSize;
+            return this;
+        }
+
         public RtpsTalkConfiguration build() {
             return new RtpsTalkConfiguration(
                     startPort,
@@ -289,7 +317,8 @@ public record RtpsTalkConfiguration(
                     appEntityKey,
                     publisherExecutor,
                     publisherMaxBufferCapacity,
-                    receiveBufferSize);
+                    receiveBufferSize,
+                    sendBufferSize);
         }
     }
 }
