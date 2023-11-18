@@ -20,9 +20,12 @@ package pinorobotics.rtpstalk.tests;
 import id.xfunction.function.Unchecked;
 import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -31,12 +34,26 @@ public class LogUtils {
 
     public static final Path LOG_FILE =
             XFiles.TEMP_FOLDER.map(p -> p.resolve("rtpstalk-test.log")).orElseThrow();
+    private static final Path LOG_ARCHIVE_FOLDER =
+            Unchecked.get(() -> Files.createTempDirectory("rtpstalk-tests"));
 
     public static void setupLog() {
         XLogger.reset();
         Unchecked.run(() -> Files.deleteIfExists(LOG_FILE));
         // since we deleted the log file we need to reconfigure logger
         XLogger.load("rtpstalk-test.properties");
+    }
+
+    public static void archiveLog(TestInfo testInfo) {
+        try {
+            Files.move(
+                    LOG_FILE,
+                    LOG_ARCHIVE_FOLDER.resolve(
+                            testInfo.getTestMethod().map(Method::getName).orElse("unknown test")
+                                    + System.currentTimeMillis()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String readLogFile() {

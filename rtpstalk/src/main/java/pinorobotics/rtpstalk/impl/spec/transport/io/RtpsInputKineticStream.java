@@ -113,9 +113,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     @Override
     public byte[] readByteArray(byte[] a) throws Exception {
         LOGGER.entering("readByteArray");
-        for (int i = 0; i < a.length; i++) {
-            a[i] = readByte();
-        }
+        buf.get(a);
         LOGGER.exiting("readByteArray");
         return a;
     }
@@ -145,24 +143,16 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     @Override
     public int[] readIntArray(int[] a) throws Exception {
-        LOGGER.entering("readIntArray");
-        for (int i = 0; i < a.length; i++) {
-            a[i] = readInt();
-        }
-        LOGGER.exiting("readIntArray");
-        return a;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String readString() throws Exception {
-        var strBuf = new StringBuilder();
-        byte b = 0;
-        // TODO assert length after reading
         var len = readInt();
-        while ((b = buf.get()) != 0) strBuf.append((char) b);
-        Preconditions.equals(
-                len, strBuf.length() + 1 /* NULL byte */, "String length does not match");
-        return strBuf.toString();
+        var b = new byte[len - 1];
+        readByteArray(b);
+        Preconditions.equals(0, readByte(), "Null byte expected");
+        return new String(b);
     }
 
     @Override
@@ -189,8 +179,10 @@ class RtpsInputKineticStream implements InputKineticStream {
     @Override
     public short[] readShortArray(short[] a) throws Exception {
         LOGGER.entering("readShortArray");
-        for (int i = 0; i < a.length; i++) {
-            a[i] = readShort();
+        if (a.length > 0) {
+            var tmpBuf = buf.asShortBuffer();
+            tmpBuf.get(a);
+            buf.position(buf.position() + a.length * Short.BYTES);
         }
         LOGGER.exiting("readShortArray");
         return a;

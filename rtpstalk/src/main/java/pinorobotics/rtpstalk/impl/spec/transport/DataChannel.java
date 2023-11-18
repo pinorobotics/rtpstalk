@@ -74,6 +74,10 @@ public class DataChannel implements AutoCloseable {
         this.target = target;
         this.guidPrefix = new GuidPrefix(guidPrefix);
         this.packetBufferSize = packetBufferSize;
+        Preconditions.isTrue(
+                datagramChannel.isBlocking(),
+                "By default blocking DatagramChannel expected, see"
+                    + " https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/spi/AbstractSelectableChannel.html#isBlocking()");
         logger =
                 XLogger.getLogger(
                         getClass(),
@@ -85,9 +89,10 @@ public class DataChannel implements AutoCloseable {
      * @throws AsynchronousCloseException if channel was closed during read
      */
     public RtpsMessage receive() throws Exception {
+        var buf = ByteBuffer.allocate(packetBufferSize);
         while (true) {
-            var buf = ByteBuffer.allocate(packetBufferSize);
             var startAt = Instant.now();
+            buf.clear();
             try {
                 datagramChannel.receive(buf);
             } finally {

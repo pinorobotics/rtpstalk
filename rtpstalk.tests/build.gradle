@@ -31,6 +31,8 @@ jacoco {
 test {
   useJUnitPlatform()
   finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+  minHeapSize = "128m" // initial heap size
+  maxHeapSize = "1400m" // maximum heap size
 
   testLogging {
     events "started", "failed"

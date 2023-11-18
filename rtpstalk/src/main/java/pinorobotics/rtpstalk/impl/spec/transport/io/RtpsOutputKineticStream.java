@@ -119,9 +119,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     @Override
     public void writeByteArray(byte[] a) throws Exception {
         LOGGER.entering("writeByteArray");
-        for (int i = 0; i < a.length; i++) {
-            writeByte(a[i]);
-        }
+        buf.put(a);
         LOGGER.exiting("writeByteArray");
     }
 
@@ -149,11 +147,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     @Override
     public void writeIntArray(int[] a) throws Exception {
-        LOGGER.entering("writeIntArray");
-        for (int i = 0; i < a.length; i++) {
-            writeInt(a[i]);
-        }
-        LOGGER.exiting("writeIntArray");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -173,8 +167,10 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     @Override
     public void writeShortArray(short[] a) throws Exception {
         LOGGER.entering("writeShortArray");
-        for (int i = 0; i < a.length; i++) {
-            writeShort(a[i]);
+        if (a.length > 0) {
+            var tmpBuf = buf.asShortBuffer();
+            tmpBuf.put(a);
+            buf.position(buf.position() + a.length * Short.BYTES);
         }
         LOGGER.exiting("writeShortArray");
     }

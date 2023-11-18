@@ -25,7 +25,6 @@ import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
 import id.xfunction.text.Substitutor;
 import id.xfunctiontests.XAsserts;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,11 +35,11 @@ import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.RtpsTalkClient;
@@ -52,6 +51,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
+import pinorobotics.rtpstalk.tests.MetricsExtension;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
@@ -62,9 +62,9 @@ import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@ExtendWith({MetricsExtension.class})
 public class RtpsTalkClientPubSubPairsTests {
 
-    private static SdkMeterProvider sdkMeterProvider;
     private HelloWorldExample helloWorldExample;
     private RtpsTalkClient client;
 
@@ -238,16 +238,6 @@ public class RtpsTalkClientPubSubPairsTests {
         return testCases.stream();
     }
 
-    @BeforeAll
-    public static void setupAll() {
-        sdkMeterProvider = TestUtils.setupMetrics();
-    }
-
-    @AfterAll
-    public static void cleanupAll() {
-        sdkMeterProvider.close();
-    }
-
     @BeforeEach
     public void setup() throws IOException {
         LogUtils.setupLog();
@@ -260,9 +250,10 @@ public class RtpsTalkClientPubSubPairsTests {
     }
 
     @AfterEach
-    public void clean() {
+    public void clean(TestInfo testInfo) {
         client.close();
         helloWorldExample.close();
+        LogUtils.archiveLog(testInfo);
     }
 
     @ParameterizedTest

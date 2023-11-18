@@ -20,7 +20,6 @@ package pinorobotics.rtpstalk.tests.integration;
 import id.pubsubtests.PubSubClientTestCase;
 import id.pubsubtests.PubSubClientTests;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,12 +27,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
@@ -46,34 +45,24 @@ import pinorobotics.rtpstalk.qos.DurabilityType;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogUtils;
+import pinorobotics.rtpstalk.tests.MetricsExtension;
 import pinorobotics.rtpstalk.tests.TestEvents;
-import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
+@ExtendWith({MetricsExtension.class})
 public class RtpsTalkClientTests extends PubSubClientTests {
-    private static SdkMeterProvider sdkMeterProvider;
     private FastRtpsHelloWorldExample tools;
 
     static Stream<PubSubClientTestCase> dataProvider() {
         return Stream.of(
                 new PubSubClientTestCase(
                         RtpsTalkTestPubSubClient::new,
+                        Duration.ofMillis(6_000),
                         Duration.ofMillis(13_000),
-                        Duration.ofMillis(13_000),
-                        11));
-    }
-
-    @BeforeAll
-    public static void setupAll() {
-        sdkMeterProvider = TestUtils.setupMetrics();
-    }
-
-    @AfterAll
-    public static void cleanupAll() {
-        sdkMeterProvider.close();
+                        80));
     }
 
     @BeforeEach
@@ -83,8 +72,9 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     }
 
     @AfterEach
-    public void clean() {
+    public void clean(TestInfo testInfo) {
         tools.close();
+        LogUtils.archiveLog(testInfo);
     }
 
     @Test
