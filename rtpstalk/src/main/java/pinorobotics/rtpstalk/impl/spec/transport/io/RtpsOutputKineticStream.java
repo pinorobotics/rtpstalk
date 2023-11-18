@@ -100,16 +100,6 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeBoolean(Boolean arg0) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeBooleanArray(boolean[] arg0) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void writeByte(Byte b) throws Exception {
         LOGGER.entering("writeByte");
         buf.put(b);
@@ -124,30 +114,10 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeDouble(Double arg0) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeDoubleArray(double[] arg0) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeFloat(Float arg0) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void writeInt(Integer i) throws Exception {
         LOGGER.entering("writeInt");
         buf.putInt(i);
         LOGGER.exiting("writeInt");
-    }
-
-    @Override
-    public void writeIntArray(int[] a) throws Exception {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -314,7 +284,52 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
+    public void writeBoolean(Boolean arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeBooleanArray(boolean[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeDouble(Double arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeDoubleArray(double[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeFloat(Float arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeFloatArray(float[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeChar(Character arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeCharArray(char[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void writeStringArray(String[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeIntArray(int[] a) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

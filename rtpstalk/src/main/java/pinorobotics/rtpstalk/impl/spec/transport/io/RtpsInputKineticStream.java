@@ -98,11 +98,6 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public boolean[] readBooleanArray(boolean[] a) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public byte readByte() throws Exception {
         LOGGER.entering("readByte");
         var ret = buf.get();
@@ -119,31 +114,11 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public double readDouble() throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public double[] readDoubleArray(double[] a) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public float readFloat() throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int readInt() throws Exception {
         LOGGER.entering("readInt");
         var ret = buf.getInt();
         LOGGER.exiting("readInt");
         return ret;
-    }
-
-    @Override
-    public int[] readIntArray(int[] a) throws Exception {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -161,11 +136,6 @@ class RtpsInputKineticStream implements InputKineticStream {
         var ret = buf.getLong();
         LOGGER.exiting("readLong");
         return ret;
-    }
-
-    @Override
-    public long[] readLongArray(long[] a) throws Exception {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -491,6 +461,51 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     public StatusInfo readStatusInfo() {
         return new StatusInfo(Integer.reverseBytes(buf.getInt()));
+    }
+
+    @Override
+    public double readDouble() throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[] readDoubleArray(double[] a) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public float readFloat() throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public float[] readFloatArray(float[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public char readChar() throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public char[] readCharArray(char[] arg0) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean[] readBooleanArray(boolean[] a) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int[] readIntArray(int[] a) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long[] readLongArray(long[] a) throws Exception {
+        throw new UnsupportedOperationException();
     }
 
     @Override
