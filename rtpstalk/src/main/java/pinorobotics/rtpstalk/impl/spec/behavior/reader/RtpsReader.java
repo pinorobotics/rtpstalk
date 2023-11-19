@@ -156,7 +156,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                             });
         } catch (MessageTypeMismatchException e) {
             if (Objects.equals(d.readerId, EntityId.Predefined.ENTITYID_UNKNOWN.getValue()))
-                logger.warning(
+                logger.fine(
                         "Mismatch between message types. Message directed to reader"
                             + " ENTITYID_UNKNOWN but since current reader message type differs, it"
                             + " is ignored: {0}",

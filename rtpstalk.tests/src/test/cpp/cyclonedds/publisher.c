@@ -23,8 +23,7 @@ int main (int argc, char ** argv)
     numOfSamples = atoi(argv[1]);
   printf("Num of samples: %d\n", numOfSamples);
 
-  dds_qos_t *qos;
-  qos = dds_create_qos ();
+  dds_qos_t *qos = dds_create_qos ();
   dds_qset_reliability (qos, DDS_RELIABILITY_RELIABLE, DDS_SECS(10));
   dds_qset_durability(qos, DDS_DURABILITY_TRANSIENT_LOCAL);
   char* cstr = getenv("RTPS_TopicName");

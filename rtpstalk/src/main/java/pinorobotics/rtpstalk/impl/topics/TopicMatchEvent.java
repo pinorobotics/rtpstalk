@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.impl.topics;
 
+import id.xfunction.XJsonStringBuilder;
+
 /**
  * This event is triggered when there is a match between one of:
  *
@@ -31,6 +33,9 @@ public record TopicMatchEvent<A>(RemoteActorDetails remoteActor, A localActor) {
 
     @Override
     public String toString() {
-        return remoteActor.endpointGuid().toString();
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("remoteActor", remoteActor);
+        builder.append("localActor", localActor);
+        return builder.toString();
     }
 }
