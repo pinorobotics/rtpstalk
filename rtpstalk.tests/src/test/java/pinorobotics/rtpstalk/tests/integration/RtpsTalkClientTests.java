@@ -43,6 +43,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.DurabilityType;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.ReliabilityType;
+import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.MetricsExtension;
 import pinorobotics.rtpstalk.tests.TestEvents;
@@ -51,7 +52,7 @@ import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample
 /**
  * @author lambdaprime intid@protonmail.com
  */
-@ExtendWith({MetricsExtension.class})
+@ExtendWith({MetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientTests extends PubSubClientTests {
     private FastRtpsHelloWorldExample tools;
 
@@ -61,14 +62,12 @@ public class RtpsTalkClientTests extends PubSubClientTests {
 
     @BeforeEach
     public void setup() throws IOException {
-        LogUtils.setupLog();
         tools = new FastRtpsHelloWorldExample();
     }
 
     @AfterEach
     public void clean(TestInfo testInfo) {
         tools.close();
-        LogUtils.archiveLog(testInfo);
     }
 
     @Test

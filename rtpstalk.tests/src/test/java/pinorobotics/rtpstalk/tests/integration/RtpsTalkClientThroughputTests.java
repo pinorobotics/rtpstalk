@@ -20,21 +20,17 @@ package pinorobotics.rtpstalk.tests.integration;
 import id.pubsubtests.PubSubClientThroughputTestCase;
 import id.pubsubtests.PubSubClientThroughputTests;
 import id.pubsubtests.TestPubSubClient;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
-import pinorobotics.rtpstalk.tests.LogUtils;
+import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.MetricsExtension;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-@ExtendWith({MetricsExtension.class})
+@ExtendWith({MetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
 
     static Stream<PubSubClientThroughputTestCase> dataProvider() {
@@ -67,15 +63,5 @@ public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
                         Integer.MAX_VALUE,
                         Duration.ofMillis(300),
                         80));
-    }
-
-    @BeforeEach
-    public void setup() throws IOException {
-        LogUtils.setupLog();
-    }
-
-    @AfterEach
-    public void clean(TestInfo testInfo) {
-        LogUtils.archiveLog(testInfo);
     }
 }

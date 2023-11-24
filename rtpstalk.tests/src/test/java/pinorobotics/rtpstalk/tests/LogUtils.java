@@ -21,11 +21,9 @@ import id.xfunction.function.Unchecked;
 import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.TestInfo;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -44,13 +42,9 @@ public class LogUtils {
         XLogger.load("rtpstalk-test.properties");
     }
 
-    public static void archiveLog(TestInfo testInfo) {
+    public static void archiveLog(String testName) {
         try {
-            Files.move(
-                    LOG_FILE,
-                    LOG_ARCHIVE_FOLDER.resolve(
-                            testInfo.getTestMethod().map(Method::getName).orElse("unknown test")
-                                    + System.currentTimeMillis()));
+            Files.move(LOG_FILE, LOG_ARCHIVE_FOLDER.resolve(testName + System.currentTimeMillis()));
         } catch (IOException e) {
             e.printStackTrace();
         }
