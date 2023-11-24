@@ -46,6 +46,17 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
                             .historyCacheMaxSize(10)
                             .publisherMaxBufferSize(10)
                             .build());
+    private PublisherQosPolicy publisherQosPolicy;
+
+    public RtpsTalkTestPubSubClient() {
+        this(
+                new PublisherQosPolicy(
+                        ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS));
+    }
+
+    public RtpsTalkTestPubSubClient(PublisherQosPolicy publisherQosPolicy) {
+        this.publisherQosPolicy = publisherQosPolicy;
+    }
 
     @Override
     public void close() {
@@ -82,11 +93,6 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
         var transformer =
                 new TransformProcessor<>(this::packUserdata, new SameThreadExecutorService(), 1);
         publisher.subscribe(transformer);
-        client.publish(
-                topic,
-                asType(topic),
-                new PublisherQosPolicy(
-                        ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS),
-                transformer);
+        client.publish(topic, asType(topic), publisherQosPolicy, transformer);
     }
 }

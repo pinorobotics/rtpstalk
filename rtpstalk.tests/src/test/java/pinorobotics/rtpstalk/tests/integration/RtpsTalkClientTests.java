@@ -21,7 +21,6 @@ import id.pubsubtests.PubSubClientTestCase;
 import id.pubsubtests.PubSubClientTests;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -57,12 +56,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     private FastRtpsHelloWorldExample tools;
 
     static Stream<PubSubClientTestCase> dataProvider() {
-        return Stream.of(
-                new PubSubClientTestCase(
-                        RtpsTalkTestPubSubClient::new,
-                        Duration.ofMillis(6_000),
-                        Duration.ofMillis(13_000),
-                        80));
+        return Stream.of(new PubSubClientTestCase(RtpsTalkTestPubSubClient::new));
     }
 
     @BeforeEach
