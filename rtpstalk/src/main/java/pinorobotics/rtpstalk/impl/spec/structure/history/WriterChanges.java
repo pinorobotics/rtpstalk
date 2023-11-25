@@ -17,10 +17,12 @@
  */
 package pinorobotics.rtpstalk.impl.spec.structure.history;
 
+import id.xfunction.Preconditions;
 import id.xfunction.logging.XLogger;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
@@ -31,9 +33,14 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 public class WriterChanges<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterChanges.class);
-    private long seqNumMin;
-    private long seqNumMax;
-    private Map<Long, CacheChange<D>> changes = new LinkedHashMap<>();
+    private SortedMap<Long, CacheChange<D>> sortedChanges = new TreeMap<>();
+
+    /**
+     * TreeMap does not guarantee constant time for {@link TreeMap#firstEntry()}, {@link
+     * TreeMap#lastEntry()} (looking at Linux OpenJDK it is O(logN)) so we keep track of these
+     * values manually to guarantee constant time for them
+     */
+    private long seqNumMin, seqNumMax;
 
     public WriterChanges() {
         seqNumMin = SequenceNumber.MIN.value;
@@ -65,36 +72,67 @@ public class WriterChanges<D extends RtpsTalkMessage> {
     }
 
     public void removeAllBelow(long seqNum) {
-        if (seqNum > seqNumMax) {
-            seqNumMin = seqNumMax = seqNum;
-            changes.clear();
+        if (seqNum < seqNumMin) {
             return;
         }
-        for (long i = seqNumMin; i < seqNum; i++) {
-            changes.remove(i);
-            seqNumMin = i;
+        if (seqNum > seqNumMax) {
+            seqNumMin = seqNumMax = seqNum;
+            sortedChanges.clear();
+            return;
         }
+        var iter = sortedChanges.entrySet().iterator();
+        while (iter.hasNext()) {
+            var curSeqNum = iter.next().getKey();
+            if (curSeqNum >= seqNum) break;
+            iter.remove();
+        }
+        seqNumMin = seqNum - 1;
     }
 
     public boolean containsChange(long sequenceNumber) {
-        return changes.containsKey(sequenceNumber);
+        if (sequenceNumber < seqNumMin) return false;
+        if (sequenceNumber > seqNumMax) return false;
+        return sortedChanges.containsKey(sequenceNumber);
     }
 
     public void addChange(CacheChange<D> change) {
-        boolean firstChange = changes.isEmpty();
-        changes.put(change.getSequenceNumber(), change);
+        boolean firstChange = sortedChanges.isEmpty();
+        sortedChanges.put(change.getSequenceNumber(), change);
         updateSeqNums(change.getSequenceNumber(), firstChange);
     }
 
-    public Stream<CacheChange<D>> findAll(Collection<Long> seqNums) {
-        return seqNums.stream().map(changes::get).filter(change -> change != null);
+    public Stream<CacheChange<D>> findAll(List<Long> seqNums) {
+        if (seqNums.isEmpty()) return Stream.of();
+        var i1 = seqNums.stream().sorted().iterator();
+        var i2 = sortedChanges.entrySet().iterator();
+        var found = new ArrayList<CacheChange<D>>(sortedChanges.size());
+        while (i1.hasNext() && i2.hasNext()) {
+            // unbox to primitive
+            long v1 = i1.next();
+            var v2 = i2.next();
+            while (i1.hasNext() && v1 < v2.getKey()) {
+                v1 = i1.next();
+            }
+            while (i2.hasNext() && v2.getKey() < v1) {
+                v2 = i2.next();
+            }
+            if (v1 == v2.getKey()) {
+                found.add(v2.getValue());
+            }
+        }
+        return found.stream();
     }
 
     public int getNumberOfChanges() {
-        return changes.size();
+        return sortedChanges.size();
     }
 
     public Stream<CacheChange<D>> getAll() {
-        return changes.values().stream();
+        return sortedChanges.values().stream();
+    }
+
+    public Stream<CacheChange<D>> getAllSortedBySeqNum(long afterSeqNum) {
+        Preconditions.isTrue(afterSeqNum >= 0, "cannot be negative");
+        return sortedChanges.tailMap(afterSeqNum + 1).values().stream();
     }
 }

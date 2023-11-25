@@ -25,6 +25,7 @@ import java.net.NetworkInterface;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
@@ -74,4 +75,6 @@ public interface TestConstants {
                     ProtocolVersion.Predefined.Version_2_3.getValue(),
                     VendorId.Predefined.RTPSTALK.getValue(),
                     TEST_GUID_PREFIX);
+    Guid TEST_GUID_READER =
+            new Guid(TestConstants.TEST_GUID_PREFIX, TestConstants.TEST_READER_ENTITY_ID);
 }

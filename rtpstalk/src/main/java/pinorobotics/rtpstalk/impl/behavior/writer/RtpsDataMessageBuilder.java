@@ -95,10 +95,6 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         return this;
     }
 
-    public boolean hasData() {
-        return !data.isEmpty();
-    }
-
     @Override
     public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
         var messages = new ArrayList<RtpsMessage>();
@@ -218,5 +214,9 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                     ? Optional.empty()
                     : Optional.of(new RtpsMessage(header, submessages));
         }
+    }
+
+    public int getDataCount() {
+        return data.size();
     }
 }

@@ -27,8 +27,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
  * SequenceNumberSet SubmessageElements are used as parts of several messages to provide binary
  * information about individual sequence numbers within a range. The sequence numbers represented in
  * the SequenceNumberSet are limited to belong to an interval with a range no bigger than 256.
- */
-/**
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SequenceNumberSet {

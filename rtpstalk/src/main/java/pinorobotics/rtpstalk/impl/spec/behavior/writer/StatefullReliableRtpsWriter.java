@@ -190,22 +190,27 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         proxy.getSender().replay(builder);
     }
 
-    public void matchedReaderRemove(Guid remoteGuid) {
+    public boolean matchedReaderRemove(Guid remoteGuid) {
         var reader = matchedReaders.remove(remoteGuid);
         if (reader == null) {
             logger.fine("Trying to remove unknown matched reader {0}, ignoring...", remoteGuid);
+            return false;
         } else {
             reader.close();
             cleanupCache();
             logger.fine("Matched reader {0} is removed", remoteGuid);
+            return true;
         }
     }
 
     public void matchedReadersRemove(GuidPrefix guidPrefix) {
         logger.fine("Removing all matched readers with guidPrefix {0}", guidPrefix);
-        matchedReaders.keySet().stream()
-                .filter(guid -> guid.guidPrefix.equals(guidPrefix))
-                .forEach(this::matchedReaderRemove);
+        var count =
+                matchedReaders.keySet().stream()
+                        .filter(guid -> guid.guidPrefix.equals(guidPrefix))
+                        .filter(this::matchedReaderRemove)
+                        .count();
+        logger.fine("Removed {0} matched readers with guidPrefix {1}", count, guidPrefix);
     }
 
     /** This operation finds the {@link ReaderProxy} with given {@link Guid} */
@@ -356,10 +361,11 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     private void sendRequested(ReaderProxy readerProxy) {
         var requestedChanges = readerProxy.requestedChanges();
+        var remoteReaderGuid = readerProxy.getRemoteReaderGuid();
         if (requestedChanges.isEmpty()) {
             logger.fine(
                     "Nothing to submit for reader {0} as it did not request any changes, ignoring",
-                    readerProxy.getRemoteReaderGuid());
+                    remoteReaderGuid);
             return;
         }
         var builder =
@@ -367,16 +373,23 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         getConfig(),
                         getTracingToken(),
                         getGuid().guidPrefix,
-                        readerProxy.getRemoteReaderGuid().guidPrefix);
+                        remoteReaderGuid.guidPrefix);
         historyCache
                 .findAll(getGuid(), requestedChanges)
                 .forEach(change -> builder.add(change.getSequenceNumber(), change.getDataValue()));
-        if (!builder.hasData()) return;
+        var numOfFoundChanges = builder.getDataCount();
+        if (numOfFoundChanges == 0) {
+            logger.fine("No requested changes were found for reader {0}", remoteReaderGuid);
+            return;
+        }
+
         // changes requested by one matched Reader we submit to all the senders of matched Readers
         // of the current Writer
         // this requires each sender to filter the changes before sending them
         submit(builder);
-        logger.fine("Submitted {0} requested changes", requestedChanges.size());
+        logger.fine(
+                "Submitted {0} out of {1} requested changes to reader {2}",
+                numOfFoundChanges, requestedChanges.size(), remoteReaderGuid);
     }
 
     public Subscriber<RtpsMessage> getWriterReader() {
