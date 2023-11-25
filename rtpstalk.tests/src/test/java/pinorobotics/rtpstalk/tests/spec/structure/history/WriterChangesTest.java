@@ -41,27 +41,33 @@ public class WriterChangesTest {
         Assertions.assertEquals(SequenceNumber.MIN.value, changes.getSeqNumMin());
         Assertions.assertEquals(SequenceNumber.MIN.value, changes.getSeqNumMax());
         Assertions.assertEquals(false, changes.containsChange(11));
-        Assertions.assertEquals("[]", changes.getAll().toList().toString());
+        Assertions.assertEquals("[]", changes.getAllSortedBySeqNum().toList().toString());
+        Assertions.assertEquals("[]", changes.getAllSortedBySeqNum(4).toList().toString());
 
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 11, null));
         Assertions.assertEquals(1, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(11, changes.getSeqNumMax());
         Assertions.assertEquals(true, changes.containsChange(11));
-        Assertions.assertEquals("[11]", toString(changes.getAll()));
+        Assertions.assertEquals("[11]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[11]", toString(changes.getAllSortedBySeqNum(0)));
+        Assertions.assertEquals("[11]", toString(changes.getAllSortedBySeqNum(4)));
+        Assertions.assertEquals("[]", toString(changes.getAllSortedBySeqNum(11)));
 
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 11, null));
         Assertions.assertEquals(1, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(11, changes.getSeqNumMax());
-        Assertions.assertEquals("[11]", toString(changes.getAll()));
+        Assertions.assertEquals("[11]", toString(changes.getAllSortedBySeqNum()));
 
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 12, null));
         Assertions.assertEquals(2, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(12, changes.getSeqNumMax());
         Assertions.assertEquals(true, changes.containsChange(12));
-        Assertions.assertEquals("[11, 12]", toString(changes.getAll()));
+        Assertions.assertEquals("[11, 12]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[11, 12]", toString(changes.getAllSortedBySeqNum(5)));
+        Assertions.assertEquals("[12]", toString(changes.getAllSortedBySeqNum(11)));
 
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 13, null));
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 14, null));
@@ -69,31 +75,35 @@ public class WriterChangesTest {
         Assertions.assertEquals(4, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(14, changes.getSeqNumMax());
-        Assertions.assertEquals("[11, 12, 13, 14]", toString(changes.getAll()));
+        Assertions.assertEquals("[11, 12, 13, 14]", toString(changes.getAllSortedBySeqNum()));
 
         changes.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 17, null));
         Assertions.assertEquals(5, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
-        Assertions.assertEquals("[11, 12, 13, 14, 17]", toString(changes.getAll()));
+        Assertions.assertEquals("[11, 12, 13, 14, 17]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
 
         changes.removeAllBelow(5);
         Assertions.assertEquals(5, changes.getNumberOfChanges());
         Assertions.assertEquals(11, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
-        Assertions.assertEquals("[11, 12, 13, 14, 17]", toString(changes.getAll()));
+        Assertions.assertEquals("[11, 12, 13, 14, 17]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
 
         changes.removeAllBelow(13);
         Assertions.assertEquals(3, changes.getNumberOfChanges());
         Assertions.assertEquals(12, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
-        Assertions.assertEquals("[13, 14, 17]", toString(changes.getAll()));
+        Assertions.assertEquals("[13, 14, 17]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
 
         changes.removeAllBelow(16);
         Assertions.assertEquals(1, changes.getNumberOfChanges());
         Assertions.assertEquals(15, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
-        Assertions.assertEquals("[17]", toString(changes.getAll()));
+        Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum()));
+        Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
     }
 
     @Test

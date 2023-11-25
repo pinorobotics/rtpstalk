@@ -33,7 +33,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
-import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 
 /**
  *
@@ -71,9 +70,9 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     }
 
     @Override
-    protected AddResult addChange(CacheChange<RtpsTalkParameterListMessage> cacheChange) {
-        var result = super.addChange(cacheChange);
-        if (result == AddResult.NOT_ADDED) return result;
+    protected boolean addChange(CacheChange<RtpsTalkParameterListMessage> cacheChange) {
+        var isAdded = super.addChange(cacheChange);
+        if (!isAdded) return false;
         var parameterList = cacheChange.getDataValue().parameterList();
         parameterList.ifPresent(
                 pl -> {
@@ -82,7 +81,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                         participantsRegistry.add(guid, pl);
                     }
                 });
-        return result;
+        return true;
     }
 
     @Override

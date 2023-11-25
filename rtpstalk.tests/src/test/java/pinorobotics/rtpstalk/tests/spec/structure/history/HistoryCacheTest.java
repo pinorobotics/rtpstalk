@@ -17,13 +17,12 @@
  */
 package pinorobotics.rtpstalk.tests.spec.structure.history;
 
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_GUID_READER;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
-import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 
@@ -35,21 +34,17 @@ public class HistoryCacheTest {
     @Test
     public void test_out_of_order() {
         var cache = new HistoryCache<RtpsTalkDataMessage>(TestConstants.TEST_TRACING_TOKEN);
-        var guid =
-                new Guid(
-                        TestConstants.TEST_GUID_PREFIX,
-                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
         Assertions.assertEquals(
-                AddResult.ADDED,
-                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 1, null)));
+                true,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 1, null)));
         Assertions.assertEquals(
-                AddResult.ADDED,
-                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
+                true,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 3, null)));
         Assertions.assertEquals(
-                AddResult.ADDED_OUT_OF_ORDER,
-                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 2, null)));
+                true,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 2, null)));
         Assertions.assertEquals(
-                AddResult.NOT_ADDED,
-                cache.addChange(new CacheChange<RtpsTalkDataMessage>(guid, 3, null)));
+                false,
+                cache.addChange(new CacheChange<RtpsTalkDataMessage>(TEST_GUID_READER, 3, null)));
     }
 }

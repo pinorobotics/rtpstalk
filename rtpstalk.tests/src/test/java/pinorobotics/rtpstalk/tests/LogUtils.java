@@ -56,7 +56,7 @@ public class LogUtils {
 
     public static void validateNoExceptions() {
         var log = LogUtils.readLogFile();
-        Assertions.assertFalse(log.contains("Exception"));
+        Assertions.assertFalse(log.contains("Exception"), "Exceptions found in the log");
         Assertions.assertFalse(log.contains("ERROR"));
     }
 }

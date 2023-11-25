@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
 import id.xfunction.logging.TracingToken;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +37,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
-import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -52,6 +52,9 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */
     private Map<Guid, WriterProxy> matchedWriters = new ConcurrentHashMap<>();
+
+    /** Not need to be thread-safe since {@link RtpsReader} requests one message at a time */
+    private Map<Guid, Long> lastSubmittedSeqNum = new HashMap<>();
 
     private RtpsTalkConfiguration config;
     private LocalOperatingEntities operatingEntities;
@@ -117,19 +120,42 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         return super.onHeartbeat(guidPrefix, heartbeat);
     }
 
+    @RtpsSpecReference(
+            paragraph = "8.4.1.1.9.b",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    """
+                    For a RELIABLE DDS DataReader, changes in its RTPS Reader’s HistoryCache are made visible to the user
+                    application only when all previous changes (i.e., changes with smaller sequence numbers) are also visible.
+                    """)
     @Override
-    protected AddResult addChange(CacheChange<D> cacheChange) {
-        var result = super.addChange(cacheChange);
-        if (result == AddResult.NOT_ADDED) return result;
-        var writerProxy = matchedWriters.get(cacheChange.getWriterGuid());
-        if (writerProxy != null) {
-            writerProxy.receivedChangeSet(cacheChange.getSequenceNumber());
-        } else {
-            logger.fine(
-                    "No matched writer with guid {0} found for a new change, ignoring...",
-                    cacheChange.getWriterGuid());
+    protected boolean addChange(CacheChange<D> newCacheChange) {
+        logger.entering("addChange");
+        var cache = getReaderCache();
+        var isAdded = cache.addChange(newCacheChange);
+        if (isAdded) {
+            Guid writerGuid = newCacheChange.getWriterGuid();
+            var writerProxy = matchedWriters.get(writerGuid);
+            if (writerProxy != null) {
+                writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
+            } else {
+                logger.fine(
+                        "No matched writer with guid {0} found for a new change, ignoring...",
+                        writerGuid);
+            }
+
+            var lastSeqNum = lastSubmittedSeqNum.getOrDefault(writerGuid, 0L);
+            var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
+            while (iter.hasNext()) {
+                var change = iter.next();
+                if (lastSeqNum + 1 != change.getSequenceNumber()) break;
+                lastSeqNum = change.getSequenceNumber();
+                submitChangeToUser(change);
+            }
+            lastSubmittedSeqNum.put(writerGuid, lastSeqNum);
         }
-        return result;
+        logger.exiting("addChange");
+        return isAdded;
     }
 
     @Override

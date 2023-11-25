@@ -182,7 +182,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         getGuid().guidPrefix,
                         proxy.getRemoteReaderGuid().guidPrefix);
         historyCache
-                .getAll(getGuid())
+                .getAllSortedBySeqNum(getGuid())
                 .forEach(
                         change -> {
                             builder.add(change.getSequenceNumber(), change.getDataValue());

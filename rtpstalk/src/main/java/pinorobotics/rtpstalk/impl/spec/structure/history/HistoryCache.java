@@ -56,18 +56,10 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
-    public enum AddResult {
-        NOT_ADDED,
-        ADDED_OUT_OF_ORDER,
-        ADDED
-    }
-
     /**
      * Add change to the cache.
      *
-     * @return true if this change was added and it has strictly increasing {@link
-     *     pinorobotics.rtpstalk.impl.spec.messages.submessages.Data#writerSN} from previous changes
-     *     of the same Writer
+     * @return true if this change was added
      */
     @RtpsSpecReference(
             paragraph = "8.4.2.2.1",
@@ -76,7 +68,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
                     "Writers must not send"
                         + " data"
                         + " out-of-order" /* But due to UDP Reader may receive it out-of-order */)
-    public AddResult addChange(CacheChange<D> change) {
+    public boolean addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
         if (writerChanges == null) {
             writerChanges = new WriterChanges<>();
@@ -85,7 +77,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
             logger.fine(
                     "Change with sequence number {0} already present in the cache, ignoring...",
                     change.getSequenceNumber());
-            return AddResult.NOT_ADDED;
+            return false;
         }
         var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
         writerChanges.addChange(change);
@@ -93,15 +85,20 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         if (isOutOfOrder) {
             logger.fine(
                     "Change with sequence number {0} is out-of-order", change.getSequenceNumber());
-            return AddResult.ADDED_OUT_OF_ORDER;
         }
-        return AddResult.ADDED;
+        return true;
     }
 
-    public Stream<CacheChange<D>> getAll(Guid writerGuid) {
+    public Stream<CacheChange<D>> getAllSortedBySeqNum(Guid writerGuid) {
         var writerChanges = changes.get(writerGuid);
         if (writerChanges == null) return Stream.of();
-        return writerChanges.getAll();
+        return writerChanges.getAllSortedBySeqNum();
+    }
+
+    public Stream<CacheChange<D>> getAllSortedBySeqNum(Guid writerGuid, long afterSeqNum) {
+        var writerChanges = changes.get(writerGuid);
+        if (writerChanges == null) return Stream.of();
+        return writerChanges.getAllSortedBySeqNum(afterSeqNum);
     }
 
     public Stream<CacheChange<D>> findAll(Guid writerGuid, List<Long> seqNums) {

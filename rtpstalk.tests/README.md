@@ -109,6 +109,11 @@ Create /home/ubuntu/cdds.xml:
 </CycloneDDS>
 ```
 
+### Cleanup zombie processes
+``` 
+ps aux | grep Hello | awk '{print $2}' | xargs kill -9
+```
+
 # Windows setup
 
 Run [build-tools-for-visual-studio-2022 installer](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022):

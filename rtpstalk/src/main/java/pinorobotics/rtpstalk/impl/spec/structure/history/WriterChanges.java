@@ -127,7 +127,7 @@ public class WriterChanges<D extends RtpsTalkMessage> {
         return sortedChanges.size();
     }
 
-    public Stream<CacheChange<D>> getAll() {
+    public Stream<CacheChange<D>> getAllSortedBySeqNum() {
         return sortedChanges.values().stream();
     }
 

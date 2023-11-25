@@ -38,6 +38,7 @@ import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager.MessageTypeMismatchException;
 import pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentReaderProcessor;
 import pinorobotics.rtpstalk.impl.behavior.reader.FilterByEntityIdRtpsSubmessageVisitor;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
@@ -46,13 +47,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
-import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
@@ -175,31 +176,51 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                 .addDataFrag(writerGuid, dataFrag)
                 .ifPresent(
                         message -> {
-                            addChange(
+                            addChangeInternal(
                                     new CacheChange<>(
                                             writerGuid, dataFrag.writerSN.value, (D) message));
                         });
         return Result.CONTINUE;
     }
 
-    /**
-     * @see HistoryCache#addChange(CacheChange)
-     */
-    protected AddResult addChange(CacheChange<D> cacheChange) {
-        logger.entering("addChange");
+    private void addChangeInternal(CacheChange<D> cacheChange) {
+        logger.entering("addChangeInternal");
         if (isClosed()) {
             logger.fine("Reader is closed, ignoring the change");
-            return AddResult.NOT_ADDED;
+            return;
         }
-        var result = cache.addChange(cacheChange);
-        if (result == AddResult.ADDED) {
-            logger.fine(
-                    "Submitting new change with sequence number {0} to subscribers",
-                    cacheChange.getSequenceNumber());
-            submit(cacheChange.getDataValue());
+        addChange(cacheChange);
+        logger.exiting("addChangeInternal");
+    }
+
+    /**
+     * @return HistoryCache#addChange(CacheChange)
+     */
+    @RtpsSpecReference(
+            paragraph = "8.4.1.1.9.b",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    """
+                    For a BEST_EFFORT DDS DataReader, changes in its RTPS Reader’s HistoryCache are made visible to the user
+                    only if no future changes have already been made visible (i.e., if there are no changes in the RTPS Receiver’s
+                    HistoryCache with a higher sequence number).
+                    """)
+    protected boolean addChange(CacheChange<D> cacheChange) {
+        logger.entering("addChange");
+        var seqNumMax = cache.getSeqNumMax(cacheChange.getWriterGuid());
+        var isAdded = cache.addChange(cacheChange);
+        if (isAdded && seqNumMax < cacheChange.getSequenceNumber()) {
+            submitChangeToUser(cacheChange);
         }
         logger.exiting("addChange");
-        return result;
+        return isAdded;
+    }
+
+    protected void submitChangeToUser(CacheChange<D> cacheChange) {
+        logger.fine(
+                "Submitting new change with sequence number {0} to subscribers",
+                cacheChange.getSequenceNumber());
+        submit(cacheChange.getDataValue());
     }
 
     protected void process(RtpsMessage message) {
