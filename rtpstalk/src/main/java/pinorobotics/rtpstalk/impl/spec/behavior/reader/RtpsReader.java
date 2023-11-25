@@ -149,10 +149,10 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
             packager.extractMessage(messageType, d)
                     .ifPresent(
                             message -> {
-                                addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
                                 d.inlineQos.ifPresent(
                                         inlineQos ->
                                                 processInlineQos(writerGuid, message, inlineQos));
+                                addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
                             });
         } catch (MessageTypeMismatchException e) {
             if (Objects.equals(d.readerId, EntityId.Predefined.ENTITYID_UNKNOWN.getValue()))

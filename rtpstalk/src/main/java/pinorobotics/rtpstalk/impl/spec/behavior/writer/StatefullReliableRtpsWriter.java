@@ -50,6 +50,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
@@ -198,6 +199,13 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             cleanupCache();
             logger.fine("Matched reader {0} is removed", remoteGuid);
         }
+    }
+
+    public void matchedReadersRemove(GuidPrefix guidPrefix) {
+        logger.fine("Removing all matched readers with guidPrefix {0}", guidPrefix);
+        matchedReaders.keySet().stream()
+                .filter(guid -> guid.guidPrefix.equals(guidPrefix))
+                .forEach(this::matchedReaderRemove);
     }
 
     /** This operation finds the {@link ReaderProxy} with given {@link Guid} */

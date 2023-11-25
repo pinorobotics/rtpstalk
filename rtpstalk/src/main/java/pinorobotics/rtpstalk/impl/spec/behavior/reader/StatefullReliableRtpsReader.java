@@ -89,6 +89,13 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         }
     }
 
+    public void matchedWritersRemove(GuidPrefix guidPrefix) {
+        logger.fine("Removing all matched writers with guidPrefix {0}", guidPrefix);
+        matchedWriters.keySet().stream()
+                .filter(guid -> guid.guidPrefix.equals(guidPrefix))
+                .forEach(this::matchedWriterRemove);
+    }
+
     @RtpsSpecReference(
             paragraph = "8.3.7.5.5",
             protocolVersion = Predefined.Version_2_3,

@@ -113,25 +113,11 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
     private void removeParticipant(Guid participantGuid) {
         if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(participantGuid.entityId)) {
             logger.fine("Writer marked participant {0} as disposed", participantGuid);
-            var writersToReaders =
-                    Map.of(
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER
-                                    .getValue(),
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR
-                                    .getValue(),
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER
-                                    .getValue(),
-                            EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
-                                    .getValue());
-            // find and remove all readers which belong to the disposed participant
-            for (var pair : writersToReaders.entrySet()) {
-                var readerGuid = new Guid(participantGuid.guidPrefix, pair.getValue());
-                operatingEntities
-                        .getLocalWriters()
-                        .find(pair.getKey())
-                        // check if reader was already removed
-                        .filter(writer -> writer.matchedReaderLookup(readerGuid).isPresent())
-                        .ifPresent(writer -> writer.matchedReaderRemove(readerGuid));
+            for (var reader : operatingEntities.getLocalReaders().getEntities()) {
+                reader.matchedWritersRemove(participantGuid.guidPrefix);
+            }
+            for (var writer : operatingEntities.getLocalWriters().getEntities()) {
+                writer.matchedReadersRemove(participantGuid.guidPrefix);
             }
         }
         participantsRegistry.remove(participantGuid);
