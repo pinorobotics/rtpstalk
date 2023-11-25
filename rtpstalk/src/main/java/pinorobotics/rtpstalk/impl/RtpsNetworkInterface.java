@@ -19,7 +19,7 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.logging.TracingToken;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
@@ -35,7 +35,7 @@ public class RtpsNetworkInterface {
     private Locator metatrafficUnicastLocator;
     private DataChannel defaultUnicastChannel;
     private DataChannel metatrafficUnicastChannel;
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
     private ParticipantsRegistry participantsRegistry;
 
     public RtpsNetworkInterface(
@@ -48,7 +48,7 @@ public class RtpsNetworkInterface {
         this.defaultUnicastLocator = defaultUnicastLocator;
         this.metatrafficUnicastChannel = metatrafficUnicastChannel;
         this.metatrafficUnicastLocator = metatrafficUnicastLocator;
-        operatingEntities = new OperatingEntities(tracingToken);
+        operatingEntities = new LocalOperatingEntities(tracingToken);
         participantsRegistry = new ParticipantsRegistry(tracingToken);
     }
 
@@ -68,7 +68,7 @@ public class RtpsNetworkInterface {
         return metatrafficUnicastChannel;
     }
 
-    public OperatingEntities getOperatingEntities() {
+    public LocalOperatingEntities getOperatingEntities() {
         return operatingEntities;
     }
 

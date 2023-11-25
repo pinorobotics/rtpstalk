@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -68,7 +68,7 @@ public class StatefullReliableRtpsWriterTest {
         var readerGuid =
                 new Guid(
                         TestConstants.TEST_GUID_PREFIX, new EntityId(22, EntityKind.READER_NO_KEY));
-        var operatingEntities = new OperatingEntities(TestConstants.TEST_TRACING_TOKEN);
+        var operatingEntities = new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN);
         try (var writer =
                         new StatefullReliableRtpsWriter<>(
                                 config,

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
@@ -36,13 +36,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
  */
 public class SedpBuiltinSubscriptionsReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
 
     public SedpBuiltinSubscriptionsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            OperatingEntities operatingEntities) {
+            LocalOperatingEntities operatingEntities) {
         super(
                 config,
                 tracingToken,
@@ -81,7 +81,7 @@ public class SedpBuiltinSubscriptionsReader
     private void removeReader(Guid readerGuid) {
         logger.fine("Reader {0} marked subscription as disposed", readerGuid);
         boolean isRemoved = false;
-        for (var writer : operatingEntities.getWriters().getEntities()) {
+        for (var writer : operatingEntities.getLocalWriters().getEntities()) {
             if (writer.matchedReaderLookup(readerGuid).isPresent()) {
                 writer.matchedReaderRemove(readerGuid);
                 isRemoved = true;

@@ -21,7 +21,7 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -36,7 +36,7 @@ public class TestDataReader extends DataReader {
     public TestDataReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             EntityId entityId,
             Executor executor,
             int maxBufferCapacity) {

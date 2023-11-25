@@ -34,7 +34,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class EntityRegistry<E extends RtpsEntity> {
+public class LocalEntityRegistry<E extends RtpsEntity> {
 
     private XLogger logger;
     private Map<EntityId, E> entities = new ConcurrentHashMap<>();
@@ -42,7 +42,7 @@ public class EntityRegistry<E extends RtpsEntity> {
     private int entityIdCounter = 1;
     private EnumSet<EntityKind> kinds = EnumSet.noneOf(EntityKind.class);
 
-    public EntityRegistry(TracingToken tracingToken, EntityKind... kinds) {
+    public LocalEntityRegistry(TracingToken tracingToken, EntityKind... kinds) {
         Arrays.stream(kinds).forEach(this.kinds::add);
         logger = XLogger.getLogger(getClass(), tracingToken);
     }

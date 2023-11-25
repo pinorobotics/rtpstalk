@@ -32,7 +32,7 @@ import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -50,7 +50,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
     private SedpDataFactory dataFactory;
     private RtpsNetworkInterface networkIface;
     private UserDataService userService;
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
     private TracingToken tracingToken;
     private Map<TopicId, Long> announcementSeqNums = new HashMap<>();
     private RtpsTalkConfigurationInternal config;
@@ -84,7 +84,9 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                 topicId);
         var topic = createTopic(topicId);
         EntityId readerEntityId =
-                operatingEntities.getReaders().assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
+                operatingEntities
+                        .getLocalReaders()
+                        .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
         // until user publisher is registered it may discard any submitted messages
         // to avoid losing them we register publisher here and not during match event
         userService.publish(topic.getLocalTopicEntityId(), readerEntityId, actor);
@@ -127,19 +129,19 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
             Topic<PublisherDetails> topic, PublisherDetails publisherDetails) {
         var topicId = topic.getTopicId();
         return operatingEntities
-                .getWriters()
+                .getLocalWriters()
                 .findEntity(topicId)
                 .or(
                         () -> {
                             EntityId readerEntityId =
                                     operatingEntities
-                                            .getReaders()
+                                            .getLocalReaders()
                                             .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
                             userService.publish(
                                     topic.getLocalTopicEntityId(),
                                     readerEntityId,
                                     publisherDetails);
-                            return operatingEntities.getWriters().findEntity(topicId);
+                            return operatingEntities.getLocalWriters().findEntity(topicId);
                         })
                 .orElseThrow(
                         () ->
@@ -212,7 +214,9 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
     @Override
     protected Topic<PublisherDetails> createTopic(TopicId topicId) {
         EntityId writerEntityId =
-                operatingEntities.getWriters().assignNewEntityId(topicId, EntityKind.WRITER_NO_KEY);
+                operatingEntities
+                        .getLocalWriters()
+                        .assignNewEntityId(topicId, EntityKind.WRITER_NO_KEY);
         return new Topic<>(topicId, writerEntityId);
     }
 

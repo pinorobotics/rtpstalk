@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -51,7 +51,7 @@ public class UserDataService implements AutoCloseable {
     private Map<EntityId, DataReader> readers = new HashMap<>();
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
     private TracingToken tracingToken;
     private DataObjectsFactory dataObjectsFactory;
     private RtpsMessageReceiverFactory receiverFactory;

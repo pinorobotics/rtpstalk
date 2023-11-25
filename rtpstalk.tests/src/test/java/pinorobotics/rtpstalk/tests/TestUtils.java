@@ -21,7 +21,7 @@ import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -41,11 +41,11 @@ public class TestUtils {
     public static SedpBuiltinPublicationsWriter newSedpPublicationsWriter(
             TestDataChannelFactory channelFactory) {
         return newSedpPublicationsWriter(
-                channelFactory, new OperatingEntities(TestConstants.TEST_TRACING_TOKEN));
+                channelFactory, new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN));
     }
 
     public static SedpBuiltinPublicationsWriter newSedpPublicationsWriter(
-            TestDataChannelFactory channelFactory, OperatingEntities operatingEntities) {
+            TestDataChannelFactory channelFactory, LocalOperatingEntities operatingEntities) {
         return new SedpBuiltinPublicationsWriter(
                 TestConstants.TEST_CONFIG_INTERNAL,
                 TestConstants.TEST_TRACING_TOKEN,

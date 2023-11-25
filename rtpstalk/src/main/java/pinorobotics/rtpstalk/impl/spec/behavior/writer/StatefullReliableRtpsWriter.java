@@ -42,7 +42,7 @@ import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -89,7 +89,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private HistoryCache<D> historyCache;
     private int heartbeatCount = 1;
     private DataChannelFactory channelFactory;
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
     private int historyCacheMaxSize;
     private WriterRtpsReader<D> writerReader;
     private WriterQosPolicySet qosPolicy;
@@ -101,7 +101,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             EntityId writerEntiyId,
             WriterQosPolicySet qosPolicy) {
         super(config, tracingToken, publisherExecutor, writerEntiyId, true);
@@ -114,7 +114,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         this.heartbeatPeriod = config.publicConfig().heartbeatPeriod();
         this.historyCacheMaxSize = config.publicConfig().historyCacheMaxSize();
         this.historyCache = new HistoryCache<>(tracingToken);
-        operatingEntities.getWriters().add(this);
+        operatingEntities.getLocalWriters().add(this);
         // for heartbeat purposes (to process ackNacks) we create reader
         writerReader = new WriterRtpsReader<>(getTracingToken(), this);
         this.qosPolicy = qosPolicy;
@@ -266,7 +266,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
         }
         super.close();
-        operatingEntities.getWriters().remove(getGuid().entityId);
+        operatingEntities.getLocalWriters().remove(getGuid().entityId);
         executor.shutdown();
         writerReader.getSubscription().ifPresent(Subscription::cancel);
     }

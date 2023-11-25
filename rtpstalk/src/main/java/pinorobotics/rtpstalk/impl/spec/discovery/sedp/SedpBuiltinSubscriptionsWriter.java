@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -44,7 +44,7 @@ public class SedpBuiltinSubscriptionsWriter
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
-            OperatingEntities operatingEntities) {
+            LocalOperatingEntities operatingEntities) {
         super(
                 config,
                 tracingToken,

@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
@@ -35,7 +35,7 @@ public class DataObjectsFactory {
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             EntityId eid) {
         return new DataReader(config, tracingToken, publisherExecutor, operatingEntities, eid);
     }
@@ -45,7 +45,7 @@ public class DataObjectsFactory {
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             EntityId writerEntityId,
             WriterQosPolicySet publisherQosPolicy) {
         return new DataWriter(

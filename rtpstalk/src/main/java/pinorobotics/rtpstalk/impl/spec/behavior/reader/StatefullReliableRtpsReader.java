@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -54,14 +54,14 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     private Map<Guid, WriterProxy> matchedWriters = new ConcurrentHashMap<>();
 
     private RtpsTalkConfiguration config;
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
 
     public StatefullReliableRtpsReader(
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Class<D> messageType,
             Executor publisherExecutor,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             EntityId entityId) {
         super(
                 config,
@@ -72,7 +72,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 ReliabilityQosPolicy.Kind.RELIABLE);
         this.config = config;
         this.operatingEntities = operatingEntities;
-        operatingEntities.getReaders().add(this);
+        operatingEntities.getLocalReaders().add(this);
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
@@ -133,7 +133,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 .forEach(WriterHeartbeatProcessor::ack);
     }
 
-    protected OperatingEntities getOperatingEntities() {
+    protected LocalOperatingEntities getOperatingEntities() {
         return operatingEntities;
     }
 }

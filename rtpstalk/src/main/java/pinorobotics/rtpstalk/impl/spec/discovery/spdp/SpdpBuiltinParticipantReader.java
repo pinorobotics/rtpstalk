@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.spec.behavior.OperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -47,7 +47,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache.AddResult;
  */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
 
-    private OperatingEntities operatingEntities;
+    private LocalOperatingEntities operatingEntities;
     private ParticipantsRegistry participantsRegistry;
 
     public SpdpBuiltinParticipantReader(
@@ -55,7 +55,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
             TracingToken tracingToken,
             Executor publisherExecutor,
             byte[] guidPrefix,
-            OperatingEntities operatingEntities,
+            LocalOperatingEntities operatingEntities,
             ParticipantsRegistry participantsRegistry) {
         super(
                 config,
@@ -127,7 +127,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
             for (var pair : writersToReaders.entrySet()) {
                 var readerGuid = new Guid(participantGuid.guidPrefix, pair.getValue());
                 operatingEntities
-                        .getWriters()
+                        .getLocalWriters()
                         .find(pair.getKey())
                         // check if reader was already removed
                         .filter(writer -> writer.matchedReaderLookup(readerGuid).isPresent())

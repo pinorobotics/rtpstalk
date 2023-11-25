@@ -85,7 +85,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
 
     @Override
     protected Topic<SubscriberDetails> createTopic(TopicId topicId) {
-        var readers = networkIface.getOperatingEntities().getReaders();
+        var readers = networkIface.getOperatingEntities().getLocalReaders();
         var readerEntityId = readers.assignEntityIdIfAbsent(topicId, EntityKind.READER_NO_KEY);
         return new Topic<>(topicId, readerEntityId);
     }
