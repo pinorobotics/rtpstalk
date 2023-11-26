@@ -106,15 +106,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             EntityId writerEntiyId,
             WriterQosPolicySet qosPolicy) {
         super(config, tracingToken, publisherExecutor, writerEntiyId, true);
-        Preconditions.isTrue(
-                qosPolicy.reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE,
-                "ReliabilityKind not supported: %s",
-                qosPolicy.reliabilityKind());
+        Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
         this.heartbeatPeriod = config.publicConfig().heartbeatPeriod();
         this.historyCacheMaxSize = config.publicConfig().historyCacheMaxSize();
-        this.historyCache = new HistoryCache<>(tracingToken);
+        this.historyCache = new HistoryCache<>(getTracingToken());
         operatingEntities.getLocalWriters().add(this);
         // for heartbeat purposes (to process ackNacks) we create reader
         writerReader = new WriterRtpsReader<>(getTracingToken(), this);

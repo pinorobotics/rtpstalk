@@ -77,4 +77,6 @@ public interface TestConstants {
                     TEST_GUID_PREFIX);
     Guid TEST_GUID_READER =
             new Guid(TestConstants.TEST_GUID_PREFIX, TestConstants.TEST_READER_ENTITY_ID);
+    Guid TEST_GUID_WRITER =
+            new Guid(TestConstants.TEST_GUID_PREFIX, TestConstants.TEST_WRITER_ENTITY_ID);
 }

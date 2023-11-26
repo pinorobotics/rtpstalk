@@ -120,7 +120,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
         this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
-        this.cache = new HistoryCache<>(token);
+        this.cache = new HistoryCache<>(tracingToken);
         processor = new DataFragmentReaderProcessor(tracingToken);
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
         logger = XLogger.getLogger(getClass(), tracingToken);

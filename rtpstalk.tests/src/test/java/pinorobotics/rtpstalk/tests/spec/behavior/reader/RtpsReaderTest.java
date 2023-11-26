@@ -73,6 +73,7 @@ public class RtpsReaderTest {
                                 TestConstants.TEST_GUID_READER,
                                 ReliabilityQosPolicy.Kind.BEST_EFFORT),
                         List.of(
+                                // different reader message is ignored
                                 new RtpsMessage(
                                         TestConstants.TEST_HEADER,
                                         new Data(
@@ -99,6 +100,7 @@ public class RtpsReaderTest {
                                 new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
                                 TestConstants.TEST_READER_ENTITY_ID),
                         List.of(
+                                // different reader message is ignored
                                 new RtpsMessage(
                                         TestConstants.TEST_HEADER,
                                         new Data(
@@ -139,8 +141,12 @@ public class RtpsReaderTest {
     public void test(TestCase testCase) {
         var items = new ArrayList<RtpsTalkDataMessage>();
         var reader = testCase.reader;
+        if (reader instanceof StatefullReliableRtpsReader<RtpsTalkDataMessage> statefulReader) {
+            statefulReader.matchedWriterAdd(
+                    TestConstants.TEST_GUID_WRITER,
+                    List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR));
+        }
         reader.subscribe(new CollectorSubscriber<>(items));
-
         try (var publisher =
                 new SubmissionPublisher<RtpsMessage>(new SameThreadExecutorService(), 1)) {
             publisher.subscribe(reader);

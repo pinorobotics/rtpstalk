@@ -131,19 +131,18 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     @Override
     protected boolean addChange(CacheChange<D> newCacheChange) {
         logger.entering("addChange");
+        Guid writerGuid = newCacheChange.getWriterGuid();
+        var writerProxy = matchedWriters.get(writerGuid);
+        if (writerProxy == null) {
+            logger.fine(
+                    "No matched writer with guid {0} found for a new change, ignoring...",
+                    writerGuid);
+            return false;
+        }
         var cache = getReaderCache();
         var isAdded = cache.addChange(newCacheChange);
         if (isAdded) {
-            Guid writerGuid = newCacheChange.getWriterGuid();
-            var writerProxy = matchedWriters.get(writerGuid);
-            if (writerProxy != null) {
-                writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
-            } else {
-                logger.fine(
-                        "No matched writer with guid {0} found for a new change, ignoring...",
-                        writerGuid);
-            }
-
+            writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
             var lastSeqNum = lastSubmittedSeqNum.getOrDefault(writerGuid, 0L);
             var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
             while (iter.hasNext()) {
