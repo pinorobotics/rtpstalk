@@ -18,10 +18,21 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
+@DdsSpecReference(
+        paragraph = "2.2.3.4",
+        protocolVersion = DdsVersion.DDS_1_4,
+        text =
+                """
+        The value offered is considered compatible with the value requested if and only if the inequality “offered kind >= requested
+        kind” evaluates to ‘TRUE.’ For the purposes of this inequality, the values of DURABILITY kind are considered ordered such
+        that VOLATILE < TRANSIENT_LOCAL < TRANSIENT < PERSISTENT.
+        """)
 public class DurabilityQosPolicy {
 
     /**
@@ -85,5 +96,9 @@ public class DurabilityQosPolicy {
     @Override
     public String toString() {
         return Kind.values()[kind].toString();
+    }
+
+    public Kind getKind() {
+        return Kind.values()[kind];
     }
 }

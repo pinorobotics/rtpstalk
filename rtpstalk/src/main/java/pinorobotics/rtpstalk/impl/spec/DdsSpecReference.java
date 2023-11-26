@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2023 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -17,22 +17,15 @@
  */
 package pinorobotics.rtpstalk.impl.spec;
 
-import java.lang.annotation.Repeatable;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
-
 /**
- * Tracks implementation with respect to actual RTPS specification document.
- *
- * @author lambdaprime intid@protonmail.com
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-@Repeatable(RtpsSpecReferences.class)
-public @interface RtpsSpecReference {
-
-    ProtocolVersion.Predefined protocolVersion();
+public @interface DdsSpecReference {
+    DdsVersion protocolVersion();
 
     String paragraph();
 
     String text() default "";
 
-    String RTPS23 = "DDSI-RTPS/2.3";
+    String DDS14 = "DDSI-DDS/1.4";
 }

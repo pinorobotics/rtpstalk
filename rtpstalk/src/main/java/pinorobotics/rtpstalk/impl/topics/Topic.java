@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
@@ -30,7 +32,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
  * <p>Actors can be topic readers and writers.
  *
  * <p>It is observable so it is possible to add listener to it and receive events when there is a
- * match between local and remote actors (means they both belong to same topic)
+ * match between local and remote actors (means they both belong to same topic, but not necessary
+ * have compatible {@link WriterQosPolicySet} and {@link ReaderQosPolicySet})
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
@@ -72,5 +75,10 @@ public class Topic<A> extends XObservable<TopicMatchEvent<A>> {
 
     public EntityId getLocalTopicEntityId() {
         return localTopicEntityId;
+    }
+
+    @Override
+    public String toString() {
+        return topicId.toString();
     }
 }

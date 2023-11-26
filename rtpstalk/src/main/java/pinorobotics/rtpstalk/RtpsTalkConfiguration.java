@@ -122,6 +122,12 @@ public record RtpsTalkConfiguration(
          */
         public static final int DEFAULT_START_PORT = 7412;
 
+        /**
+         * Maximum size of RTPS HistoryCache.
+         *
+         * <p>When Writer HistoryCache becomes full it blocks user Publisher from submitting new
+         * messages.
+         */
         public static final int DEFAULT_HISTORY_CACHE_MAX_SIZE = 100;
 
         public static final Supplier<ExecutorService> DEFAULT_PUBLISHER_EXECUTOR =

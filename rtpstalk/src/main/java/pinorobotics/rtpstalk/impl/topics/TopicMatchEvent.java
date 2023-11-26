@@ -18,9 +18,10 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.impl.TopicId;
 
 /**
- * This event is triggered when there is a match between one of:
+ * This event is triggered when there is a match between {@link TopicId} one of:
  *
  * <ul>
  *   <li>available remote topic publishers in the network and

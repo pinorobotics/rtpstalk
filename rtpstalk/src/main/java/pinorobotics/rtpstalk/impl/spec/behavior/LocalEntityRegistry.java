@@ -40,7 +40,7 @@ public class LocalEntityRegistry<E extends RtpsEntity> {
     private Map<EntityId, E> entities = new ConcurrentHashMap<>();
     private Map<TopicId, EntityId> entityIds = new ConcurrentHashMap<>();
     private int entityIdCounter = 1;
-    private EnumSet<EntityKind> kinds = EnumSet.noneOf(EntityKind.class);
+    private final EnumSet<EntityKind> kinds = EnumSet.noneOf(EntityKind.class);
 
     public LocalEntityRegistry(TracingToken tracingToken, EntityKind... kinds) {
         Arrays.stream(kinds).forEach(this.kinds::add);
