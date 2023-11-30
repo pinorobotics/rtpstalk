@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
@@ -45,7 +48,10 @@ public class StatefullReliableRtpsReaderTest {
                         RtpsTalkDataMessage.class,
                         new SameThreadExecutorService(),
                         new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                        TestConstants.TEST_READER_ENTITY_ID);
+                        TestConstants.TEST_READER_ENTITY_ID,
+                        new ReaderQosPolicySet(
+                                ReliabilityQosPolicy.Kind.RELIABLE,
+                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
         try (var publisher =

@@ -20,10 +20,10 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
@@ -36,6 +36,7 @@ public class ReliableReaderProxy implements ReaderProxy {
     private List<Locator> unicastLocatorList;
     private Set<Long> requestedchangesForReader = ConcurrentHashMap.newKeySet();
     private RtpsMessageSender sender;
+    private ReaderQosPolicySet qosPolicy;
 
     @RtpsSpecReference(
             paragraph = "8.4.15.1",
@@ -46,10 +47,14 @@ public class ReliableReaderProxy implements ReaderProxy {
     private long highestSeqNumSent;
 
     public ReliableReaderProxy(
-            Guid remoteReaderGuid, List<Locator> unicastLocatorList, RtpsMessageSender sender) {
+            Guid remoteReaderGuid,
+            List<Locator> unicastLocatorList,
+            RtpsMessageSender sender,
+            ReaderQosPolicySet qosPolicy) {
         this.remoteReaderGuid = remoteReaderGuid;
         this.unicastLocatorList = unicastLocatorList;
         this.sender = sender;
+        this.qosPolicy = qosPolicy;
     }
 
     @Override
@@ -93,7 +98,7 @@ public class ReliableReaderProxy implements ReaderProxy {
     }
 
     @Override
-    public ReliabilityQosPolicy.Kind getReliabilityKind() {
-        return ReliabilityQosPolicy.Kind.RELIABLE;
+    public ReaderQosPolicySet getQosPolicy() {
+        return qosPolicy;
     }
 }

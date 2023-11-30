@@ -28,15 +28,17 @@ import java.io.IOException;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.EndpointType;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -175,7 +177,12 @@ public class SedpBuiltinEndpointsConfigurator extends SimpleSubscriber<RtpsTalkP
             case READER:
                 try {
                     // use RELIABLE as per @RtpsSpecReference above
-                    writer.matchedReaderAdd(remoteGuid, unicast, Kind.RELIABLE);
+                    writer.matchedReaderAdd(
+                            remoteGuid,
+                            unicast,
+                            new ReaderQosPolicySet(
+                                    ReliabilityQosPolicy.Kind.RELIABLE,
+                                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
                 } catch (IOException e) {
                     logger.severe("Remote endpoint " + remoteEndpoint + " configuration failed", e);
                 }

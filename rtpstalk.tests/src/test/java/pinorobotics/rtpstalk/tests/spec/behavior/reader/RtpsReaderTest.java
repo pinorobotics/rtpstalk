@@ -26,9 +26,11 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
@@ -98,7 +100,10 @@ public class RtpsReaderTest {
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),
                                 new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                                TestConstants.TEST_READER_ENTITY_ID),
+                                TestConstants.TEST_READER_ENTITY_ID,
+                                new ReaderQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
                         List.of(
                                 // different reader message is ignored
                                 new RtpsMessage(
@@ -125,7 +130,10 @@ public class RtpsReaderTest {
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),
                                 new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                                TestConstants.TEST_READER_ENTITY_ID),
+                                TestConstants.TEST_READER_ENTITY_ID,
+                                new ReaderQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
                         List.of(
                                 newRtpsMessage(1, "aaaaa"),
                                 newRtpsMessage(2, "bbbb"),
@@ -133,7 +141,45 @@ public class RtpsReaderTest {
                                 newRtpsMessage(4, "dd"),
                                 newRtpsMessage(3, "ccc"),
                                 newRtpsMessage(6, "ffff")),
-                        "test_RtpsReader_reliable2"));
+                        "test_RtpsReader_reliable2"),
+
+                // test that TRANSIENT_LOCAL_DURABILITY_QOS Reader submits messages only starting
+                // from message sequence number 1
+                new TestCase(
+                        "RELIABLE2",
+                        new StatefullReliableRtpsReader<>(
+                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_TRACING_TOKEN,
+                                RtpsTalkDataMessage.class,
+                                new SameThreadExecutorService(),
+                                new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
+                                TestConstants.TEST_READER_ENTITY_ID,
+                                new ReaderQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
+                        List.of(newRtpsMessage(15, "aaaaa"), newRtpsMessage(16, "bbbb")),
+                        "test_empty_list"),
+
+                // test that VOLATILE_DURABILITY_QOS Reader submits messages starting from first
+                // received
+                new TestCase(
+                        "RELIABLE2",
+                        new StatefullReliableRtpsReader<>(
+                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_TRACING_TOKEN,
+                                RtpsTalkDataMessage.class,
+                                new SameThreadExecutorService(),
+                                new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
+                                TestConstants.TEST_READER_ENTITY_ID,
+                                new ReaderQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS)),
+                        List.of(
+                                newRtpsMessage(15, "aaaaa"),
+                                newRtpsMessage(18, "d"),
+                                newRtpsMessage(16, "bbbb"),
+                                newRtpsMessage(17, "ccc")),
+                        "test_RtpsReader_VOLATILE_DURABILITY_QOS"));
     }
 
     @ParameterizedTest

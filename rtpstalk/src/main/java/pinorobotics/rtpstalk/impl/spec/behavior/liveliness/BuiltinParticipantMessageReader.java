@@ -23,9 +23,14 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.EndpointQos;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
 /**
  * Reliable liveliness reader
@@ -34,6 +39,12 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
  */
 public class BuiltinParticipantMessageReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
+
+    @RtpsSpecReference(paragraph = "8.4.13.3", protocolVersion = Predefined.Version_2_3)
+    private static final ReaderQosPolicySet DEFAULT_POLICY =
+            new ReaderQosPolicySet(
+                    ReliabilityQosPolicy.Kind.RELIABLE,
+                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
     public BuiltinParticipantMessageReader(
             RtpsTalkConfiguration config,
@@ -46,7 +57,8 @@ public class BuiltinParticipantMessageReader
                 RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
-                EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue());
+                EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue(),
+                DEFAULT_POLICY);
         Preconditions.isTrue(
                 config.builtinEndpointQos()
                         != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,

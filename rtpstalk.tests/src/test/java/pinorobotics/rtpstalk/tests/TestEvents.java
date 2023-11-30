@@ -21,6 +21,9 @@ import id.xfunction.nio.file.XFiles;
 import java.time.Duration;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
@@ -45,12 +48,17 @@ public class TestEvents {
     private static RemoteActorDetails extractRemoteActorDetails(String line) {
         line =
                 line.replaceAll(
-                        ".*\"guidPrefix\": . .value.: \"(.*)\" ., .entityId.: \"(\\d+)\" .*"
-                                + " \"reliabilityKind\": \"(.*)\".*",
-                        "$1 $2 $3");
+                        """
+                        .*"guidPrefix": . "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
+                        """
+                                .strip(),
+                        "$1 $2 $3 $4");
         var a = line.split(" ");
         return new RemoteActorDetails(
-                new Guid(a[0], a[1]), List.of(), ReliabilityQosPolicy.Kind.valueOf(a[2]));
+                new Guid(a[0], a[1]),
+                List.of(),
+                ReliabilityQosPolicy.Kind.valueOf(a[2]),
+                DurabilityQosPolicy.Kind.valueOf(a[3]));
     }
 
     public static void waitForDisposedParticipant(Guid participant) throws Exception {
@@ -61,5 +69,20 @@ public class TestEvents {
     public static void waitForDisposedSubscriber(Guid reader) throws Exception {
         var str = "Reader " + reader + " marked subscription as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
+    }
+
+    @Test
+    public void test_extractRemoteActorDetails() {
+        var line =
+                """
+            Discovered Publisher for topic test with following details { "endpointGuid": { "guidPrefix": { "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+            """
+                        .strip();
+        Assertions.assertEquals(
+                """
+                { "endpointGuid": { "guidPrefix": { "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+                """
+                        .strip(),
+                extractRemoteActorDetails(line).toString());
     }
 }

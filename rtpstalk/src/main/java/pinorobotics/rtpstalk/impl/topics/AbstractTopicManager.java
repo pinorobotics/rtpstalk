@@ -29,6 +29,9 @@ import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsReader;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinSubscriptionsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -95,9 +98,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     protected abstract Topic<A> createTopic(TopicId topicId);
 
     /**
-     * Receives messages from {@link
-     * EntityId.Predefined#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR} endpoint when new publishers
-     * discovered
+     * Receives messages from local {@link SedpBuiltinPublicationsReader} or {@link
+     * SedpBuiltinSubscriptionsReader}
      */
     @Override
     public void onNext(RtpsTalkParameterListMessage message) {
@@ -168,9 +170,22 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                                                     + " by default...");
                                         return ReliabilityQosPolicy.Kind.BEST_EFFORT;
                                     });
+            var durabilityKind =
+                    pl.getDurabilityKind()
+                            .orElseGet(
+                                    () -> {
+                                        logger.warning(
+                                                "Received subscription without DurabilityQosPolicy,"
+                                                        + " assuming VOLATILE_DURABILITY_QOS by"
+                                                        + " default...");
+                                        return DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS;
+                                    });
             var remoteActorDetails =
                     new RemoteActorDetails(
-                            pubEndpointGuid, List.of(pubUnicastLocator), reliabilityKind);
+                            pubEndpointGuid,
+                            List.of(pubUnicastLocator),
+                            reliabilityKind,
+                            durabilityKind);
             logger.fine(
                     "Discovered {0} for topic {1} type {2} with following details {3}",
                     actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,

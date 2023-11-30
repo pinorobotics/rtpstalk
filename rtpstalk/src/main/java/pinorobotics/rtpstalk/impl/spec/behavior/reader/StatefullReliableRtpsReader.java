@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
+import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -58,6 +61,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
 
     private RtpsTalkConfiguration config;
     private LocalOperatingEntities operatingEntities;
+    private ReaderQosPolicySet qosPolicy;
 
     public StatefullReliableRtpsReader(
             RtpsTalkConfiguration config,
@@ -65,7 +69,8 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             Class<D> messageType,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
-            EntityId entityId) {
+            EntityId entityId,
+            ReaderQosPolicySet qosPolicy) {
         super(
                 config,
                 tracingToken,
@@ -73,6 +78,8 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 publisherExecutor,
                 new Guid(config.guidPrefix(), entityId),
                 ReliabilityQosPolicy.Kind.RELIABLE);
+        Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
+        this.qosPolicy = qosPolicy;
         this.config = config;
         this.operatingEntities = operatingEntities;
         operatingEntities.getLocalReaders().add(this);
@@ -143,7 +150,10 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         var isAdded = cache.addChange(newCacheChange);
         if (isAdded) {
             writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
-            var lastSeqNum = lastSubmittedSeqNum.getOrDefault(writerGuid, 0L);
+            var lastSeqNum = lastSubmittedSeqNum.get(writerGuid);
+            if (lastSeqNum == null) {
+                lastSeqNum = calcStartSeqNum(newCacheChange.getSequenceNumber());
+            }
             var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
             while (iter.hasNext()) {
                 var change = iter.next();
@@ -155,6 +165,12 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         }
         logger.exiting("addChange");
         return isAdded;
+    }
+
+    private long calcStartSeqNum(long firstSeqNumReceived) {
+        if (qosPolicy.durabilityKind() == DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)
+            return 0;
+        return firstSeqNumReceived - 1;
     }
 
     @Override

@@ -21,8 +21,8 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
@@ -84,8 +84,14 @@ public class ParameterList implements SubmessageElement, Payload {
         return params.isEmpty() && userParams.isEmpty();
     }
 
-    public Optional<Kind> getReliabilityKind() {
+    public Optional<ReliabilityQosPolicy.Kind> getReliabilityKind() {
         if (params.get(ParameterId.PID_RELIABILITY) instanceof ReliabilityQosPolicy policy)
+            return Optional.of(policy.getKind());
+        return Optional.empty();
+    }
+
+    public Optional<DurabilityQosPolicy.Kind> getDurabilityKind() {
+        if (params.get(ParameterId.PID_DURABILITY) instanceof DurabilityQosPolicy policy)
             return Optional.of(policy.getKind());
         return Optional.empty();
     }

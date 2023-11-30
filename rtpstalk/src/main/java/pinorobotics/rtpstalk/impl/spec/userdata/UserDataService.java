@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Predicate;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -37,7 +37,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
-import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -74,8 +73,9 @@ public class UserDataService implements AutoCloseable {
             EntityId readerEntityId,
             List<Locator> remoteWriterDefaultUnicastLocators,
             Guid remoteWriterEndpointGuid,
-            Subscriber<RtpsTalkDataMessage> userSubscriber) {
+            SubscriberDetails subscriberDetails) {
         Preconditions.isTrue(isStarted, "User data service is not started");
+        var userSubscriber = subscriberDetails.subscriber();
         var reader =
                 readers.computeIfAbsent(
                         readerEntityId,
@@ -85,7 +85,8 @@ public class UserDataService implements AutoCloseable {
                                         tracingToken,
                                         publisherExecutor,
                                         operatingEntities,
-                                        eid));
+                                        eid,
+                                        subscriberDetails.qosPolicy()));
         reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
         if (reader.isSubscribed(userSubscriber)) {
             // this happens when there are several publishers for same topic

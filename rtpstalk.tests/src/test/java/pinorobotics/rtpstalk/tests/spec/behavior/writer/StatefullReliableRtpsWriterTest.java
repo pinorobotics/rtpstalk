@@ -26,6 +26,7 @@ import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
@@ -34,7 +35,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
@@ -94,7 +94,7 @@ public class StatefullReliableRtpsWriterTest {
             writer.matchedReaderAdd(
                     readerGuid,
                     List.of(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR),
-                    Kind.RELIABLE);
+                    new ReaderQosPolicySet());
             for (int i = 0; i < 5; i++) {
                 publisher.submit(new RtpsTalkDataMessage("hello"));
                 count++;

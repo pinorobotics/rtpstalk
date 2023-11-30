@@ -21,15 +21,34 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SedpBuiltinPublicationsReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
+
+    @RtpsSpecReference(
+            paragraph = "8.5.4.2",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The SEDP maps the DDS built-in Entities for the DCPSSubscription,"
+                            + " DCPSPublication, and DCPSTopic Topics.")
+    @DdsSpecReference(paragraph = "2.2.5", protocolVersion = DdsVersion.DDS_1_4)
+    private static final ReaderQosPolicySet DEFAULT_POLICY =
+            new ReaderQosPolicySet(
+                    ReliabilityQosPolicy.Kind.RELIABLE,
+                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
     public SedpBuiltinPublicationsReader(
             RtpsTalkConfiguration config,
@@ -42,6 +61,7 @@ public class SedpBuiltinPublicationsReader
                 RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue());
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR.getValue(),
+                DEFAULT_POLICY);
     }
 }

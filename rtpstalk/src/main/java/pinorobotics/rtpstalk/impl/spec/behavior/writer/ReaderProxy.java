@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import java.util.List;
 import java.util.function.Predicate;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -71,7 +72,7 @@ public interface ReaderProxy extends AutoCloseable {
 
     RtpsMessageSender getSender();
 
-    ReliabilityQosPolicy.Kind getReliabilityKind();
+    ReaderQosPolicySet getQosPolicy();
 
     @Override
     default void close() {
@@ -80,11 +81,12 @@ public interface ReaderProxy extends AutoCloseable {
 
     static Predicate<ReaderProxy> isReliable() {
         return readerProxy ->
-                readerProxy.getReliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE;
+                readerProxy.getQosPolicy().reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE;
     }
 
     static Predicate<ReaderProxy> isBestEffort() {
         return readerProxy ->
-                readerProxy.getReliabilityKind() == ReliabilityQosPolicy.Kind.BEST_EFFORT;
+                readerProxy.getQosPolicy().reliabilityKind()
+                        == ReliabilityQosPolicy.Kind.BEST_EFFORT;
     }
 }

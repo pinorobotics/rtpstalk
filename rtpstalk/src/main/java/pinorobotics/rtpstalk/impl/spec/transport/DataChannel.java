@@ -63,6 +63,7 @@ public class DataChannel implements AutoCloseable {
     private GuidPrefix guidPrefix;
     private SocketAddress target;
     private XLogger logger;
+    private boolean isClosed;
 
     protected DataChannel(
             TracingToken tracingToken,
@@ -115,6 +116,10 @@ public class DataChannel implements AutoCloseable {
 
     public void send(Guid remoteReader, RtpsMessage message) {
         logger.fine("Outgoing RTPS message for remote reader {0}: {1}", remoteReader, message);
+        if (isClosed) {
+            logger.fine("Data channel is already closed, ignoring the message...");
+            return;
+        }
         var buf = ByteBuffer.allocate(packetBufferSize);
         buf.rewind();
         buf.limit(buf.capacity());
@@ -136,6 +141,7 @@ public class DataChannel implements AutoCloseable {
 
     @Override
     public void close() {
+        isClosed = true;
         try {
             datagramChannel.close();
         } catch (IOException e) {

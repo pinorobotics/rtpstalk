@@ -26,6 +26,8 @@ import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.spec.DataFactory;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -34,7 +36,11 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /**
- * Receives all new discovered publications from the local {@link
+ * Subscribes to local {@link SedpBuiltinPublicationsReader} which receives messages from all
+ * discovered remote {@link
+ * BuiltinEndpointSet.Endpoint#DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER}
+ *
+ * <p>Receives all new discovered publications from the local {@link
  * EntityId.Predefined#ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR} reader and maintains a list of
  * all topics to which local participant can be subscribed or willing to subscribe (if publisher is
  * not yet available). When user effectively subscribes to any of them it updates {@link
@@ -79,7 +85,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
                     topic.getLocalTopicEntityId(),
                     remoteActor.writerUnicastLocator(),
                     remoteActor.endpointGuid(),
-                    subEvent.localActor().subscriber());
+                    subEvent.localActor());
         };
     }
 

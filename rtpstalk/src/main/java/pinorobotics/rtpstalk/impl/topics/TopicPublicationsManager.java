@@ -32,8 +32,11 @@ import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
+import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinSubscriptionsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
@@ -42,6 +45,10 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 
 /**
+ * Subscribes to local {@link SedpBuiltinSubscriptionsReader} which receives messages from all
+ * discovered remote {@link
+ * BuiltinEndpointSet.Endpoint#DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER}
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public class TopicPublicationsManager extends AbstractTopicManager<PublisherDetails> {
@@ -117,7 +124,9 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                                     writer.matchedReaderAdd(
                                             remoteActor.endpointGuid(),
                                             remoteActor.writerUnicastLocator(),
-                                            remoteActor.reliabilityKind());
+                                            new ReaderQosPolicySet(
+                                                    remoteActor.reliabilityKind(),
+                                                    remoteActor.durabilityKind()));
                                 } catch (IOException e) {
                                     logger.severe(e);
                                 }

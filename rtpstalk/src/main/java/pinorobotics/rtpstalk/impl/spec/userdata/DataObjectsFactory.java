@@ -21,6 +21,7 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -36,8 +37,15 @@ public class DataObjectsFactory {
             TracingToken tracingToken,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
-            EntityId eid) {
-        return new DataReader(config, tracingToken, publisherExecutor, operatingEntities, eid);
+            EntityId eid,
+            ReaderQosPolicySet subscriberQosPolicy) {
+        return new DataReader(
+                config,
+                tracingToken,
+                publisherExecutor,
+                operatingEntities,
+                eid,
+                subscriberQosPolicy);
     }
 
     public DataWriter newDataWriter(

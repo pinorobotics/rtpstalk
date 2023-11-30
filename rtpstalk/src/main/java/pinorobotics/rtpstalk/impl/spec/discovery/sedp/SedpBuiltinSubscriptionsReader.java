@@ -22,20 +22,40 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SedpBuiltinSubscriptionsReader
         extends StatefullReliableRtpsReader<RtpsTalkParameterListMessage> {
+
+    @RtpsSpecReference(
+            paragraph = "8.5.4.2",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The SEDP maps the DDS built-in Entities for the DCPSSubscription,"
+                            + " DCPSPublication, and DCPSTopic Topics.")
+    @DdsSpecReference(paragraph = "2.2.5", protocolVersion = DdsVersion.DDS_1_4)
+    private static final ReaderQosPolicySet DEFAULT_POLICY =
+            new ReaderQosPolicySet(
+                    ReliabilityQosPolicy.Kind.RELIABLE,
+                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
+
     private LocalOperatingEntities operatingEntities;
 
     public SedpBuiltinSubscriptionsReader(
@@ -49,7 +69,8 @@ public class SedpBuiltinSubscriptionsReader
                 RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
-                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue());
+                EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue(),
+                DEFAULT_POLICY);
         this.operatingEntities = operatingEntities;
     }
 

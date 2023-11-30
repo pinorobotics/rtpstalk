@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.List;
+import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -29,7 +30,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 public record RemoteActorDetails(
         Guid endpointGuid,
         List<Locator> writerUnicastLocator,
-        ReliabilityQosPolicy.Kind reliabilityKind) {
+        ReliabilityQosPolicy.Kind reliabilityKind,
+        DurabilityQosPolicy.Kind durabilityKind) {
 
     @Override
     public String toString() {
@@ -37,6 +39,7 @@ public record RemoteActorDetails(
         builder.append("endpointGuid", endpointGuid);
         builder.append("writerUnicastLocator", writerUnicastLocator);
         builder.append("reliabilityKind", reliabilityKind);
+        builder.append("durabilityKind", durabilityKind);
         return builder.toString();
     }
 }

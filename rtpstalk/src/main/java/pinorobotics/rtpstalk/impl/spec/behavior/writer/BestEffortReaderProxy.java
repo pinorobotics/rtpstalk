@@ -18,9 +18,9 @@
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
 import java.util.List;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
 /**
@@ -31,12 +31,17 @@ public class BestEffortReaderProxy implements ReaderProxy {
     private Guid remoteReaderGuid;
     private List<Locator> unicastLocatorList;
     private RtpsMessageSender sender;
+    private ReaderQosPolicySet qosPolicy;
 
     public BestEffortReaderProxy(
-            Guid remoteReaderGuid, List<Locator> unicastLocatorList, RtpsMessageSender sender) {
+            Guid remoteReaderGuid,
+            List<Locator> unicastLocatorList,
+            RtpsMessageSender sender,
+            ReaderQosPolicySet qosPolicy) {
         this.remoteReaderGuid = remoteReaderGuid;
         this.unicastLocatorList = unicastLocatorList;
         this.sender = sender;
+        this.qosPolicy = qosPolicy;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class BestEffortReaderProxy implements ReaderProxy {
     }
 
     @Override
-    public ReliabilityQosPolicy.Kind getReliabilityKind() {
-        return ReliabilityQosPolicy.Kind.BEST_EFFORT;
+    public ReaderQosPolicySet getQosPolicy() {
+        return qosPolicy;
     }
 }

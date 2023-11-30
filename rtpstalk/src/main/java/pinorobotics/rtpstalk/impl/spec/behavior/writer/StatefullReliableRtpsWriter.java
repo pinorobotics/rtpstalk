@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
@@ -47,7 +48,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -132,7 +132,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     public synchronized void matchedReaderAdd(
-            Guid remoteReaderGuid, List<Locator> unicast, ReliabilityQosPolicy.Kind reliabilityKind)
+            Guid remoteReaderGuid, List<Locator> unicast, ReaderQosPolicySet qosPolicy)
             throws IOException {
         if (matchedReaders.containsKey(remoteReaderGuid)) {
             logger.fine(
@@ -146,11 +146,13 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         channelFactory.connect(getTracingToken(), unicast.get(0)),
                         remoteReaderGuid,
                         getGuid().entityId);
+        var reliabilityKind = qosPolicy.reliabilityKind();
         var proxy =
                 switch (reliabilityKind) {
-                    case RELIABLE -> new ReliableReaderProxy(remoteReaderGuid, unicast, sender);
+                    case RELIABLE -> new ReliableReaderProxy(
+                            remoteReaderGuid, unicast, sender, qosPolicy);
                     case BEST_EFFORT -> new BestEffortReaderProxy(
-                            remoteReaderGuid, unicast, sender);
+                            remoteReaderGuid, unicast, sender, qosPolicy);
                     default -> throw new UnsupportedOperationException(
                             "ReliabilityQosPolicy " + reliabilityKind);
                 };
@@ -170,7 +172,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private void replayHistoryCacheIfNeeded(ReaderProxy proxy) {
         if (qosPolicy.durabilityKind() != DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)
             return;
-        if (proxy.getReliabilityKind() != Kind.BEST_EFFORT) return;
+        if (proxy.getQosPolicy().reliabilityKind() != ReliabilityQosPolicy.Kind.BEST_EFFORT) return;
         logger.fine("Replaying history changes for Reader {0}", proxy.getRemoteReaderGuid());
         var builder =
                 new RtpsDataMessageBuilder(
