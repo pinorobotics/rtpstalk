@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests.spec.userdata;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -35,7 +35,7 @@ public class TestDataReader extends DataReader {
     private int subscribeCount;
 
     public TestDataReader(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             LocalOperatingEntities operatingEntities,
             EntityId entityId,

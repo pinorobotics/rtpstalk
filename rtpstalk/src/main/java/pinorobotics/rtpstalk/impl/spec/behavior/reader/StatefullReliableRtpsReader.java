@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
@@ -59,12 +59,12 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     /** Not need to be thread-safe since {@link RtpsReader} requests one message at a time */
     private Map<Guid, Long> lastSubmittedSeqNum = new HashMap<>();
 
-    private RtpsTalkConfiguration config;
+    private RtpsTalkConfigurationInternal config;
     private LocalOperatingEntities operatingEntities;
     private ReaderQosPolicySet qosPolicy;
 
     public StatefullReliableRtpsReader(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Class<D> messageType,
             Executor publisherExecutor,
@@ -72,11 +72,11 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             EntityId entityId,
             ReaderQosPolicySet qosPolicy) {
         super(
-                config,
+                config.publicConfig(),
                 tracingToken,
                 messageType,
                 publisherExecutor,
-                new Guid(config.guidPrefix(), entityId),
+                new Guid(config.publicConfig().guidPrefix(), entityId),
                 ReliabilityQosPolicy.Kind.RELIABLE);
         Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.qosPolicy = qosPolicy;

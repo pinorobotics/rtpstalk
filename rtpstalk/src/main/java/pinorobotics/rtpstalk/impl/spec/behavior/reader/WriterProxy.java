@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -65,11 +66,11 @@ public class WriterProxy {
 
     public WriterProxy(
             TracingToken tracingToken,
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             Guid readerGuid,
             Guid remoteWriterGuid,
             List<Locator> unicastLocatorList) {
-        this.config = config;
+        this.config = config.publicConfig();
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
         this.unicastLocatorList = List.copyOf(unicastLocatorList);

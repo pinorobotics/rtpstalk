@@ -81,7 +81,7 @@ public class UserDataService implements AutoCloseable {
                         readerEntityId,
                         eid ->
                                 dataObjectsFactory.newDataReader(
-                                        config.publicConfig(),
+                                        config,
                                         tracingToken,
                                         publisherExecutor,
                                         operatingEntities,

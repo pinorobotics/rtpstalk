@@ -95,7 +95,7 @@ public class RtpsReaderTest {
                 new TestCase(
                         "RELIABLE1",
                         new StatefullReliableRtpsReader<>(
-                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_CONFIG_INTERNAL,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),
@@ -125,7 +125,7 @@ public class RtpsReaderTest {
                 new TestCase(
                         "RELIABLE2",
                         new StatefullReliableRtpsReader<>(
-                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_CONFIG_INTERNAL,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),
@@ -148,7 +148,7 @@ public class RtpsReaderTest {
                 new TestCase(
                         "RELIABLE2",
                         new StatefullReliableRtpsReader<>(
-                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_CONFIG_INTERNAL,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),
@@ -165,7 +165,7 @@ public class RtpsReaderTest {
                 new TestCase(
                         "RELIABLE2",
                         new StatefullReliableRtpsReader<>(
-                                TestConstants.TEST_CONFIG,
+                                TestConstants.TEST_CONFIG_INTERNAL,
                                 TestConstants.TEST_TRACING_TOKEN,
                                 RtpsTalkDataMessage.class,
                                 new SameThreadExecutorService(),

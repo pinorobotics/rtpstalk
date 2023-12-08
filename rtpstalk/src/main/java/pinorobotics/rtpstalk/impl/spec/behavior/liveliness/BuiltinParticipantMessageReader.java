@@ -21,7 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.EndpointQos;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
@@ -47,7 +47,7 @@ public class BuiltinParticipantMessageReader
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
     public BuiltinParticipantMessageReader(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities) {
@@ -60,7 +60,7 @@ public class BuiltinParticipantMessageReader
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue(),
                 DEFAULT_POLICY);
         Preconditions.isTrue(
-                config.builtinEndpointQos()
+                config.publicConfig().builtinEndpointQos()
                         != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,
                 "Not supported with best effort builtin endpoint Qos");
     }

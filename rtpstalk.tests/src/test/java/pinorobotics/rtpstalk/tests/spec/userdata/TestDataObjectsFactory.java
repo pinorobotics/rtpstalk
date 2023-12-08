@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ForkJoinPool;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
@@ -57,7 +57,7 @@ public class TestDataObjectsFactory extends DataObjectsFactory {
 
     @Override
     public DataReader newDataReader(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,

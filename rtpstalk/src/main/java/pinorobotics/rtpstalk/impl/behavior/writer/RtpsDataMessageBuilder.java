@@ -27,20 +27,15 @@ import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.spec.messages.Header;
-import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
+import pinorobotics.rtpstalk.impl.messages.RtpsMessageAggregator;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
-import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
@@ -52,12 +47,12 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
 
     private XLogger logger;
     private Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
-    private Header header;
     private Optional<GuidPrefix> readerGuidPrefix;
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
     private long lastSeqNum;
     private int maxSubmessageSize;
     private TracingToken tracingToken;
+    private GuidPrefix writerGuidPrefix;
 
     public RtpsDataMessageBuilder(
             RtpsTalkConfigurationInternal config,
@@ -72,12 +67,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             GuidPrefix writerGuidPrefix,
             GuidPrefix readerGuidPrefix) {
         this.tracingToken = tracingToken;
-        header =
-                new Header(
-                        ProtocolId.Predefined.RTPS.getValue(),
-                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                        VendorId.Predefined.RTPSTALK.getValue(),
-                        writerGuidPrefix);
+        this.writerGuidPrefix = writerGuidPrefix;
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
         this.maxSubmessageSize = config.maxSubmessageSize();
         logger = XLogger.getLogger(getClass(), tracingToken);
@@ -98,7 +88,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     @Override
     public List<RtpsMessage> build(EntityId readerEntiyId, EntityId writerEntityId) {
         var messages = new ArrayList<RtpsMessage>();
-        var messageBuilder = new InternalBuilder();
+        var messageBuilder = new InternalBuilder(writerGuidPrefix);
         for (var e : data.entrySet()) {
             var seqNum = e.getKey();
             var message = e.getValue();
@@ -108,7 +98,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                 if (messageBuilder.add(submessage)) continue;
                 // the message builder is already full so we reset it
                 messageBuilder.build().ifPresent(messages::add);
-                messageBuilder = new InternalBuilder();
+                messageBuilder = new InternalBuilder(writerGuidPrefix);
                 if (messageBuilder.add(submessage)) continue;
                 // we could not add the submessage into empty message
                 // trying to use fragmentation
@@ -116,7 +106,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             if (message instanceof RtpsTalkDataMessage dataMessage) {
                 // reset submessages in the builder if any
                 messageBuilder.build().ifPresent(messages::add);
-                messageBuilder = new InternalBuilder();
+                messageBuilder = new InternalBuilder(writerGuidPrefix);
                 logger.fine(
                         "Data from message with sequence number {0} does not fit into RTPS Data"
                                 + " message and will be fragmented",
@@ -136,7 +126,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                             messageBuilder.add(fragment),
                             "DataFrag submessage cannot be added to RTPS message");
                     messages.add(messageBuilder.build().get());
-                    messageBuilder = new InternalBuilder();
+                    messageBuilder = new InternalBuilder(writerGuidPrefix);
                 }
             } else {
                 throw new UnsupportedOperationException(
@@ -168,12 +158,10 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     }
 
     /** Aggregates submessages into single message until it becomes full */
-    private class InternalBuilder {
-        static final int headerLen = LengthCalculator.getInstance().getFixedLength(Header.class);
-        List<Submessage> submessages = new ArrayList<Submessage>();
-        int messageLen = headerLen;
+    private class InternalBuilder extends RtpsMessageAggregator {
 
-        InternalBuilder() {
+        InternalBuilder(GuidPrefix writerGuidPrefix) {
+            super(tracingToken, writerGuidPrefix, maxSubmessageSize);
             if (readerGuidPrefix.isPresent()) {
                 // RTPS specification does not explicitly tell all the cases when INFO_DST should be
                 // included.
@@ -181,38 +169,12 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                 // multiple participants running on same unicast locator we include it as part of
                 // DATA
                 // See: https://github.com/eclipse-cyclonedds/cyclonedds/issues/1605
-                submessages.add(new InfoDestination(readerGuidPrefix.get()));
-                messageLen += LengthCalculator.getInstance().getFixedLength(InfoDestination.class);
+                add(new InfoDestination(readerGuidPrefix.get()));
             }
             // we do not timestamp data changes so we do not include InfoTimestamp per each Data
             // submessage, instead we include InfoTimestamp per entire RtpsMessage message and only
             // once
-            submessages.add(InfoTimestamp.now());
-            messageLen += LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class);
-        }
-
-        public int getSize() {
-            return messageLen;
-        }
-
-        boolean add(Submessage submessage) {
-            var submessageLen = submessage.submessageHeader.submessageLength.getUnsigned();
-            if (messageLen + submessageLen > maxSubmessageSize) {
-                logger.fine(
-                        "Not enough space to add new submessage with size {0}. Current size {1},"
-                                + " max size {2}",
-                        submessageLen, messageLen, maxSubmessageSize);
-                return false;
-            }
-            submessages.add(submessage);
-            messageLen += submessageLen;
-            return true;
-        }
-
-        public Optional<RtpsMessage> build() {
-            return submessages.isEmpty()
-                    ? Optional.empty()
-                    : Optional.of(new RtpsMessage(header, submessages));
+            add(InfoTimestamp.now());
         }
     }
 

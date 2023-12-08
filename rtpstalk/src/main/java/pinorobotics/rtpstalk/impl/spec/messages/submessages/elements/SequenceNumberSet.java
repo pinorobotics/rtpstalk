@@ -32,6 +32,11 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
  */
 public class SequenceNumberSet {
 
+    /** Bitmap of up to 256 bits */
+    public static final int BITMAP_SIZE = 256;
+
+    public static final int BITMAP_SIZE_IN_INTS = BITMAP_SIZE / Integer.SIZE;
+
     @RtpsSpecReference(
             paragraph = "9.4.2.6",
             protocolVersion = Predefined.Version_2_3,
@@ -41,7 +46,6 @@ public class SequenceNumberSet {
     /** Number of bits in a set */
     public UnsignedInt numBits;
 
-    /** Bitmap of up to 256 bits */
     public int[] bitmap = new int[0];
 
     public SequenceNumberSet() {}
@@ -54,7 +58,8 @@ public class SequenceNumberSet {
         this.bitmapBase = bitmapBase;
         this.numBits = new UnsignedInt(numBits);
         if (bitmap.length == 0) return;
-        Preconditions.isTrue(bitmap.length <= 8, "Bitmap size should not exceed 8");
+        Preconditions.isTrue(
+                bitmap.length <= BITMAP_SIZE_IN_INTS, "Bitmap size should not exceed 8");
         this.bitmap = bitmap;
     }
 

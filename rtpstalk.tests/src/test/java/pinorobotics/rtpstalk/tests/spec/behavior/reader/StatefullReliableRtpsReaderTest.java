@@ -43,7 +43,7 @@ public class StatefullReliableRtpsReaderTest {
     public void test_messages_from_non_matched_writers_are_ignored() {
         var reader =
                 new StatefullReliableRtpsReader<>(
-                        TestConstants.TEST_CONFIG,
+                        TestConstants.TEST_CONFIG_INTERNAL,
                         TestConstants.TEST_TRACING_TOKEN,
                         RtpsTalkDataMessage.class,
                         new SameThreadExecutorService(),

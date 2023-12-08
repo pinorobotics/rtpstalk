@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 import id.xfunction.logging.TracingToken;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
@@ -59,7 +59,7 @@ public class SedpBuiltinSubscriptionsReader
     private LocalOperatingEntities operatingEntities;
 
     public SedpBuiltinSubscriptionsReader(
-            RtpsTalkConfiguration config,
+            RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities) {
