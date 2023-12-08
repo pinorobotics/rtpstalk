@@ -17,24 +17,17 @@
  */
 package pinorobotics.rtpstalk.impl.behavior.reader;
 
+import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
-import id.xfunction.util.IntBitSet;
+import pinorobotics.rtpstalk.impl.messages.RtpsMessageAggregator;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.WriterProxy;
-import pinorobotics.rtpstalk.impl.spec.messages.Header;
-import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
-import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
  * Combines multiple heartbeats into one AckNack
@@ -54,9 +47,14 @@ public class WriterHeartbeatProcessor {
     private int count = 1;
 
     private Heartbeat lastHeartbeat;
+    private TracingToken tracingToken;
+    private int maxSubmessageSize;
 
-    public WriterHeartbeatProcessor(TracingToken tracingToken, WriterProxy writerProxy) {
+    public WriterHeartbeatProcessor(
+            TracingToken tracingToken, WriterProxy writerProxy, int maxSubmessageSize) {
+        this.tracingToken = tracingToken;
         this.writerProxy = writerProxy;
+        this.maxSubmessageSize = maxSubmessageSize;
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -96,47 +94,25 @@ public class WriterHeartbeatProcessor {
         writerProxy.missingChangesUpdate(lastHeartbeat.lastSN.value);
         writerProxy.lostChangesUpdate(lastHeartbeat.firstSN.value);
 
-        var ack =
-                new AckNack(
-                        readerGuid.entityId,
-                        writerGuid.entityId,
-                        createSequenceNumberSet(lastHeartbeat),
-                        new Count(count++));
-        var submessages = new Submessage[] {infoDst, ack};
-        Header header =
-                new Header(
-                        ProtocolId.Predefined.RTPS.getValue(),
-                        ProtocolVersion.Predefined.Version_2_3.getValue(),
-                        VendorId.Predefined.RTPSTALK.getValue(),
-                        readerGuid.guidPrefix);
-        var message = new RtpsMessage(header, submessages);
-        writerProxy.getDataChannel().send(writerGuid, message);
+        var aggregator =
+                new RtpsMessageAggregator(tracingToken, readerGuid.guidPrefix, maxSubmessageSize);
+        Preconditions.isTrue(aggregator.add(infoDst), "Not enouch space in RTPS message");
+        Preconditions.isTrue(
+                aggregator.add(
+                        new AckNack(
+                                readerGuid.entityId,
+                                writerGuid.entityId,
+                                new SequenceNumberSetBuilder()
+                                        .build(
+                                                lastHeartbeat.firstSN.value,
+                                                lastHeartbeat.lastSN.value,
+                                                writerProxy.missingChanges(),
+                                                writerProxy.availableChangesMax()),
+                                new Count(count++))),
+                "Not enouch space in RTPS message");
+        aggregator
+                .build()
+                .ifPresent(message -> writerProxy.getDataChannel().send(writerGuid, message));
         lastHeartbeat = null;
-    }
-
-    private SequenceNumberSet createSequenceNumberSet(Heartbeat heartbeat) {
-        var missing = writerProxy.missingChanges();
-        if (missing.length == 0) {
-            return expectNextSet();
-        }
-
-        var first = heartbeat.firstSN.value;
-        var last = heartbeat.lastSN.value;
-
-        // enumeration from 1
-        var numBits = (int) (last - first + 1);
-
-        // Creates bitmask of missing changes between [first..last]
-        var bset = new IntBitSet(numBits);
-        for (var sn : missing) {
-            if (sn < first || last < sn) continue;
-            bset.flip((int) (sn - first));
-        }
-        return new SequenceNumberSet(heartbeat.firstSN, numBits, bset.intArray());
-    }
-
-    private SequenceNumberSet expectNextSet() {
-        // all present so we expect next
-        return new SequenceNumberSet(new SequenceNumber(writerProxy.availableChangesMax() + 1), 0);
     }
 }

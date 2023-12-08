@@ -76,7 +76,8 @@ public class WriterProxy {
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
         this.tracingToken = tracingToken;
         logger = XLogger.getLogger(getClass(), tracingToken);
-        heartbeatProcessor = new WriterHeartbeatProcessor(tracingToken, this);
+        heartbeatProcessor =
+                new WriterHeartbeatProcessor(tracingToken, this, config.maxSubmessageSize());
     }
 
     public void receivedChangeSet(long seqNum) {
