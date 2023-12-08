@@ -23,60 +23,67 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
+ * Must be thread-safe because cache cleanup may run concurrently:
+ *
+ * <ul>
+ *   <li>from periodic job
+ *   <li>when receive ACKNACK from remote Subscriber
+ * </ul>
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public class WriterChanges<D extends RtpsTalkMessage> {
 
     private static final XLogger LOGGER = XLogger.getLogger(WriterChanges.class);
-    private SortedMap<Long, CacheChange<D>> sortedChanges = new TreeMap<>();
+    private SortedMap<Long, CacheChange<D>> sortedChanges = new ConcurrentSkipListMap<>();
 
     /**
      * TreeMap does not guarantee constant time for {@link TreeMap#firstEntry()}, {@link
      * TreeMap#lastEntry()} (looking at Linux OpenJDK it is O(logN)) so we keep track of these
      * values manually to guarantee constant time for them
      */
-    private long seqNumMin, seqNumMax;
-
-    public WriterChanges() {
-        seqNumMin = SequenceNumber.MIN.value;
-        seqNumMax = SequenceNumber.MIN.value;
-    }
+    private AtomicLong seqNumMin = new AtomicLong(SequenceNumber.MIN.value),
+            seqNumMax = new AtomicLong(SequenceNumber.MIN.value);
 
     private void updateSeqNums(long seqNum, boolean firstChange) {
         if (firstChange) {
             LOGGER.fine("First change with sequence number {0}", seqNum);
-            seqNumMin = seqNumMax = seqNum;
+            seqNumMin.set(seqNum);
+            seqNumMax.set(seqNum);
         } else {
-            if (seqNumMin > seqNum) {
+            if (seqNumMin.get() > seqNum) {
                 LOGGER.fine("Updating minimum sequence number to {0}", seqNum);
-                seqNumMin = seqNum;
+                seqNumMin.set(seqNum);
             }
-            if (seqNumMax < seqNum) {
+            if (seqNumMax.get() < seqNum) {
                 LOGGER.fine("Updating maximum sequence number to {0}", seqNum);
-                seqNumMax = seqNum;
+                seqNumMax.set(seqNum);
             }
         }
     }
 
     public long getSeqNumMin() {
-        return seqNumMin;
+        return seqNumMin.get();
     }
 
     public long getSeqNumMax() {
-        return seqNumMax;
+        return seqNumMax.get();
     }
 
     public void removeAllBelow(long seqNum) {
-        if (seqNum < seqNumMin) {
+        if (seqNum < seqNumMin.get()) {
             return;
         }
-        if (seqNum > seqNumMax) {
-            seqNumMin = seqNumMax = seqNum;
+        if (seqNum > seqNumMax.get()) {
+            seqNumMin.set(seqNum);
+            seqNumMax.set(seqNum);
             sortedChanges.clear();
             return;
         }
@@ -86,12 +93,12 @@ public class WriterChanges<D extends RtpsTalkMessage> {
             if (curSeqNum >= seqNum) break;
             iter.remove();
         }
-        seqNumMin = seqNum - 1;
+        seqNumMin.set(seqNum - 1);
     }
 
     public boolean containsChange(long sequenceNumber) {
-        if (sequenceNumber < seqNumMin) return false;
-        if (sequenceNumber > seqNumMax) return false;
+        if (sequenceNumber < seqNumMin.get()) return false;
+        if (sequenceNumber > seqNumMax.get()) return false;
         return sortedChanges.containsKey(sequenceNumber);
     }
 
