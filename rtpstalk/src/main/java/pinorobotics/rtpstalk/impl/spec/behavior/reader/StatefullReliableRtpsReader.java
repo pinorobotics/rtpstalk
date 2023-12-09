@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
@@ -63,6 +64,8 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     private LocalOperatingEntities operatingEntities;
     private ReaderQosPolicySet qosPolicy;
 
+    private DataChannelFactory dataChannelFactory;
+
     public StatefullReliableRtpsReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
@@ -71,6 +74,26 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             LocalOperatingEntities operatingEntities,
             EntityId entityId,
             ReaderQosPolicySet qosPolicy) {
+        this(
+                config,
+                tracingToken,
+                messageType,
+                publisherExecutor,
+                operatingEntities,
+                entityId,
+                qosPolicy,
+                new DataChannelFactory(config.publicConfig()));
+    }
+
+    public StatefullReliableRtpsReader(
+            RtpsTalkConfigurationInternal config,
+            TracingToken tracingToken,
+            Class<D> messageType,
+            Executor publisherExecutor,
+            LocalOperatingEntities operatingEntities,
+            EntityId entityId,
+            ReaderQosPolicySet qosPolicy,
+            DataChannelFactory dataChannelFactory) {
         super(
                 config.publicConfig(),
                 tracingToken,
@@ -78,6 +101,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 publisherExecutor,
                 new Guid(config.publicConfig().guidPrefix(), entityId),
                 ReliabilityQosPolicy.Kind.RELIABLE);
+        this.dataChannelFactory = dataChannelFactory;
         Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.qosPolicy = qosPolicy;
         this.config = config;
@@ -86,7 +110,14 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
     }
 
     public void matchedWriterAdd(Guid remoteGuid, List<Locator> unicast) {
-        var proxy = new WriterProxy(getTracingToken(), config, getGuid(), remoteGuid, unicast);
+        var proxy =
+                new WriterProxy(
+                        getTracingToken(),
+                        dataChannelFactory,
+                        config.maxSubmessageSize(),
+                        getGuid(),
+                        remoteGuid,
+                        unicast);
         logger.fine("Adding writer proxy for writer with guid {0}", proxy.getRemoteWriterGuid());
         matchedWriters.put(proxy.getRemoteWriterGuid(), proxy);
     }
@@ -149,11 +180,14 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         var cache = getReaderCache();
         var isAdded = cache.addChange(newCacheChange);
         if (isAdded) {
-            writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
             var lastSeqNum = lastSubmittedSeqNum.get(writerGuid);
             if (lastSeqNum == null) {
                 lastSeqNum = calcStartSeqNum(newCacheChange.getSequenceNumber());
+                if (lastSeqNum == 0) {
+                    writerProxy.missingChangesUpdate(newCacheChange.getSequenceNumber());
+                }
             }
+            writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
             var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
             while (iter.hasNext()) {
                 var change = iter.next();

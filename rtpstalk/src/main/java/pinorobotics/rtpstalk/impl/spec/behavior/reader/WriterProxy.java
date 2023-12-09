@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.LongStream;
-import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
-import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -62,22 +60,22 @@ public class WriterProxy {
     private WriterHeartbeatProcessor heartbeatProcessor;
     private DataChannel dataChannel;
     private TracingToken tracingToken;
-    private RtpsTalkConfiguration config;
+    private DataChannelFactory dataChannelFactory;
 
     public WriterProxy(
             TracingToken tracingToken,
-            RtpsTalkConfigurationInternal config,
+            DataChannelFactory dataChannelFactory,
+            int maxSubmessageSize,
             Guid readerGuid,
             Guid remoteWriterGuid,
             List<Locator> unicastLocatorList) {
-        this.config = config.publicConfig();
+        this.dataChannelFactory = dataChannelFactory;
         this.readerGuid = readerGuid;
         this.remoteWriterGuid = remoteWriterGuid;
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
         this.tracingToken = tracingToken;
         logger = XLogger.getLogger(getClass(), tracingToken);
-        heartbeatProcessor =
-                new WriterHeartbeatProcessor(tracingToken, this, config.maxSubmessageSize());
+        heartbeatProcessor = new WriterHeartbeatProcessor(tracingToken, this, maxSubmessageSize);
     }
 
     public void receivedChangeSet(long seqNum) {
@@ -165,7 +163,6 @@ public class WriterProxy {
 
     public DataChannel getDataChannel() {
         if (dataChannel == null) {
-            var dataChannelFactory = new DataChannelFactory(config);
             var locator = getUnicastLocatorList().get(0);
             try {
                 dataChannel = dataChannelFactory.connect(tracingToken, locator);

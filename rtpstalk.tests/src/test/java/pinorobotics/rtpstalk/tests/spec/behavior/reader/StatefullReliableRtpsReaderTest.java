@@ -31,8 +31,10 @@ import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsRead
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -73,6 +75,51 @@ public class StatefullReliableRtpsReaderTest {
                     List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR));
             messages.forEach(publisher::submit);
             XAsserts.assertEquals(getClass(), "test_RtpsReader_reliable2", items.toString());
+        }
+    }
+
+    @Test
+    public void test_transient_local_marks_previous_missing() {
+        var dataChannelFactory = new TestDataChannelFactory();
+        var reader =
+                new StatefullReliableRtpsReader<>(
+                        TestConstants.TEST_CONFIG_INTERNAL,
+                        TestConstants.TEST_TRACING_TOKEN,
+                        RtpsTalkDataMessage.class,
+                        new SameThreadExecutorService(),
+                        new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
+                        TestConstants.TEST_READER_ENTITY_ID,
+                        new ReaderQosPolicySet(
+                                ReliabilityQosPolicy.Kind.RELIABLE,
+                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                        dataChannelFactory);
+        var items = new ArrayList<RtpsTalkDataMessage>();
+        reader.subscribe(new CollectorSubscriber<>(items));
+        try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
+            publisher.subscribe(reader);
+            reader.matchedWriterAdd(
+                    TestConstants.TEST_GUID_WRITER,
+                    List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR));
+            reader.onHeartbeat(
+                    TestConstants.TEST_GUID_WRITER.guidPrefix,
+                    new Heartbeat(
+                            TestConstants.TEST_READER_ENTITY_ID,
+                            TestConstants.TEST_WRITER_ENTITY_ID,
+                            1,
+                            20,
+                            11));
+            publisher.submit(RtpsReaderTest.newRtpsMessage(3, "ccc"));
+            Assertions.assertEquals("[]", items.toString());
+            XAsserts.assertEquals(
+                    getClass(),
+                    "test_transient_local_marks_previous_missing",
+                    dataChannelFactory
+                            .getChannels()
+                            .values()
+                            .iterator()
+                            .next()
+                            .getDataQueue()
+                            .toString());
         }
     }
 }

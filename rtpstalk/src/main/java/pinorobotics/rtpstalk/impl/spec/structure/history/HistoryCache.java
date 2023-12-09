@@ -70,21 +70,21 @@ public class HistoryCache<D extends RtpsTalkMessage> {
                         + " out-of-order" /* But due to UDP Reader may receive it out-of-order */)
     public boolean addChange(CacheChange<D> change) {
         var writerChanges = changes.get(change.getWriterGuid());
+        long seqNum = change.getSequenceNumber();
         if (writerChanges == null) {
             writerChanges = new WriterChanges<>();
             changes.put(change.getWriterGuid(), writerChanges);
-        } else if (writerChanges.containsChange(change.getSequenceNumber())) {
+        } else if (writerChanges.containsChange(seqNum)) {
             logger.fine(
                     "Change with sequence number {0} already present in the cache, ignoring...",
-                    change.getSequenceNumber());
+                    seqNum);
             return false;
         }
-        var isOutOfOrder = writerChanges.getSeqNumMax() >= change.getSequenceNumber();
+        var isOutOfOrder = writerChanges.getSeqNumMax() >= seqNum;
         writerChanges.addChange(change);
-        logger.fine("New change added into the cache");
+        logger.fine("New change with sequence number {0} added into the cache", seqNum);
         if (isOutOfOrder) {
-            logger.fine(
-                    "Change with sequence number {0} is out-of-order", change.getSequenceNumber());
+            logger.fine("Change with sequence number {0} is out-of-order", seqNum);
         }
         return true;
     }

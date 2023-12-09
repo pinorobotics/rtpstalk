@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.reader.WriterProxy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.tests.TestConstants;
+import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -36,7 +37,8 @@ public class WriterProxyTest {
         var wp =
                 new WriterProxy(
                         TestConstants.TEST_TRACING_TOKEN,
-                        TestConstants.TEST_CONFIG_INTERNAL,
+                        new TestDataChannelFactory(),
+                        TestConstants.TEST_CONFIG_INTERNAL.maxSubmessageSize(),
                         new Guid(
                                 TestConstants.TEST_GUID_PREFIX,
                                 EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),

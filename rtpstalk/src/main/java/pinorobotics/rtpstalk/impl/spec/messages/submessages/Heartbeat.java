@@ -63,6 +63,15 @@ public class Heartbeat extends Submessage {
 
     public Heartbeat() {}
 
+    public Heartbeat(EntityId readerId, EntityId writerId, long firstSN, long lastSN, int count) {
+        this(
+                readerId,
+                writerId,
+                new SequenceNumber(firstSN),
+                new SequenceNumber(lastSN),
+                new Count(count));
+    }
+
     public Heartbeat(
             EntityId readerId,
             EntityId writerId,

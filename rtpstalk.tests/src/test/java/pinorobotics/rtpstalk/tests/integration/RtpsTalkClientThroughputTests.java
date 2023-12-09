@@ -36,9 +36,11 @@ public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
     static Stream<PubSubClientThroughputTestCase> dataProvider() {
         Supplier<TestPubSubClient> clientFactory = RtpsTalkTestPubSubClient::new;
         return Stream.of(
-                // Send 83 packages where each package size is 60kb (total data 5mb) and default
-                // history queue size 10. Expected time
-                // - less than 40sec
+                /**
+                 * Send 83 packages where each package size is 60kb (total data 5mb) and default
+                 * history queue size {@link RtpsTalkTestPubSubClient#HISTORY_QUEUE_SIZE}. Expected
+                 * time - less than 40sec
+                 */
                 new PubSubClientThroughputTestCase(
                         "test_publish_multiple_60kb_messages",
                         clientFactory,
