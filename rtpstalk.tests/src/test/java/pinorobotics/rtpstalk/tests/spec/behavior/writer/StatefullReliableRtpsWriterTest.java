@@ -17,12 +17,11 @@
  */
 package pinorobotics.rtpstalk.tests.spec.behavior.writer;
 
-import id.xfunction.concurrent.SameThreadExecutorService;
+import id.xfunction.concurrent.flow.SynchronousPublisher;
 import id.xfunction.lang.XThread;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -80,12 +79,8 @@ public class StatefullReliableRtpsWriterTest {
                                 new WriterQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
                                         DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS));
-                var publisher =
-                        new SubmissionPublisher<RtpsTalkDataMessage>(
-                                new SameThreadExecutorService(), 1);
-                var receiver =
-                        new SubmissionPublisher<RtpsMessage>(
-                                new SameThreadExecutorService(), 1); ) {
+                var publisher = new SynchronousPublisher<RtpsTalkDataMessage>();
+                var receiver = new SynchronousPublisher<RtpsMessage>(); ) {
             receiver.subscribe(writer.getWriterReader());
             publisher.subscribe(writer);
             publisher.submit(new RtpsTalkDataMessage("hello"));

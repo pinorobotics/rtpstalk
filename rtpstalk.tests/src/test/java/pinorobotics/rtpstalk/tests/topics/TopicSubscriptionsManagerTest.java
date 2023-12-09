@@ -17,8 +17,8 @@
  */
 package pinorobotics.rtpstalk.tests.topics;
 
-import id.xfunction.concurrent.flow.SameThreadSubmissionPublisher;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
+import id.xfunction.concurrent.flow.SynchronousPublisher;
 import id.xfunction.logging.TracingToken;
 import id.xfunctiontests.XAsserts;
 import java.util.List;
@@ -60,7 +60,7 @@ public class TopicSubscriptionsManagerTest {
                                 channelFactory,
                                 new TestDataObjectsFactory(),
                                 new TestRtpsMessageReceiverFactory());
-                var publisher = new SameThreadSubmissionPublisher<RtpsTalkParameterListMessage>()) {
+                var publisher = new SynchronousPublisher<RtpsTalkParameterListMessage>()) {
             service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
             var publicationsWriter =
                     TestUtils.newSedpPublicationsWriter(

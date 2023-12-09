@@ -46,6 +46,7 @@ public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
                         60_000,
                         83,
                         Duration.ZERO,
+                        true,
                         83),
                 new PubSubClientThroughputTestCase(
                         "test_publish_single_message_over_5mb",
@@ -54,6 +55,7 @@ public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
                         5_123_456,
                         1,
                         Duration.ZERO,
+                        true,
                         1),
 
                 // Constantly publish messages over 5mb for period of 1 minute. Expect  Subscriber
@@ -65,6 +67,7 @@ public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
                         5_123_456,
                         Integer.MAX_VALUE,
                         Duration.ofMillis(300),
+                        true,
                         80));
     }
 }

@@ -19,8 +19,8 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import id.pubsubtests.TestPubSubClient;
 import id.xfunction.XByte;
-import id.xfunction.concurrent.SameThreadExecutorService;
-import id.xfunction.concurrent.flow.TransformProcessor;
+import id.xfunction.concurrent.flow.TransformPublisher;
+import id.xfunction.concurrent.flow.TransformSubscriber;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -39,23 +39,26 @@ import pinorobotics.rtpstalk.qos.ReliabilityType;
  */
 public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
+    public static final int QUEUE_SIZE = 10;
     private static final short LENGTH_KEY = 0xbe;
     private RtpsTalkClient client =
             new RtpsTalkClient(
                     new RtpsTalkConfiguration.Builder()
-                            .historyCacheMaxSize(10)
-                            .publisherMaxBufferSize(10)
+                            .historyCacheMaxSize(QUEUE_SIZE)
+                            .publisherMaxBufferSize(QUEUE_SIZE)
                             .build());
-    private PublisherQosPolicy publisherQosPolicy;
+    private PublisherQosPolicy publisherQosPolicy =
+            new PublisherQosPolicy(
+                    ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS);
 
-    public RtpsTalkTestPubSubClient() {
-        this(
-                new PublisherQosPolicy(
-                        ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS));
-    }
+    public RtpsTalkTestPubSubClient() {}
 
     public RtpsTalkTestPubSubClient(PublisherQosPolicy publisherQosPolicy) {
         this.publisherQosPolicy = publisherQosPolicy;
+    }
+
+    public RtpsTalkTestPubSubClient(RtpsTalkConfiguration configuration) {
+        client = new RtpsTalkClient(configuration);
     }
 
     @Override
@@ -65,8 +68,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
     @Override
     public void subscribe(String topic, Subscriber<byte[]> subscriber) {
-        var transformer = new TransformProcessor<>(this::extractUserdata);
-        transformer.subscribe(subscriber);
+        var transformer = new TransformSubscriber<>(subscriber, this::extractUserdata);
         client.subscribe(topic, asType(topic), transformer);
     }
 
@@ -90,9 +92,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
     @Override
     public void publish(String topic, Publisher<byte[]> publisher) {
-        var transformer =
-                new TransformProcessor<>(this::packUserdata, new SameThreadExecutorService(), 1);
-        publisher.subscribe(transformer);
+        var transformer = new TransformPublisher<>(publisher, this::packUserdata);
         client.publish(topic, asType(topic), publisherQosPolicy, transformer);
     }
 }

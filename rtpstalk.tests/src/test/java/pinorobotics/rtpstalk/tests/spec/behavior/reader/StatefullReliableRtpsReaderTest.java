@@ -19,10 +19,10 @@ package pinorobotics.rtpstalk.tests.spec.behavior.reader;
 
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
+import id.xfunction.concurrent.flow.SynchronousPublisher;
 import id.xfunctiontests.XAsserts;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.SubmissionPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
@@ -54,8 +54,7 @@ public class StatefullReliableRtpsReaderTest {
                                 DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
-        try (var publisher =
-                new SubmissionPublisher<RtpsMessage>(new SameThreadExecutorService(), 1)) {
+        try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
             publisher.subscribe(reader);
 
             var messages =

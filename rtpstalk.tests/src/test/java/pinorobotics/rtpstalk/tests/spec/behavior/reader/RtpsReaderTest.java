@@ -19,10 +19,10 @@ package pinorobotics.rtpstalk.tests.spec.behavior.reader;
 
 import id.xfunction.concurrent.SameThreadExecutorService;
 import id.xfunction.concurrent.flow.CollectorSubscriber;
+import id.xfunction.concurrent.flow.SynchronousPublisher;
 import id.xfunctiontests.XAsserts;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -193,8 +193,7 @@ public class RtpsReaderTest {
                     List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR));
         }
         reader.subscribe(new CollectorSubscriber<>(items));
-        try (var publisher =
-                new SubmissionPublisher<RtpsMessage>(new SameThreadExecutorService(), 1)) {
+        try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
             publisher.subscribe(reader);
 
             testCase.messages.forEach(publisher::submit);

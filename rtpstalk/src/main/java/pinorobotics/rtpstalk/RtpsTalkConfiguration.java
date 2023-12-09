@@ -140,6 +140,8 @@ public record RtpsTalkConfiguration(
 
         public static final int DEFAULT_DOMAIN_ID = 0;
 
+        public static final Duration DEFAULT_DISCOVERY_PERIOD = Duration.ofSeconds(5);
+
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
         private Optional<Integer> builtinEnpointsPort = Optional.empty();
@@ -151,7 +153,7 @@ public record RtpsTalkConfiguration(
         private EndpointQos builtinEndpointQos = EndpointQos.NONE;
         private Duration leaseDuration = Duration.ofSeconds(20);
         private Duration heartbeatPeriod = Duration.ofSeconds(1);
-        private Duration spdpDiscoveredParticipantDataPublishPeriod = Duration.ofSeconds(5);
+        private Duration spdpDiscoveredParticipantDataPublishPeriod = DEFAULT_DISCOVERY_PERIOD;
         private Optional<ExecutorService> publisherExecutor = Optional.empty();
         private int publisherMaxBufferCapacity = DEFAULT_PUBLISHER_BUFFER_SIZE;
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;

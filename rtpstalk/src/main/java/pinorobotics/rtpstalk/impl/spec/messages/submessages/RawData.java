@@ -17,8 +17,8 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Checksum;
 import id.xfunction.XJson;
-import id.xfunction.XUtils;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
 
 /**
@@ -46,7 +46,7 @@ public class RawData implements Payload {
     @Override
     public String toString() {
         try {
-            return XJson.asString("size", data.length, "md5", XUtils.md5Sum(data));
+            return XJson.asString("size", data.length, "md5", Checksum.md5(data));
         } catch (Exception e) {
             return XJson.asString("size", data.length);
         }
