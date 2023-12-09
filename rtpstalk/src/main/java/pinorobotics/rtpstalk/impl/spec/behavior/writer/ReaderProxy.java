@@ -64,8 +64,10 @@ public interface ReaderProxy extends AutoCloseable {
     /**
      * All sequence numbers up to the one prior to given sequence number are confirmed as received
      * by the reader.
+     *
+     * @return number of new changes which never been acked by the reader before
      */
-    void ackedChanges(long seqNum);
+    long ackedChanges(long seqNum);
 
     /** If ReaderProxy does not track such information it should return Long.MAX_VALUE */
     long getHighestAckedSeqNum();

@@ -66,7 +66,9 @@ public class BestEffortReaderProxy implements ReaderProxy {
     public void requestChange(long seqNum) {}
 
     @Override
-    public void ackedChanges(long seqNum) {}
+    public long ackedChanges(long seqNum) {
+        return 0;
+    }
 
     @Override
     public long getHighestAckedSeqNum() {

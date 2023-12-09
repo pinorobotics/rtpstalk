@@ -64,6 +64,11 @@ public class AckNack extends Submessage {
     public AckNack() {}
 
     public AckNack(
+            EntityId readerId, EntityId writerId, SequenceNumberSet readerSNState, int count) {
+        this(readerId, writerId, readerSNState, new Count(count));
+    }
+
+    public AckNack(
             EntityId readerId, EntityId writerId, SequenceNumberSet readerSNState, Count count) {
         Preconditions.isTrue(count.value > 0, "Count cannot be less than 1");
         this.readerId = readerId;

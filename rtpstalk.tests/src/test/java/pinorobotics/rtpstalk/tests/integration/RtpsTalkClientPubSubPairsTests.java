@@ -362,20 +362,6 @@ public class RtpsTalkClientPubSubPairsTests {
         }
     }
 
-    private void assertValidators(List<Runnable> validators) {
-        validators.forEach(Runnable::run);
-    }
-
-    private void assertLogWithTemplates(List<String> templates) {
-        System.out.println("Asserting templates " + templates);
-        var log = LogUtils.readLogFile();
-        templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
-    }
-
-    private List<String> generateTopicNames(int count) {
-        return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
-    }
-
     @ParameterizedTest
     @MethodSource("dataProvider")
     public void test_local_publisher_remote_subscriber_pairs(TestCase testCase) throws Exception {
@@ -456,6 +442,20 @@ public class RtpsTalkClientPubSubPairsTests {
 
         assertLogWithTemplates(testCase.logTemplates);
         assertValidators(testCase.validators);
+    }
+
+    private void assertValidators(List<Runnable> validators) {
+        validators.forEach(Runnable::run);
+    }
+
+    private void assertLogWithTemplates(List<String> templates) {
+        System.out.println("Asserting templates " + templates);
+        var log = LogUtils.readLogFile();
+        templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
+    }
+
+    private List<String> generateTopicNames(int count) {
+        return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
     }
 
     private static void validateAcrossNetworkInterfaces(String templateResourceName) {

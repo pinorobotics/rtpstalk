@@ -83,8 +83,13 @@ public class ReliableReaderProxy implements ReaderProxy {
     }
 
     @Override
-    public void ackedChanges(long seqNum) {
-        highestSeqNumSent = Math.max(highestSeqNumSent, seqNum);
+    public long ackedChanges(long seqNum) {
+        var diff = seqNum - highestSeqNumSent;
+        if (diff > 0) {
+            highestSeqNumSent = seqNum;
+            return diff;
+        }
+        return 0;
     }
 
     @Override

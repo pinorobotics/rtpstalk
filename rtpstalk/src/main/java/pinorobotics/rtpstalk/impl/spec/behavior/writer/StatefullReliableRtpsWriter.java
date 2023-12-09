@@ -229,7 +229,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         }
     }
 
-    private void cleanupCache() {
+    protected void cleanupCache() {
         if (qosPolicy.durabilityKind() == DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS) {
             if (!isClosed) return;
             // On close we are not going to accept new Readers therefore
@@ -250,8 +250,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             if (oldestSeqNum == 0) return;
             if (oldestSeqNum == Long.MAX_VALUE) oldestSeqNum = getLastChangeNumber();
             logger.fine(
-                    "Cleaning up all changes up to {0} since they are acknowledged by all the"
-                            + " readers",
+                    "Cleaning up all changes up to and including {0} since they are acknowledged by"
+                            + " all the readers",
                     oldestSeqNum);
             historyCache.removeAllBelow(oldestSeqNum + 1);
         }

@@ -63,7 +63,7 @@ public class WriterRtpsReader<D extends RtpsTalkMessage> extends SimpleSubscribe
             var set = ackNack.readerSNState;
             var base = set.bitmapBase.value;
             var bitset = new IntBitSet(set.bitmap);
-            readerProxy.ackedChanges(set.bitmapBase.value - 1);
+            if (readerProxy.ackedChanges(set.bitmapBase.value - 1) > 0) writer.cleanupCache();
             readerProxy.requestedChangesClear();
             for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
                 readerProxy.requestChange(base + i);
