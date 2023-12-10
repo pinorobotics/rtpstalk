@@ -191,7 +191,13 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
             while (iter.hasNext()) {
                 var change = iter.next();
-                if (lastSeqNum + 1 != change.getSequenceNumber()) break;
+                if (lastSeqNum + 1 != change.getSequenceNumber()) {
+                    logger.fine(
+                            "Not submitting change with sequence number {0} to users because"
+                                    + " previous change with sequence number {1} still missing",
+                            change.getSequenceNumber(), lastSeqNum + 1);
+                    break;
+                }
                 lastSeqNum = change.getSequenceNumber();
                 submitChangeToUser(change);
             }

@@ -41,7 +41,7 @@ public class StatelessRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D
             DataChannelFactory channelFactory,
             EntityId writerEntityId,
             EntityId readerEntiyId) {
-        super(config, tracingToken, publisherExecutor, writerEntityId, true);
+        super(config, tracingToken, publisherExecutor, writerEntityId);
         this.channelFactory = channelFactory;
         this.readerEntiyId = readerEntiyId;
     }

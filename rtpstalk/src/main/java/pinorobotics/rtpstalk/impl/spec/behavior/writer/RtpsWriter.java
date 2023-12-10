@@ -78,14 +78,6 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
 
     private TracingToken tracingToken;
 
-    protected RtpsWriter(
-            RtpsTalkConfigurationInternal config,
-            TracingToken tracingToken,
-            Executor publisherExecutor,
-            EntityId writerEntiyId) {
-        this(config, tracingToken, publisherExecutor, writerEntiyId, true);
-    }
-
     /**
      * @param pushMode Note that for a {@link ReliabilityQosPolicy.Kind#BEST_EFFORT} Writer,
      *     pushMode is true, as there are no acknowledgments.
@@ -98,8 +90,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
             RtpsTalkConfigurationInternal config,
             TracingToken token,
             Executor publisherExecutor,
-            EntityId writerEntityId,
-            boolean pushMode) {
+            EntityId writerEntityId) {
         super(publisherExecutor, config.publicConfig().publisherMaxBufferSize());
         this.config = config;
         this.tracingToken = new TracingToken(token, writerEntityId.toString());

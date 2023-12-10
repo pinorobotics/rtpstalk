@@ -28,6 +28,7 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.MetatrafficUnicastService;
@@ -176,10 +177,14 @@ public class RtpsServiceManager implements AutoCloseable {
             String topic,
             String type,
             PublisherQosPolicy policy,
+            WriterSettings writerSettings,
             Publisher<RtpsTalkDataMessage> publisher) {
         publicationsManager.addLocalActor(
                 new PublisherDetails(
-                        new TopicId(topic, type), new WriterQosPolicySet(policy), publisher));
+                        new TopicId(topic, type),
+                        new WriterQosPolicySet(policy),
+                        writerSettings,
+                        publisher));
     }
 
     @Override

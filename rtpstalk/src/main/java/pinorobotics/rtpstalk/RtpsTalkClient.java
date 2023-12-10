@@ -88,17 +88,18 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     /**
-     * Register RTPS topic publisher with default {@link PublisherQosPolicy}.
+     * Register user owned {@link Publisher} to RTPS topic with default {@link PublisherQosPolicy}.
      *
-     * <p>This client subscribes to the given publisher and announces its presence to all RTPS
-     * Participants in the network. Each message received by this client from the publisher will be
-     * sent only to those Participants which announce their interest in the given topic.
+     * <p>This client subscribes to the given user owned publisher and announces its presence to all
+     * RTPS Participants in the network. Each message received by this client from the user owned
+     * publisher will be sent only to those Participants which announce their interest in the given
+     * topic.
      *
      * <p>Only one publisher allowed per topic.
      *
      * @param topic topic name
      * @param type topic type
-     * @param publisher user publisher which emits RTPS Data messages for the given topic
+     * @param publisher user owned publisher which emits RTPS Data messages for the given topic.
      */
     public void publish(String topic, String type, Publisher<RtpsTalkDataMessage> publisher) {
         publish(topic, type, new PublisherQosPolicy(), publisher);
@@ -112,10 +113,22 @@ public class RtpsTalkClient implements AutoCloseable {
             String type,
             PublisherQosPolicy policy,
             Publisher<RtpsTalkDataMessage> publisher) {
+        publish(topic, type, policy, new WriterSettings(), publisher);
+    }
+
+    /**
+     * @see #publish
+     */
+    public void publish(
+            String topic,
+            String type,
+            PublisherQosPolicy policy,
+            WriterSettings writerSettings,
+            Publisher<RtpsTalkDataMessage> publisher) {
         if (!isStarted) {
             start();
         }
-        serviceManager.publish(topic, type, policy, publisher);
+        serviceManager.publish(topic, type, policy, writerSettings, publisher);
     }
 
     /**
@@ -148,9 +161,12 @@ public class RtpsTalkClient implements AutoCloseable {
         logger.exiting("start");
     }
 
-    /** Stop all subscribers, publishers, RTPS services assigned to this client */
+    /** Stop all subscribers, publishers, RTPS services assigned to this client. */
     @Override
     public void close() {
+        // User owned Publishers are represented by Flow.Publisher interface and it has no close
+        // method
+        // It means we are not closing user owned publishers
         if (!isStarted) return;
         if (isClosed) return;
         serviceManager.close();

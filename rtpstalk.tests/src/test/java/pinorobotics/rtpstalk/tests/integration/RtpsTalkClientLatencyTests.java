@@ -19,10 +19,10 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import id.pubsubtests.PubSubClientLatencyTestCase;
 import id.pubsubtests.PubSubClientLatencyTests;
-import java.time.Duration;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.MetricsExtension;
 
@@ -33,6 +33,8 @@ import pinorobotics.rtpstalk.tests.MetricsExtension;
 public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
 
     static Stream<PubSubClientLatencyTestCase> dataProvider() {
+        var discoveryPeriod = RtpsTalkConfiguration.Builder.DEFAULT_DISCOVERY_PERIOD;
+        var heartbeatPeriod = RtpsTalkConfiguration.Builder.DEFAULT_HEARTBEAT_PERIOD;
         return Stream.of(
                 /**
                  * For {@link HistoryQosPolicy#Kind#KEEP_ALL_HISTORY_QOS} once Writer history queue
@@ -49,18 +51,43 @@ public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
                  * freed, 2 HB cycles to be sent to the Subscriber)
                  */
                 new PubSubClientLatencyTestCase(
-                        "test_latency_small_queue",
+                        "test_latency_small_queue_pushMode_disabled",
                         () ->
                                 new RtpsTalkTestPubSubClient(
                                         new RtpsTalkConfiguration.Builder()
+                                                .domainId(123)
                                                 .historyCacheMaxSize(17)
                                                 .publisherMaxBufferSize(1)
-                                                .build()),
+                                                .build(),
+                                        new WriterSettings(false)),
                         // avoid measuring latency which is caused due to discovery protocol
-                        RtpsTalkConfiguration.Builder.DEFAULT_DISCOVERY_PERIOD.plusSeconds(1),
+                        discoveryPeriod.plus(heartbeatPeriod).plusSeconds(1),
                         // how long to run test
-                        RtpsTalkConfiguration.Builder.DEFAULT_DISCOVERY_PERIOD.plusSeconds(20),
+                        discoveryPeriod.plusSeconds(20),
                         60_000,
-                        Duration.ofMillis(4060)));
+                        heartbeatPeriod.multipliedBy(4).plusMillis(60),
+                        120),
+                /**
+                 * With push mode enabled latency for message M reduces to one heartbeat cycle (to
+                 * cleanup the history cache).
+                 *
+                 * <p>It also increases throughput from ~120 messages to ~250
+                 */
+                new PubSubClientLatencyTestCase(
+                        "test_latency_small_queue_pushMode_enabled",
+                        () ->
+                                new RtpsTalkTestPubSubClient(
+                                        new RtpsTalkConfiguration.Builder()
+                                                .historyCacheMaxSize(15)
+                                                .publisherMaxBufferSize(1)
+                                                .build(),
+                                        new WriterSettings(true)),
+                        // avoid measuring latency which is caused due to discovery protocol
+                        discoveryPeriod.plus(heartbeatPeriod).plusSeconds(1),
+                        // how long to run test
+                        discoveryPeriod.plusSeconds(20),
+                        60_000,
+                        heartbeatPeriod.plusMillis(60),
+                        250));
     }
 }

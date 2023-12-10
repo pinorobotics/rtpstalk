@@ -37,6 +37,7 @@ import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsHeartbeatMessageBuilder;
@@ -94,7 +95,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private int historyCacheMaxSize;
     private WriterRtpsReader<D> writerReader;
     private WriterQosPolicySet qosPolicy;
-
+    private WriterSettings writerSettings;
     private boolean isClosed;
 
     public StatefullReliableRtpsWriter(
@@ -104,8 +105,10 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             DataChannelFactory channelFactory,
             LocalOperatingEntities operatingEntities,
             EntityId writerEntiyId,
-            WriterQosPolicySet qosPolicy) {
-        super(config, tracingToken, publisherExecutor, writerEntiyId, true);
+            WriterQosPolicySet qosPolicy,
+            WriterSettings writerSettings) {
+        super(config, tracingToken, publisherExecutor, writerEntiyId);
+        this.writerSettings = writerSettings;
         Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.channelFactory = channelFactory;
         this.operatingEntities = operatingEntities;
@@ -294,6 +297,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             text = "Writers must not send data out-of-order")
     @Override
     protected void sendLastChangeToAllReaders() {
+        if (writerSettings.pushMode()) {
+            super.sendLastChangeToAllReaders();
+        }
         /**
          * For reliable Writer we send changes only when Reader notifies that it lost them (through
          * heartbeat-acknack interaction).

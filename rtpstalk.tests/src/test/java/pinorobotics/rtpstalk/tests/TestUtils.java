@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests;
 
 import java.util.concurrent.SubmissionPublisher;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.PublisherDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
@@ -35,7 +36,10 @@ public class TestUtils {
         var topicId = new TopicId("topic", "type");
         var qosPolicy = new WriterQosPolicySet();
         return new PublisherDetails(
-                topicId, qosPolicy, new SubmissionPublisher<RtpsTalkDataMessage>());
+                topicId,
+                qosPolicy,
+                new WriterSettings(false),
+                new SubmissionPublisher<RtpsTalkDataMessage>());
     }
 
     public static SedpBuiltinPublicationsWriter newSedpPublicationsWriter(

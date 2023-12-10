@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.userdata;
 
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
@@ -38,7 +39,8 @@ public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage>
             DataChannelFactory channelFactory,
             LocalOperatingEntities operatingEntities,
             EntityId writerEntityId,
-            WriterQosPolicySet qosPolicy) {
+            WriterQosPolicySet qosPolicy,
+            WriterSettings writerSettings) {
         super(
                 config,
                 tracingToken,
@@ -46,6 +48,7 @@ public class DataWriter extends StatefullReliableRtpsWriter<RtpsTalkDataMessage>
                 channelFactory,
                 operatingEntities,
                 writerEntityId,
-                qosPolicy);
+                qosPolicy,
+                writerSettings);
     }
 }

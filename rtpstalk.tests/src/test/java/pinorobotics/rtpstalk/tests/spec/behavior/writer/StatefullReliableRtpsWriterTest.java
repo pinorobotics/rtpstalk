@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
@@ -78,7 +79,8 @@ public class StatefullReliableRtpsWriterTest {
                                 writerGuid.entityId,
                                 new WriterQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
-                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS));
+                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS),
+                                new WriterSettings(false));
                 var publisher = new SynchronousPublisher<RtpsTalkDataMessage>();
                 var receiver = new SynchronousPublisher<RtpsMessage>(); ) {
             receiver.subscribe(writer.getWriterReader());

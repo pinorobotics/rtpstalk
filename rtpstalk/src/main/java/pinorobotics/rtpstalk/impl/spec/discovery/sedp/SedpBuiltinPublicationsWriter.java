@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
@@ -52,6 +53,7 @@ public class SedpBuiltinPublicationsWriter
                 channelFactory,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_PUBLICATIONS_ANNOUNCER.getValue(),
-                DEFAULT_POLICY);
+                DEFAULT_POLICY,
+                new WriterSettings(false));
     }
 }

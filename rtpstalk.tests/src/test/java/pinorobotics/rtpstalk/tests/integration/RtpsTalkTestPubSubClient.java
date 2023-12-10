@@ -28,6 +28,7 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.DurabilityType;
@@ -50,11 +51,18 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     private PublisherQosPolicy publisherQosPolicy =
             new PublisherQosPolicy(
                     ReliabilityType.RELIABLE, DurabilityType.VOLATILE_DURABILITY_QOS);
+    private WriterSettings writerSettings = new WriterSettings();
 
     public RtpsTalkTestPubSubClient() {}
 
     public RtpsTalkTestPubSubClient(PublisherQosPolicy publisherQosPolicy) {
         this.publisherQosPolicy = publisherQosPolicy;
+    }
+
+    public RtpsTalkTestPubSubClient(
+            RtpsTalkConfiguration configuration, WriterSettings writerSettings) {
+        client = new RtpsTalkClient(configuration);
+        this.writerSettings = writerSettings;
     }
 
     public RtpsTalkTestPubSubClient(RtpsTalkConfiguration configuration) {
@@ -93,6 +101,6 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     @Override
     public void publish(String topic, Publisher<byte[]> publisher) {
         var transformer = new TransformPublisher<>(publisher, this::packUserdata);
-        client.publish(topic, asType(topic), publisherQosPolicy, transformer);
+        client.publish(topic, asType(topic), publisherQosPolicy, writerSettings, transformer);
     }
 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
@@ -52,7 +53,8 @@ public class WriterRtpsReaderTest {
                         TestConstants.TEST_WRITER_ENTITY_ID,
                         new WriterQosPolicySet(
                                 ReliabilityQosPolicy.Kind.RELIABLE,
-                                DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS)) {
+                                DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS),
+                        new WriterSettings()) {
                     @Override
                     protected void cleanupCache() {
                         counter[0]++;
