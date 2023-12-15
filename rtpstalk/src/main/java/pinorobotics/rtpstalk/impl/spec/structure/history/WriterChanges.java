@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.structure.history;
 
 import id.xfunction.Preconditions;
+import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,13 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class WriterChanges<D extends RtpsTalkMessage> {
 
-    private static final XLogger LOGGER = XLogger.getLogger(WriterChanges.class);
-    private SortedMap<Long, CacheChange<D>> sortedChanges = new ConcurrentSkipListMap<>();
+    private final SortedMap<Long, CacheChange<D>> sortedChanges = new ConcurrentSkipListMap<>();
+
+    private XLogger logger;
+
+    public WriterChanges(TracingToken tracingToken) {
+        logger = XLogger.getLogger(getClass(), tracingToken);
+    }
 
     /**
      * TreeMap does not guarantee constant time for {@link TreeMap#firstEntry()}, {@link
@@ -54,16 +60,16 @@ public class WriterChanges<D extends RtpsTalkMessage> {
 
     private void updateSeqNums(long seqNum, boolean firstChange) {
         if (firstChange) {
-            LOGGER.fine("First change with sequence number {0}", seqNum);
+            logger.fine("First change with sequence number {0}", seqNum);
             seqNumMin.set(seqNum);
             seqNumMax.set(seqNum);
         } else {
             if (seqNumMin.get() > seqNum) {
-                LOGGER.fine("Updating minimum sequence number to {0}", seqNum);
+                logger.fine("Updating minimum sequence number to {0}", seqNum);
                 seqNumMin.set(seqNum);
             }
             if (seqNumMax.get() < seqNum) {
-                LOGGER.fine("Updating maximum sequence number to {0}", seqNum);
+                logger.fine("Updating maximum sequence number to {0}", seqNum);
                 seqNumMax.set(seqNum);
             }
         }
@@ -93,7 +99,7 @@ public class WriterChanges<D extends RtpsTalkMessage> {
             if (curSeqNum >= seqNum) break;
             iter.remove();
         }
-        seqNumMin.set(seqNum - 1);
+        seqNumMin.set(seqNum);
     }
 
     public boolean containsChange(long sequenceNumber) {

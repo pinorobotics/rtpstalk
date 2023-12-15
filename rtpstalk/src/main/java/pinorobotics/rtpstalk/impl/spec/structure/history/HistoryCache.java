@@ -52,7 +52,10 @@ public class HistoryCache<D extends RtpsTalkMessage> {
 
     private XLogger logger;
 
+    private TracingToken tracingToken;
+
     public HistoryCache(TracingToken tracingToken) {
+        this.tracingToken = tracingToken;
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -72,7 +75,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         var writerChanges = changes.get(change.getWriterGuid());
         long seqNum = change.getSequenceNumber();
         if (writerChanges == null) {
-            writerChanges = new WriterChanges<>();
+            writerChanges = new WriterChanges<>(tracingToken);
             changes.put(change.getWriterGuid(), writerChanges);
         } else if (writerChanges.containsChange(seqNum)) {
             logger.fine(

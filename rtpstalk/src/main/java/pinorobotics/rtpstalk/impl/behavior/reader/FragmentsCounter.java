@@ -37,7 +37,9 @@ public class FragmentsCounter {
         for (int fragmentNum = fragmentStartingNum;
                 fragmentNum < fragmentEndingNum;
                 fragmentNum++) {
-            isFragmentReceived[fragmentNum - 1] = true;
+            var i = fragmentNum - 1;
+            if (isFragmentReceived[i]) continue;
+            isFragmentReceived[i] = true;
             missingFragmentsCount--;
         }
     }

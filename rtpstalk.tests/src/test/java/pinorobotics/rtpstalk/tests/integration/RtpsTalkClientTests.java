@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
+import static pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder.DEFAULT_DISCOVERY_PERIOD;
+
 import id.pubsubtests.PubSubClientTestCase;
 import id.pubsubtests.PubSubClientTests;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
@@ -57,7 +59,12 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     private FastRtpsHelloWorldExample tools;
 
     static Stream<PubSubClientTestCase> dataProvider() {
-        return Stream.of(new PubSubClientTestCase(RtpsTalkTestPubSubClient::new));
+        return Stream.of(
+                new PubSubClientTestCase(
+                        "test_with_default_settings",
+                        RtpsTalkTestPubSubClient::new,
+                        DEFAULT_DISCOVERY_PERIOD,
+                        RtpsTalkTestPubSubClient.QUEUE_SIZE));
     }
 
     @BeforeEach

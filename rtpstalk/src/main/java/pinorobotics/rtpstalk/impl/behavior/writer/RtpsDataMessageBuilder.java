@@ -113,6 +113,16 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                         seqNum);
                 var inlineQos =
                         message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
+                var fragmentSize = maxSubmessageSize - messageBuilder.getSize();
+                if (readerGuidPrefix.isEmpty()) {
+                    // each time we resend fragmented message it should always have fragmentSize
+                    // which was specified in the original fragmented message
+                    // because original and resent fragmented messages may or may not contain
+                    // InfoDestination
+                    // submessage (depending on presence of readerGuidPrefix) we account
+                    // fragmentSize for both the cases
+                    fragmentSize -= InfoDestination.SIZE;
+                }
                 for (var fragment :
                         new DataFragmentSplitter(
                                 tracingToken,
@@ -121,7 +131,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                                 seqNum,
                                 inlineQos,
                                 dataMessage.data().get(),
-                                maxSubmessageSize - messageBuilder.getSize())) {
+                                fragmentSize)) {
                     Preconditions.isTrue(
                             messageBuilder.add(fragment),
                             "DataFrag submessage cannot be added to RTPS message");

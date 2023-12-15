@@ -184,7 +184,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             if (lastSeqNum == null) {
                 lastSeqNum = calcStartSeqNum(newCacheChange.getSequenceNumber());
                 if (lastSeqNum == 0) {
-                    writerProxy.missingChangesUpdate(newCacheChange.getSequenceNumber());
+                    writerProxy.missingChangesUpdate(1, newCacheChange.getSequenceNumber());
                 }
             }
             writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());

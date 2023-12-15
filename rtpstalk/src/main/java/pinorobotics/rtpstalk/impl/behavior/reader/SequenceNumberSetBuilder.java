@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.behavior.reader;
 
+import id.xfunction.Preconditions;
 import id.xfunction.util.IntBitSet;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
@@ -27,16 +28,13 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 public class SequenceNumberSetBuilder {
 
     public SequenceNumberSet build(
-            long first, long last, long[] missing, long availableChangesMax) {
-        if (missing.length == 0) {
+            long first, long last, long[] missingSorted, long availableChangesMax) {
+        if (missingSorted.length == 0) {
             return expectNextSet(availableChangesMax);
         }
-        var firstMissing = missing[0];
-        var lastMissing = missing[0];
-        for (var v : missing) {
-            firstMissing = Math.min(firstMissing, v);
-            lastMissing = Math.max(lastMissing, v);
-        }
+        var firstMissing = missingSorted[0];
+        var lastMissing = missingSorted[missingSorted.length - 1];
+        Preconditions.isTrue(firstMissing <= lastMissing, "Sorted array of changes expected");
         // make tests for starting set from first/last missing and not first/last available
         firstMissing = Math.max(first, firstMissing);
         lastMissing = Math.min(last, lastMissing);
@@ -46,7 +44,7 @@ public class SequenceNumberSetBuilder {
 
         // Creates bitmask of missing changes between [firstMissing..lastMissing]
         var bset = new IntBitSet(numBits);
-        for (var sn : missing) {
+        for (var sn : missingSorted) {
             if (sn >= (firstMissing + numBits)) continue;
             if (sn < firstMissing || lastMissing < sn) continue;
             bset.flip((int) (sn - firstMissing));

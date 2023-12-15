@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2023 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -15,13 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.spec.behavior.reader;
+package pinorobotics.rtpstalk.tests.behavior.reader;
 
+import id.xfunctiontests.XAsserts;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.WriterProxy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -29,14 +33,16 @@ import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class WriterProxyTest {
+public class WriterHeartbeatProcessorTest {
 
     @Test
-    public void test_equals() {
+    public void test() {
+        var dataChannelFactory = new TestDataChannelFactory();
+
         var wp =
                 new WriterProxy(
                         TestConstants.TEST_TRACING_TOKEN,
-                        new TestDataChannelFactory(),
+                        dataChannelFactory,
                         TestConstants.TEST_CONFIG_INTERNAL.maxSubmessageSize(),
                         new Guid(
                                 TestConstants.TEST_GUID_PREFIX,
@@ -44,18 +50,27 @@ public class WriterProxyTest {
                         new Guid(
                                 TestConstants.TEST_REMOTE_GUID_PREFIX,
                                 EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),
-                        List.of());
-        wp.missingChangesUpdate(1, 14);
-        wp.lostChangesUpdate(10);
-        Assertions.assertArrayEquals(new long[] {10, 11, 12, 13, 14}, wp.missingChangesSorted());
+                        List.of(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR));
 
-        wp.receivedChangeSet(17);
-        wp.missingChangesUpdate(10, 14);
-        Assertions.assertArrayEquals(new long[] {10, 11, 12, 13, 14}, wp.missingChangesSorted());
+        IntStream.range(1, 18).forEach(wp::receivedChangeSet);
+        var proc =
+                new WriterHeartbeatProcessor(
+                        TestConstants.TEST_TRACING_TOKEN,
+                        wp,
+                        RtpsTalkConfiguration.MIN_PACKET_BUFFER_SIZE);
+        proc.addHeartbeat(
+                new Heartbeat(
+                        TestConstants.TEST_READER_ENTITY_ID,
+                        TestConstants.TEST_WRITER_ENTITY_ID,
+                        10,
+                        18,
+                        123));
 
-        wp.receivedChangeSet(13);
-        wp.receivedChangeSet(10);
-        wp.missingChangesUpdate(10, 14);
-        Assertions.assertArrayEquals(new long[] {11, 12, 14}, wp.missingChangesSorted());
+        proc.ack();
+        var dataChannel =
+                dataChannelFactory
+                        .getChannels()
+                        .get(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR);
+        XAsserts.assertMatches(getClass(), "test_heartbeat", dataChannel.getDataQueue().toString());
     }
 }

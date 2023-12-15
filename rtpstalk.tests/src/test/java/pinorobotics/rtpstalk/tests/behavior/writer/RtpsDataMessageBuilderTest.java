@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -71,5 +72,36 @@ public class RtpsDataMessageBuilderTest {
         builder.add(1, new RtpsTalkDataMessage(new byte[13]));
         var actual = builder.build(new EntityId(), new EntityId());
         XAsserts.assertMatches(getClass(), "test_infodst", actual.toString());
+    }
+
+    @Test
+    public void test_consistent_fragmentSize() {
+        var builder =
+                new RtpsDataMessageBuilder(
+                        new RtpsTalkConfigurationInternal(
+                                new RtpsTalkConfiguration.Builder()
+                                        .packetBufferSize(10_000)
+                                        .build()),
+                        TestConstants.TEST_TRACING_TOKEN,
+                        TestConstants.TEST_GUID_PREFIX,
+                        new GuidPrefix("aaaaaaaaaaaaaaaaaaaaaaaa"));
+        builder.add(1, new RtpsTalkDataMessage("a".repeat(10_123).getBytes()));
+        var actual = builder.build(new EntityId(), new EntityId());
+        XAsserts.assertMatches(getClass(), "test_consistent_fragmentSize", actual.toString());
+        var fragmentSize = ((DataFrag) actual.get(1).submessages[2]).fragmentSize;
+
+        builder =
+                new RtpsDataMessageBuilder(
+                        new RtpsTalkConfigurationInternal(
+                                new RtpsTalkConfiguration.Builder()
+                                        .packetBufferSize(10_000)
+                                        .build()),
+                        TestConstants.TEST_TRACING_TOKEN,
+                        TestConstants.TEST_GUID_PREFIX);
+        builder.add(1, new RtpsTalkDataMessage("a".repeat(10_123).getBytes()));
+        actual = builder.build(new EntityId(), new EntityId());
+        var fragmentSizeNoReader = ((DataFrag) actual.get(1).submessages[1]).fragmentSize;
+
+        Assertions.assertEquals(fragmentSize, fragmentSizeNoReader);
     }
 }

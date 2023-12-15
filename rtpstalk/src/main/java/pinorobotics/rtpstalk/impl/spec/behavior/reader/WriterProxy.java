@@ -27,12 +27,12 @@ import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.LongStream;
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicLong;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -51,16 +51,17 @@ public class WriterProxy {
                     .setDescription(RtpsTalkMetrics.LOST_CHANGES_COUNT_METRIC_DESCRIPTION)
                     .build();
 
-    private Guid readerGuid;
-    private Guid remoteWriterGuid;
-    private List<Locator> unicastLocatorList;
-    private Map<Long, ChangeFromWriterStatusKind> changesFromWriter = new LinkedHashMap<>();
-    private long seqNumMax = 0;
-    private XLogger logger;
-    private WriterHeartbeatProcessor heartbeatProcessor;
+    private final Guid readerGuid;
+    private final Guid remoteWriterGuid;
+    private final List<Locator> unicastLocatorList;
+    private final SortedMap<Long, ChangeFromWriterStatusKind> sortedChangesFromWriter =
+            new ConcurrentSkipListMap<>();
+    private final AtomicLong seqNumMax = new AtomicLong();
+    private final XLogger logger;
+    private final WriterHeartbeatProcessor heartbeatProcessor;
+    private final TracingToken tracingToken;
+    private final DataChannelFactory dataChannelFactory;
     private DataChannel dataChannel;
-    private TracingToken tracingToken;
-    private DataChannelFactory dataChannelFactory;
 
     public WriterProxy(
             TracingToken tracingToken,
@@ -79,17 +80,17 @@ public class WriterProxy {
     }
 
     public void receivedChangeSet(long seqNum) {
-        if (changesFromWriter.get(seqNum) == RECEIVED) {
+        if (sortedChangesFromWriter.get(seqNum) == RECEIVED) {
             logger.fine(
                     "Change with sequence number {0} already present in the cache, ignoring...",
                     seqNum);
             return;
         }
-        changesFromWriter.put(seqNum, RECEIVED);
+        sortedChangesFromWriter.put(seqNum, RECEIVED);
         logger.fine("New change added into the cache");
-        if (seqNumMax < seqNum) {
+        if (seqNumMax.get() < seqNum) {
             logger.fine("Updating maximum sequence number to {0}", seqNum);
-            seqNumMax = seqNum;
+            seqNumMax.set(seqNum);
         }
     }
 
@@ -108,7 +109,7 @@ public class WriterProxy {
      * RTPS WriterProxy that are available for access by the DDS DataReader.
      */
     public long availableChangesMax() {
-        return seqNumMax;
+        return seqNumMax.get();
     }
 
     /**
@@ -119,39 +120,47 @@ public class WriterProxy {
         return unicastLocatorList;
     }
 
-    public void missingChangesUpdate(long lastSN) {
-        LongStream.rangeClosed(seqNumMax + 1, lastSN)
-                .forEach(sn -> changesFromWriter.put(sn, MISSING));
+    public void missingChangesUpdate(long firstSN, long lastSN) {
+        var iter = sortedChangesFromWriter.tailMap(firstSN).entrySet().iterator();
+        var curSN = firstSN;
+        var newMissing = new HashMap<Long, ChangeFromWriterStatusKind>();
+        while (iter.hasNext() && curSN <= lastSN) {
+            var entry = iter.next();
+            if (entry.getKey() < curSN) continue;
+            while (curSN < entry.getKey()) newMissing.put(curSN++, MISSING);
+            if (entry.getValue() == RECEIVED) {
+                curSN++;
+                continue;
+            }
+            newMissing.put(curSN++, MISSING);
+        }
+        while (curSN <= lastSN) newMissing.put(curSN++, MISSING);
+        sortedChangesFromWriter.putAll(newMissing);
     }
 
     public void lostChangesUpdate(long firstSN) {
-        Map<Long, ChangeFromWriterStatusKind> newChangesFromWriter =
-                new LinkedHashMap<>(changesFromWriter.size());
         var lostChanges = new ArrayList<Long>();
-        for (var entry : changesFromWriter.entrySet()) {
-            var seqNum = entry.getKey();
-            if (seqNum < firstSN) {
-                lostChanges.add(seqNum);
-            } else {
-                newChangesFromWriter.put(entry.getKey(), entry.getValue());
-            }
+        var iter = sortedChangesFromWriter.entrySet().iterator();
+        while (iter.hasNext()) {
+            var curSeqNum = iter.next().getKey();
+            if (curSeqNum >= firstSN) break;
+            lostChanges.add(curSeqNum);
+            iter.remove();
         }
         LOST_CHANGES_COUNT_METER.add(lostChanges.size());
         if (!lostChanges.isEmpty()) {
-            Collections.sort(lostChanges);
             logger.fine(
                     "Changes from {0} to {1} are not available on the Writer anymore and are lost",
                     lostChanges.get(0), lostChanges.get(lostChanges.size() - 1));
         }
-        changesFromWriter = newChangesFromWriter;
     }
 
     /**
      * This operation returns the subset of changes for the WriterProxy that have status {@link
      * ChangeFromWriterStatusKind#MISSING}.
      */
-    public long[] missingChanges() {
-        return changesFromWriter.entrySet().stream()
+    public long[] missingChangesSorted() {
+        return sortedChangesFromWriter.entrySet().stream()
                 .filter(e -> e.getValue() == MISSING)
                 .mapToLong(Entry::getKey)
                 .toArray();

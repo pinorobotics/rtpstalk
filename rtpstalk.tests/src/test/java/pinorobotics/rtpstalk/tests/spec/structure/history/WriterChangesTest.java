@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.tests.spec.structure.history;
 
 import static pinorobotics.rtpstalk.tests.TestConstants.TEST_GUID_READER;
+import static pinorobotics.rtpstalk.tests.TestConstants.TEST_TRACING_TOKEN;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ public class WriterChangesTest {
 
     @Test
     public void test() {
-        var changes = new WriterChanges<RtpsTalkDataMessage>();
+        var changes = new WriterChanges<RtpsTalkDataMessage>(TEST_TRACING_TOKEN);
 
         Assertions.assertEquals(0, changes.getNumberOfChanges());
         Assertions.assertEquals(SequenceNumber.MIN.value, changes.getSeqNumMin());
@@ -93,14 +94,14 @@ public class WriterChangesTest {
 
         changes.removeAllBelow(13);
         Assertions.assertEquals(3, changes.getNumberOfChanges());
-        Assertions.assertEquals(12, changes.getSeqNumMin());
+        Assertions.assertEquals(13, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
         Assertions.assertEquals("[13, 14, 17]", toString(changes.getAllSortedBySeqNum()));
         Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
 
         changes.removeAllBelow(16);
         Assertions.assertEquals(1, changes.getNumberOfChanges());
-        Assertions.assertEquals(15, changes.getSeqNumMin());
+        Assertions.assertEquals(16, changes.getSeqNumMin());
         Assertions.assertEquals(17, changes.getSeqNumMax());
         Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum()));
         Assertions.assertEquals("[17]", toString(changes.getAllSortedBySeqNum(15)));
@@ -108,7 +109,7 @@ public class WriterChangesTest {
 
     @Test
     public void test_findAll() {
-        var changes = new WriterChanges<RtpsTalkDataMessage>();
+        var changes = new WriterChanges<RtpsTalkDataMessage>(TEST_TRACING_TOKEN);
 
         Assertions.assertEquals(
                 "[]", toString(changes.findAll(List.of(1L, 2L, 3L, 10L, 12L, 15L))));

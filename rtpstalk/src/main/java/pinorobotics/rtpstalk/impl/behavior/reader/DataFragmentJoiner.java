@@ -63,21 +63,21 @@ public class DataFragmentJoiner {
                     .ofLongs()
                     .build();
 
-    private XLogger logger;
-    private TracingToken tracingToken;
+    private final XLogger logger;
+    private final TracingToken tracingToken;
 
-    private long dataSequenceNumber;
+    private final long dataSequenceNumber;
 
     private ByteBuffer userdata;
 
     /** Data size includes serializedPayloadHeader + user data */
     private int availableDataSize, expectedDataSize;
 
-    private int expectedFragmentSize;
-    private int expectedTotalFragmentsCount;
-    private Optional<ParameterList> inlineQos;
+    private final int expectedFragmentSize;
+    private final int expectedTotalFragmentsCount;
+    private final Optional<ParameterList> inlineQos;
 
-    private FragmentsCounter fragmentsCounter;
+    private final FragmentsCounter fragmentsCounter;
     private Optional<RtpsTalkDataMessage> completeDataMessage = Optional.empty();
     private Optional<Instant> startAt = Optional.empty();
 

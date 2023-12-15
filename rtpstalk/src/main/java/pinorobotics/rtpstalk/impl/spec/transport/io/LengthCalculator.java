@@ -104,7 +104,7 @@ public class LengthCalculator {
         if (clazz == ProtocolVersion.class) return 2;
         if (clazz == VendorId.class) return 2;
         if (clazz == InfoTimestamp.class) return getFixedLength(Timestamp.class);
-        if (clazz == InfoDestination.class) return getFixedLength(GuidPrefix.class);
+        if (clazz == InfoDestination.class) return InfoDestination.SIZE;
         if (clazz == RepresentationIdentifier.class) return RepresentationIdentifier.SIZE;
         if (clazz == SerializedPayloadHeader.class) return SerializedPayloadHeader.SIZE;
         if (clazz == SubmessageKind.class) return 1;

@@ -91,7 +91,7 @@ public class WriterHeartbeatProcessor {
 
         var infoDst = new InfoDestination(writerGuid.guidPrefix);
 
-        writerProxy.missingChangesUpdate(lastHeartbeat.lastSN.value);
+        writerProxy.missingChangesUpdate(lastHeartbeat.firstSN.value, lastHeartbeat.lastSN.value);
         writerProxy.lostChangesUpdate(lastHeartbeat.firstSN.value);
 
         var aggregator =
@@ -106,7 +106,7 @@ public class WriterHeartbeatProcessor {
                                         .build(
                                                 lastHeartbeat.firstSN.value,
                                                 lastHeartbeat.lastSN.value,
-                                                writerProxy.missingChanges(),
+                                                writerProxy.missingChangesSorted(),
                                                 writerProxy.availableChangesMax()),
                                 new Count(count++))),
                 "Not enouch space in RTPS message");

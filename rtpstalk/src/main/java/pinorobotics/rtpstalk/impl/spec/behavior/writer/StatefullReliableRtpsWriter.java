@@ -275,8 +275,10 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                 break;
             }
             logger.fine(
-                    "Waiting for {0} pending changes in the history cache to be sent",
-                    numOfPendingChanges);
+                    "Waiting for {0} pending changes [{1}..{2}] in the history cache to be sent",
+                    numOfPendingChanges,
+                    historyCache.getSeqNumMin(getGuid()),
+                    historyCache.getSeqNumMax(getGuid()));
             XThread.sleep(heartbeatPeriod.toMillis());
             numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
         }
