@@ -57,11 +57,11 @@ public interface RtpsTalkMetrics {
     String RECEIVE_TIME_METRIC = "receive_time_ms";
     String RECEIVE_TIME_METRIC_DESCRIPTION = "RTPS message receive time in millis";
 
-    String READ_TIME_METRIC = "read_time_ms";
-    String READ_TIME_METRIC_DESCRIPTION = "RTPS message read from byte buffer time in millis";
+    String SERIALIZATION_TIME_METRIC = "serialization_time_ms";
+    String READ_TIME_METRIC_DESCRIPTION = "RTPS message serialization time in millis";
 
-    String WRITE_TIME_METRIC = "write_time_ms";
-    String WRITE_TIME_METRIC_DESCRIPTION = "RTPS message write to byte buffer time in millis";
+    String DESERIALIZATION_TIME_METRIC = "deserialization_time_ms";
+    String WRITE_TIME_METRIC_DESCRIPTION = "RTPS message deserialization time in millis";
 
     String RTPS_READER_COUNT_METRIC = "rtps_reader_count";
     String RTPS_READER_COUNT_METRIC_DESCRIPTION = "Total number of local RTPS readers";

@@ -41,7 +41,7 @@ public class RtpsMessageReader {
     private final Meter METER =
             GlobalOpenTelemetry.getMeter(RtpsMessageReader.class.getSimpleName());
     private final LongHistogram READ_TIME_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.READ_TIME_METRIC)
+            METER.histogramBuilder(RtpsTalkMetrics.SERIALIZATION_TIME_METRIC)
                     .setDescription(RtpsTalkMetrics.READ_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();

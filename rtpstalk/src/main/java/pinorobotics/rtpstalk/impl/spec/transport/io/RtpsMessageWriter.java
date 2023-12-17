@@ -35,7 +35,7 @@ public class RtpsMessageWriter {
     private final Meter METER =
             GlobalOpenTelemetry.getMeter(RtpsMessageWriter.class.getSimpleName());
     private final LongHistogram WRITE_TIME_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.WRITE_TIME_METRIC)
+            METER.histogramBuilder(RtpsTalkMetrics.DESERIALIZATION_TIME_METRIC)
                     .setDescription(RtpsTalkMetrics.WRITE_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
