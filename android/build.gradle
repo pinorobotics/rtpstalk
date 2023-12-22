@@ -1,0 +1,45 @@
+plugins {
+  id 'com.android.library' version '8.2.0' apply false
+}
+
+apply plugin: 'com.android.library'
+
+def androidSdkVersion = 34
+def javaVersion = 17
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(javaVersion)
+  }
+}
+
+dependencies {
+  api "io.github.lambdaprime:id.xfunction:24.0-SNAPSHOT:android@aar"
+  api "io.github.lambdaprime:kineticstreamer:6.0-SNAPSHOT"
+  api "io.opentelemetry:opentelemetry-api:1.22.0"
+}
+
+android {
+  namespace "pinorobotics.rtpstalk"
+  compileSdk androidSdkVersion
+  compileOptions {
+    sourceCompatibility javaVersion
+  }
+  lintOptions {
+    abortOnError false
+  }
+  defaultConfig {
+    targetSdkVersion androidSdkVersion
+    minSdkVersion androidSdkVersion
+  }
+}
+
+// it is not possible to exclude module-info through srcDirs:
+// https://discuss.gradle.org/t/how-to-exclude-module-info-java-in-gradle-7/42816
+// instead we copy sources except module-info to separate folder
+task copySources(type: Copy) {
+  from "../rtpstalk/src/main/java"
+  into "src/main/java"
+  exclude "**/module-info.java"
+}
+preBuild.dependsOn copySources

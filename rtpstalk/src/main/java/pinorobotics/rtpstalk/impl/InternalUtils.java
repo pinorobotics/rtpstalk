@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.stream.XStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -39,12 +40,12 @@ public class InternalUtils {
 
     public List<NetworkInterface> listAllNetworkInterfaces() {
         try {
-            return NetworkInterface.networkInterfaces()
+            return XStream.of(NetworkInterface.getNetworkInterfaces().asIterator())
                     .filter(
                             p -> {
                                 try {
                                     var hasIpv4 =
-                                            p.inetAddresses()
+                                            XStream.of(p.getInetAddresses().asIterator())
                                                     .filter(isIpv4())
                                                     .findAny()
                                                     .isPresent();

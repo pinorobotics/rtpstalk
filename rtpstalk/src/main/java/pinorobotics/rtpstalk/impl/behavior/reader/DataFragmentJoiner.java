@@ -179,7 +179,8 @@ public class DataFragmentJoiner {
                         actuaDatalLen,
                         tracingToken,
                         "First fragment data underflow");
-            userdata.put(0, rawData, 0, rawData.limit());
+            userdata.position(0);
+            userdata.put(rawData.array(), 0, rawData.limit());
             availableDataSize += actuaDatalLen;
         } else {
             Preconditions.isTrue(
@@ -213,7 +214,8 @@ public class DataFragmentJoiner {
                             tracingToken,
                             "Fragment data underflow");
             }
-            userdata.put(offset - SerializedPayloadHeader.SIZE, rawData, 0, rawData.limit());
+            userdata.position(offset - SerializedPayloadHeader.SIZE);
+            userdata.put(rawData.array(), 0, rawData.limit());
             availableDataSize += actuaDatalLen;
         }
         fragmentsCounter.markAllFragmentsAsPresent(fragmentStartingNum, fragmentEndingNum);

@@ -1,0 +1,1 @@
+Android covers only subset of Java API which during runtime leads to java.lang.NoSuchMethodError. This build helps to avoid such exceptions during runtime by making sure that all Java API we use is available in Android during compile time.

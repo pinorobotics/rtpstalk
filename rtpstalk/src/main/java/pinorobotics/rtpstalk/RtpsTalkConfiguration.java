@@ -216,6 +216,15 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /**
+         * Starting port from which port assignment for RTPS services will happen (see {@link
+         * #DEFAULT_START_PORT})
+         */
+        public Builder startPort(int startPort) {
+            this.startPort = startPort;
+            return this;
+        }
+
         /** Maximum size of RTPS packets */
         public Builder packetBufferSize(int packetBufferSize) {
             this.packetBufferSize = packetBufferSize;

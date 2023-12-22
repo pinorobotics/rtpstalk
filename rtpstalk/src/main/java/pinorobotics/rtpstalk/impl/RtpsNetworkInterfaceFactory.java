@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.function.Unchecked;
 import id.xfunction.lang.XRE;
 import id.xfunction.logging.TracingToken;
+import id.xfunction.util.stream.XStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -78,8 +79,7 @@ public class RtpsNetworkInterfaceFactory {
         Supplier<XRE> exc =
                 () -> new XRE("Error obtaining IP address for network interface %s", networkIface);
         try {
-            return networkIface
-                    .inetAddresses()
+            return XStream.of(networkIface.getInetAddresses().asIterator())
                     .filter(InternalUtils.isIpv4())
                     .findFirst()
                     .orElseThrow(exc);

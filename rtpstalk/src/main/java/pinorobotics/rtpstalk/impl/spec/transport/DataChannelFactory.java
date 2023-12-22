@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.net.FreeUdpPortIterator;
+import id.xfunction.net.NetworkConstants;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -57,7 +58,14 @@ public class DataChannelFactory {
         var dataChannel =
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                        .bind(new InetSocketAddress(locator.getSocketAddress().getPort()))
+                        // on Android the default wildcard address is IPv6 and so bind return
+                        // UnsupportedAddressTypeException
+                        // since we support only IPv4 addresses we explicitly use IPv4 wildcard
+                        // address
+                        .bind(
+                                new InetSocketAddress(
+                                        NetworkConstants.IPv4_WILDCARD_ADDRESS,
+                                        locator.getSocketAddress().getPort()))
                         .setOption(StandardSocketOptions.IP_MULTICAST_IF, networkInterface);
         dataChannel.join(locator.address(), networkInterface);
         return new DataChannel(
@@ -78,7 +86,11 @@ public class DataChannelFactory {
             TracingToken tracingToken, Optional<InetAddress> address, Optional<Integer> port)
             throws IOException {
         DatagramChannel dataChannel = null;
+        LOGGER.fine("Binding to address {0}, port {1}", address, port);
         if (port.isEmpty()) {
+            LOGGER.fine(
+                    "Port is not provided, trying to find any open port starting from {0}",
+                    config.startPort());
             var portIterator = new FreeUdpPortIterator(config.startPort());
             address.ifPresent(portIterator::withNetworkInterfaceAddress);
             portIterator.withSocketConfigurator(this::configure);
@@ -88,7 +100,12 @@ public class DataChannelFactory {
             configure(dataChannel.socket());
             if (address.isPresent())
                 dataChannel.bind(new InetSocketAddress(address.get(), port.get()));
-            else dataChannel.bind(new InetSocketAddress(port.get()));
+            else
+                // on Android the default wildcard address is IPv6 and so bind return
+                // UnsupportedAddressTypeException
+                // since we support only IPv4 addresses we explicitly use IPv4 wildcard address
+                dataChannel.bind(
+                        new InetSocketAddress(NetworkConstants.IPv4_WILDCARD_ADDRESS, port.get()));
         }
         return new DataChannel(
                 tracingToken,
