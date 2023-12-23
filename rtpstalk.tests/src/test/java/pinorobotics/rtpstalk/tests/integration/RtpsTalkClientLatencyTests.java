@@ -23,6 +23,8 @@ import static pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder.DEFAULT_HEARTB
 import id.pubsubtests.PubSubClientLatencyTestCase;
 import id.pubsubtests.PubSubClientLatencyTests;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.WriterSettings;
@@ -32,6 +34,8 @@ import pinorobotics.rtpstalk.tests.MetricsExtension;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+// Windows tests are run inside VM so they show different results here and are excluded
+@DisabledOnOs({OS.WINDOWS})
 @ExtendWith({MetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
 

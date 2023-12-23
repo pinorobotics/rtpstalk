@@ -106,7 +106,7 @@ public class RtpsMessageSender extends SimpleSubscriber<RtpsMessageSender.Messag
 
     @Override
     public void close() {
-        subscription.cancel();
+        if (subscription != null) subscription.cancel();
         dataChannel.close();
         logger.fine("Closed");
     }

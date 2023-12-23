@@ -43,6 +43,8 @@ public class LogUtils {
     }
 
     public static void archiveLog(String testName) {
+        // make sure we stop writing to log file before moving it
+        XLogger.reset();
         try {
             Files.move(LOG_FILE, LOG_ARCHIVE_FOLDER.resolve(testName + System.currentTimeMillis()));
         } catch (IOException e) {

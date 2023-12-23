@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.spec.behavior.writer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.WriterSettings;
@@ -42,7 +43,8 @@ public class WriterRtpsReaderTest {
 
     @Test
     public void test_cleanupCache() throws IOException {
-        var counter = new int[1];
+        // will be updated from background thread
+        var counter = new AtomicInteger();
         var writerMock =
                 new StatefullReliableRtpsWriter<RtpsTalkDataMessage>(
                         TestConstants.TEST_CONFIG_INTERNAL,
@@ -57,7 +59,7 @@ public class WriterRtpsReaderTest {
                         new WriterSettings()) {
                     @Override
                     protected void cleanupCache() {
-                        counter[0]++;
+                        counter.incrementAndGet();
                     }
                 };
         // 1. Adding first reader starts new background thread to cleanup the cache periodically
@@ -66,7 +68,7 @@ public class WriterRtpsReaderTest {
                 List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR),
                 new ReaderQosPolicySet());
         // wait for background thread
-        while (counter[0] == 0)
+        while (counter.get() == 0)
             ;
 
         var reader =
@@ -81,6 +83,6 @@ public class WriterRtpsReaderTest {
                         // expecting 253
                         new SequenceNumberSet(253, 0),
                         12));
-        Assertions.assertEquals(2, counter[0]);
+        Assertions.assertEquals(2, counter.get());
     }
 }

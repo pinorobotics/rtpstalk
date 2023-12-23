@@ -236,6 +236,7 @@ public class RtpsTalkClientTests extends PubSubClientTests {
                             DurabilityType.TRANSIENT_LOCAL_DURABILITY_QOS),
                     publisher);
             tools.generateMessages(maxHistoryCacheSize).forEach(publisher::submit);
+            publisher.close();
             var proc =
                     tools.runHelloWorldExample(
                             Map.of(
