@@ -29,8 +29,8 @@ import pinorobotics.rtpstalk.impl.spec.DdsVersion;
         protocolVersion = DdsVersion.DDS_1_4,
         text =
                 """
-        The value offered is considered compatible with the value requested if and only if the inequality “offered kind >= requested
-        kind” evaluates to ‘TRUE.’ For the purposes of this inequality, the values of DURABILITY kind are considered ordered such
+        The value offered is considered compatible with the value requested if and only if the inequality "offered kind >= requested
+        kind" evaluates to 'TRUE.' For the purposes of this inequality, the values of DURABILITY kind are considered ordered such
         that VOLATILE < TRANSIENT_LOCAL < TRANSIENT < PERSISTENT.
         """)
 public class DurabilityQosPolicy {

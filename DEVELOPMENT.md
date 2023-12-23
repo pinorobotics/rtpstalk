@@ -14,6 +14,7 @@ gradle eclipse
 
 - Close version in gradle.properties
 - Run `gradle clean build javadoc` (Linux, Windows)
+- Run `gradle clean build -b android/build.gradle`
 - Publish
 - Open next SNAPSHOT version
 - Update CHANGELOG.md with new release (for changelog generation use `git log --format=%s`)
