@@ -17,11 +17,14 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
+import static pinorobotics.rtpstalk.impl.spec.transport.io.IoConstants.EMPTY_ANNOTATIONS;
+
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.logging.XLogger;
+import java.lang.annotation.Annotation;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,7 +61,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeArray(Object[] a) throws Exception {
+    public void writeArray(Object[] a, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeArray");
         if (a.getClass().componentType() == Submessage.class) {
             // writing it manually since it has polymorphic types inside
@@ -99,43 +102,47 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         }
     }
 
+    private void writeByte(byte b) throws Exception {
+        writeByte(b, EMPTY_ANNOTATIONS);
+    }
+
     @Override
-    public void writeByte(Byte b) throws Exception {
+    public void writeByte(Byte b, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeByte");
         buf.put(b);
         LOGGER.exiting("writeByte");
     }
 
     @Override
-    public void writeByteArray(byte[] a) throws Exception {
+    public void writeByteArray(byte[] a, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeByteArray");
         buf.put(a);
         LOGGER.exiting("writeByteArray");
     }
 
     @Override
-    public void writeInt(Integer i) throws Exception {
+    public void writeInt(Integer i, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeInt");
         buf.putInt(i);
         LOGGER.exiting("writeInt");
     }
 
     @Override
-    public void writeLong(Long l) throws Exception {
+    public void writeLong(Long l, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeLong");
         buf.putLong(l);
         LOGGER.exiting("writeLong");
     }
 
     @Override
-    public void writeShort(Short s) throws Exception {
+    public void writeShort(Short s, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeShort");
         buf.putShort(s);
         LOGGER.exiting("writeShort");
     }
 
     @Override
-    public void writeShortArray(short[] a) throws Exception {
+    public void writeShortArray(short[] a, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeShortArray");
         if (a.length > 0) {
             var tmpBuf = buf.asShortBuffer();
@@ -146,10 +153,10 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeString(String str) throws Exception {
+    public void writeString(String str, Annotation[] annotations) throws Exception {
         LOGGER.entering("writeString");
         writeInt(str.length() + 1 /* NULL byte */);
-        writeByteArray(str.getBytes());
+        writeByteArray(str.getBytes(), EMPTY_ANNOTATIONS);
         writeByte((byte) 0);
         LOGGER.exiting("writeString");
     }
@@ -185,8 +192,8 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                 pl.getParameters(),
                 k -> k.getValue(),
                 e -> LengthCalculator.getInstance().calculateParameterValueLength(e));
-        writeShort(ParameterId.PID_SENTINEL.getValue());
-        writeShort((short) 0);
+        writeShort(ParameterId.PID_SENTINEL.getValue(), EMPTY_ANNOTATIONS);
+        writeShort((short) 0, EMPTY_ANNOTATIONS);
         Preconditions.isTrue(
                 (buf.position() - paramListStart) % 4 == 0,
                 "Invalid param alignment: PID_SENTINEL");
@@ -215,8 +222,8 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                     (buf.position() - paramListStart) % 4 == 0,
                     "Invalid param alignment: %s",
                     param.getKey());
-            writeShort(paramIdMapper.apply(param.getKey()));
-            writeShort(len.shortValue());
+            writeShort(paramIdMapper.apply(param.getKey()), EMPTY_ANNOTATIONS);
+            writeShort(len.shortValue(), EMPTY_ANNOTATIONS);
             var endPos = buf.position() + len;
             if (param.getValue() instanceof Locator locator) writeLocator(locator);
             else if (param.getValue() instanceof StatusInfo statusInfo) writeStatusInfo(statusInfo);
@@ -237,14 +244,14 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                 {
                     var buf = new byte[LengthCalculator.ADDRESS_SIZE];
                     System.arraycopy(locator.address().getAddress(), 0, buf, 12, 4);
-                    writeByteArray(buf);
+                    writeByteArray(buf, EMPTY_ANNOTATIONS);
                     break;
                 }
             case LOCATOR_KIND_UDPv6:
                 {
                     LOGGER.severe("LOCATOR_KIND_UDPv6 is not supported, writing empty address");
                     var buf = new byte[LengthCalculator.ADDRESS_SIZE];
-                    writeByteArray(buf);
+                    writeByteArray(buf, EMPTY_ANNOTATIONS);
                     break;
                 }
             default:
@@ -252,6 +259,10 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                 break;
         }
         LOGGER.exiting("writeLocator");
+    }
+
+    private void writeInt(int value) throws Exception {
+        writeInt(value, EMPTY_ANNOTATIONS);
     }
 
     public void writeSequenceNumber(SequenceNumber num) throws Exception {
@@ -284,52 +295,52 @@ class RtpsOutputKineticStream implements OutputKineticStream {
     }
 
     @Override
-    public void writeBoolean(Boolean arg0) throws Exception {
+    public void writeBoolean(Boolean arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeBooleanArray(boolean[] arg0) throws Exception {
+    public void writeBooleanArray(boolean[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeDouble(Double arg0) throws Exception {
+    public void writeDouble(Double arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeDoubleArray(double[] arg0) throws Exception {
+    public void writeDoubleArray(double[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeFloat(Float arg0) throws Exception {
+    public void writeFloat(Float arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeFloatArray(float[] arg0) throws Exception {
+    public void writeFloatArray(float[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeChar(Character arg0) throws Exception {
+    public void writeChar(Character arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeCharArray(char[] arg0) throws Exception {
+    public void writeCharArray(char[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeStringArray(String[] arg0) throws Exception {
+    public void writeStringArray(String[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeIntArray(int[] a) throws Exception {
+    public void writeIntArray(int[] a, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

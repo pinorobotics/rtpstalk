@@ -17,12 +17,15 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
+import static pinorobotics.rtpstalk.impl.spec.transport.io.IoConstants.EMPTY_ANNOTATIONS;
+
 import id.kineticstreamer.InputKineticStream;
 import id.kineticstreamer.KineticStreamReader;
 import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import java.lang.annotation.Annotation;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -77,7 +80,8 @@ class RtpsInputKineticStream implements InputKineticStream {
     public void close() throws Exception {}
 
     @Override
-    public Object[] readArray(Object[] a, Class<?> type) throws Exception {
+    public Object[] readArray(Object[] a, Class<?> type, Annotation[] annotations)
+            throws Exception {
         LOGGER.entering("readArray");
         Object[] ret = null;
         if (type == Submessage.class) {
@@ -90,15 +94,15 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public boolean readBool() throws Exception {
+    public boolean readBool(Annotation[] annotations) throws Exception {
         LOGGER.entering("readBool");
-        var ret = readByte() != 0;
+        var ret = readByte(EMPTY_ANNOTATIONS) != 0;
         LOGGER.exiting("readBool");
         return ret;
     }
 
     @Override
-    public byte readByte() throws Exception {
+    public byte readByte(Annotation[] annotations) throws Exception {
         LOGGER.entering("readByte");
         var ret = buf.get();
         LOGGER.exiting("readByte");
@@ -106,7 +110,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public byte[] readByteArray(byte[] a) throws Exception {
+    public byte[] readByteArray(byte[] a, Annotation[] annotations) throws Exception {
         LOGGER.entering("readByteArray");
         buf.get(a);
         LOGGER.exiting("readByteArray");
@@ -114,7 +118,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public int readInt() throws Exception {
+    public int readInt(Annotation[] annotations) throws Exception {
         LOGGER.entering("readInt");
         var ret = buf.getInt();
         LOGGER.exiting("readInt");
@@ -122,16 +126,20 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public String readString() throws Exception {
+    public String readString(Annotation[] annotations) throws Exception {
         var len = readInt();
         var b = new byte[len - 1];
-        readByteArray(b);
-        Preconditions.equals(0, readByte(), "Null byte expected");
+        readByteArray(b, EMPTY_ANNOTATIONS);
+        Preconditions.equals(0, readByte(EMPTY_ANNOTATIONS), "Null byte expected");
         return new String(b);
     }
 
+    private int readInt() throws Exception {
+        return readInt(EMPTY_ANNOTATIONS);
+    }
+
     @Override
-    public long readLong() throws Exception {
+    public long readLong(Annotation[] annotations) throws Exception {
         LOGGER.entering("readLong");
         var ret = buf.getLong();
         LOGGER.exiting("readLong");
@@ -139,7 +147,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public short readShort() throws Exception {
+    public short readShort(Annotation[] annotations) throws Exception {
         LOGGER.entering("readShort");
         var ret = buf.getShort();
         LOGGER.exiting("readShort");
@@ -147,7 +155,7 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public short[] readShortArray(short[] a) throws Exception {
+    public short[] readShortArray(short[] a, Annotation[] annotations) throws Exception {
         LOGGER.entering("readShortArray");
         if (a.length > 0) {
             var tmpBuf = buf.asShortBuffer();
@@ -170,8 +178,8 @@ class RtpsInputKineticStream implements InputKineticStream {
         LOGGER.entering("readParameterList");
         short id;
         var paramList = new ParameterList();
-        while ((id = readShort()) != ParameterId.PID_SENTINEL.getValue()) {
-            var len = readShort();
+        while ((id = readShort(EMPTY_ANNOTATIONS)) != ParameterId.PID_SENTINEL.getValue()) {
+            var len = readShort(EMPTY_ANNOTATIONS);
             var startPos = buf.position();
             var parameterId = ParameterId.map.get(id);
             if (parameterId == null) {
@@ -181,7 +189,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                     continue;
                 }
                 var value = new byte[len];
-                readByteArray(value);
+                readByteArray(value, EMPTY_ANNOTATIONS);
                 LOGGER.fine("{0}: byte array length {1}", Short.toUnsignedInt(id), value.length);
                 paramList.putUserParameter(id, value);
                 continue;
@@ -194,7 +202,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                 case PID_ENTITY_NAME:
                 case PID_TYPE_NAME:
                 case PID_TOPIC_NAME:
-                    value = readString();
+                    value = readString(EMPTY_ANNOTATIONS);
                     break;
                 case PID_UNICAST_LOCATOR:
                 case PID_DEFAULT_UNICAST_LOCATOR:
@@ -208,7 +216,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                     value = new DataRepresentationQosPolicy(readShortSequence());
                     break;
                 case PID_EXPECTS_INLINE_QOS:
-                    value = readBool();
+                    value = readBool(EMPTY_ANNOTATIONS);
                     break;
                 case PID_STATUS_INFO:
                     value = readStatusInfo();
@@ -234,13 +242,14 @@ class RtpsInputKineticStream implements InputKineticStream {
                 default:
                     throw new UnsupportedOperationException("Parameter id " + id);
             }
-            LOGGER.fine(parameterId + ": " + value);
+            var finalValue = value;
+            LOGGER.fine(() -> parameterId + ": " + finalValue);
             paramList.put(parameterId, value);
 
             skip(len - (buf.position() - startPos));
         }
         // ignoring
-        readShort();
+        readShort(EMPTY_ANNOTATIONS);
         LOGGER.exiting("readParameterList");
         return paramList;
     }
@@ -300,7 +309,7 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private RawData readRawData(int len) throws Exception {
         var a = new byte[len];
-        readByteArray(a);
+        readByteArray(a, EMPTY_ANNOTATIONS);
         return new RawData(a);
     }
 
@@ -378,13 +387,13 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private ByteSequence readByteSequence() throws Exception {
         var value = new byte[readInt()];
-        readByteArray(value);
+        readByteArray(value, EMPTY_ANNOTATIONS);
         return new ByteSequence(value);
     }
 
     private ShortSequence readShortSequence() throws Exception {
         var value = new short[readInt()];
-        readShortArray(value);
+        readShortArray(value, EMPTY_ANNOTATIONS);
         return new ShortSequence(value);
     }
 
@@ -393,7 +402,7 @@ class RtpsInputKineticStream implements InputKineticStream {
         var kind = LocatorKind.VALUES.getOrDefault(readInt(), LocatorKind.LOCATOR_KIND_INVALID);
         var port = readInt();
         var buf = new byte[LengthCalculator.ADDRESS_SIZE];
-        readByteArray(buf);
+        readByteArray(buf, EMPTY_ANNOTATIONS);
         InetAddress address = null;
         switch (kind) {
             case LOCATOR_KIND_UDPv4:
@@ -464,52 +473,52 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     @Override
-    public double readDouble() throws Exception {
+    public double readDouble(Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public double[] readDoubleArray(double[] a) throws Exception {
+    public double[] readDoubleArray(double[] a, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public float readFloat() throws Exception {
+    public float readFloat(Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public float[] readFloatArray(float[] arg0) throws Exception {
+    public float[] readFloatArray(float[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public char readChar() throws Exception {
+    public char readChar(Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public char[] readCharArray(char[] arg0) throws Exception {
+    public char[] readCharArray(char[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean[] readBooleanArray(boolean[] a) throws Exception {
+    public boolean[] readBooleanArray(boolean[] a, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int[] readIntArray(int[] a) throws Exception {
+    public int[] readIntArray(int[] a, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long[] readLongArray(long[] a) throws Exception {
+    public long[] readLongArray(long[] a, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String[] readStringArray(String[] arg0) throws Exception {
+    public String[] readStringArray(String[] arg0, Annotation[] annotations) throws Exception {
         throw new UnsupportedOperationException();
     }
 }
