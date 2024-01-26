@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.integration;
 import static pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder.DEFAULT_DISCOVERY_PERIOD;
 import static pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder.DEFAULT_HEARTBEAT_PERIOD;
 
+import id.opentelemetry.exporters.extensions.ElasticsearchMetricsExtension;
 import id.pubsubtests.PubSubClientLatencyTestCase;
 import id.pubsubtests.PubSubClientLatencyTests;
 import java.util.stream.Stream;
@@ -29,14 +30,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.tests.LogExtension;
-import pinorobotics.rtpstalk.tests.MetricsExtension;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 // Windows tests are run inside VM so they show different results here and are excluded
 @DisabledOnOs({OS.WINDOWS})
-@ExtendWith({MetricsExtension.class, LogExtension.class})
+@ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
 
     static Stream<PubSubClientLatencyTestCase> dataProvider() {

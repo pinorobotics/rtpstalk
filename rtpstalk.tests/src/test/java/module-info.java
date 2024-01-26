@@ -27,9 +27,6 @@ open module rtpstalk.tests {
     requires pubsubtests;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
-    requires io.opentelemetry.sdk.metrics;
-    requires id.opentelemetry.exporters.pack;
-    requires io.opentelemetry.sdk;
-    requires io.opentelemetry.api;
     requires id.xfunctiontests;
+    requires id.opentelemetry.exporters.pack.junit;
 }

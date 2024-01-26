@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.tests.integration;
 
 import static java.util.stream.Collectors.joining;
 
+import id.opentelemetry.exporters.extensions.ElasticsearchMetricsExtension;
 import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
@@ -52,7 +53,6 @@ import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.LogUtils;
-import pinorobotics.rtpstalk.tests.MetricsExtension;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
@@ -63,7 +63,7 @@ import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-@ExtendWith({MetricsExtension.class, LogExtension.class})
+@ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientPubSubPairsTests {
 
     private HelloWorldExample helloWorldExample;

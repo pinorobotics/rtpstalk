@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests.integration;
 
+import id.opentelemetry.exporters.extensions.ElasticsearchMetricsExtension;
 import id.pubsubtests.PubSubClientThroughputTestCase;
 import id.pubsubtests.PubSubClientThroughputTests;
 import id.pubsubtests.TestPubSubClient;
@@ -27,14 +28,13 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.tests.LogExtension;
-import pinorobotics.rtpstalk.tests.MetricsExtension;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
 // Windows tests are run inside VM so they show different results here and are excluded
 @DisabledOnOs({OS.WINDOWS})
-@ExtendWith({MetricsExtension.class, LogExtension.class})
+@ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class RtpsTalkClientThroughputTests extends PubSubClientThroughputTests {
 
     static Stream<PubSubClientThroughputTestCase> dataProvider() {
