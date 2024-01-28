@@ -42,6 +42,7 @@ public class TestEvents {
                 Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
                         .asMatchPredicate();
         var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp, DELAY).get();
+        System.out.println("Actor discovered");
         return extractRemoteActorDetails(line);
     }
 

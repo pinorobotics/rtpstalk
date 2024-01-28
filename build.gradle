@@ -32,6 +32,7 @@ subprojects {
   // setup spotless config for all subprojects
   def spotlessConfig = {
     spotless {
+      lineEndings 'UNIX'
       java {
         importOrder()
         removeUnusedImports()
