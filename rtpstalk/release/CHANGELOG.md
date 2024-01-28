@@ -1,3 +1,12 @@
+# Version 6
+
+- Update opentelemetry and configure line endings for the project
+- Update kineticstreamer to v7
+- Migrating to id.opentelemetry-exporters-pack-junit
+- Fixing tests on Windows
+
+[rtpstalk-v6.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v6.0.zip)
+
 # Version 5
 
 - Adding build support for Android
