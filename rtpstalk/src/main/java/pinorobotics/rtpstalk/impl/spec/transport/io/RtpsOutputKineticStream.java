@@ -24,9 +24,10 @@ import id.kineticstreamer.OutputKineticStream;
 import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.ImmutableMultiMap;
 import java.lang.annotation.Annotation;
 import java.nio.ByteBuffer;
-import java.util.Map;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import pinorobotics.rtpstalk.impl.InternalUtils;
@@ -187,9 +188,11 @@ class RtpsOutputKineticStream implements OutputKineticStream {
         writeParameterList(
                 pl.getUserParameters(),
                 k -> k,
-                e -> LengthCalculator.getInstance().calculateUserParameterValueLength(e));
+                e ->
+                        LengthCalculator.getInstance()
+                                .calculateUserParameterValueLength(e.getValue()));
         writeParameterList(
-                pl.getParameters(),
+                pl.getProtocolParameters(),
                 k -> k.getValue(),
                 e -> LengthCalculator.getInstance().calculateParameterValueLength(e));
         writeShort(ParameterId.PID_SENTINEL.getValue(), EMPTY_ANNOTATIONS);
@@ -209,15 +212,18 @@ class RtpsOutputKineticStream implements OutputKineticStream {
                             + " aligned on a 4-byte boundary with respect to the start of the"
                             + " ParameterList.")
     private <K, V> void writeParameterList(
-            Map<K, V> parameterList,
+            ImmutableMultiMap<K, V> parameterList,
             Function<K, Short> paramIdMapper,
-            Function<Entry<K, V>, Integer> lenCalculator)
+            Function<Entry<K, List<V>>, Integer> lenCalculator)
             throws Exception {
         LOGGER.entering("writeParameterList");
         if (parameterList.isEmpty()) return;
         var paramListStart = buf.position();
-        for (var param : parameterList.entrySet()) {
+        for (var param : parameterList) {
+            var values = param.getValue();
+            if (values.isEmpty()) continue;
             var len = lenCalculator.apply(param);
+            if (len == 0) continue;
             Preconditions.isTrue(
                     (buf.position() - paramListStart) % 4 == 0,
                     "Invalid param alignment: %s",
@@ -225,9 +231,10 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             writeShort(paramIdMapper.apply(param.getKey()), EMPTY_ANNOTATIONS);
             writeShort(len.shortValue(), EMPTY_ANNOTATIONS);
             var endPos = buf.position() + len;
-            if (param.getValue() instanceof Locator locator) writeLocator(locator);
-            else if (param.getValue() instanceof StatusInfo statusInfo) writeStatusInfo(statusInfo);
-            else writer.write(param.getValue());
+            var firstValue = values.get(0);
+            if (firstValue instanceof Locator locator) writeLocator(locator);
+            else if (firstValue instanceof StatusInfo statusInfo) writeStatusInfo(statusInfo);
+            else writer.write(firstValue);
 
             // pad rest with zeros
             while (buf.position() < endPos) writeByte((byte) 0);

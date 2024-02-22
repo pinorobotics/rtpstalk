@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.discovery.spdp;
 
+import id.xfunction.util.ImmutableMultiMap;
 import java.util.EnumSet;
 import pinorobotics.rtpstalk.EndpointQos;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -64,18 +65,27 @@ public class SpdpDiscoveredParticipantDataFactory {
         // best-effort is not currently supported
         if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
             endpointSet.add(Endpoint.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER);
-        var params = new ParameterList();
-        params.put(
-                ParameterId.PID_PROTOCOL_VERSION,
-                ProtocolVersion.Predefined.Version_2_3.getValue());
-        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
-        params.put(ParameterId.PID_PARTICIPANT_GUID, config.localParticipantGuid());
-        params.put(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, metatrafficUnicastLocator);
-        params.put(ParameterId.PID_DEFAULT_UNICAST_LOCATOR, defaultUnicastLocator);
-        params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
-        params.put(ParameterId.PID_DOMAIN_ID, new UnsignedInt(config.publicConfig().domainId()));
-        params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
-        params.put(ParameterId.PID_ENTITY_NAME, "/");
+        var params =
+                ParameterList.ofProtocolParameters(
+                        ImmutableMultiMap.of(
+                                ParameterId.PID_PROTOCOL_VERSION,
+                                ProtocolVersion.Predefined.Version_2_3.getValue(),
+                                ParameterId.PID_VENDORID,
+                                VendorId.Predefined.RTPSTALK.getValue(),
+                                ParameterId.PID_PARTICIPANT_GUID,
+                                config.localParticipantGuid(),
+                                ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
+                                metatrafficUnicastLocator,
+                                ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
+                                defaultUnicastLocator,
+                                ParameterId.PID_PARTICIPANT_LEASE_DURATION,
+                                new Duration(20),
+                                ParameterId.PID_DOMAIN_ID,
+                                new UnsignedInt(config.publicConfig().domainId()),
+                                ParameterId.PID_BUILTIN_ENDPOINT_SET,
+                                new BuiltinEndpointSet(endpointSet),
+                                ParameterId.PID_ENTITY_NAME,
+                                "/"));
         return params;
     }
 }

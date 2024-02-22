@@ -21,6 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.text.Ellipsizer;
+import id.xfunction.util.ImmutableMultiMap;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
@@ -255,6 +256,7 @@ public class DataFragmentJoiner {
                         new RtpsTalkDataMessage(
                                 inlineQos
                                         .map(ParameterList::getUserParameters)
+                                        .map(ImmutableMultiMap::toMap)
                                         .map(Parameters::new),
                                 userdata.array()));
         return completeDataMessage;

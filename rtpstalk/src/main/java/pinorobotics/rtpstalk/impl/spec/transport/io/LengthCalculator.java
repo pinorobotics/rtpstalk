@@ -19,6 +19,7 @@ package pinorobotics.rtpstalk.impl.spec.transport.io;
 
 import id.xfunction.Preconditions;
 import id.xfunction.lang.XRE;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -186,22 +187,29 @@ public class LengthCalculator {
         throw new XRE("Cannot calculate length for an object of type %s", obj.getClass().getName());
     }
 
-    private int calculateParameterLength(Entry<ParameterId, ?> param) {
-        return getFixedLength(ParameterId.class)
+    private int calculateParameterLength(Entry<ParameterId, List<Object>> param) {
+        return getFixedLength(ParameterId.class) * param.getValue().size()
                 + Short.BYTES /* length */
                 + calculateParameterValueLength(param);
     }
 
-    public int calculateParameterValueLength(Entry<ParameterId, ?> param) {
+    private int calculateLength(List<Object> values) {
+        return values.stream().mapToInt(this::calculateLength).sum();
+    }
+
+    public int calculateParameterValueLength(Entry<ParameterId, List<Object>> param) {
         ParameterId id = param.getKey();
+        Preconditions.notNull(param.getValue());
+        var values = param.getValue();
+        if (values.isEmpty()) return 0;
         var len =
                 switch (id) {
-                    case PID_ENTITY_NAME -> calculateLength(param.getValue());
-                    case PID_TOPIC_NAME -> calculateLength(param.getValue());
-                    case PID_TYPE_NAME -> calculateLength(param.getValue());
+                    case PID_ENTITY_NAME -> calculateLength(values);
+                    case PID_TOPIC_NAME -> calculateLength(values);
+                    case PID_TYPE_NAME -> calculateLength(values);
                     case PID_SENTINEL -> 0;
-                    case PID_USER_DATA -> calculateLength(param.getValue());
-                    case PID_DATA_REPRESENTATION -> calculateLength(param.getValue());
+                    case PID_USER_DATA -> calculateLength(values);
+                    case PID_DATA_REPRESENTATION -> calculateLength(values);
                     case PID_KEY_HASH,
                             PID_DOMAIN_ID,
                             PID_BUILTIN_ENDPOINT_SET,
@@ -254,23 +262,23 @@ public class LengthCalculator {
 
     private int calculateParameterListLength(ParameterList parameterList) {
         if (parameterList.isEmpty()) return 0;
-        return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, 0))
-                + parameterList.getParameters().entrySet().stream()
+        return calculateParameterLength(Map.entry(ParameterId.PID_SENTINEL, List.of(0)))
+                + parameterList.getProtocolParameters().stream()
                         .mapToInt(this::calculateParameterLength)
                         .sum()
-                + parameterList.getUserParameters().entrySet().stream()
+                + parameterList.getUserParameters().stream()
                         .mapToInt(this::calculateUserParameterListLength)
                         .sum();
     }
 
-    private int calculateUserParameterListLength(Entry<Short, byte[]> param) {
-        return Short.BYTES /* param id */
+    private int calculateUserParameterListLength(Entry<Short, List<byte[]>> param) {
+        return Short.BYTES * param.getValue().size() /* param id */
                 + Short.BYTES /* length */
-                + calculateUserParameterValueLength(param);
+                + calculateUserParameterValueLength(param.getValue());
     }
 
-    public int calculateUserParameterValueLength(Entry<Short, byte[]> param) {
-        var len = param.getValue().length;
+    public int calculateUserParameterValueLength(List<byte[]> values) {
+        var len = values.stream().mapToInt(a -> a.length).sum();
         return calculateParameterListValuePadding(len);
     }
 

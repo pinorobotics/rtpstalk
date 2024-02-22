@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2024 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -15,26 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.spec;
+package pinorobotics.rtpstalk.impl.behavior.reader;
 
-import id.xfunction.util.ImmutableMultiMap;
+import java.util.Optional;
+import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 
 /**
- * @author lambdaprime intid@protonmail.com
+ * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class DataFactory {
-
-    public ParameterList createReaderDisposedSubscriptionData(Guid readerGuid) {
-        var info = new StatusInfo(StatusInfo.Flags.DISPOSED);
-        var pl =
-                ParameterList.ofProtocolParameters(
-                        ImmutableMultiMap.of(
-                                ParameterId.PID_STATUS_INFO, info,
-                                ParameterId.PID_KEY_HASH, readerGuid));
-        return pl;
+public class ReaderUtils {
+    public Optional<Guid> findDisposedObject(ProtocolParameterMap params) {
+        var isDisposed =
+                params.getFirstParameter(ParameterId.PID_STATUS_INFO, StatusInfo.class)
+                        .filter(StatusInfo::isDisposed)
+                        .isPresent();
+        if (!isDisposed) return Optional.empty();
+        return params.getFirstParameter(ParameterId.PID_KEY_HASH, KeyHash.class)
+                .map(KeyHash::asGuid);
     }
 }

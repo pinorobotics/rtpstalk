@@ -18,9 +18,9 @@
 package pinorobotics.rtpstalk.tests.behavior.writer;
 
 import id.xfunction.PreconditionException;
+import id.xfunction.util.ImmutableMultiMap;
 import id.xfunction.util.stream.XStream;
 import id.xfunctiontests.XAsserts;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -72,7 +72,9 @@ public class DataFragmentSplitterTests {
                 new TestCase(
                         "abcd".getBytes(),
                         minSubmessageSize + 16,
-                        Optional.of(new ParameterList(Map.of((short) 0xbe, "1234".getBytes()))),
+                        Optional.of(
+                                ParameterList.ofUserParameters(
+                                        ImmutableMultiMap.of((short) 0xbe, "1234".getBytes()))),
                         "test_splitter_inlineqos"));
     }
 

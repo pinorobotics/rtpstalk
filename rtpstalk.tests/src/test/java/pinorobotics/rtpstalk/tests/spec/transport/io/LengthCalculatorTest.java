@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.tests.spec.transport.io;
 
+import id.xfunction.util.ImmutableMultiMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -56,11 +58,14 @@ public class LengthCalculatorTest {
     }
 
     private static ParameterList createTestParameterList() {
-        var params = new ParameterList();
-        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.RTPSTALK.getValue());
-        params.put(ParameterId.PID_TOPIC_NAME, "long topic name");
-        params.put(ParameterId.PID_PARTICIPANT_GUID, TEST_GUID_PUBLICATIONS_ANNOUNCER);
-        return params;
+        return ParameterList.ofProtocolParameters(
+                ImmutableMultiMap.of(
+                        ParameterId.PID_VENDORID,
+                        VendorId.Predefined.RTPSTALK.getValue(),
+                        ParameterId.PID_TOPIC_NAME,
+                        "long topic name",
+                        ParameterId.PID_PARTICIPANT_GUID,
+                        TEST_GUID_PUBLICATIONS_ANNOUNCER));
     }
 
     @Test
@@ -69,6 +74,6 @@ public class LengthCalculatorTest {
                 20,
                 LengthCalculator.getInstance()
                         .calculateParameterValueLength(
-                                Map.entry(ParameterId.PID_TOPIC_NAME, "long topic name")));
+                                Map.entry(ParameterId.PID_TOPIC_NAME, List.of("long topic name"))));
     }
 }

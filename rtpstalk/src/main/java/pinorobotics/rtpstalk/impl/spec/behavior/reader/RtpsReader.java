@@ -80,7 +80,6 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D>
         implements RtpsEntity, Subscriber<RtpsMessage>, RtpsSubmessageVisitor {
 
-    protected final XLogger logger;
     private final Meter METER = GlobalOpenTelemetry.getMeter(RtpsReader.class.getSimpleName());
     private final LongHistogram PROCESS_TIME_METER =
             METER.histogramBuilder(RtpsTalkMetrics.PROCESS_TIME_METRIC)
@@ -96,6 +95,8 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
             METER.counterBuilder(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC)
                     .setDescription(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC_DESCRIPTION)
                     .build();
+
+    protected final XLogger logger;
 
     private HistoryCache<D> cache;
     private RtpsSubmessagesWalker walker = new RtpsSubmessagesWalker();

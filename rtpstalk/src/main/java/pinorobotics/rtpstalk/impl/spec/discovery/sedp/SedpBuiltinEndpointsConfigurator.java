@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
@@ -82,7 +83,10 @@ public class SedpBuiltinEndpointsConfigurator extends SimpleSubscriber<RtpsTalkP
     public void onNext(RtpsTalkParameterListMessage participantDataMessage) {
         logger.entering("onNext");
         PARTICIPANTS_COUNT_METER.add(1);
-        participantDataMessage.parameterList().ifPresent(this::configureEndpoints);
+        participantDataMessage
+                .parameterList()
+                .map(ParameterList::getProtocolParameters)
+                .ifPresent(this::configureEndpoints);
         subscription.request(1);
         logger.exiting("onNext");
     }
@@ -95,53 +99,59 @@ public class SedpBuiltinEndpointsConfigurator extends SimpleSubscriber<RtpsTalkP
     @Override
     public void onComplete() {}
 
-    private void configureEndpoints(ParameterList participantData) {
-        var guid = (Guid) participantData.getParameters().get(ParameterId.PID_PARTICIPANT_GUID);
+    private void configureEndpoints(ProtocolParameterMap participantData) {
+        var guid =
+                participantData
+                        .getFirstParameter(ParameterId.PID_PARTICIPANT_GUID, Guid.class)
+                        .orElse(null);
         if (guid == null) {
             logger.warning("Received participant data without PID_PARTICIPANT_GUID");
             return;
         }
         logger.fine("Configuring builtin endpoints for Participant {0}", guid);
-        var params = participantData.getParameters();
-        var value = params.get(ParameterId.PID_BUILTIN_ENDPOINT_SET);
-        if (value instanceof BuiltinEndpointSet availableEndpoints) {
-            if (params.get(ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR)
-                    instanceof Locator locator) {
-                var unicast = List.of(locator);
-                configure(
-                        availableEndpoints,
-                        guid.guidPrefix,
-                        subscriptionsReader,
-                        null,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
-                        unicast);
-                configure(
-                        availableEndpoints,
-                        guid.guidPrefix,
-                        null,
-                        subscriptionsWriter,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
-                        unicast);
-                configure(
-                        availableEndpoints,
-                        guid.guidPrefix,
-                        publicationsReader,
-                        null,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
-                        unicast);
-                configure(
-                        availableEndpoints,
-                        guid.guidPrefix,
-                        null,
-                        publicationsWriter,
-                        Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
-                        unicast);
-            } else {
-                logger.fine("Participant has no locator defined, ignoring...");
-            }
-        } else {
+        var availableEndpoints =
+                participantData
+                        .getFirstParameter(
+                                ParameterId.PID_BUILTIN_ENDPOINT_SET, BuiltinEndpointSet.class)
+                        .orElse(null);
+        if (availableEndpoints == null) {
             logger.fine("Participant has no supported builtin endpoints, ignoring...");
+            return;
         }
+        var unicast =
+                participantData.getParameters(
+                        ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR, Locator.class);
+        if (unicast.isEmpty()) {
+            logger.fine("Participant has no locator defined, ignoring...");
+        }
+        configure(
+                availableEndpoints,
+                guid.guidPrefix,
+                subscriptionsReader,
+                null,
+                Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_ANNOUNCER,
+                unicast);
+        configure(
+                availableEndpoints,
+                guid.guidPrefix,
+                null,
+                subscriptionsWriter,
+                Endpoint.DISC_BUILTIN_ENDPOINT_SUBSCRIPTIONS_DETECTOR,
+                unicast);
+        configure(
+                availableEndpoints,
+                guid.guidPrefix,
+                publicationsReader,
+                null,
+                Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_ANNOUNCER,
+                unicast);
+        configure(
+                availableEndpoints,
+                guid.guidPrefix,
+                null,
+                publicationsWriter,
+                Endpoint.DISC_BUILTIN_ENDPOINT_PUBLICATIONS_DETECTOR,
+                unicast);
     }
 
     /** Configures all local builtin endpoints to work with new remote participant */

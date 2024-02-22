@@ -25,10 +25,12 @@ import id.xfunction.Preconditions;
 import id.xfunction.XByte;
 import id.xfunction.lang.XRuntimeException;
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.ImmutableMultiMap;
 import java.lang.annotation.Annotation;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.InternalUtils;
@@ -177,7 +179,8 @@ class RtpsInputKineticStream implements InputKineticStream {
     private ParameterList readParameterList(boolean withUserParameters) throws Exception {
         LOGGER.entering("readParameterList");
         short id;
-        var paramList = new ParameterList();
+        var protocolParams = new ArrayList<Map.Entry<ParameterId, Object>>();
+        var userParams = new ArrayList<Map.Entry<Short, byte[]>>();
         while ((id = readShort(EMPTY_ANNOTATIONS)) != ParameterId.PID_SENTINEL.getValue()) {
             var len = readShort(EMPTY_ANNOTATIONS);
             var startPos = buf.position();
@@ -191,7 +194,7 @@ class RtpsInputKineticStream implements InputKineticStream {
                 var value = new byte[len];
                 readByteArray(value, EMPTY_ANNOTATIONS);
                 LOGGER.fine("{0}: byte array length {1}", Short.toUnsignedInt(id), value.length);
-                paramList.putUserParameter(id, value);
+                userParams.add(Map.entry(id, value));
                 continue;
             }
             Object value = null;
@@ -244,14 +247,14 @@ class RtpsInputKineticStream implements InputKineticStream {
             }
             var finalValue = value;
             LOGGER.fine(() -> parameterId + ": " + finalValue);
-            paramList.put(parameterId, value);
-
+            protocolParams.add(Map.entry(parameterId, finalValue));
             skip(len - (buf.position() - startPos));
         }
         // ignoring
         readShort(EMPTY_ANNOTATIONS);
         LOGGER.exiting("readParameterList");
-        return paramList;
+        return ParameterList.of(
+                new ImmutableMultiMap<>(protocolParams), new ImmutableMultiMap<>(userParams));
     }
 
     private void skip(int offset) {

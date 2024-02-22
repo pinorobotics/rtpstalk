@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.spec.discovery.spdp;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
+import id.xfunction.util.ImmutableMultiMap;
 import id.xfunctiontests.XAsserts;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -179,25 +180,25 @@ public class SpdpServiceTest {
                         Endpoint.PARTICIPANT_SECURE_READER,
                         Endpoint.SECURE_SUBSCRIPTION_READER,
                         Endpoint.SECURE_PARTICIPANT_MESSAGE_READER);
-        var params = new ParameterList();
-        params.put(
-                ParameterId.PID_PROTOCOL_VERSION,
-                ProtocolVersion.Predefined.Version_2_3.getValue());
-        params.put(ParameterId.PID_VENDORID, VendorId.Predefined.FASTRTPS.getValue());
-        params.put(
-                ParameterId.PID_PARTICIPANT_GUID,
-                new Guid(
-                        TestConstants.TEST_REMOTE_GUID_PREFIX,
-                        EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()));
-        params.put(
-                ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
-                TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR);
-        params.put(
-                ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
-                TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR);
-        params.put(ParameterId.PID_PARTICIPANT_LEASE_DURATION, new Duration(20));
-        params.put(ParameterId.PID_BUILTIN_ENDPOINT_SET, new BuiltinEndpointSet(endpointSet));
-        params.put(ParameterId.PID_ENTITY_NAME, "/");
-        return params;
+        return ParameterList.ofProtocolParameters(
+                ImmutableMultiMap.of(
+                        ParameterId.PID_PROTOCOL_VERSION,
+                        ProtocolVersion.Predefined.Version_2_3.getValue(),
+                        ParameterId.PID_VENDORID,
+                        VendorId.Predefined.FASTRTPS.getValue(),
+                        ParameterId.PID_PARTICIPANT_GUID,
+                        new Guid(
+                                TestConstants.TEST_REMOTE_GUID_PREFIX,
+                                EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),
+                        ParameterId.PID_METATRAFFIC_UNICAST_LOCATOR,
+                        TestConstants.TEST_REMOTE_METATRAFFIC_UNICAST_LOCATOR,
+                        ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
+                        TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR,
+                        ParameterId.PID_PARTICIPANT_LEASE_DURATION,
+                        new Duration(20),
+                        ParameterId.PID_BUILTIN_ENDPOINT_SET,
+                        new BuiltinEndpointSet(endpointSet),
+                        ParameterId.PID_ENTITY_NAME,
+                        "/"));
     }
 }

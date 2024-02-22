@@ -21,12 +21,15 @@ import id.xfunction.Preconditions;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.ImmutableMultiMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsReader;
@@ -104,19 +107,33 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     @Override
     public void onNext(RtpsTalkParameterListMessage message) {
         try {
-            var pl = message.parameterList().orElse(null);
+            var pl = message.parameterList().map(ParameterList::getProtocolParameters).orElse(null);
             if (pl == null) return;
             if (!isValid(pl)) {
                 logger.warning("Non valid publications data received, ignoring it");
                 return;
             }
-            var pubTopic = (String) pl.getParameters().get(ParameterId.PID_TOPIC_NAME);
-            Preconditions.notNull(pubTopic, "Received subscription without PID_TOPIC_NAME");
-            var pubType = (String) pl.getParameters().get(ParameterId.PID_TYPE_NAME);
-            Preconditions.notNull(pubType, "Received subscription without PID_TYPE_NAME");
+            var pubTopic =
+                    pl.getFirstParameter(ParameterId.PID_TOPIC_NAME, String.class)
+                            .orElseThrow(
+                                    () ->
+                                            new RtpsTalkException(
+                                                    "Received subscription without"
+                                                            + " PID_TOPIC_NAME"));
+            var pubType =
+                    pl.getFirstParameter(ParameterId.PID_TYPE_NAME, String.class)
+                            .orElseThrow(
+                                    () ->
+                                            new RtpsTalkException(
+                                                    "Received subscription without PID_TYPE_NAME"));
             var topicId = new TopicId(pubTopic, pubType);
-            var pubEndpointGuid = (Guid) pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID);
-            Preconditions.notNull(pubType, "Received subscription without PID_ENDPOINT_GUID");
+            var pubEndpointGuid =
+                    pl.getFirstParameter(ParameterId.PID_ENDPOINT_GUID, Guid.class)
+                            .orElseThrow(
+                                    () ->
+                                            new RtpsTalkException(
+                                                    "Received subscription without"
+                                                            + " PID_ENDPOINT_GUID"));
 
             if (!isEndpointSupported(topicId, pubEndpointGuid)) {
                 logger.warning(
@@ -216,21 +233,23 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
     }
 
     private Optional<Object> findParticipantInfo(
-            GuidPrefix guidPrefix, ParameterList pl, ParameterId parameterId) {
-        var participantInfo = pl.getParameters().get(parameterId);
-        if (participantInfo != null) return Optional.of(participantInfo);
+            GuidPrefix guidPrefix,
+            ImmutableMultiMap<ParameterId, Object> params,
+            ParameterId parameterId) {
+        var participantInfo = params.getFirstParameter(parameterId);
+        if (participantInfo.isPresent()) return participantInfo;
         logger.fine(
                 "Received subscription without {0}, trying to find it in Participants Registry by"
                         + " guid prefix {1}",
                 parameterId, guidPrefix);
-        pl = participantsRegistry.getSpdpDiscoveredParticipantData(guidPrefix).orElse(null);
+        var pl = participantsRegistry.getSpdpDiscoveredParticipantData(guidPrefix).orElse(null);
         if (pl == null) {
             logger.fine(
                     "Could not find participant with guid prefix {0} in Participants Registry",
                     guidPrefix);
             return Optional.empty();
         }
-        return Optional.ofNullable(pl.getParameters().get(parameterId));
+        return pl.getProtocolParameters().getFirstParameter(parameterId);
     }
 
     protected abstract ParameterList createAnnouncementData(A actor, Topic<A> topic);
@@ -240,10 +259,10 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                 new RtpsTalkParameterListMessage(createAnnouncementData(actor, topic)));
     }
 
-    private boolean isValid(ParameterList pl) {
-        return pl.getParameters().containsKey(ParameterId.PID_TOPIC_NAME)
-                && pl.getParameters().containsKey(ParameterId.PID_TYPE_NAME)
-                && pl.getParameters().containsKey(ParameterId.PID_ENDPOINT_GUID);
+    private boolean isValid(ProtocolParameterMap pl) {
+        return pl.containsKey(ParameterId.PID_TOPIC_NAME)
+                && pl.containsKey(ParameterId.PID_TYPE_NAME)
+                && pl.containsKey(ParameterId.PID_ENDPOINT_GUID);
     }
 
     @Override

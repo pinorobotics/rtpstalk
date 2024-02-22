@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests.spec.transport.io;
 import id.xfunction.ResourceUtils;
 import id.xfunction.function.Unchecked;
 import id.xfunction.io.XInputStream;
-import java.util.Map;
+import id.xfunction.util.ImmutableMultiMap;
 import java.util.Optional;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
@@ -110,11 +110,11 @@ public class DataProviders {
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                                         new SequenceNumber(1),
-                                        new ParameterList(
-                                                Map.of(
+                                        ParameterList.of(
+                                                ImmutableMultiMap.of(
                                                         ParameterId.PID_STATUS_INFO,
                                                         new StatusInfo(Flags.DISPOSED)),
-                                                Map.of(
+                                                ImmutableMultiMap.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(
@@ -132,8 +132,8 @@ public class DataProviders {
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                                         new SequenceNumber(1),
-                                        new ParameterList(
-                                                Map.of(
+                                        ParameterList.ofUserParameters(
+                                                ImmutableMultiMap.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33})),
                                         new SerializedPayload(new RawData(new byte[0]), true)))),
@@ -149,8 +149,8 @@ public class DataProviders {
                                         EntityId.Predefined
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                                         new SequenceNumber(1),
-                                        new ParameterList(
-                                                Map.of(
+                                        ParameterList.ofUserParameters(
+                                                ImmutableMultiMap.of(
                                                         (short) 0x800f,
                                                         new byte[] {0x30, 0x31, 0x32, 0x33}))))),
                 // 6
@@ -166,11 +166,11 @@ public class DataProviders {
                                                 .ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_ANNOUNCER,
                                         new SequenceNumber(3),
                                         new SerializedPayload(
-                                                new ParameterList(
-                                                        Map.of(
+                                                ParameterList.of(
+                                                        ImmutableMultiMap.of(
                                                                 ParameterId.PID_STATUS_INFO,
                                                                 new StatusInfo(Flags.DISPOSED)),
-                                                        Map.of()),
+                                                        ImmutableMultiMap.of()),
                                                 true)))),
                 // 7
                 new TestCase(

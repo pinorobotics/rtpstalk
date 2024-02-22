@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.ImmutableMultiMap;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
@@ -58,7 +59,7 @@ public class RtpsDataPackager<M extends RtpsTalkMessage> {
                         else if (messageType == RtpsTalkDataMessage.class)
                             message =
                                     new RtpsTalkDataMessage(
-                                            new Parameters(inlineQos.getUserParameters()));
+                                            new Parameters(inlineQos.getUserParameters().toMap()));
                         else
                             throw new IllegalArgumentException(
                                     "Type " + messageType.getName() + " is not supported");
@@ -95,6 +96,7 @@ public class RtpsDataPackager<M extends RtpsTalkMessage> {
                                 yield new RtpsTalkDataMessage(
                                         inlineQos
                                                 .map(ParameterList::getUserParameters)
+                                                .map(ImmutableMultiMap::toMap)
                                                 .map(Parameters::new),
                                         ((RawData) serializedPayload.payload).data);
                             }
@@ -121,7 +123,9 @@ public class RtpsDataPackager<M extends RtpsTalkMessage> {
 
     public Data packMessage(
             EntityId readerEntiyId, EntityId writerEntityId, Long seqNum, RtpsTalkMessage message) {
-        var inlineQos = message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
+        var inlineQos =
+                message.userInlineQos()
+                        .map(v -> ParameterList.ofUserParameters(v.getParameters().entrySet()));
         var payload = Optional.<SerializedPayload>empty();
         if (message instanceof RtpsTalkDataMessage data)
             payload = data.data().map(RawData::new).map(d -> new SerializedPayload(d, true));

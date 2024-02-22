@@ -112,7 +112,11 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                                 + " message and will be fragmented",
                         seqNum);
                 var inlineQos =
-                        message.userInlineQos().map(v -> new ParameterList(v.getParameters()));
+                        message.userInlineQos()
+                                .map(
+                                        v ->
+                                                ParameterList.ofUserParameters(
+                                                        v.getParameters().entrySet()));
                 var fragmentSize = maxSubmessageSize - messageBuilder.getSize();
                 if (readerGuidPrefix.isEmpty()) {
                     // each time we resend fragmented message it should always have fragmentSize

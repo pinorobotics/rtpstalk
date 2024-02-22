@@ -18,10 +18,10 @@
 package pinorobotics.rtpstalk.impl.spec.discovery.sedp;
 
 import id.xfunction.logging.TracingToken;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.behavior.reader.ReaderUtils;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.DdsVersion;
@@ -30,9 +30,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -56,6 +54,8 @@ public class SedpBuiltinSubscriptionsReader
                     ReliabilityQosPolicy.Kind.RELIABLE,
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
+    private static final ReaderUtils READER_UTILS = new ReaderUtils();
+
     private LocalOperatingEntities operatingEntities;
 
     public SedpBuiltinSubscriptionsReader(
@@ -77,26 +77,21 @@ public class SedpBuiltinSubscriptionsReader
     @Override
     protected void processInlineQos(
             Guid writer, RtpsTalkParameterListMessage message, ParameterList inlineQos) {
-        var params = inlineQos.getParameters();
-        if (params.isEmpty()) return;
+        var inlineQosParams = inlineQos.getProtocolParameters();
+        if (inlineQosParams.isEmpty()) return;
         logger.fine("Processing inlineQos");
-        processStatusInfo(writer, message, params);
-    }
-
-    private void processStatusInfo(
-            Guid writerGuid, RtpsTalkParameterListMessage message, Map<ParameterId, ?> params) {
-        if (params.get(ParameterId.PID_STATUS_INFO) instanceof StatusInfo info) {
-            if (info.isDisposed()) {
-                if (params.get(ParameterId.PID_KEY_HASH) instanceof KeyHash keyHash) {
-                    removeReader(keyHash.asGuid());
-                } else if (message.parameterList()
-                                .map(pl -> pl.getParameters().get(ParameterId.PID_ENDPOINT_GUID))
-                                .orElse(null)
-                        instanceof Guid readerGuid) {
-                    removeReader(readerGuid);
-                }
-            }
-        }
+        READER_UTILS
+                .findDisposedObject(inlineQosParams)
+                .or(
+                        () ->
+                                message.parameterList()
+                                        .map(ParameterList::getProtocolParameters)
+                                        .flatMap(
+                                                params ->
+                                                        params.getFirstParameter(
+                                                                ParameterId.PID_ENDPOINT_GUID,
+                                                                Guid.class)))
+                .ifPresent(this::removeReader);
     }
 
     private void removeReader(Guid readerGuid) {

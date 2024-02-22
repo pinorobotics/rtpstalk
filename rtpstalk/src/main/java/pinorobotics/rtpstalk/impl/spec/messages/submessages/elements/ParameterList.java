@@ -18,11 +18,9 @@
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
 import id.xfunction.XJsonStringBuilder;
-import java.util.LinkedHashMap;
+import id.xfunction.util.ImmutableMultiMap;
 import java.util.Map;
-import java.util.Optional;
-import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Payload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier.Predefined;
@@ -34,33 +32,50 @@ public class ParameterList implements SubmessageElement, Payload {
 
     public static final ParameterList EMPTY = new ParameterList();
 
-    private Map<ParameterId, Object> params = new LinkedHashMap<>();
-    private Map<Short, byte[]> userParams = new LinkedHashMap<>();
+    private ProtocolParameterMap protocolParams = new ProtocolParameterMap();
+    private ImmutableMultiMap<Short, byte[]> userParams = ImmutableMultiMap.of();
 
-    public ParameterList() {}
-
-    public ParameterList(Map<ParameterId, Object> params, Map<Short, byte[]> userParams) {
-        this.params.putAll(params);
-        this.userParams.putAll(userParams);
+    public static final ParameterList ofUserParameters(
+            Iterable<Map.Entry<Short, byte[]>> userParams) {
+        return ofUserParameters(new ImmutableMultiMap<>(userParams));
     }
 
-    public ParameterList(Map<Short, byte[]> userParams) {
-        this(Map.of(), userParams);
+    public static final ParameterList ofUserParameters(
+            ImmutableMultiMap<Short, byte[]> userParams) {
+        var out = new ParameterList();
+        out.userParams = userParams;
+        return out;
     }
 
-    public Map<ParameterId, Object> getParameters() {
-        return params;
+    public static final ParameterList ofProtocolParameters(
+            ImmutableMultiMap<ParameterId, Object> protocolParams) {
+        var out = new ParameterList();
+        out.protocolParams = new ProtocolParameterMap(protocolParams);
+        return out;
     }
 
-    public Map<Short, byte[]> getUserParameters() {
+    public static final ParameterList of(
+            ImmutableMultiMap<ParameterId, Object> protocolParams,
+            ImmutableMultiMap<Short, byte[]> userParams) {
+        var out = new ParameterList();
+        out.protocolParams = new ProtocolParameterMap(protocolParams);
+        out.userParams = userParams;
+        return out;
+    }
+
+    public ProtocolParameterMap getProtocolParameters() {
+        return protocolParams;
+    }
+
+    public ImmutableMultiMap<Short, byte[]> getUserParameters() {
         return userParams;
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("params", params);
-        builder.append("userParams", userParams);
+        builder.append("params", protocolParams);
+        builder.append("userParams", userParams.toJsonString());
         return builder.toString();
     }
 
@@ -69,30 +84,8 @@ public class ParameterList implements SubmessageElement, Payload {
         return RepresentationIdentifier.Predefined.PL_CDR_LE;
     }
 
-    /** Preserves the ordering of pairs */
-    public void put(ParameterId parameterId, Object value) {
-        params.putIfAbsent(parameterId, value);
-    }
-
-    /** Preserves the ordering of pairs */
-    public void putUserParameter(short parameterId, byte[] value) {
-        userParams.putIfAbsent(parameterId, value);
-    }
-
     @Override
     public boolean isEmpty() {
-        return params.isEmpty() && userParams.isEmpty();
-    }
-
-    public Optional<ReliabilityQosPolicy.Kind> getReliabilityKind() {
-        if (params.get(ParameterId.PID_RELIABILITY) instanceof ReliabilityQosPolicy policy)
-            return Optional.of(policy.getKind());
-        return Optional.empty();
-    }
-
-    public Optional<DurabilityQosPolicy.Kind> getDurabilityKind() {
-        if (params.get(ParameterId.PID_DURABILITY) instanceof DurabilityQosPolicy policy)
-            return Optional.of(policy.getKind());
-        return Optional.empty();
+        return protocolParams.isEmpty() && userParams.isEmpty();
     }
 }
