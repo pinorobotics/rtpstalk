@@ -297,10 +297,11 @@ class RtpsInputKineticStream implements InputKineticStream {
             Payload payload =
                     switch (representationId.get()) {
                         case PL_CDR_LE -> readParameterList(false);
-                        case CDR_LE -> readRawData(
-                                dataLen - (buf.position() - dataSubmessageStart));
-                        default -> throw new UnsupportedOperationException(
-                                "Representation identifier " + representationId.get());
+                        case CDR_LE ->
+                                readRawData(dataLen - (buf.position() - dataSubmessageStart));
+                        default ->
+                                throw new UnsupportedOperationException(
+                                        "Representation identifier " + representationId.get());
                     };
 
             LOGGER.fine("payload: {0}", payload);

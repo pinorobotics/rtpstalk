@@ -36,8 +36,8 @@ public class QosPolicyTransformer {
 
     public DurabilityQosPolicy.Kind convert(DurabilityType durabilityType) {
         return switch (durabilityType) {
-            case TRANSIENT_LOCAL_DURABILITY_QOS -> DurabilityQosPolicy.Kind
-                    .TRANSIENT_LOCAL_DURABILITY_QOS;
+            case TRANSIENT_LOCAL_DURABILITY_QOS ->
+                    DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS;
             case VOLATILE_DURABILITY_QOS -> DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS;
         };
     }

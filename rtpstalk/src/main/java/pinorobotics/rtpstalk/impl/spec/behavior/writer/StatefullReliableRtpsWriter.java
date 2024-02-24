@@ -152,12 +152,13 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         var reliabilityKind = qosPolicy.reliabilityKind();
         var proxy =
                 switch (reliabilityKind) {
-                    case RELIABLE -> new ReliableReaderProxy(
-                            remoteReaderGuid, unicast, sender, qosPolicy);
-                    case BEST_EFFORT -> new BestEffortReaderProxy(
-                            remoteReaderGuid, unicast, sender, qosPolicy);
-                    default -> throw new UnsupportedOperationException(
-                            "ReliabilityQosPolicy " + reliabilityKind);
+                    case RELIABLE ->
+                            new ReliableReaderProxy(remoteReaderGuid, unicast, sender, qosPolicy);
+                    case BEST_EFFORT ->
+                            new BestEffortReaderProxy(remoteReaderGuid, unicast, sender, qosPolicy);
+                    default ->
+                            throw new UnsupportedOperationException(
+                                    "ReliabilityQosPolicy " + reliabilityKind);
                 };
         replayHistoryCacheIfNeeded(proxy);
         logger.fine(

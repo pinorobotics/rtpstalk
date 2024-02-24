@@ -10,7 +10,7 @@ gradle publishToMavenLocal \
 
 plugins {
   id 'java'
-  id 'com.diffplug.spotless' version '6.21.0'
+  id 'com.diffplug.spotless' version '6.25.0'
 }
 
 allprojects {

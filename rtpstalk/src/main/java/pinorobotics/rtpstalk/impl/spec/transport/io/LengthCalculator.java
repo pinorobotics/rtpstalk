@@ -211,28 +211,30 @@ public class LengthCalculator {
                     case PID_USER_DATA -> calculateLength(values);
                     case PID_DATA_REPRESENTATION -> calculateLength(values);
                     case PID_KEY_HASH,
-                            PID_DOMAIN_ID,
-                            PID_BUILTIN_ENDPOINT_SET,
-                            PID_PARTICIPANT_LEASE_DURATION,
-                            PID_DEFAULT_UNICAST_LOCATOR,
-                            PID_METATRAFFIC_UNICAST_LOCATOR,
-                            PID_UNICAST_LOCATOR,
-                            PID_PARTICIPANT_GUID,
-                            PID_ENDPOINT_GUID,
-                            PID_PROTOCOL_VERSION,
-                            PID_VENDORID,
-                            PID_BUILTIN_ENDPOINT_QOS,
-                            PID_LATENCY_BUDGET,
-                            PID_LIFESPAN,
-                            PID_RELIABILITY,
-                            PID_DURABILITY,
-                            PID_DURABILITY_SERVICE,
-                            PID_STATUS_INFO,
-                            PID_DEADLINE,
-                            PID_HISTORY,
-                            PID_DESTINATION_ORDER -> getFixedLength(id.getParameterClass());
-                    default -> throw new XRE(
-                            "Cannot calculate length for an unknown parameter id %s", id);
+                                    PID_DOMAIN_ID,
+                                    PID_BUILTIN_ENDPOINT_SET,
+                                    PID_PARTICIPANT_LEASE_DURATION,
+                                    PID_DEFAULT_UNICAST_LOCATOR,
+                                    PID_METATRAFFIC_UNICAST_LOCATOR,
+                                    PID_UNICAST_LOCATOR,
+                                    PID_PARTICIPANT_GUID,
+                                    PID_ENDPOINT_GUID,
+                                    PID_PROTOCOL_VERSION,
+                                    PID_VENDORID,
+                                    PID_BUILTIN_ENDPOINT_QOS,
+                                    PID_LATENCY_BUDGET,
+                                    PID_LIFESPAN,
+                                    PID_RELIABILITY,
+                                    PID_DURABILITY,
+                                    PID_DURABILITY_SERVICE,
+                                    PID_STATUS_INFO,
+                                    PID_DEADLINE,
+                                    PID_HISTORY,
+                                    PID_DESTINATION_ORDER ->
+                            getFixedLength(id.getParameterClass());
+                    default ->
+                            throw new XRE(
+                                    "Cannot calculate length for an unknown parameter id %s", id);
                 };
 
         return calculateParameterListValuePadding(len);

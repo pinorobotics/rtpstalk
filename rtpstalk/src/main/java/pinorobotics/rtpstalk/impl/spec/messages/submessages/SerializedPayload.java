@@ -63,8 +63,9 @@ public class SerializedPayload implements SubmessageElement {
         return switch (representationIdentifier) {
             case PL_CDR_LE -> SerializedPayloadHeader.DEFAULT_PARAMETER_LIST_HEADER;
             case CDR_LE -> SerializedPayloadHeader.DEFAULT_DATA_HEADER;
-            default -> throw new UnsupportedOperationException(
-                    "Unsupported representation identifier " + representationIdentifier);
+            default ->
+                    throw new UnsupportedOperationException(
+                            "Unsupported representation identifier " + representationIdentifier);
         };
     }
 
