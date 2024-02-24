@@ -3,7 +3,7 @@ Tests for `rtpstalk` library.
 # Prereqs
 
 - Following network interfaces available in the system: lo, eth0
-- Fast-DDS v2.1.1
+- Fast-DDS v2.6.7
 - compiled `rtpstalk` version of HelloWorldExample
 - export ELASTIC_URL="https://LOGIN:PASSWD@ELASTICSEARCH_HOST_NAME:9200"
 
@@ -16,12 +16,27 @@ Tests for `rtpstalk` library.
 ```bash
 git clone https://github.com/eProsima/Fast-DDS.git
 cd Fast-DDS/
-git checkout v2.1.1
-mkdir build_v2.1.1
-cd build_v2.1.1/
-cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON ..
-make
+git checkout v2.6.7
+mkdir build_v2.6.7
+cd build_v2.6.7
+cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DSECURITY=ON ..
+make -j17
 DESTDIR=$(pwd)/install make install
+```
+
+Using `-DSECURITY=ON` changes Fast-DDS version of RTPS protocol from 2.2 to 2.3 (which is default one in ROS Humble).
+See code below for more details:
+
+``` 
+common/Types.h
+...
+#if HAVE_SECURITY
+        // As imposed by DDSSEC11-93
+        ProtocolVersion_t(2, 3)
+#else
+        ProtocolVersion_t(2, 2)
+#endif // if HAVE_SECURITY
+...
 ```
 
 ### Compiling HelloWorldExample
