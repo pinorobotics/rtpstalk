@@ -172,12 +172,11 @@ public class WriterProxy {
 
     public DataChannel getDataChannel() {
         if (dataChannel == null) {
-            var locator = getUnicastLocatorList().get(0);
             try {
-                dataChannel = dataChannelFactory.connect(tracingToken, locator);
+                dataChannel = dataChannelFactory.connect(tracingToken, getUnicastLocatorList());
             } catch (IOException e) {
                 throw new RuntimeException(
-                        "Cannot open connection to remote writer on " + locator, e);
+                        "Cannot open connection to remote writer on " + getUnicastLocatorList(), e);
             }
         }
         return dataChannel;

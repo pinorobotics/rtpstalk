@@ -146,7 +146,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         var sender =
                 new RtpsMessageSender(
                         getTracingToken(),
-                        channelFactory.connect(getTracingToken(), unicast.get(0)),
+                        channelFactory.connect(getTracingToken(), unicast),
                         remoteReaderGuid,
                         getGuid().entityId);
         var reliabilityKind = qosPolicy.reliabilityKind();

@@ -148,6 +148,8 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                                             pubEndpointGuid.guidPrefix,
                                             pl,
                                             ParameterId.PID_PARTICIPANT_GUID)
+                                    .stream()
+                                    .findFirst()
                                     .orElse(null);
             if (participantGuid == null) {
                 logger.warning(
@@ -157,14 +159,13 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                 return;
             }
 
-            var pubUnicastLocator =
-                    (Locator)
+            var pubUnicastLocators =
+                    (List<Locator>)
                             findParticipantInfo(
-                                            pubEndpointGuid.guidPrefix,
-                                            pl,
-                                            ParameterId.PID_DEFAULT_UNICAST_LOCATOR)
-                                    .orElse(null);
-            if (pubUnicastLocator == null) {
+                                    pubEndpointGuid.guidPrefix,
+                                    pl,
+                                    ParameterId.PID_DEFAULT_UNICAST_LOCATOR);
+            if (pubUnicastLocators.isEmpty()) {
                 logger.warning(
                         "Could not find locator for endpoint Guid {0}, ignoring subscription for"
                                 + " topic {1}",
@@ -199,10 +200,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
                                     });
             var remoteActorDetails =
                     new RemoteActorDetails(
-                            pubEndpointGuid,
-                            List.of(pubUnicastLocator),
-                            reliabilityKind,
-                            durabilityKind);
+                            pubEndpointGuid, pubUnicastLocators, reliabilityKind, durabilityKind);
             logger.fine(
                     "Discovered {0} for topic {1} type {2} with following details {3}",
                     actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
@@ -232,12 +230,12 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
         return isSupported;
     }
 
-    private Optional<Object> findParticipantInfo(
+    private List<?> findParticipantInfo(
             GuidPrefix guidPrefix,
             ImmutableMultiMap<ParameterId, Object> params,
             ParameterId parameterId) {
-        var participantInfo = params.getFirstParameter(parameterId);
-        if (participantInfo.isPresent()) return participantInfo;
+        var participantInfo = params.get(parameterId);
+        if (!participantInfo.isEmpty()) return participantInfo;
         logger.fine(
                 "Received subscription without {0}, trying to find it in Participants Registry by"
                         + " guid prefix {1}",
@@ -247,9 +245,9 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             logger.fine(
                     "Could not find participant with guid prefix {0} in Participants Registry",
                     guidPrefix);
-            return Optional.empty();
+            return List.of();
         }
-        return pl.getProtocolParameters().getFirstParameter(parameterId);
+        return pl.getProtocolParameters().get(parameterId);
     }
 
     protected abstract ParameterList createAnnouncementData(A actor, Topic<A> topic);

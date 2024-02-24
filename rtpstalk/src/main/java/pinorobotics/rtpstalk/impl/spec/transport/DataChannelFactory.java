@@ -30,9 +30,13 @@ import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -40,6 +44,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 public class DataChannelFactory {
 
     private static final XLogger LOGGER = XLogger.getLogger(DataChannelFactory.class);
+    private static final EnumSet<LocatorKind> SUPPORTED_LOCATORS =
+            EnumSet.of(LocatorKind.LOCATOR_KIND_UDPv4, LocatorKind.LOCATOR_KIND_UDPv6);
     private RtpsTalkConfiguration config;
 
     public DataChannelFactory(RtpsTalkConfiguration config) {
@@ -116,9 +122,19 @@ public class DataChannelFactory {
     }
 
     /** Remote channel */
-    public DataChannel connect(TracingToken tracingToken, Locator locator) throws IOException {
+    public DataChannel connect(TracingToken tracingToken, List<Locator> locators)
+            throws IOException {
+        var locator =
+                findLocator(locators)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "None of remote participant locators are supported:"
+                                                        + " "
+                                                        + locators));
         Preconditions.isTrue(
-                !locator.address().isMulticastAddress(), "Non multicast address required");
+                !locator.address().isMulticastAddress(), "Non multicast address expected");
+        LOGGER.fine("Using locator {0}", locator);
         var dataChannel =
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .connect(locator.getSocketAddress());
@@ -129,6 +145,20 @@ public class DataChannelFactory {
                 locator.getSocketAddress(),
                 config.guidPrefix(),
                 config.packetBufferSize());
+    }
+
+    public static Optional<Locator> findLocator(List<Locator> locators) {
+        var locator =
+                locators.stream()
+                        .filter(l -> SUPPORTED_LOCATORS.contains(l.kind()))
+                        .sorted(Comparator.comparing(Locator::kind))
+                        .findFirst();
+        if (locator.isEmpty()) {
+            LOGGER.fine(
+                    "Could not find any of supported locators {0} from input locators: {1}",
+                    SUPPORTED_LOCATORS, locators);
+        }
+        return locator;
     }
 
     private void configure(DatagramSocket socket) throws IOException {

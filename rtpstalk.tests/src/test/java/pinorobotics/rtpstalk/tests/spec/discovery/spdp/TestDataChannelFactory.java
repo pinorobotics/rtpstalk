@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -47,8 +48,8 @@ public class TestDataChannelFactory extends DataChannelFactory {
     }
 
     @Override
-    public DataChannel connect(TracingToken token, Locator locator) throws IOException {
-        return getOrCreateDataChannel(locator);
+    public DataChannel connect(TracingToken token, List<Locator> locators) throws IOException {
+        return getOrCreateDataChannel(locators.get(0));
     }
 
     @Override

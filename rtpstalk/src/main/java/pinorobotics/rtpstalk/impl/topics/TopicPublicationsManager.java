@@ -130,7 +130,8 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                                 } catch (IOException e) {
                                     logger.severe(e);
                                 }
-                            });
+                            })
+                    .exceptionally(this::exceptionHandler);
         };
     }
 
@@ -166,7 +167,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
      */
     private CompletionStage<Void> waitForTopicBeAnnouncedToReader(
             GuidPrefix guidPrefix, TopicId topic) {
-        var future = new CompletableFuture<Void>();
+        var future = new CompletableFuture<Void>().exceptionally(this::exceptionHandler);
         var announcementSeqNum = announcementSeqNums.get(topic);
         if (announcementSeqNum == null) {
             future.completeExceptionally(
@@ -237,5 +238,10 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
                 topic.getLocalTopicEntityId(),
                 networkIface.getLocalDefaultUnicastLocator(),
                 actor.qosPolicy());
+    }
+
+    private Void exceptionHandler(Throwable ex) {
+        logger.severe(ex);
+        return null;
     }
 }
