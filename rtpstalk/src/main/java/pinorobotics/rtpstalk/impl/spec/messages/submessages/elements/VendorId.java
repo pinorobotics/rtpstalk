@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +33,7 @@ public class VendorId {
         CYCLONEDDS(new VendorId(0x01, 0x10)),
         FASTRTPS(new VendorId(0x01, 0x0f));
 
-        static final Map<VendorId, Predefined> MAP =
+        private static final Map<VendorId, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
         private VendorId value;
 
@@ -42,6 +43,10 @@ public class VendorId {
 
         public VendorId getValue() {
             return value;
+        }
+
+        public static Optional<Predefined> find(VendorId vendorId) {
+            return Optional.ofNullable(Predefined.MAP.get(vendorId));
         }
     }
 
@@ -72,12 +77,17 @@ public class VendorId {
 
     @Override
     public String toString() {
-        var predefined = Predefined.MAP.get(this);
-        if (predefined != null) {
-            return predefined.name();
-        }
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("value", Arrays.toString(value));
-        return builder.toString();
+        return Predefined.find(this)
+                .map(Enum::name)
+                .orElseGet(
+                        () -> {
+                            XJsonStringBuilder builder = new XJsonStringBuilder(this);
+                            builder.append("value", Arrays.toString(value));
+                            return builder.toString();
+                        });
+    }
+
+    public static Optional<VendorId.Predefined> findVendorId(byte[] value) {
+        return VendorId.Predefined.find(new VendorId(value[0], value[1]));
     }
 }

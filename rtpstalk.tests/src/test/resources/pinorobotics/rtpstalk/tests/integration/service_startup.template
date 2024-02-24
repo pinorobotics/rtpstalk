@@ -1,4 +1,4 @@
-*.RtpsServiceManager#* - Using following configuration: { "config": { "startPort": 7412, "networkIfaces": "*", "packetBufferSize": 65508, "domainId": 0, "guidPrefix": *, "builtinEndpointQos": "NONE", "leaseDuration": "PT20S", "builtinEnpointsPort": *, "userEndpointsPort": * }, "localParticpantGuid": { "guidPrefix": { "value": "*" }, "entityId": "ENTITYID_PARTICIPANT" }, "maxSubmessageSize": 65488 }
+*.RtpsServiceManager#* - Using following configuration: { "config": { "startPort": 7412, "networkIfaces": "*", "packetBufferSize": 65508, "domainId": 0, "guidPrefix": *, "builtinEndpointQos": "NONE", "leaseDuration": "PT20S", "builtinEnpointsPort": *, "userEndpointsPort": * }, "localParticpantGuid": { "guidPrefix": *, "entityId": "ENTITYID_PARTICIPANT" }, "maxSubmessageSize": 65488 }
 *.MetatrafficUnicastService#* - Starting metatraffic unicast service on { "transportType": "LOCATOR_KIND_UDPv4", "port": *, "address": "/*" }
 *.MetatrafficUnicastReceiver#* - Subscribing *-ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR
 *.MetatrafficUnicastReceiver#* - Subscribing *-ENTITYID_SEDP_BUILTIN_PUBLICATIONS_DETECTOR

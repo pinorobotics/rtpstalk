@@ -26,8 +26,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-/** Uniquely identifies the Participant within the Domain */
 /**
+ * Uniquely identifies the Participant within the Domain
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class GuidPrefix implements SubmessageElement {
@@ -95,6 +96,7 @@ public class GuidPrefix implements SubmessageElement {
             return predefined.name();
         }
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("vendorId", VendorId.findVendorId(value));
         builder.append("value", XByte.toHex(value));
         return builder.toString();
     }

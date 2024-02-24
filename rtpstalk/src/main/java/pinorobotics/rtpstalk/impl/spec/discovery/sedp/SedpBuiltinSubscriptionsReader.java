@@ -91,11 +91,11 @@ public class SedpBuiltinSubscriptionsReader
                                                         params.getFirstParameter(
                                                                 ParameterId.PID_ENDPOINT_GUID,
                                                                 Guid.class)))
-                .ifPresent(this::removeReader);
+                .ifPresent(this::removeMatchedReader);
     }
 
-    private void removeReader(Guid readerGuid) {
-        logger.fine("Reader {0} marked subscription as disposed", readerGuid);
+    private void removeMatchedReader(Guid readerGuid) {
+        logger.fine("Matched reader {0} marked as disposed", readerGuid);
         boolean isRemoved = false;
         for (var writer : operatingEntities.getLocalWriters().getEntities()) {
             if (writer.matchedReaderLookup(readerGuid).isPresent()) {

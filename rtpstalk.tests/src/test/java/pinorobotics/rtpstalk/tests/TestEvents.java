@@ -50,7 +50,7 @@ public class TestEvents {
         line =
                 line.replaceAll(
                         """
-                        .*"guidPrefix": . "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
+                        .*"guidPrefix": .* "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
                         """
                                 .strip(),
                         "$1 $2 $3 $4");
@@ -68,7 +68,7 @@ public class TestEvents {
     }
 
     public static void waitForDisposedSubscriber(Guid reader) throws Exception {
-        var str = "Reader " + reader + " marked subscription as disposed";
+        var str = "Matched reader " + reader + " marked as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
     }
 
@@ -76,12 +76,12 @@ public class TestEvents {
     public void test_extractRemoteActorDetails() {
         var line =
                 """
-            Discovered Publisher for topic test with following details { "endpointGuid": { "guidPrefix": { "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+            Discovered Publisher for topic test with following details { "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
             """
                         .strip();
         Assertions.assertEquals(
                 """
-                { "endpointGuid": { "guidPrefix": { "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+                { "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
                 """
                         .strip(),
                 extractRemoteActorDetails(line).toString());
