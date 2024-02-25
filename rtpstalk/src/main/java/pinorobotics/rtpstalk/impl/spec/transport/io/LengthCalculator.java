@@ -33,7 +33,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.Duration;
+import pinorobotics.rtpstalk.impl.spec.messages.DurationT;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.HistoryQosPolicy;
@@ -99,7 +99,7 @@ public class LengthCalculator {
         if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
         if (clazz == Timestamp.class) return Integer.BYTES * 2;
         if (clazz == ParameterId.class) return Short.BYTES;
-        if (clazz == Duration.class) return Integer.BYTES * 2;
+        if (clazz == DurationT.class) return Integer.BYTES * 2;
         if (clazz == LocatorKind.class) return Integer.BYTES;
         if (clazz == GuidPrefix.class) return GuidPrefix.SIZE;
         if (clazz == ProtocolVersion.class) return 2;
@@ -118,14 +118,14 @@ public class LengthCalculator {
         if (clazz == Count.class) return Integer.BYTES;
         if (clazz == BuiltinEndpointQos.class) return Integer.BYTES;
         if (clazz == ReliabilityQosPolicy.class)
-            return Integer.BYTES + getFixedLength(Duration.class);
+            return Integer.BYTES + getFixedLength(DurationT.class);
         if (clazz == DestinationOrderQosPolicy.class) return Integer.BYTES;
         if (clazz == DurabilityQosPolicy.class) return Integer.BYTES;
-        if (clazz == DeadlineQosPolicy.class) return getFixedLengthInternal(Duration.class);
-        if (clazz == LatencyBudgetQosPolicy.class) return getFixedLengthInternal(Duration.class);
-        if (clazz == LifespanQosPolicy.class) return getFixedLengthInternal(Duration.class);
+        if (clazz == DeadlineQosPolicy.class) return getFixedLengthInternal(DurationT.class);
+        if (clazz == LatencyBudgetQosPolicy.class) return getFixedLengthInternal(DurationT.class);
+        if (clazz == LifespanQosPolicy.class) return getFixedLengthInternal(DurationT.class);
         if (clazz == DurabilityServiceQosPolicy.class)
-            return getFixedLength(Duration.class)
+            return getFixedLength(DurationT.class)
                     + getFixedLength(HistoryQosPolicy.class)
                     + Integer.BYTES * 4;
         if (clazz == HistoryQosPolicy.class) return 2 * Integer.BYTES;

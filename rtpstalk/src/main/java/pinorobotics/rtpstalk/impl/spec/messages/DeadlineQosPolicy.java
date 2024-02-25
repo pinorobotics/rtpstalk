@@ -25,11 +25,11 @@ import java.util.Objects;
  */
 public class DeadlineQosPolicy {
 
-    public Duration period;
+    public DurationT period;
 
     public DeadlineQosPolicy() {}
 
-    public DeadlineQosPolicy(Duration period) {
+    public DeadlineQosPolicy(DurationT period) {
         this.period = period;
     }
 

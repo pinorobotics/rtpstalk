@@ -34,7 +34,7 @@ import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.discovery.spdp.MetatrafficMulticastService;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet.Endpoint;
-import pinorobotics.rtpstalk.impl.spec.messages.Duration;
+import pinorobotics.rtpstalk.impl.spec.messages.DurationT;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
@@ -195,7 +195,7 @@ public class SpdpServiceTest {
                         ParameterId.PID_DEFAULT_UNICAST_LOCATOR,
                         TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR,
                         ParameterId.PID_PARTICIPANT_LEASE_DURATION,
-                        new Duration(20),
+                        new DurationT(20),
                         ParameterId.PID_BUILTIN_ENDPOINT_SET,
                         new BuiltinEndpointSet(endpointSet),
                         ParameterId.PID_ENTITY_NAME,

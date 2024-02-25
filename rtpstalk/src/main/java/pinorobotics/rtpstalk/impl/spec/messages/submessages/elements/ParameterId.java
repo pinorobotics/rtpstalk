@@ -27,7 +27,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.DeadlineQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityServiceQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.Duration;
+import pinorobotics.rtpstalk.impl.spec.messages.DurationT;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.HistoryQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
@@ -47,7 +47,7 @@ public enum ParameterId {
     PID_ENTITY_NAME(0x0062, String.class),
     PID_DOMAIN_ID(0x000f, UnsignedInt.class),
     PID_BUILTIN_ENDPOINT_SET(0x0058, BuiltinEndpointSet.class),
-    PID_PARTICIPANT_LEASE_DURATION(0x0002, Duration.class),
+    PID_PARTICIPANT_LEASE_DURATION(0x0002, DurationT.class),
     PID_DEFAULT_UNICAST_LOCATOR(0x0031, Locator.class),
     PID_UNICAST_LOCATOR(0x002f, Locator.class),
     PID_METATRAFFIC_UNICAST_LOCATOR(0x0032, Locator.class),

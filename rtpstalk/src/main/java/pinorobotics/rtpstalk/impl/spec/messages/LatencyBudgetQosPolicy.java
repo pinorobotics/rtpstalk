@@ -25,11 +25,11 @@ import java.util.Objects;
  */
 public class LatencyBudgetQosPolicy {
 
-    public Duration duration;
+    public DurationT duration;
 
     public LatencyBudgetQosPolicy() {}
 
-    public LatencyBudgetQosPolicy(Duration period) {
+    public LatencyBudgetQosPolicy(DurationT period) {
         this.duration = period;
     }
 

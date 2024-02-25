@@ -27,7 +27,7 @@ import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.DestinationOrderQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.spec.messages.Duration;
+import pinorobotics.rtpstalk.impl.spec.messages.DurationT;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -93,7 +93,7 @@ public class SedpDataFactory {
                                 ParameterId.PID_RELIABILITY,
                                 new ReliabilityQosPolicy(
                                         qosPolicy.reliabilityKind(),
-                                        Duration.Predefined.ZERO.getValue())),
+                                        DurationT.Predefined.ZERO.getValue())),
                         Map.entry(
                                 ParameterId.PID_DESTINATION_ORDER,
                                 new DestinationOrderQosPolicy(
@@ -120,7 +120,7 @@ public class SedpDataFactory {
                                 ParameterId.PID_RELIABILITY,
                                 new ReliabilityQosPolicy(
                                         qosPolicy.reliabilityKind(),
-                                        Duration.Predefined.ZERO.getValue())),
+                                        DurationT.Predefined.ZERO.getValue())),
                         Map.entry(
                                 ParameterId.PID_DURABILITY,
                                 new DurabilityQosPolicy(qosPolicy.durabilityKind())),

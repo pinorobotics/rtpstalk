@@ -25,11 +25,11 @@ import java.util.Objects;
  */
 public class LifespanQosPolicy {
 
-    public Duration duration;
+    public DurationT duration;
 
     public LifespanQosPolicy() {}
 
-    public LifespanQosPolicy(Duration period) {
+    public LifespanQosPolicy(DurationT period) {
         this.duration = period;
     }
 

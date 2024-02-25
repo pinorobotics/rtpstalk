@@ -46,19 +46,19 @@ public class ReliabilityQosPolicy {
 
     public int kind;
 
-    public Duration maxBlockingTime;
+    public DurationT maxBlockingTime;
 
     public ReliabilityQosPolicy() {
         this(Kind.UNKNOWN);
     }
 
-    public ReliabilityQosPolicy(Kind kind, Duration maxBlockingTime) {
+    public ReliabilityQosPolicy(Kind kind, DurationT maxBlockingTime) {
         this.kind = kind.ordinal();
         this.maxBlockingTime = maxBlockingTime;
     }
 
     public ReliabilityQosPolicy(Kind kind) {
-        this(kind, Duration.Predefined.ZERO.getValue());
+        this(kind, DurationT.Predefined.ZERO.getValue());
     }
 
     @Override

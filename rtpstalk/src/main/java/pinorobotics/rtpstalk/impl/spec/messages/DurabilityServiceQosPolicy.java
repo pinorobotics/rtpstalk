@@ -24,7 +24,7 @@ import id.xfunction.XJsonStringBuilder;
  */
 public class DurabilityServiceQosPolicy {
 
-    public Duration serviceCleanupDelay;
+    public DurationT serviceCleanupDelay;
     public int historyKind;
     public int historyDepth;
     public int maxDamples;
@@ -34,7 +34,7 @@ public class DurabilityServiceQosPolicy {
     public DurabilityServiceQosPolicy() {}
 
     public DurabilityServiceQosPolicy(
-            Duration serviceCleanupDelay,
+            DurationT serviceCleanupDelay,
             HistoryQosPolicy.Kind historyQosPolicyKind,
             int historyDepth,
             int maxDamples,

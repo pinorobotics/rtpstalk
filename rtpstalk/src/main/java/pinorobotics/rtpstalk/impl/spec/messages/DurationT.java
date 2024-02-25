@@ -26,21 +26,21 @@ import java.util.stream.Collectors;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Duration {
+public class DurationT {
 
     public static enum Predefined {
-        ZERO(new Duration(0, 0)),
-        INFINITE(new Duration(0x7fffffff, 0xffffffffL));
+        ZERO(new DurationT(0, 0)),
+        INFINITE(new DurationT(0x7fffffff, 0xffffffffL));
 
-        static final Map<Duration, Predefined> MAP =
+        static final Map<DurationT, Predefined> MAP =
                 Arrays.stream(Predefined.values()).collect(Collectors.toMap(k -> k.value, v -> v));
-        private Duration value;
+        private DurationT value;
 
-        Predefined(Duration value) {
+        Predefined(DurationT value) {
             this.value = value;
         }
 
-        public Duration getValue() {
+        public DurationT getValue() {
             return value;
         }
     }
@@ -50,14 +50,14 @@ public class Duration {
     /** Time in sec/2^32 */
     public UnsignedInt fraction;
 
-    public Duration() {}
+    public DurationT() {}
 
-    public Duration(long seconds, long fraction) {
+    public DurationT(long seconds, long fraction) {
         this.seconds = new UnsignedInt(seconds);
         this.fraction = new UnsignedInt(fraction);
     }
 
-    public Duration(long seconds) {
+    public DurationT(long seconds) {
         this(seconds, 0);
     }
 
@@ -71,7 +71,7 @@ public class Duration {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        Duration other = (Duration) obj;
+        DurationT other = (DurationT) obj;
         return Objects.equals(fraction, other.fraction) && seconds == other.seconds;
     }
 
