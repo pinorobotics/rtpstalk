@@ -98,7 +98,6 @@ public class MetatrafficMulticastService implements AutoCloseable {
                         tracingToken,
                         publisherExecutor,
                         config.publicConfig().guidPrefix(),
-                        iface.getOperatingEntities(),
                         iface.getParticipantsRegistry());
         reader.subscribe(participantsSubscriber);
         Locator metatrafficMulticastLocator =
@@ -110,7 +109,12 @@ public class MetatrafficMulticastService implements AutoCloseable {
         metatrafficMulticastReceiver.subscribe(reader);
         writer =
                 new SpdpBuiltinParticipantWriter(
-                        config, tracingToken, publisherExecutor, channelFactory, networkInterface);
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        channelFactory,
+                        networkInterface,
+                        iface.getParticipantsRegistry());
         writer.readerLocatorAdd(metatrafficMulticastLocator);
         writer.setSpdpDiscoveredParticipantDataMessage(
                 new RtpsTalkParameterListMessage(

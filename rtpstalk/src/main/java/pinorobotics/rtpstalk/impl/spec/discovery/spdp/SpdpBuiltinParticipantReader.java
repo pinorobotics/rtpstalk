@@ -21,7 +21,6 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -43,7 +42,6 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
-    private LocalOperatingEntities operatingEntities;
     private ParticipantsRegistry participantsRegistry;
 
     public SpdpBuiltinParticipantReader(
@@ -51,7 +49,6 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
             TracingToken tracingToken,
             Executor publisherExecutor,
             byte[] guidPrefix,
-            LocalOperatingEntities operatingEntities,
             ParticipantsRegistry participantsRegistry) {
         super(
                 config,
@@ -62,22 +59,22 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                         guidPrefix,
                         EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
                 ReliabilityQosPolicy.Kind.BEST_EFFORT);
-        this.operatingEntities = operatingEntities;
         this.participantsRegistry = participantsRegistry;
     }
 
     @Override
     protected boolean addChange(CacheChange<RtpsTalkParameterListMessage> cacheChange) {
         var isAdded = super.addChange(cacheChange);
-        if (!isAdded) return false;
-        var parameterList = cacheChange.getDataValue().parameterList();
-        parameterList.ifPresent(
-                pl -> {
-                    pl.getProtocolParameters()
-                            .getFirstParameter(ParameterId.PID_PARTICIPANT_GUID, Guid.class)
-                            .ifPresent(guid -> participantsRegistry.add(guid, pl));
-                });
-        return true;
+        var pl = cacheChange.getDataValue().parameterList().orElse(null);
+        if (pl == null) return isAdded;
+        var params = pl.getProtocolParameters();
+        params.getFirstParameter(ParameterId.PID_PARTICIPANT_GUID, Guid.class)
+                .ifPresent(
+                        guid -> {
+                            if (isAdded) participantsRegistry.add(guid, pl);
+                            else participantsRegistry.updateLease(guid);
+                        });
+        return isAdded;
     }
 
     @Override
@@ -99,19 +96,11 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                                                         params.getFirstParameter(
                                                                 ParameterId.PID_PARTICIPANT_GUID,
                                                                 Guid.class)))
-                .ifPresent(this::removeParticipant);
-    }
-
-    private void removeParticipant(Guid participantGuid) {
-        if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(participantGuid.entityId)) {
-            logger.fine("Writer marked participant {0} as disposed", participantGuid);
-            for (var reader : operatingEntities.getLocalReaders().getEntities()) {
-                reader.matchedWritersRemove(participantGuid.guidPrefix);
-            }
-            for (var writer : operatingEntities.getLocalWriters().getEntities()) {
-                writer.matchedReadersRemove(participantGuid.guidPrefix);
-            }
-        }
-        participantsRegistry.remove(participantGuid);
+                .ifPresent(
+                        participantGuid -> {
+                            logger.fine(
+                                    "Writer marked participant {0} as disposed", participantGuid);
+                            participantsRegistry.removeParticipant(participantGuid);
+                        });
     }
 }

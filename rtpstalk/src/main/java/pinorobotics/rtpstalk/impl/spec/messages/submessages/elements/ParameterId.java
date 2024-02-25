@@ -47,7 +47,6 @@ public enum ParameterId {
     PID_ENTITY_NAME(0x0062, String.class),
     PID_DOMAIN_ID(0x000f, UnsignedInt.class),
     PID_BUILTIN_ENDPOINT_SET(0x0058, BuiltinEndpointSet.class),
-    PID_PARTICIPANT_LEASE_DURATION(0x0002, DurationT.class),
     PID_DEFAULT_UNICAST_LOCATOR(0x0031, Locator.class),
     PID_UNICAST_LOCATOR(0x002f, Locator.class),
     PID_METATRAFFIC_UNICAST_LOCATOR(0x0032, Locator.class),
@@ -66,6 +65,17 @@ public enum ParameterId {
     PID_DEADLINE(0x0023, DeadlineQosPolicy.class),
     PID_LATENCY_BUDGET(0x0027, LatencyBudgetQosPolicy.class),
     PID_LIFESPAN(0x002b, LifespanQosPolicy.class),
+
+    @RtpsSpecReference(
+            paragraph = "8.5.3.2 SPDPdiscoveredParticipantData",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    """
+            How long a Participant should be considered alive every time an announcement is received from the Participant.
+            If a Participant fails to send another announcement within this time period, the Participant can be considered gone.
+            In that case, any resources associated to the Participant and its Endpoints can be freed
+            """)
+    PID_PARTICIPANT_LEASE_DURATION(0x0002, DurationT.class),
 
     @RtpsSpecReference(
             paragraph = "8.7.2.2",

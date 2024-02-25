@@ -49,7 +49,7 @@ public class RtpsNetworkInterface {
         this.metatrafficUnicastChannel = metatrafficUnicastChannel;
         this.metatrafficUnicastLocator = metatrafficUnicastLocator;
         operatingEntities = new LocalOperatingEntities(tracingToken);
-        participantsRegistry = new ParticipantsRegistry(tracingToken);
+        participantsRegistry = new ParticipantsRegistry(tracingToken, operatingEntities);
     }
 
     public Locator getLocalDefaultUnicastLocator() {

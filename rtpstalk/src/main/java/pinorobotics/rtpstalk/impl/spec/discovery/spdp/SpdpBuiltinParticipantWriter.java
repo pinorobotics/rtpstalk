@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
+import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatelessRtpsWriter;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
@@ -60,13 +61,15 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
     private RtpsTalkParameterListMessage message;
     private Duration rate;
     private NetworkInterface networkInterface;
+    private ParticipantsRegistry participantsRegistry;
 
     public SpdpBuiltinParticipantWriter(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             DataChannelFactory channelFactory,
-            NetworkInterface networkInterface) {
+            NetworkInterface networkInterface,
+            ParticipantsRegistry participantsRegistry) {
         super(
                 config,
                 tracingToken,
@@ -75,6 +78,7 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER.getValue(),
                 EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue());
         this.networkInterface = networkInterface;
+        this.participantsRegistry = participantsRegistry;
         this.rate = config.publicConfig().spdpDiscoveredParticipantDataPublishPeriod();
     }
 
@@ -103,6 +107,7 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
     @Override
     public void run() {
         if (executor.isShutdown()) return;
+        participantsRegistry.removeParticipantsWithExpiredLease();
         if (message == null) {
             LOGGER.fine("No SpdpDiscoveredParticipantData to send, skipping");
             return;

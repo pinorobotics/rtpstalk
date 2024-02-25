@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -85,5 +86,9 @@ public class DurationT {
         builder.append("seconds", seconds);
         builder.append("fraction", fraction);
         return builder.toString();
+    }
+
+    public Duration toDuration() {
+        return Duration.ofSeconds(seconds.getUnsigned());
     }
 }

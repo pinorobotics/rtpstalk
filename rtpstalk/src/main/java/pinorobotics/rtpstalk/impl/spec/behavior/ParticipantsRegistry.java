@@ -19,14 +19,18 @@ package pinorobotics.rtpstalk.impl.spec.behavior;
 
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.messages.DurationT;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 
 /**
@@ -41,11 +45,49 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  */
 public class ParticipantsRegistry {
 
-    private XLogger logger;
-    private Map<Guid, ParameterList> participants = new ConcurrentHashMap<>();
+    private class Participant {
 
-    public ParticipantsRegistry(TracingToken tracingToken) {
+        private Guid guid;
+        private ParameterList pl;
+        private Instant lastLeaseTimestamp;
+
+        public Participant(Guid guid, ParameterList pl) {
+            this.guid = guid;
+            this.pl = pl;
+            this.lastLeaseTimestamp = Instant.now();
+        }
+
+        public Guid getGuid() {
+            return guid;
+        }
+
+        public ParameterList getParameterList() {
+            return pl;
+        }
+
+        void updateLeaseTimestamp() {
+            this.lastLeaseTimestamp = Instant.now();
+        }
+
+        boolean isLeaseExpired() {
+            return pl.getProtocolParameters()
+                    .getFirstParameter(ParameterId.PID_PARTICIPANT_LEASE_DURATION, DurationT.class)
+                    .map(DurationT::toDuration)
+                    .map(
+                            leaseDuration ->
+                                    lastLeaseTimestamp.plus(leaseDuration).isBefore(Instant.now()))
+                    .orElse(false);
+        }
+    }
+
+    private XLogger logger;
+    private Map<Guid, Participant> participants = new ConcurrentHashMap<>();
+    private LocalOperatingEntities operatingEntities;
+
+    public ParticipantsRegistry(
+            TracingToken tracingToken, LocalOperatingEntities operatingEntities) {
         logger = XLogger.getLogger(getClass(), tracingToken);
+        this.operatingEntities = operatingEntities;
     }
 
     public Optional<ParameterList> getSpdpDiscoveredParticipantData(
@@ -53,16 +95,49 @@ public class ParticipantsRegistry {
         var guid =
                 new Guid(
                         participantGuidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT.getValue());
-        return Optional.ofNullable(participants.get(guid));
+        return Optional.ofNullable(participants.get(guid)).map(Participant::getParameterList);
     }
 
-    public void remove(Guid participantGuid) {
+    public void removeParticipant(Guid participantGuid) {
         logger.fine("Removing participant {0} from the registry", participantGuid);
+        if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(participantGuid.entityId)) {
+            for (var reader : operatingEntities.getLocalReaders().getEntities()) {
+                reader.matchedWritersRemove(participantGuid.guidPrefix);
+            }
+            for (var writer : operatingEntities.getLocalWriters().getEntities()) {
+                writer.matchedReadersRemove(participantGuid.guidPrefix);
+            }
+        }
         participants.remove(participantGuid);
+    }
+
+    public void updateLease(Guid participantGuid) {
+        logger.fine("Updating lease for participant {0}", participantGuid);
+        var participant = participants.get(participantGuid);
+        if (participant == null) {
+            logger.fine("Participant {0} cound not be found inside the registry", participantGuid);
+        }
+        participant.updateLeaseTimestamp();
     }
 
     public void add(Guid participantGuid, ParameterList pl) {
         logger.fine("Adding new participant {0} to the registry", participantGuid);
-        participants.put(participantGuid, pl);
+        participants.put(participantGuid, new Participant(participantGuid, pl));
+    }
+
+    @RtpsSpecReference(
+            paragraph = "8.5.5.2",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Removal of a previously discovered Participant")
+    public void removeParticipantsWithExpiredLease() {
+        logger.fine("Removing participants for which lease is expired");
+        participants.values().stream()
+                .filter(Participant::isLeaseExpired)
+                .map(Participant::getGuid)
+                .forEach(
+                        participantGuid -> {
+                            logger.fine("Lease is expired for participant {0}", participantGuid);
+                            removeParticipant(participantGuid);
+                        });
     }
 }
