@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.ProtocolId;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
@@ -127,5 +128,39 @@ public class StatefullReliableRtpsWriterTest {
             // this will test that writer would be able to discard messages and close
             writer.matchedReaderRemove(readerGuid);
         }
+    }
+
+    @Test
+    public void test_ignore_pendings_changes_for_best_effort_readers() throws IOException {
+        var writerGuid =
+                new Guid(
+                        TestConstants.TEST_GUID_PREFIX, new EntityId(22, EntityKind.WRITER_NO_KEY));
+        var readerGuid =
+                new Guid(
+                        TestConstants.TEST_GUID_PREFIX, new EntityId(22, EntityKind.READER_NO_KEY));
+        var operatingEntities = new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN);
+        try (var reliableWriter =
+                        new StatefullReliableRtpsWriter<>(
+                                TestConstants.TEST_CONFIG_INTERNAL,
+                                TestConstants.TEST_TRACING_TOKEN,
+                                TestConstants.TEST_PUBLISHER_EXECUTOR,
+                                new TestDataChannelFactory(),
+                                operatingEntities,
+                                writerGuid.entityId,
+                                new WriterQosPolicySet(
+                                        ReliabilityQosPolicy.Kind.RELIABLE,
+                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS),
+                                new WriterSettings(false));
+                var publisher = new SynchronousPublisher<RtpsTalkDataMessage>(); ) {
+            publisher.subscribe(reliableWriter);
+            reliableWriter.matchedReaderAdd(
+                    readerGuid,
+                    List.of(TestConstants.TEST_REMOTE_DEFAULT_UNICAST_LOCATOR),
+                    new ReaderQosPolicySet(
+                            Kind.BEST_EFFORT,
+                            DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
+            publisher.submit(new RtpsTalkDataMessage("hello"));
+        }
+        // writer is closed and pending changes discarded
     }
 }

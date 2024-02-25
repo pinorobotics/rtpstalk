@@ -36,6 +36,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -216,6 +217,17 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         logger.fine("Removed {0} matched readers with guidPrefix {1}", count, guidPrefix);
     }
 
+    private int matchedReadersRemove(Predicate<ReaderProxy> filter) {
+        var bestEffortReaders =
+                matchedReaders.entrySet().stream()
+                        .filter(e -> filter.test(e.getValue()))
+                        .map(Map.Entry::getKey)
+                        .toList();
+        bestEffortReaders.forEach(this::matchedReaderRemove);
+        logger.fine("Removed {0} matched readers", bestEffortReaders.size());
+        return bestEffortReaders.size();
+    }
+
     /** This operation finds the {@link ReaderProxy} with given {@link Guid} */
     public Optional<ReaderProxy> matchedReaderLookup(Guid guid) {
         return Optional.ofNullable(matchedReaders.get(guid));
@@ -227,9 +239,20 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             if (executor.isShutdown()) return;
             sendRequested();
             sendHeartbeats();
+            cleanupReaders();
             cleanupCache();
         } catch (Exception e) {
             logger.severe("Writer heartbeat error", e);
+        }
+    }
+
+    private void cleanupReaders() {
+        if (isClosed) {
+            var count =
+                    matchedReadersRemove(
+                            reader -> reader.getHighestAckedSeqNum() == getLastChangeNumber());
+            if (count > 0)
+                logger.fine("Removed {0} matched readers as they received all the changes", count);
         }
     }
 
@@ -275,11 +298,29 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                         "Discarding pending changes since there is no matched readers available");
                 break;
             }
+            var nonBestEffortReaders =
+                    matchedReaders.entrySet().stream()
+                            .filter(
+                                    e ->
+                                            ReaderProxy.IS_BEST_ERRORT_FILTER
+                                                    .negate()
+                                                    .test(e.getValue()))
+                            .map(Map.Entry::getKey)
+                            .toList();
+            if (nonBestEffortReaders.isEmpty()) {
+                var count = matchedReadersRemove(ReaderProxy.IS_BEST_ERRORT_FILTER);
+                logger.fine("Removed {0} BEST_EFFORT matched readers", count);
+                logger.fine(
+                        "Discarding pending changes since there is no matched readers available");
+                break;
+            }
             logger.fine(
-                    "Waiting for {0} pending changes [{1}..{2}] in the history cache to be sent",
+                    "Waiting for {0} pending changes [{1}..{2}] in the history cache to be sent to"
+                            + " the following readers {3}",
                     numOfPendingChanges,
                     historyCache.getSeqNumMin(getGuid()),
-                    historyCache.getSeqNumMax(getGuid()));
+                    historyCache.getSeqNumMax(getGuid()),
+                    nonBestEffortReaders);
             XThread.sleep(heartbeatPeriod.toMillis());
             numOfPendingChanges = historyCache.getNumberOfChanges(getGuid());
         }
@@ -321,7 +362,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
          * will have greater {@link Data#writerSN} all previous will not be processed.
          */
         matchedReaders.values().stream()
-                .filter(ReaderProxy.isBestEffort())
+                .filter(ReaderProxy.IS_BEST_ERRORT_FILTER)
                 .map(
                         readerProxy ->
                                 new RtpsDataMessageBuilder(
@@ -347,7 +388,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             return;
         }
         readers.stream()
-                .filter(ReaderProxy.isReliable())
+                .filter(ReaderProxy.IS_RELIABLE_FILTER)
                 .map(readerProxy -> readerProxy.getRemoteReaderGuid().guidPrefix)
                 .map(
                         readerGuidPrefix ->

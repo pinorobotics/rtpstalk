@@ -83,6 +83,7 @@ public class RtpsTalkClient implements AutoCloseable {
         if (!isStarted) {
             start();
         }
+        logger.fine("Subscribing to topic {0} with type {1}", topic, type);
         var entityId = serviceManager.subscribe(topic, type, policy, subscriber);
         return entityId.value;
     }
@@ -128,6 +129,7 @@ public class RtpsTalkClient implements AutoCloseable {
         if (!isStarted) {
             start();
         }
+        logger.fine("Publishing to topic {0} with type {1}", topic, type);
         serviceManager.publish(topic, type, policy, writerSettings, publisher);
     }
 

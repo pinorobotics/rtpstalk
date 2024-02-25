@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 
 /**
@@ -63,5 +64,11 @@ public class ProtocolParameterMap extends ImmutableMultiMap<ParameterId, Object>
         var values = get(parameterId);
         if (values.isEmpty()) return List.of();
         return classValue.isInstance(values.get(0)) ? (List<V>) values : List.of();
+    }
+
+    public boolean hasDisposedObjects() {
+        return getFirstParameter(ParameterId.PID_STATUS_INFO, StatusInfo.class)
+                .filter(StatusInfo::isDisposed)
+                .isPresent();
     }
 }

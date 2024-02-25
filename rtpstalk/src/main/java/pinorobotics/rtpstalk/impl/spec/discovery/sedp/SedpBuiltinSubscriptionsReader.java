@@ -21,7 +21,6 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.behavior.reader.ReaderUtils;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.DdsVersion;
@@ -30,6 +29,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
@@ -53,8 +53,6 @@ public class SedpBuiltinSubscriptionsReader
             new ReaderQosPolicySet(
                     ReliabilityQosPolicy.Kind.RELIABLE,
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
-
-    private static final ReaderUtils READER_UTILS = new ReaderUtils();
 
     private LocalOperatingEntities operatingEntities;
 
@@ -80,8 +78,10 @@ public class SedpBuiltinSubscriptionsReader
         var inlineQosParams = inlineQos.getProtocolParameters();
         if (inlineQosParams.isEmpty()) return;
         logger.fine("Processing inlineQos");
-        READER_UTILS
-                .findDisposedObject(inlineQosParams)
+        if (!inlineQosParams.hasDisposedObjects()) return;
+        inlineQosParams
+                .getFirstParameter(ParameterId.PID_KEY_HASH, KeyHash.class)
+                .map(KeyHash::asGuid)
                 .or(
                         () ->
                                 message.parameterList()

@@ -21,11 +21,11 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.behavior.reader.ReaderUtils;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
@@ -43,7 +43,6 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
-    private static final ReaderUtils READER_UTILS = new ReaderUtils();
     private LocalOperatingEntities operatingEntities;
     private ParticipantsRegistry participantsRegistry;
 
@@ -87,8 +86,10 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
         var inlineQosParams = inlineQos.getProtocolParameters();
         if (inlineQosParams.isEmpty()) return;
         logger.fine("Processing inlineQos");
-        READER_UTILS
-                .findDisposedObject(inlineQosParams)
+        if (!inlineQosParams.hasDisposedObjects()) return;
+        inlineQosParams
+                .getFirstParameter(ParameterId.PID_KEY_HASH, KeyHash.class)
+                .map(KeyHash::asGuid)
                 .or(
                         () ->
                                 message.parameterList()

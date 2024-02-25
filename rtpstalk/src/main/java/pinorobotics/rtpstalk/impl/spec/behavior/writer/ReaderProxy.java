@@ -81,14 +81,13 @@ public interface ReaderProxy extends AutoCloseable {
         getSender().close();
     }
 
-    static Predicate<ReaderProxy> isReliable() {
-        return readerProxy ->
-                readerProxy.getQosPolicy().reliabilityKind() == ReliabilityQosPolicy.Kind.RELIABLE;
-    }
+    static Predicate<ReaderProxy> IS_RELIABLE_FILTER =
+            readerProxy ->
+                    readerProxy.getQosPolicy().reliabilityKind()
+                            == ReliabilityQosPolicy.Kind.RELIABLE;
 
-    static Predicate<ReaderProxy> isBestEffort() {
-        return readerProxy ->
-                readerProxy.getQosPolicy().reliabilityKind()
-                        == ReliabilityQosPolicy.Kind.BEST_EFFORT;
-    }
+    static Predicate<ReaderProxy> IS_BEST_ERRORT_FILTER =
+            readerProxy ->
+                    readerProxy.getQosPolicy().reliabilityKind()
+                            == ReliabilityQosPolicy.Kind.BEST_EFFORT;
 }
