@@ -38,6 +38,9 @@ test {
   testLogging {
     events "started", "failed"
   }
+
+  if (project.hasProperty("unitTests")) exclude '**/tests/integration/**'
+
 }
 
 jacocoTestReport {

@@ -154,3 +154,9 @@ move Debug\HelloWorldExample.exe HelloWorldExample
 # Metrics
 
 By default metrics are enabled for tests and they are sent to Elasticsearch index `rtpstalk`.
+
+# Run unit tests only
+
+```
+gradle clean build -PunitTests -xjacocoTestCoverageVerification
+```
