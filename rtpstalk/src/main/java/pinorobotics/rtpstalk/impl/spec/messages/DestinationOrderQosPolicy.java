@@ -18,12 +18,12 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class DestinationOrderQosPolicy {
-
+public class DestinationOrderQosPolicy implements HasStreamedFields {
     public static enum Kind {
         BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS,
         BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;

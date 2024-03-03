@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 import id.xfunction.XJsonStringBuilder;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Timestamp implements SubmessageElement {
+    static final List<String> STREAMED_FIELDS = List.of("seconds", "fraction");
 
     public static enum Predefined {
         TIME_ZERO(new Timestamp(0, 0)),
@@ -53,9 +55,7 @@ public class Timestamp implements SubmessageElement {
     /** Time in sec/2^32 */
     public UnsignedInt fraction;
 
-    public Timestamp() {
-        // TODO Auto-generated constructor stub
-    }
+    public Timestamp() {}
 
     public Timestamp(long seconds, long fraction) {
         this.seconds = (int) seconds;

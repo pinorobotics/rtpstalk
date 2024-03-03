@@ -23,12 +23,12 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class StatusInfo {
-
+public class StatusInfo implements HasStreamedFields {
     public enum Flags {
         DISPOSED(0),
         UNREGISTERED(1);

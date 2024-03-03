@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
@@ -26,7 +28,19 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class ParticipantProxy {
+public class ParticipantProxy implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS =
+            List.of(
+                    "domainId",
+                    "domainTag",
+                    "protocolVersion",
+                    "guidPrefix",
+                    "vendorId",
+                    "expectsInlineQos",
+                    "availableBuiltinEndpoints",
+                    "builtinEndpointQos",
+                    "metatrafficUnicastLocatorList",
+                    "metatrafficMulticastLocatorList");
 
     /** Identifies the DDS domainId of the associated DDS DomainParticipant. */
     public int domainId;

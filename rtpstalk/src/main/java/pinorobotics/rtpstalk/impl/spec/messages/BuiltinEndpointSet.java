@@ -23,13 +23,13 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class BuiltinEndpointSet {
-
+public class BuiltinEndpointSet implements HasStreamedFields {
     public static enum EndpointType {
         READER,
         WRITER,

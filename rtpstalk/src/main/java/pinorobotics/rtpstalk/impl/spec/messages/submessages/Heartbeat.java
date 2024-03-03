@@ -29,6 +29,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Heartbeat extends Submessage {
+    static final List<String> STREAMED_FIELDS =
+            List.of("readerId", "writerId", "firstSN", "lastSN", "count");
 
     /**
      * Identifies the Reader Entity that is being informed of the availability of a set of sequence

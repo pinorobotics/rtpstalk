@@ -19,6 +19,8 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
@@ -30,7 +32,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SequenceNumberSet {
+public class SequenceNumberSet implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("bitmapBase", "numBits", "bitmap");
 
     /** Bitmap of up to 256 bits */
     public static final int BITMAP_SIZE = 256;

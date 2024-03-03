@@ -21,11 +21,12 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class ProtocolId {
+public class ProtocolId implements HasStreamedFields {
 
     public static enum Predefined {
         RTPS(new ProtocolId(new byte[] {'R', 'T', 'P', 'S'}));

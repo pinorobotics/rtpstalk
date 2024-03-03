@@ -19,14 +19,14 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.EnumSet;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * Currently not being used by rtpstalk.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class DataRepresentationQosPolicy {
-
+public class DataRepresentationQosPolicy implements HasStreamedFields {
     public static enum DataRepresentation {
         XCDR_DATA_REPRESENTATION(0),
         XML_DATA_REPRESENTATION(1),

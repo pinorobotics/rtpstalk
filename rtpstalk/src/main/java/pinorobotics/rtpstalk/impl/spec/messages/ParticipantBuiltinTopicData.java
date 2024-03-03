@@ -18,12 +18,14 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class ParticipantBuiltinTopicData {
-
+public class ParticipantBuiltinTopicData implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("key", "user_data");
     public BuiltinTopicKey key;
 
     public UserDataQosPolicy user_data;

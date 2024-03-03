@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
+
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public interface SubmessageElement {}
+public interface SubmessageElement extends HasStreamedFields {}

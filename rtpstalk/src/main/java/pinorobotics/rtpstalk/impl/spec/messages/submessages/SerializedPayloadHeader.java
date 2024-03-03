@@ -19,12 +19,15 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SerializedPayloadHeader {
-
+public class SerializedPayloadHeader implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS =
+            List.of("representation_identifier", "representation_options");
     private static final int REPRESENTATION_OPTIONS_SIZE = 2;
     public static final int SIZE = REPRESENTATION_OPTIONS_SIZE + RepresentationIdentifier.SIZE;
 

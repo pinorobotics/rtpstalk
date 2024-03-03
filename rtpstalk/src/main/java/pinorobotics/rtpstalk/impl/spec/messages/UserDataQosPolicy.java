@@ -18,12 +18,12 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class UserDataQosPolicy {
-
+public class UserDataQosPolicy implements HasStreamedFields {
     public ByteSequence value;
 
     public UserDataQosPolicy() {}

@@ -23,11 +23,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SubmessageKind {
+public class SubmessageKind implements HasStreamedFields {
 
     public static enum Predefined {
 

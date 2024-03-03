@@ -21,13 +21,14 @@ import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsMessage {
-
+public class RtpsMessage implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("header", "submessages");
     public Header header;
     public Submessage[] submessages;
 

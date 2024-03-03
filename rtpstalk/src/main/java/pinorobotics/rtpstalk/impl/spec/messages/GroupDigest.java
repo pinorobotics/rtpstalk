@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 
 /**
@@ -24,7 +25,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class GroupDigest {
-
+public class GroupDigest implements HasStreamedFields {
     public int value;
 }

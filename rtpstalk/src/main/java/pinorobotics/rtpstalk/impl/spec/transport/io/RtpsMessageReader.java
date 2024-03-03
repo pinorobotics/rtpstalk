@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
 import id.kineticstreamer.KineticStreamReader;
+import id.kineticstreamer.PublicStreamedFieldsProvider;
 import id.xfunction.logging.XLogger;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.metrics.LongHistogram;
@@ -50,7 +51,13 @@ public class RtpsMessageReader {
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
         var in = new RtpsInputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
         var ksr =
-                new KineticStreamReader(in).withController(new RtpsKineticStreamReaderController());
+                new KineticStreamReader(in)
+                        .withController(
+                                new RtpsKineticStreamController()
+                                        .withFieldsProvider(
+                                                new PublicStreamedFieldsProvider(
+                                                        FieldsOrderedByNameProvider
+                                                                ::readOrderedFieldNames)));
         in.setKineticStreamReader(ksr);
         var startAt = Instant.now();
         try {

@@ -18,13 +18,17 @@
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedShort;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SubmessageHeader {
+public class SubmessageHeader implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS =
+            List.of("submessageKind", "submessageFlag", "submessageLength");
 
     /** Identifies the kind of Submessage. */
     public SubmessageKind submessageKind;

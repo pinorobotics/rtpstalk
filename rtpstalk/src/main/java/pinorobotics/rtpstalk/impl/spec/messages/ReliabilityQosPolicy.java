@@ -18,7 +18,9 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 
@@ -36,7 +38,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
         paragraph = "2.2.2.4.2.11",
         protocolVersion = Predefined.Version_2_3,
         text = "write")
-public class ReliabilityQosPolicy {
+public class ReliabilityQosPolicy implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("kind", "maxBlockingTime");
 
     public enum Kind {
         UNKNOWN,

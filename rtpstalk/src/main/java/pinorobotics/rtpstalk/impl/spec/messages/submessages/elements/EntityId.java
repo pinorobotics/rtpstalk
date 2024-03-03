@@ -27,14 +27,14 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * Uniquely identifies the Entity within the Participant
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class EntityId {
-
+public class EntityId implements HasStreamedFields {
     public static final int SIZE = Integer.BYTES;
 
     public static enum Predefined {

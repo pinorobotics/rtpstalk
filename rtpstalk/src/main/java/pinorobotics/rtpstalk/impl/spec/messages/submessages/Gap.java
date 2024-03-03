@@ -30,6 +30,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
  * @author lambdaprime intid@protonmail.com
  */
 public class Gap extends Submessage {
+    static final List<String> STREAMED_FIELDS =
+            List.of("readerId", "writerId", "gapStart", "gapList");
 
     /**
      * Identifies the Reader Entity that is being informed of the irrelevance of a set of sequence

@@ -20,7 +20,9 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -28,8 +30,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Guid {
-
+public class Guid implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("guidPrefix", "entityId");
     public static final int SIZE = GuidPrefix.SIZE + EntityId.SIZE;
 
     public GuidPrefix guidPrefix;

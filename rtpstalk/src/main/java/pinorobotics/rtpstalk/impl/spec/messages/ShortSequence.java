@@ -18,12 +18,13 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class ShortSequence implements Sequence {
-
+    static final List<String> STREAMED_FIELDS = List.of("length", "data");
     public int length;
 
     public short[] data;

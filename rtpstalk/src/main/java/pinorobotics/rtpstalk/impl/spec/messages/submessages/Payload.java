@@ -17,6 +17,8 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
+
 /**
  * Iface for everything that can be payload in RTPS submessage elements.
  *
@@ -24,7 +26,7 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public interface Payload {
+public interface Payload extends HasStreamedFields {
 
     RepresentationIdentifier.Predefined getRepresentationIdentifier();
 

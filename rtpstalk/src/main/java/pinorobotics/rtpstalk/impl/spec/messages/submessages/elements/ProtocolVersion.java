@@ -20,14 +20,17 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class ProtocolVersion {
+public class ProtocolVersion implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("major", "minor");
 
     public static enum Predefined {
         Version_2_1(new ProtocolVersion(2, 1)),

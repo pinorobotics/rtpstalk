@@ -19,12 +19,12 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class DeadlineQosPolicy {
-
+public class DeadlineQosPolicy implements HasStreamedFields {
     public DurationT period;
 
     public DeadlineQosPolicy() {}

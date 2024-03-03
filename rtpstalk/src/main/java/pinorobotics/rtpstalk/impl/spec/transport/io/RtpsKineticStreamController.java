@@ -17,8 +17,10 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
-import id.kineticstreamer.KineticStreamWriterController;
+import id.kineticstreamer.InputKineticStream;
+import id.kineticstreamer.KineticStreamController;
 import id.kineticstreamer.OutputKineticStream;
+import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
@@ -27,31 +29,54 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-class RtpsKineticStreamWriterController extends KineticStreamWriterController {
+class RtpsKineticStreamController extends KineticStreamController {
 
     @Override
-    public Result onNextObject(OutputKineticStream in, Object obj) throws Exception {
+    public ReaderResult onNextObject(InputKineticStream in, Object obj, Class<?> fieldType)
+            throws Exception {
+        var rtpsStream = (RtpsInputKineticStream) in;
+        if (fieldType == Header.class) {
+            // reading it manually to perform validation
+            return new ReaderResult(true, rtpsStream.readHeader());
+        }
+        if (fieldType == SequenceNumber.class) {
+            // reading it manually in custom format
+            return new ReaderResult(true, rtpsStream.readSequenceNumber());
+        }
+        if (fieldType == SequenceNumberSet.class) {
+            // reading it manually in custom format
+            return new ReaderResult(true, rtpsStream.readSequenceNumberSet());
+        }
+        if (fieldType == EntityId.class) {
+            // reading it manually in custom format
+            return new ReaderResult(true, rtpsStream.readEntityId());
+        }
+        return ReaderResult.CONTINUE;
+    }
+
+    @Override
+    public WriterResult onNextObject(OutputKineticStream in, Object obj) throws Exception {
         var rtpsStream = (RtpsOutputKineticStream) in;
         if (obj instanceof ParameterList pl) {
             // writing it manually since we convert it to custom type
             rtpsStream.writeParameterList(pl);
-            return new Result(true);
+            return new WriterResult(true);
         }
         if (obj instanceof SequenceNumber num) {
             // writing it manually in custom format
             rtpsStream.writeSequenceNumber(num);
-            return new Result(true);
+            return new WriterResult(true);
         }
         if (obj instanceof SequenceNumberSet set) {
             // writing it manually in custom format
             rtpsStream.writeSequenceNumberSet(set);
-            return new Result(true);
+            return new WriterResult(true);
         }
         if (obj instanceof EntityId entiyId) {
             // writing it manually in custom format
             rtpsStream.writeEntityId(entiyId);
-            return new Result(true);
+            return new WriterResult(true);
         }
-        return Result.CONTINUE;
+        return WriterResult.CONTINUE;
     }
 }

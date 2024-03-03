@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2024 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -15,11 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.spec.messages;
-
-import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
+package pinorobotics.rtpstalk.impl.messages;
 
 /**
+ * Classes which implement this interface contain streamed fields.
+ *
+ * <p>Such classes have following requirements:
+ *
+ * <ul>
+ *   <li>All public fields are considered streamed fields.
+ *   <li>If class has more than one streamed field it should declare:
+ *       <pre>{@code
+ * static final List<String> STREAMED_FIELDS = List.of(
+ *    // list of all streamed fields ORDERED based on RTPS protocol specification
+ * );
+ * }</pre>
+ * </ul>
+ *
+ * @see <a href="http://portal2.atwebpages.com/kineticstreamer">kineticstreamer</a>
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public interface Sequence extends HasStreamedFields {}
+public interface HasStreamedFields {}

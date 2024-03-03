@@ -23,12 +23,12 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.EndpointQos;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class BuiltinEndpointQos {
-
+public class BuiltinEndpointQos implements HasStreamedFields {
     public int bitmask;
 
     public BuiltinEndpointQos() {}

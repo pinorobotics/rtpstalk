@@ -18,12 +18,15 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class HistoryQosPolicy {
+public class HistoryQosPolicy implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS = List.of("kind", "depth");
 
     public enum Kind {
         KEEP_LAST_HISTORY_QOS,

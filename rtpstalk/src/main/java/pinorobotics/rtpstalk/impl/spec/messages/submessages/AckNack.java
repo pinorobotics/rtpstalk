@@ -28,6 +28,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class AckNack extends Submessage {
+    static final List<String> STREAMED_FIELDS =
+            List.of("readerId", "writerId", "readerSNState", "count");
 
     /**
      * Identifies the Reader entity that acknowledges receipt of certain sequence numbers and/or

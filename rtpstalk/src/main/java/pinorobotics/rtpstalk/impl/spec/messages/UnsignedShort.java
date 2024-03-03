@@ -19,12 +19,12 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.Preconditions;
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class UnsignedShort {
-
+public class UnsignedShort implements HasStreamedFields {
     /**
      * This is unsigned int and it should not be used directly but through getter method. It is made
      * public to make serialization possible and it required by kineticstreamer

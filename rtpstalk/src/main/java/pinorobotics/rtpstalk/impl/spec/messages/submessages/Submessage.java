@@ -20,13 +20,14 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 import id.xfunction.XJsonStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * Each RTPS Message consists of a variable number of RTPS Submessage parts.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public abstract class Submessage {
+public abstract class Submessage implements HasStreamedFields {
 
     /**
      * The SubmessageHeader identifies the kind of Submessage and the optional elements within that

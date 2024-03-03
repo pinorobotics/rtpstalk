@@ -18,6 +18,8 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
@@ -28,8 +30,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Header {
-
+public class Header implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS =
+            List.of("protocolId", "protocolVersion", "vendorId", "guidPrefix");
     public ProtocolId protocolId;
 
     /** Identifies the RTPS protocol version used by the Participant. */

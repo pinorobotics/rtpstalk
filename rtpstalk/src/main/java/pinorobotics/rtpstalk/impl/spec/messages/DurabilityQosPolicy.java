@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import java.util.Objects;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.DdsVersion;
 
@@ -33,8 +34,7 @@ import pinorobotics.rtpstalk.impl.spec.DdsVersion;
         kind" evaluates to 'TRUE.' For the purposes of this inequality, the values of DURABILITY kind are considered ordered such
         that VOLATILE < TRANSIENT_LOCAL < TRANSIENT < PERSISTENT.
         """)
-public class DurabilityQosPolicy {
-
+public class DurabilityQosPolicy implements HasStreamedFields {
     /**
      * @see <a
      *     href="https://fast-dds.docs.eprosima.com/en/latest/fastdds/api_reference/dds_pim/core/policy/durabilityqospolicykind.html">Fast-DDS

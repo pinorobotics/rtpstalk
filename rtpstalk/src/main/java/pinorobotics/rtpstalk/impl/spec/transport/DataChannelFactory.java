@@ -23,6 +23,7 @@ import id.xfunction.logging.XLogger;
 import id.xfunction.net.FreeUdpPortIterator;
 import id.xfunction.net.NetworkConstants;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -104,14 +105,21 @@ public class DataChannelFactory {
         } else {
             dataChannel = DatagramChannel.open(StandardProtocolFamily.INET);
             configure(dataChannel.socket());
-            if (address.isPresent())
-                dataChannel.bind(new InetSocketAddress(address.get(), port.get()));
-            else
-                // on Android the default wildcard address is IPv6 and so bind return
-                // UnsupportedAddressTypeException
-                // since we support only IPv4 addresses we explicitly use IPv4 wildcard address
-                dataChannel.bind(
-                        new InetSocketAddress(NetworkConstants.IPv4_WILDCARD_ADDRESS, port.get()));
+            try {
+                if (address.isPresent())
+                    dataChannel.bind(new InetSocketAddress(address.get(), port.get()));
+                else
+                    // on Android the default wildcard address is IPv6 and so bind return
+                    // UnsupportedAddressTypeException
+                    // since we support only IPv4 addresses we explicitly use IPv4 wildcard address
+                    dataChannel.bind(
+                            new InetSocketAddress(
+                                    NetworkConstants.IPv4_WILDCARD_ADDRESS, port.get()));
+            } catch (BindException e) {
+                var ex = new BindException("Failed to bind to %s port %s".formatted(address, port));
+                ex.addSuppressed(e);
+                throw ex;
+            }
         }
         return new DataChannel(
                 tracingToken,

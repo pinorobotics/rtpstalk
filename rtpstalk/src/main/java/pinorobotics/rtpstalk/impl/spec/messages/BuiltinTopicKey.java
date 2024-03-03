@@ -19,12 +19,12 @@ package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.Arrays;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class BuiltinTopicKey {
-
+public class BuiltinTopicKey implements HasStreamedFields {
     public int[] value = new int[3];
 
     @Override

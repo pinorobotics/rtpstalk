@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
 import id.kineticstreamer.KineticStreamWriter;
+import id.kineticstreamer.PublicStreamedFieldsProvider;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
@@ -44,7 +45,12 @@ public class RtpsMessageWriter {
         var out = new RtpsOutputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
         var ksw =
                 new KineticStreamWriter(out)
-                        .withController(new RtpsKineticStreamWriterController());
+                        .withController(
+                                new RtpsKineticStreamController()
+                                        .withFieldsProvider(
+                                                new PublicStreamedFieldsProvider(
+                                                        FieldsOrderedByNameProvider
+                                                                ::readOrderedFieldNames)));
         out.setWriter(ksw);
         var startAt = Instant.now();
         try {

@@ -18,16 +18,25 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.List;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class DurabilityServiceQosPolicy {
-
+public class DurabilityServiceQosPolicy implements HasStreamedFields {
+    static final List<String> STREAMED_FIELDS =
+            List.of(
+                    "serviceCleanupDelay",
+                    "historyKind",
+                    "historyDepth",
+                    "maxSamples",
+                    "maxInstances",
+                    "maxSamplesPerInstance");
     public DurationT serviceCleanupDelay;
     public int historyKind;
     public int historyDepth;
-    public int maxDamples;
+    public int maxSamples;
     public int maxInstances;
     public int maxSamplesPerInstance;
 
@@ -43,7 +52,7 @@ public class DurabilityServiceQosPolicy {
         this.serviceCleanupDelay = serviceCleanupDelay;
         this.historyKind = historyQosPolicyKind.ordinal();
         this.historyDepth = historyDepth;
-        this.maxDamples = maxDamples;
+        this.maxSamples = maxDamples;
         this.maxInstances = maxInstances;
         this.maxSamplesPerInstance = maxSamplesPerInstance;
     }
@@ -54,7 +63,7 @@ public class DurabilityServiceQosPolicy {
         builder.append("serviceCleanupDelay", serviceCleanupDelay);
         builder.append("historyKind", historyKind);
         builder.append("historyDepth", historyDepth);
-        builder.append("maxDamples", maxDamples);
+        builder.append("maxDamples", maxSamples);
         builder.append("maxInstances", maxInstances);
         builder.append("maxSamplesPerInstance", maxSamplesPerInstance);
         return builder.toString();

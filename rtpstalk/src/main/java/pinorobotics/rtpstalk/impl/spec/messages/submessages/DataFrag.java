@@ -34,6 +34,17 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class DataFrag extends Submessage implements DataSubmessage {
+    static final List<String> STREAMED_FIELDS =
+            List.of(
+                    "extraFlags",
+                    "octetsToInlineQos",
+                    "readerId",
+                    "writerId",
+                    "writerSN",
+                    "fragmentStartingNum",
+                    "fragmentsInSubmessage",
+                    "fragmentSize",
+                    "dataSize");
 
     /** Size of the DataFrag submessage without SerializedPayloadHeader and empty data fragment */
     public static final int EMPTY_SUBMESSAGE_SIZE = calcEmptySubmessageSize();

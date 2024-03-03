@@ -33,7 +33,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Data extends Submessage implements DataSubmessage {
-
+    static final List<String> STREAMED_FIELDS =
+            List.of("extraFlags", "octetsToInlineQos", "readerId", "writerId", "writerSN");
     public short extraFlags;
 
     /**

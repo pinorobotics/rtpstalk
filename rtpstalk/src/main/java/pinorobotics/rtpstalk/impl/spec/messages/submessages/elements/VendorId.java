@@ -22,11 +22,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class VendorId {
+public class VendorId implements HasStreamedFields {
 
     public static enum Predefined {
         RTPSTALK(new VendorId(0xca, 0xfe)),
