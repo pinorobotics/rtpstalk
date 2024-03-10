@@ -99,7 +99,7 @@ public class ParticipantsRegistry {
     }
 
     public void removeParticipant(Guid participantGuid) {
-        logger.fine("Removing participant {0} from the registry", participantGuid);
+        logger.info("Removing participant {0} from the registry", participantGuid);
         if (EntityId.Predefined.ENTITYID_PARTICIPANT.getValue().equals(participantGuid.entityId)) {
             for (var reader : operatingEntities.getLocalReaders().getEntities()) {
                 reader.matchedWritersRemove(participantGuid.guidPrefix);
@@ -121,7 +121,7 @@ public class ParticipantsRegistry {
     }
 
     public void add(Guid participantGuid, ParameterList pl) {
-        logger.fine("Adding new participant {0} to the registry", participantGuid);
+        logger.info("Adding new participant {0} to the registry", participantGuid);
         participants.put(participantGuid, new Participant(participantGuid, pl));
     }
 

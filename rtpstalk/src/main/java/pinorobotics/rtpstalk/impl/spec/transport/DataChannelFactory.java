@@ -175,9 +175,9 @@ public class DataChannelFactory {
             // logger formats long numbers, so we convert them to strings
             LOGGER.warning(
                     """
-            Could not set size of receive buffer, current size {0}, expected {1}. This may cause message loss.
+            Could not set size of receive buffer, current size {0}, recommended {1}. This may affect message throughput.
 
-            If running Linux try to set receive buffer manually:
+            If running Linux try to set receive buffer size manually:
             sudo sysctl -w net.core.rmem_max={1}
             sudo sysctl -w net.core.rmem_default={1}
             sudo sysctl -w net.ipv4.udp_mem={1}
@@ -190,9 +190,9 @@ public class DataChannelFactory {
             // logger formats long numbers, so we convert them to strings
             LOGGER.warning(
                     """
-            Could not set size of send buffer, current size {0}, expected {1}.
+            Could not set size of send buffer, current size {0}, recommended {1}. This may affect message throughput.
 
-            If running Linux try to set receive buffer manually:
+            If running Linux try to set send buffer size manually:
             sudo sysctl -w net.core.wmem_max={1}
             sudo sysctl -w net.core.wmem_default={1}
             sudo sysctl -w net.ipv4.udp_mem={1}

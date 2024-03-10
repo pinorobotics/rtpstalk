@@ -73,7 +73,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
 
     public EntityId addLocalActor(A actor) {
         var topicId = actor.topicId();
-        logger.fine("Adding {0} with following details {1}", actorsType, actor);
+        logger.info("Adding {0} with following details {1}", actorsType, actor);
         var topic = createTopicIfMissing(topicId);
         if (!topic.hasLocalActors()) {
             announceTopicInterest(actor, topic);
@@ -201,7 +201,7 @@ public abstract class AbstractTopicManager<A extends ActorDetails>
             var remoteActorDetails =
                     new RemoteActorDetails(
                             pubEndpointGuid, pubUnicastLocators, reliabilityKind, durabilityKind);
-            logger.fine(
+            logger.info(
                     "Discovered {0} for topic {1} type {2} with following details {3}",
                     actorsType == Type.Publisher ? Type.Subscriber : Type.Publisher,
                     pubTopic,

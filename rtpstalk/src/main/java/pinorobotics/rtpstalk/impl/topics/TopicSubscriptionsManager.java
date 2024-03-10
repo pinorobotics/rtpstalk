@@ -79,7 +79,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
     protected Consumer<TopicMatchEvent<SubscriberDetails>> createListener(
             Topic<SubscriberDetails> topic) {
         return subEvent -> {
-            logger.fine("New subscribe event for topic id {0}: {1}", topic.getTopicId(), subEvent);
+            logger.info("New subscribe event for topic id {0}: {1}", topic.getTopicId(), subEvent);
             var remoteActor = subEvent.remoteActor();
             userService.subscribeToRemoteWriter(
                     topic.getLocalTopicEntityId(),
