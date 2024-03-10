@@ -14,8 +14,8 @@ java {
 }
 
 dependencies {
-  api "io.github.lambdaprime:id.xfunction:24.0:android@aar"
-  api "io.github.lambdaprime:kineticstreamer:7.0"
+  api "io.github.lambdaprime:id.xfunction:25.0:android@aar"
+  api "io.github.lambdaprime:kineticstreamer:8.0"
   api "io.opentelemetry:opentelemetry-api:1.34.1"
 }
 

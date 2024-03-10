@@ -1,3 +1,19 @@
+# Version 7
+
+- Increasing logging level for key log messages
+- Define ordering for streamed fields to be consistent across different JVMs
+- Allow to run unit tests without integration tests
+- Remove remote participants when their lease is expired
+- Renaming Duration class to avoid confusion with Java standard class
+- Ignore any pending changes in history in case of BEST_EFFORT readers
+- Improve logging to print readable vendor ids
+- Update Fast-DDS support to v2.6.7
+- Issue lambdaprime/jros2client#10 Filter out all non supported remote locators
+- Updating Spotless to 6.25.0
+- Redesign ParameterList to support multiple parameters with the same key
+
+[rtpstalk-v7.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v7.0.zip)
+
 # Version 6
 
 - Update opentelemetry and configure line endings for the project

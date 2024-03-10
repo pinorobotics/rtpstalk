@@ -14,7 +14,7 @@ Gradle:
 
 ```
 dependencies {
-  implementation 'io.github.pinorobotics:rtpstalk:6.0'
+  implementation 'io.github.pinorobotics:rtpstalk:7.0'
 }
 ```
 
