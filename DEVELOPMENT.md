@@ -2,7 +2,7 @@ Intended for developers and not users.
 
 # Use Eclipse
 
-- Build eclipse projects:
+- Build Eclipse projects:
 
 ``` bash
 gradle eclipse
@@ -12,6 +12,7 @@ gradle eclipse
 
 # Release steps
 
+- Perform testing on Android using "jros2droid"
 - Run `gradle clean build` (Windows)
 - Run `gradle clean build -b android/build.gradle`
 - Close version in gradle.properties
@@ -22,3 +23,4 @@ gradle eclipse
 - Commit changes
 - Push
 - Upload documentation to website
+- Update "bootstrap" project

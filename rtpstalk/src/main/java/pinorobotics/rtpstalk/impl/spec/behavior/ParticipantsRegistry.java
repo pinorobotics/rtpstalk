@@ -116,6 +116,7 @@ public class ParticipantsRegistry {
         var participant = participants.get(participantGuid);
         if (participant == null) {
             logger.fine("Participant {0} cound not be found inside the registry", participantGuid);
+            return;
         }
         participant.updateLeaseTimestamp();
     }
