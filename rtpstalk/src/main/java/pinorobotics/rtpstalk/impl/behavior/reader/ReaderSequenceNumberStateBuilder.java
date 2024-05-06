@@ -23,21 +23,20 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 
 /**
+ * Build {@link SequenceNumberSet} of sequence numbers which changes are missing on the Reader
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SequenceNumberSetBuilder {
+public class ReaderSequenceNumberStateBuilder {
 
     public SequenceNumberSet build(
-            long first, long last, long[] missingSorted, long availableChangesMax) {
+            long firstMissing, long lastMissing, long[] missingSorted, long availableChangesMax) {
         if (missingSorted.length == 0) {
             return expectNextSet(availableChangesMax);
         }
-        var firstMissing = missingSorted[0];
-        var lastMissing = missingSorted[missingSorted.length - 1];
         Preconditions.isTrue(firstMissing <= lastMissing, "Sorted array of changes expected");
-        // make tests for starting set from first/last missing and not first/last available
-        firstMissing = Math.max(first, firstMissing);
-        lastMissing = Math.min(last, lastMissing);
+        firstMissing = Math.max(firstMissing, missingSorted[0]);
+        lastMissing = Math.min(lastMissing, missingSorted[missingSorted.length - 1]);
         // enumeration from 1
         var numBits = (int) (lastMissing - firstMissing + 1);
         numBits = Math.min(SequenceNumberSet.BITMAP_SIZE, numBits);

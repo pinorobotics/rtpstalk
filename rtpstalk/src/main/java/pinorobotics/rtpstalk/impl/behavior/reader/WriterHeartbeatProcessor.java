@@ -102,7 +102,7 @@ public class WriterHeartbeatProcessor {
                         new AckNack(
                                 readerGuid.entityId,
                                 writerGuid.entityId,
-                                new SequenceNumberSetBuilder()
+                                new ReaderSequenceNumberStateBuilder()
                                         .build(
                                                 lastHeartbeat.firstSN.value,
                                                 lastHeartbeat.lastSN.value,

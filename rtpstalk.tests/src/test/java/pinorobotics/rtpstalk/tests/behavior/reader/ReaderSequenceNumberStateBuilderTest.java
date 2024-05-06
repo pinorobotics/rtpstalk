@@ -22,13 +22,13 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pinorobotics.rtpstalk.impl.behavior.reader.SequenceNumberSetBuilder;
+import pinorobotics.rtpstalk.impl.behavior.reader.ReaderSequenceNumberStateBuilder;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SequenceNumberSetBuilderTest {
+public class ReaderSequenceNumberStateBuilderTest {
 
     record TestCase(long first, long last, long[] missing, String expected) {}
 
@@ -72,7 +72,7 @@ public class SequenceNumberSetBuilderTest {
     @MethodSource("dataProvider")
     public void test(TestCase testCase) {
         var sets =
-                new SequenceNumberSetBuilder()
+                new ReaderSequenceNumberStateBuilder()
                         .build(testCase.first, testCase.last, testCase.missing, 123);
         Assertions.assertEquals(testCase.expected, sets.toString());
     }
