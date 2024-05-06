@@ -145,11 +145,12 @@ public class Data extends Submessage implements DataSubmessage {
         validate();
     }
 
+    @Override
     @RtpsSpecReference(
             paragraph = "8.3.7.2",
             protocolVersion = Predefined.Version_2_3,
             text = "Validity")
-    private void validate() {
+    public void validate() {
         Preconditions.isTrue(writerSN.value >= 1, "writerSN must be greater than 0");
     }
 

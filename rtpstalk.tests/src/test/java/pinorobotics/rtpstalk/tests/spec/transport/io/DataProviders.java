@@ -55,15 +55,15 @@ public class DataProviders {
         public TestCase(String resourceName, RtpsMessage message) {
             this(readAllBytes(resourceName), message);
         }
+    }
 
-        private static byte[] readAllBytes(String resourceName) {
-            return Unchecked.get(
-                    () ->
-                            new XInputStream(
-                                            resourceUtils.readResource(
-                                                    DataProviders.class, resourceName))
-                                    .readAllBytes());
-        }
+    public static byte[] readAllBytes(String resourceName) {
+        return Unchecked.get(
+                () ->
+                        new XInputStream(
+                                        resourceUtils.readResource(
+                                                DataProviders.class, resourceName))
+                                .readAllBytes());
     }
 
     public static Stream<TestCase> rtpsMessageConversion() {

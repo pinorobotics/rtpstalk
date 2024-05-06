@@ -67,4 +67,6 @@ public abstract class Submessage implements HasStreamedFields {
         builder.append(getAdditionalFields());
         return builder.toString();
     }
+
+    public void validate() {}
 }

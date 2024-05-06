@@ -61,16 +61,29 @@ public class SequenceNumberSet implements HasStreamedFields {
         this.bitmapBase = bitmapBase;
         this.numBits = new UnsignedInt(numBits);
         if (bitmap.length == 0) return;
-        Preconditions.isTrue(
-                bitmap.length <= BITMAP_SIZE_IN_INTS, "Bitmap size should not exceed 8");
         this.bitmap = bitmap;
+        validate();
     }
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("bitmapBase", bitmapBase);
+        builder.append("numBits", numBits);
         builder.append("bitmap", bitmap);
         return builder.toString();
+    }
+
+    @RtpsSpecReference(
+            paragraph = "8.3.5.5",
+            protocolVersion = Predefined.Version_2_3,
+            text =
+                    "The sequence numbers represented in the SequenceNumberSet are limited to\n"
+                            + "belong to an interval with a range no bigger than 256")
+    public void validate() {
+        Preconditions.isLess(0, bitmapBase.value, "Start number is too small");
+        Preconditions.isTrue(
+                bitmap.length <= BITMAP_SIZE_IN_INTS,
+                "Bitmap size should not exceed " + BITMAP_SIZE_IN_INTS);
     }
 }

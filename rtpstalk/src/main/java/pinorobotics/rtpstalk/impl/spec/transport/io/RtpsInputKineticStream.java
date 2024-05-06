@@ -357,6 +357,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             } else {
                 // knowing submessage type now we can read it fully
                 var submessage = readSubmessage(messageClassOpt.get());
+                submessage.validate();
                 if (!submessage.isLittleEndian()) {
                     throw new UnsupportedOperationException("Only Little Endian CDR is supported");
                 }

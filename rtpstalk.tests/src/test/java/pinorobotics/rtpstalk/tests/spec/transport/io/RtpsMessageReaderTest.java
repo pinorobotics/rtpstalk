@@ -19,7 +19,10 @@ package pinorobotics.rtpstalk.tests.spec.transport.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import id.xfunction.PreconditionException;
 import java.nio.ByteBuffer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
@@ -39,5 +42,12 @@ public class RtpsMessageReaderTest {
         var actual = new RtpsMessageReader().readRtpsMessage(buf).get();
         System.out.println(actual);
         assertEquals(expected.toString(), actual.toString());
+    }
+
+    @Test
+    public void testRead_validate() throws Exception {
+        var buf = ByteBuffer.wrap(DataProviders.readAllBytes("test_data_invalid_zero_writerSN"));
+        Assertions.assertThrows(
+                PreconditionException.class, () -> new RtpsMessageReader().readRtpsMessage(buf));
     }
 }

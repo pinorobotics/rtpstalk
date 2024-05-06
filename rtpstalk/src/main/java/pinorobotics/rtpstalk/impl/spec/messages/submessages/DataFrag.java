@@ -143,11 +143,12 @@ public class DataFrag extends Submessage implements DataSubmessage {
         validate();
     }
 
+    @Override
     @RtpsSpecReference(
             paragraph = "8.3.7.3",
             protocolVersion = Predefined.Version_2_3,
             text = "Validity")
-    private void validate() {
+    public void validate() {
         Preconditions.isTrue(writerSN.value >= 1, "writerSN must be greater than 0");
         Preconditions.isTrue(
                 fragmentStartingNum.getUnsigned() >= 1,

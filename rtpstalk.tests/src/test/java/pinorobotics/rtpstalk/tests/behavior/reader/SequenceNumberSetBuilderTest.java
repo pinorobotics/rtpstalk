@@ -39,7 +39,7 @@ public class SequenceNumberSetBuilderTest {
                         20,
                         LongStream.range(0, 1003).toArray(),
                         """
-                { "bitmapBase": { "value": 11 }, "bitmap": [1023] }
+                { "bitmapBase": { "value": 11 }, "numBits": "10", "bitmap": [1023] }
                 """
                                 .trim()),
                 new TestCase(
@@ -47,7 +47,7 @@ public class SequenceNumberSetBuilderTest {
                         20,
                         LongStream.range(15, 18).toArray(),
                         """
-                { "bitmapBase": { "value": 15 }, "bitmap": [7] }
+                { "bitmapBase": { "value": 15 }, "numBits": "3", "bitmap": [7] }
                 """
                                 .trim()),
                 new TestCase(
@@ -55,16 +55,16 @@ public class SequenceNumberSetBuilderTest {
                         SequenceNumberSet.BITMAP_SIZE,
                         LongStream.range(0, SequenceNumberSet.BITMAP_SIZE + 1).toArray(),
                         """
-                                { "bitmapBase": { "value": 1 }, "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
-                                """
+                { "bitmapBase": { "value": 1 }, "numBits": "256", "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
+                """
                                 .trim()),
                 new TestCase(
                         11,
                         1234,
                         LongStream.range(0, 1003).toArray(),
                         """
-                        { "bitmapBase": { "value": 11 }, "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
-                        """
+                { "bitmapBase": { "value": 11 }, "numBits": "256", "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
+                """
                                 .trim()));
     }
 

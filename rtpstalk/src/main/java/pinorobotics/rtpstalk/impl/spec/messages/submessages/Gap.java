@@ -17,8 +17,11 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
+import id.xfunction.Preconditions;
 import java.util.List;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 
@@ -80,6 +83,20 @@ public class Gap extends Submessage {
      */
     public boolean isGroupInfo() {
         return (getFlagsInternal() & 8) != 0;
+    }
+
+    @Override
+    @RtpsSpecReference(
+            paragraph = "8.3.7.4.3",
+            protocolVersion = Predefined.Version_2_3,
+            text = "Validity")
+    public void validate() {
+        Preconditions.isLess(0, gapStart.value, "gapStart must be greater than 0");
+        Preconditions.isLessOrEqual(
+                gapStart.value,
+                gapList.bitmapBase.value,
+                "gapStart must be less or equal to gapList.base");
+        gapList.validate();
     }
 
     @Override
