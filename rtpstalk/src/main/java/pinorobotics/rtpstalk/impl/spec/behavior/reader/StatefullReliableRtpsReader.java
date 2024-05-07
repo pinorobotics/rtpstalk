@@ -34,6 +34,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -54,11 +55,15 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends RtpsReader<D> {
 
+    private static final String NOT_SUBMITTING_BECAUSE =
+            "Not submitting change with sequence number {0} from the writer {1} to the users"
+                    + " because";
+
     /** Used to maintain state on the remote Writers matched up with the Reader. */
     private Map<Guid, WriterProxy> matchedWriters = new ConcurrentHashMap<>();
 
     /** Not need to be thread-safe since {@link RtpsReader} requests one message at a time */
-    private Map<Guid, Long> lastSubmittedSeqNum = new HashMap<>();
+    private Map<Guid, Long> lastSubmittedSeqNums = new HashMap<>();
 
     private RtpsTalkConfigurationInternal config;
     private LocalOperatingEntities operatingEntities;
@@ -158,6 +163,21 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         return super.onHeartbeat(guidPrefix, heartbeat);
     }
 
+    @Override
+    public Result onGap(GuidPrefix guidPrefix, Gap gap) {
+        var writerGuid = new Guid(guidPrefix, gap.writerId);
+        var writerProxy = matchedWriters.get(writerGuid);
+        if (writerProxy != null) {
+            logger.fine("Received gap from writer {0}", writerGuid);
+            writerProxy.irrelevantChangeSetClosed(
+                    gap.gapStart.value, gap.gapList.bitmapBase.value - 1);
+            writerProxy.irrelevantChangeSet(gap.gapList.stream());
+        } else {
+            logger.fine("Received gap from unknown writer {0}, ignoring...", writerGuid);
+        }
+        return super.onGap(guidPrefix, gap);
+    }
+
     @RtpsSpecReference(
             paragraph = "8.4.1.1.9.b",
             protocolVersion = Predefined.Version_2_3,
@@ -180,28 +200,39 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
         var cache = getReaderCache();
         var isAdded = cache.addChange(newCacheChange);
         if (isAdded) {
-            var lastSeqNum = lastSubmittedSeqNum.get(writerGuid);
-            if (lastSeqNum == null) {
-                lastSeqNum = calcStartSeqNum(newCacheChange.getSequenceNumber());
-                if (lastSeqNum == 0) {
+            var lastSubmittedSeqNum = lastSubmittedSeqNums.get(writerGuid);
+            if (lastSubmittedSeqNum == null) {
+                lastSubmittedSeqNum = calcStartSeqNum(newCacheChange.getSequenceNumber());
+                if (lastSubmittedSeqNum == 0) {
                     writerProxy.missingChangesUpdate(1, newCacheChange.getSequenceNumber());
                 }
             }
             writerProxy.receivedChangeSet(newCacheChange.getSequenceNumber());
-            var iter = cache.getAllSortedBySeqNum(writerGuid, lastSeqNum).iterator();
+            var iter = cache.getAllSortedBySeqNum(writerGuid, lastSubmittedSeqNum).iterator();
             while (iter.hasNext()) {
                 var change = iter.next();
-                if (lastSeqNum + 1 != change.getSequenceNumber()) {
+                long seqNum = change.getSequenceNumber();
+                while (writerProxy.isChangeIrrelevant(lastSubmittedSeqNum + 1)) {
+                    lastSubmittedSeqNum++;
                     logger.fine(
-                            "Not submitting change with sequence number {0} to users because"
-                                    + " previous change with sequence number {1} still missing",
-                            change.getSequenceNumber(), lastSeqNum + 1);
-                    break;
+                            NOT_SUBMITTING_BECAUSE + " writer marked it as irrelevant",
+                            lastSubmittedSeqNum,
+                            change.getWriterGuid());
                 }
-                lastSeqNum = change.getSequenceNumber();
-                submitChangeToUser(change);
+                if (lastSubmittedSeqNum + 1 != seqNum) {
+                    logger.fine(
+                            NOT_SUBMITTING_BECAUSE
+                                    + " previous change with sequence number {2} still missing",
+                            seqNum,
+                            change.getWriterGuid(),
+                            lastSubmittedSeqNum + 1);
+                    break;
+                } else {
+                    lastSubmittedSeqNum = seqNum;
+                    submitChangeToUser(change);
+                }
             }
-            lastSubmittedSeqNum.put(writerGuid, lastSeqNum);
+            lastSubmittedSeqNums.put(writerGuid, lastSubmittedSeqNum);
         }
         logger.exiting("addChange");
         return isAdded;

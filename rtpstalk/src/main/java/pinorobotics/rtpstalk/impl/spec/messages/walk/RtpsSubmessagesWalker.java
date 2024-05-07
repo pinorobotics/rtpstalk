@@ -21,6 +21,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
@@ -45,6 +46,7 @@ public class RtpsSubmessagesWalker {
                 res = visitor.onInfoTimestamp(guidPrefix, infoTimestamp);
             else if (submessage instanceof InfoDestination infoDestination)
                 res = visitor.onInfoDestination(guidPrefix, infoDestination);
+            else if (submessage instanceof Gap gap) res = visitor.onGap(guidPrefix, gap);
             else res = Result.CONTINUE;
             if (res == Result.STOP) break;
         }

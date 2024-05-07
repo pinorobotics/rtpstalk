@@ -31,7 +31,10 @@ import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsRead
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -120,6 +123,46 @@ public class StatefullReliableRtpsReaderTest {
                             .next()
                             .getDataQueue()
                             .toString());
+        }
+    }
+
+    @Test
+    public void test_gaps_are_skipped() {
+        var dataChannelFactory = new TestDataChannelFactory();
+        var reader =
+                new StatefullReliableRtpsReader<>(
+                        TestConstants.TEST_CONFIG_INTERNAL,
+                        TestConstants.TEST_TRACING_TOKEN,
+                        RtpsTalkDataMessage.class,
+                        new SameThreadExecutorService(),
+                        new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
+                        TestConstants.TEST_READER_ENTITY_ID,
+                        new ReaderQosPolicySet(
+                                ReliabilityQosPolicy.Kind.RELIABLE,
+                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                        dataChannelFactory);
+        var items = new ArrayList<RtpsTalkDataMessage>();
+        reader.subscribe(new CollectorSubscriber<>(items));
+        try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
+            publisher.subscribe(reader);
+            reader.matchedWriterAdd(
+                    TestConstants.TEST_GUID_WRITER,
+                    List.of(TestConstants.TEST_DEFAULT_UNICAST_LOCATOR));
+            reader.onGap(
+                    TestConstants.TEST_GUID_WRITER.guidPrefix,
+                    // gap between 1..2,3,4
+                    new Gap(
+                            TestConstants.TEST_READER_ENTITY_ID,
+                            TestConstants.TEST_WRITER_ENTITY_ID,
+                            new SequenceNumber(1),
+                            new SequenceNumberSet(3, 1, new int[] {0b11})));
+            publisher.submit(RtpsReaderTest.newRtpsMessage(6, "ccc"));
+            Assertions.assertEquals("[]", items.toString());
+            publisher.submit(RtpsReaderTest.newRtpsMessage(5, "bb"));
+            Assertions.assertEquals(
+                    """
+                    [{ "inlineQos": "Optional.empty", "data": "62 62" }, { "inlineQos": "Optional.empty", "data": "63 63 63" }]""",
+                    items.toString());
         }
     }
 }

@@ -70,6 +70,18 @@ public class Gap extends Submessage {
 
     public Gap() {}
 
+    public Gap(
+            EntityId readerId,
+            EntityId writerId,
+            SequenceNumber gapStart,
+            SequenceNumberSet gapList) {
+        this.readerId = readerId;
+        this.writerId = writerId;
+        this.gapStart = gapStart;
+        this.gapList = gapList;
+        validate();
+    }
+
     @Override
     public List<String> getFlags() {
         var flags = super.getFlags();

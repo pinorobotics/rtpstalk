@@ -38,6 +38,10 @@ public interface RtpsTalkMetrics {
             "Total number of messages which were lost by the local reader (it means such messages"
                     + " are not available on the writer anymore)";
 
+    String IRRELEVANT_CHANGES_COUNT_METRIC = "irrelevant_messages_total";
+    String IRRELEVANT_CHANGES_COUNT_METRIC_DESCRIPTION =
+            "Total number of messages which remote writer marked as irrelevant";
+
     String SUBMITTED_CHANGES_METRIC = "submitted_changes";
     String SUBMITTED_CHANGES_METRIC_DESCRIPTION =
             "Number of changes submitted to the writer by local publishers";

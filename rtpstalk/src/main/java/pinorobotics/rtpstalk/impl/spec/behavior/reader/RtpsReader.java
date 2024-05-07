@@ -219,8 +219,9 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     protected void submitChangeToUser(CacheChange<D> cacheChange) {
         logger.fine(
-                "Submitting new change with sequence number {0} to user subscribers",
-                cacheChange.getSequenceNumber());
+                "Submitting new change with sequence number {0} from the writer {1} to user"
+                        + " subscribers",
+                cacheChange.getSequenceNumber(), cacheChange.getWriterGuid());
         submit(cacheChange.getDataValue());
     }
 

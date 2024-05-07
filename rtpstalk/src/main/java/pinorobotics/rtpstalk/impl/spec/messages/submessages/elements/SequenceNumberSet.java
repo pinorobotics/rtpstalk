@@ -19,7 +19,9 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import id.xfunction.util.IntBitSet;
 import java.util.List;
+import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
@@ -85,5 +87,9 @@ public class SequenceNumberSet implements HasStreamedFields {
         Preconditions.isTrue(
                 bitmap.length <= BITMAP_SIZE_IN_INTS,
                 "Bitmap size should not exceed " + BITMAP_SIZE_IN_INTS);
+    }
+
+    public LongStream stream() {
+        return new IntBitSet(bitmap).streamOfSetBits().mapToLong(i -> bitmapBase.value + i);
     }
 }

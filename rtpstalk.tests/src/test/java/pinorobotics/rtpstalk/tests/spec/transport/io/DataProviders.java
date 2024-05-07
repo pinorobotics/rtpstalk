@@ -60,7 +60,7 @@ public class DataProviders {
     public static byte[] readAllBytes(String resourceName) {
         return Unchecked.get(
                 () ->
-                        new XInputStream(
+                        XInputStream.ofHexString(
                                         resourceUtils.readResource(
                                                 DataProviders.class, resourceName))
                                 .readAllBytes());

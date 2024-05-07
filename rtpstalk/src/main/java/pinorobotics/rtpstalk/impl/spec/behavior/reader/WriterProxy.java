@@ -17,8 +17,8 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
-import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterStatusKind.MISSING;
-import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriterStatusKind.RECEIVED;
+import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriter.MISSING;
+import static pinorobotics.rtpstalk.impl.spec.behavior.reader.ChangeFromWriter.RECEIVED;
 
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
@@ -30,13 +30,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.LongStream;
 import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.behavior.reader.WriterHeartbeatProcessor;
+import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannel;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
@@ -50,11 +54,15 @@ public class WriterProxy {
             METER.counterBuilder(RtpsTalkMetrics.LOST_CHANGES_COUNT_METRIC)
                     .setDescription(RtpsTalkMetrics.LOST_CHANGES_COUNT_METRIC_DESCRIPTION)
                     .build();
+    private final LongCounter IRRELEVANT_CHANGES_COUNT_METER =
+            METER.counterBuilder(RtpsTalkMetrics.IRRELEVANT_CHANGES_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.IRRELEVANT_CHANGES_COUNT_METRIC_DESCRIPTION)
+                    .build();
 
     private final Guid readerGuid;
     private final Guid remoteWriterGuid;
     private final List<Locator> unicastLocatorList;
-    private final SortedMap<Long, ChangeFromWriterStatusKind> sortedChangesFromWriter =
+    private final SortedMap<Long, ChangeFromWriter> sortedChangesFromWriter =
             new ConcurrentSkipListMap<>();
     private final AtomicLong seqNumMax = new AtomicLong();
     private final XLogger logger;
@@ -80,7 +88,7 @@ public class WriterProxy {
     }
 
     public void receivedChangeSet(long seqNum) {
-        if (sortedChangesFromWriter.get(seqNum) == RECEIVED) {
+        if (isReceived(seqNum)) {
             logger.fine(
                     "Change with sequence number {0} already present in the cache, ignoring...",
                     seqNum);
@@ -123,16 +131,16 @@ public class WriterProxy {
     public void missingChangesUpdate(long firstSN, long lastSN) {
         var iter = sortedChangesFromWriter.tailMap(firstSN).entrySet().iterator();
         var curSN = firstSN;
-        var newMissing = new HashMap<Long, ChangeFromWriterStatusKind>();
+        var newMissing = new HashMap<Long, ChangeFromWriter>();
         while (iter.hasNext() && curSN <= lastSN) {
             var entry = iter.next();
             if (entry.getKey() < curSN) continue;
             while (curSN < entry.getKey()) newMissing.put(curSN++, MISSING);
-            if (entry.getValue() == RECEIVED) {
+            if (entry.getValue().isReceived()) {
                 curSN++;
-                continue;
+            } else {
+                newMissing.put(curSN++, MISSING);
             }
-            newMissing.put(curSN++, MISSING);
         }
         while (curSN <= lastSN) newMissing.put(curSN++, MISSING);
         sortedChangesFromWriter.putAll(newMissing);
@@ -161,7 +169,7 @@ public class WriterProxy {
      */
     public long[] missingChangesSorted() {
         return sortedChangesFromWriter.entrySet().stream()
-                .filter(e -> e.getValue() == MISSING)
+                .filter(e -> e.getValue().isMissing())
                 .mapToLong(Entry::getKey)
                 .toArray();
     }
@@ -180,5 +188,44 @@ public class WriterProxy {
             }
         }
         return dataChannel;
+    }
+
+    @RtpsSpecReference(
+            protocolVersion = Predefined.Version_2_3,
+            paragraph = "8.4.10.4.3",
+            text = "irrelevant_change_set")
+    public void irrelevantChangeSetClosed(long firstSN, long lastSN) {
+        LongStream.rangeClosed(firstSN, lastSN)
+                .forEach(
+                        seqNum -> sortedChangesFromWriter.put(seqNum, ChangeFromWriter.IRRELEVANT));
+        IRRELEVANT_CHANGES_COUNT_METER.add(lastSN - firstSN + 1);
+    }
+
+    @RtpsSpecReference(
+            protocolVersion = Predefined.Version_2_3,
+            paragraph = "8.4.10.4.3",
+            text = "irrelevant_change_set")
+    public void irrelevantChangeSet(LongStream seqNums) {
+        var count =
+                seqNums.map(
+                                seqNum -> {
+                                    sortedChangesFromWriter.put(
+                                            seqNum, ChangeFromWriter.IRRELEVANT);
+                                    return 1;
+                                })
+                        .sum();
+        IRRELEVANT_CHANGES_COUNT_METER.add(count);
+    }
+
+    private boolean isReceived(long seqNum) {
+        return Optional.ofNullable(sortedChangesFromWriter.get(seqNum))
+                .map(ChangeFromWriter::isReceived)
+                .orElse(false);
+    }
+
+    public boolean isChangeIrrelevant(long seqNum) {
+        return Optional.ofNullable(sortedChangesFromWriter.get(seqNum))
+                .map(ch -> !ch.isRelevant())
+                .orElse(false);
     }
 }

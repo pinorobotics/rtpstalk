@@ -173,16 +173,22 @@ public record RtpsTalkConfiguration(
          * Network interface where <b>rtpstalk</b> will be running.
          *
          * <p>By default it runs SPDP on all network interfaces but announces itself only on one of
-         * them.
+         * them which is randomly chosen.
          *
-         * <p>Users can limit <b>rtpstalk</b> traffic to local network by specifying only its
-         * loopback interface.
+         * <p>Users can limit <b>rtpstalk</b> traffic to only on network by specifying its network
+         * interface name. For example providing "lo" interface name will limit traffic only to
+         * local network loopback interface.
          *
          * <p><b>rtpstalk</b> currently supports only network interfaces with IPv4 addresses.
          */
         public Builder networkInterface(String networkIface) {
             this.networkIface =
-                    Optional.of(Unchecked.get(() -> NetworkInterface.getByName(networkIface)));
+                    Optional.ofNullable(
+                            Unchecked.get(() -> NetworkInterface.getByName(networkIface)));
+            Preconditions.isTrue(
+                    this.networkIface.isPresent(),
+                    "Network interface %s is not found",
+                    networkIface);
             return this;
         }
 

@@ -21,6 +21,7 @@ import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
@@ -50,15 +51,22 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
                             + " all Readers of that writerGUID")
     @Override
     public Result onData(GuidPrefix guidPrefix, Data data) {
-        var visit = readerEntityId.equals(data.readerId);
-        if (EntityId.Predefined.ENTITYID_UNKNOWN.getValue().equals(data.readerId)) visit = true;
-        return visit ? nextVisitor.onData(guidPrefix, data) : Result.CONTINUE;
+        var shouldVisit = readerEntityId.equals(data.readerId);
+        if (EntityId.Predefined.ENTITYID_UNKNOWN.getValue().equals(data.readerId))
+            shouldVisit = true;
+        return shouldVisit ? nextVisitor.onData(guidPrefix, data) : Result.CONTINUE;
     }
 
     @Override
     public Result onDataFrag(GuidPrefix guidPrefix, DataFrag data) {
         if (!readerEntityId.equals(data.readerId)) return Result.CONTINUE;
         return nextVisitor.onDataFrag(guidPrefix, data);
+    }
+
+    @Override
+    public Result onGap(GuidPrefix guidPrefix, Gap gap) {
+        if (!readerEntityId.equals(gap.readerId)) return Result.CONTINUE;
+        return nextVisitor.onGap(guidPrefix, gap);
     }
 
     @RtpsSpecReference(
@@ -69,10 +77,10 @@ public class FilterByEntityIdRtpsSubmessageVisitor implements RtpsSubmessageVisi
                             + " applies to all Readers of that writerGUID within the Participant.")
     @Override
     public Result onHeartbeat(GuidPrefix guidPrefix, Heartbeat heartbeat) {
-        var visit = readerEntityId.equals(heartbeat.readerId);
+        var shouldVisit = readerEntityId.equals(heartbeat.readerId);
         if (EntityId.Predefined.ENTITYID_UNKNOWN.getValue().equals(heartbeat.readerId))
-            visit = true;
-        return visit ? nextVisitor.onHeartbeat(guidPrefix, heartbeat) : Result.CONTINUE;
+            shouldVisit = true;
+        return shouldVisit ? nextVisitor.onHeartbeat(guidPrefix, heartbeat) : Result.CONTINUE;
     }
 
     @Override
