@@ -55,6 +55,7 @@ public record RtpsTalkConfiguration(
         Duration leaseDuration,
         Duration heartbeatPeriod,
         Duration spdpDiscoveredParticipantDataPublishPeriod,
+        Duration readerAckTopicDuration,
         int appEntityKey,
         Optional<ExecutorService> publisherExecutor,
         int publisherMaxBufferSize,
@@ -142,6 +143,8 @@ public record RtpsTalkConfiguration(
 
         public static final Duration DEFAULT_DISCOVERY_PERIOD = Duration.ofSeconds(5);
         public static final Duration DEFAULT_HEARTBEAT_PERIOD = Duration.ofSeconds(1);
+        public static final Duration DEFAULT_READER_ACK_TOPIC_DURATION =
+                DEFAULT_HEARTBEAT_PERIOD.multipliedBy(15);
 
         private Optional<NetworkInterface> networkIface = Optional.empty();
         private int startPort = DEFAULT_START_PORT;
@@ -160,6 +163,7 @@ public record RtpsTalkConfiguration(
         private int historyCacheMaxSize = DEFAULT_HISTORY_CACHE_MAX_SIZE;
         private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
         private int sendBufferSize = DEFAULT_SEND_BUFFER_SIZE;
+        private Duration readerAckTopicDuration = DEFAULT_READER_ACK_TOPIC_DURATION;
 
         /**
          * @see #networkInterface(String)
@@ -323,6 +327,16 @@ public record RtpsTalkConfiguration(
             return this;
         }
 
+        /**
+         * How long the local Writer should wait for remote Reader to ack that it received the topic
+         * announcement. If this never happens the Writer will not publish any messages to such
+         * Reader.
+         */
+        public Builder readerAckTopicDuration(Duration readerAckTopicDuration) {
+            this.readerAckTopicDuration = readerAckTopicDuration;
+            return this;
+        }
+
         public RtpsTalkConfiguration build() {
             return new RtpsTalkConfiguration(
                     startPort,
@@ -338,6 +352,7 @@ public record RtpsTalkConfiguration(
                     leaseDuration,
                     heartbeatPeriod,
                     spdpDiscoveredParticipantDataPublishPeriod,
+                    readerAckTopicDuration,
                     appEntityKey,
                     publisherExecutor,
                     publisherMaxBufferCapacity,

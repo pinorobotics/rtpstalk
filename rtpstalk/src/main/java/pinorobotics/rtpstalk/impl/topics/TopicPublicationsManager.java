@@ -189,13 +189,14 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
         new Thread(tracingToken.toString()) {
             @Override
             public void run() {
-                int retries = 5;
+                var hb = config.publicConfig().heartbeatPeriod();
+                var retries = config.publicConfig().readerAckTopicDuration().dividedBy(hb);
                 while (sedpPublicationsDetectorProxy.getHighestAckedSeqNum() < announcementSeqNum) {
                     logger.fine(
                             "Waiting for topic {0} to be annouced to the reader {1}, current retry"
                                     + " {2}",
                             topic, remoteReaderGuid, retries);
-                    XThread.sleep(config.publicConfig().heartbeatPeriod().toMillis());
+                    XThread.sleep(hb.toMillis());
                     retries--;
                     if (retries < 0) {
                         future.completeExceptionally(
