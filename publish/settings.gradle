@@ -1,4 +1,3 @@
 // list of subprojects to publish to Sonatype repo
 
-include 'rtpstalk'
-project(':rtpstalk').projectDir = new File(rootDir, '../rtpstalk')
+include "${zzName}"

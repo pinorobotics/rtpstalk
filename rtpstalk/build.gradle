@@ -14,6 +14,10 @@ plugins {
   id 'java-library'
 }
 
+boolean isReleaseBuild() {
+  return version != null && version.matches("\\d+[.\\d+]*");
+}
+
 apply plugin : 'eclipse'
 
 eclipse.classpath.file {
@@ -24,18 +28,20 @@ eclipse.classpath.file {
 }
 
 dependencies {
-  api "io.github.lambdaprime:id.xfunction:26.0-SNAPSHOT"
-  api "io.github.lambdaprime:kineticstreamer:8.0"
-  api "io.opentelemetry:opentelemetry-api:1.34.1"
-}
-
-configurations {
-  customConfig.extendsFrom implementation
+  zzApiDependencies.split(',').each { api it }
 }
 
 jar {
   manifest { 
-    attributes 'Implementation-Version': "${rootProject.version}"
+    attributes 'Implementation-Version': "${version}"
+  }
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs += ["src/main/gen/java"]
+    }
   }
 }
 
@@ -48,8 +54,10 @@ javadoc {
   // ignore missing @return, @param etc
   options.addBooleanOption('Xdoclint:all,-missing', true)
   options.addStringOption('-show-packages', 'exported')
-  exclude 'pinorobotics/rtpstalk/impl/**'
-
+  if (!zzJavadocLinks.isBlank()) {
+    // should point to location of element-list files
+    options.addMultilineStringsOption("link").value = Arrays.asList(zzJavadocLinks.split(','))
+  }
   // Gradle does not support exclude correctly:
   // https://github.com/gradle/gradle/issues/19726
   def sourceSetDirectories = sourceSets
@@ -58,36 +66,37 @@ javadoc {
     .sourceDirectories
     .getFiles()
     .stream()
+    .filter({f -> f.exists()})
     .map({f -> f.toString() })
     .collect(java.util.stream.Collectors.joining(":"))
-  options.addStringOption("-source-path", sourceSetDirectories)
+  def moduleSourcePath = []
+  moduleSourcePath += "${zzName}=" + sourceSetDirectories
+  // to support @inheritDoc we need to provide sources for inherited
+  // classes as part of '--module-source-path' option
+  // we use "Module-specific form" for that.
+  // https://docs.oracle.com/en/java/javase/18/docs/specs/man/javac.html#the-module-source-path-option
+  zzJavadocInheritFrom.split(',').findAll{ !it.isBlank() }.each {
+    def path = "${it}=${project.rootDir}/../${it}/${it}/src/main/java"
+    def srcGen = "${project.rootDir}/../${it}/${it}/src/main/gen/java"
+    if (file(srcGen).exists()) path += ":" + srcGen
+    moduleSourcePath += path
+  }
+  options.addMultilineStringsOption("-module-source-path").value = moduleSourcePath.stream().map(Object::toString).toList()
+  exclude "${zzNamespace}/${zzName}/impl/**"
+  // Gradle javadoc considers all from java sourceSet only
+  // This means that doc-files/* are excluded which is not
+  // very compliant to javadoc https://docs.oracle.com/en/java/javase/13/javadoc/source-files.html
+  // to fix that we copy doc-files/* manually
+  doLast {
+    copy {
+      from "${zzName}/src/main/java"
+      into "$project.docsDir/javadoc/${zzName}"
+      include "**/doc-files/*"
+    }
+  }
 }
 
-/**
- * If certain packages are not public and are exported only to specific modules
- * like "export foo.pkg.impl to bar_module;" then javadoc will generate documentation
- * for them as well (in example it will be foo.pkg.impl).
- * There is no way to ask javadoc to include documentation to only publicly available
- * packages (and drop foo.pkg.impl).
- * To fix this following task patches module-info during javadoc execution and removes
- * any "export ... to ...". After javadoc task completes the module-info restored back.
- */
-javadoc.doFirst {
-  var path = java.nio.file.Paths.get("${projectDir}/src/main/java/module-info.java")
-  println "Patching ${path}"
-  new id.xfunction.text.Substitutor()
-    .withRegexpSupport()
-    .withBackup()
-    .substitute(path, Map.of(
-      "(?s)(?m)exports \\S* to.*;", ""
-    ));
-}.doLast {
-  var path = java.nio.file.Paths.get("${projectDir}/src/main/java/module-info.java")
-  println "Restoring ${path}"
-  id.xfunction.text.Substitutor.restoreBackup(path)
-}
-
-def packageDir = "$buildDir/package/${projectName}"
+def packageDir = "$buildDir/package/${zzName}"
 
 task createRelease(type: Zip) {
   archiveFileName = "$releaseFileName"
@@ -101,9 +110,19 @@ task copyLibs(type: Copy) {
   into "${packageDir}/libs"
 }
 
-task createPackage(type: Copy, dependsOn: copyLibs) {
-  from "${project.rootDir}/README.md"
-  from "${project.rootDir}/LICENSE-2.0.txt"
+task copyExamples(type: Copy) {
+  from("${project.rootDir}/${zzName}.examples/generic/src") {
+    include "**"
+  }
+  into "${packageDir}/examples"
+}
+
+task createPackage(type: Copy, dependsOn: [copyLibs, copyExamples]) {
+  zzFilesToPackage.split(',').findAll{ !it.isBlank() }.each {
+    def filePath = "${project.rootDir}/" + it
+    assert file(filePath).exists()
+    from filePath
+  }
   into packageDir
 }
 
@@ -112,7 +131,7 @@ task cleanRelease(type: Delete) {
   delete "$projectDir/release/*-SNAPSHOT.zip"
 }
 
-createRelease.dependsOn createPackage
+createRelease.dependsOn createPackage, javadoc
 assemble.dependsOn createRelease
 clean.dependsOn cleanRelease
 
@@ -120,14 +139,14 @@ clean.dependsOn cleanRelease
 classes.dependsOn spotlessApply
 
 task updateVersion() {
-  // update version only when it is specified and non SNAPSHOT version is built
-  // 'unspecified' is the default value for the version in Gradle if it is not set
-  if (!version || version == "unspecified" || version.contains("SNAPSHOT")) return;
+  // update version only during release build
+  if (!isReleaseBuild()) return;
   println "Updating version to " + version
   new id.xfunction.text.Substitutor()
     .withRegexpSupport()
     .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
-      "io.github.pinorobotics:rtpstalk:[0-9.]+", "io.github.pinorobotics:rtpstalk:" + version
+      "io.github.${zzNamespace}:${zzName}:[0-9.]+".toString(),
+      "io.github.${zzNamespace}:${zzName}:${version}".toString()
     ));
 }
 createRelease.dependsOn updateVersion
@@ -158,13 +177,13 @@ if (project.hasProperty('publish')) {
   publishing {
     publications {
       mavenJava(MavenPublication) {
-        artifactId = 'rtpstalk'
-        groupId = 'io.github.pinorobotics'
+        artifactId = zzName
+        groupId = "io.github.${zzNamespace}"
         from components.java
         pom {
-          name = 'rtpstalk'
-          description = 'Java client for RTPS (Real-time Publish-Subscribe) protocol'
-          url = 'http://pinoweb.freetzi.com/rtpstalk'
+          name = zzName
+          description = zzDescription
+          url = zzUrl
 
           licenses {
             license {
@@ -175,17 +194,13 @@ if (project.hasProperty('publish')) {
 
           developers {
             developer {
-              id = 'aeon'
-              email = 'aeon_flux@eclipso.ch'
-            }
-            developer {
-              id = 'lambdaprime'
-              email = 'intid@protonmail.com'
+              id = zzDevName
+              email = zzDevEmail
             }
           }
 
           scm {
-            url = 'https://github.com/pinorobotics/rtpstalk'
+            url = zzRepoUrl
           }
         }
       }
@@ -198,7 +213,7 @@ if (project.hasProperty('publish')) {
         }
         url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
       }
-    }    
+    }
   }
 
   if (project.hasProperty('signing.secretKeyRingFile')) {

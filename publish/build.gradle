@@ -7,18 +7,22 @@ First we need publish main project to staging repo.
 
 Run following command in the root folder of the project:
 
+export nexusA=
+export nexusB=
+
+gradle clean build
 gradle publish \
  -Ppublish=true \
  -Psigning.secretKeyRingFile=XXX \
  -Psigning.password=XXX \
  -Psigning.keyId=XXX \
- -PossrhUsername=XXX \
- -PossrhPassword=XXX
+ -PossrhUsername=$nexusA \
+ -PossrhPassword=$nexusB
 
 Once it is done we can promote it to release repo:
 
 cd publish
-gradle closeAndReleaseRepository -PnexusUsername=XXX -PnexusPassword=XXX
+gradle closeAndReleaseRepository -PnexusUsername=$nexusA -PnexusPassword=$nexusB
 
 **************************************************/
 
@@ -38,7 +42,6 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'com.diffplug.spotless' version '6.7.2'
 }
 
 apply plugin: 'io.codearte.nexus-staging'
@@ -55,26 +58,6 @@ subprojects {
 }
 
 nexusStaging {
-    serverUrl = "https://s01.oss.sonatype.org/service/local/"
-    packageGroup = "io.github.pinorobotics"
-}
-
-/*
- * Now we include original build.gradle which will build subprojects
- * as usual + let them sign and publish to staging repo
- */
-Properties props = new Properties()
-InputStream ins = new FileInputStream("../gradle.properties")
-props.load(ins)
-props.each { prop ->
-  project.ext.set(prop.key, prop.value)
-}
-ins.close()
-
-void addDependencies(project, configurations, version,  packages) {
-  // providing stub method from main build.gradle
-}
-
-ext {
-  releaseFileName = "${projectName}-v${version}.zip"
+  serverUrl = "https://s01.oss.sonatype.org/service/local/"
+  packageGroup = "io.github.${zzNamespace}"
 }

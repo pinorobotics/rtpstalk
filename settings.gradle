@@ -1,2 +1,2 @@
-include 'rtpstalk'
-include 'rtpstalk.tests'
+include "${zzName}"
+include "${zzName}.tests"
