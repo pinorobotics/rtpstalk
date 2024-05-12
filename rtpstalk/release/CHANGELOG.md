@@ -1,3 +1,15 @@
+# Version 8
+
+- Updating dependencies
+- Updating gradle files
+- Adding readerAckTopicDuration configuration parameter
+- Adding GAP submessages support
+- Renaming SequenceNumberSetBuilder
+- Perform validation of submessages after they are received
+- Fixing NPE
+
+[rtpstalk-v8.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v8.0.zip)
+
 # Version 7
 
 - Increasing logging level for key log messages
