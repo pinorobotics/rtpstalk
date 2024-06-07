@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration;
+package pinorobotics.rtpstalk.tests.integration.thirdparty;
 
 import static java.util.stream.Collectors.joining;
 
@@ -56,15 +56,17 @@ import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
-import pinorobotics.rtpstalk.tests.integration.cyclonedds.CycloneDdsHelloWorldExample;
-import pinorobotics.rtpstalk.tests.integration.fastdds.FastRtpsHelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.HelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldExample;
 
 /**
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
-public class RtpsTalkClientPubSubPairsTests {
+public class PubSubPairsTests {
 
     private HelloWorldExample helloWorldExample;
     private RtpsTalkClient client;
@@ -139,7 +141,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                             () ->
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
-                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            PubSubPairsTests::validateSedpClose,
                                             LogUtils::validateNoExceptions)),
                             // Test case 2
                             new TestCase(
@@ -162,7 +164,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                             () ->
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
-                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            PubSubPairsTests::validateSedpClose,
                                             LogUtils::validateNoExceptions)),
                             // Test case 3
                             new TestCase(
@@ -180,7 +182,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                             TestCondition.LOCAL_SUBSCRIBER,
                                             List.of("topic_subscriptions_manager.template")),
                                     List.of(
-                                            RtpsTalkClientPubSubPairsTests::validateSedpClose,
+                                            PubSubPairsTests::validateSedpClose,
                                             LogUtils::validateNoExceptions)),
                             // Test case 4
                             new TestCase(
@@ -202,7 +204,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                             () ->
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
-                                            RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                                            PubSubPairsTests::validateSedpClose),
                                     Map.of(
                                             TestCondition.LOCAL_PUBLISHER,
                                             Map.of(
@@ -227,7 +229,7 @@ public class RtpsTalkClientPubSubPairsTests {
                                             () ->
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
-                                            RtpsTalkClientPubSubPairsTests::validateSedpClose),
+                                            PubSubPairsTests::validateSedpClose),
                                     Map.of(
                                             TestCondition.LOCAL_PUBLISHER,
                                             Map.of(
@@ -461,9 +463,7 @@ public class RtpsTalkClientPubSubPairsTests {
     private static void validateAcrossNetworkInterfaces(String templateResourceName) {
         var log = LogUtils.readLogFile();
         ResourceUtils resourceUtils = new ResourceUtils();
-        var template =
-                resourceUtils.readResource(
-                        RtpsTalkClientPubSubPairsTests.class, templateResourceName);
+        var template = resourceUtils.readResource(PubSubPairsTests.class, templateResourceName);
         for (var iface : InternalUtils.getInstance().listAllNetworkInterfaces()) {
             var expectedTemplate =
                     new Substitutor().substitute(template, Map.of("${IFACE}", iface.getName()));
@@ -473,7 +473,6 @@ public class RtpsTalkClientPubSubPairsTests {
 
     private static void validateSedpClose() {
         var log = LogUtils.readLogFile();
-        XAsserts.assertMatchesAll(
-                RtpsTalkClientPubSubPairsTests.class, "sedp_close.TEMPLATES", log);
+        XAsserts.assertMatchesAll(PubSubPairsTests.class, "sedp_close.TEMPLATES", log);
     }
 }
