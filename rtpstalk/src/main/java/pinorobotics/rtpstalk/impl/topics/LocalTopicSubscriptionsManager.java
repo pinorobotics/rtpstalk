@@ -49,7 +49,7 @@ import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDetails> {
+public class LocalTopicSubscriptionsManager extends AbstractTopicManager<SubscriberDetails> {
 
     private DataFactory dataFactory;
     private SedpDataFactory sedpDataFactory;
@@ -57,7 +57,7 @@ public class TopicSubscriptionsManager extends AbstractTopicManager<SubscriberDe
     private UserDataService userService;
     private GuidPrefix localGuidPrefix;
 
-    public TopicSubscriptionsManager(
+    public LocalTopicSubscriptionsManager(
             TracingToken tracingToken,
             RtpsTalkConfigurationInternal config,
             RtpsNetworkInterface networkIface,

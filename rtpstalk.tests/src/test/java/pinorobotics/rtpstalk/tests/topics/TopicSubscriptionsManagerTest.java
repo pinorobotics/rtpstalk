@@ -28,7 +28,7 @@ import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
-import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
+import pinorobotics.rtpstalk.impl.topics.LocalTopicSubscriptionsManager;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestUtils;
@@ -45,8 +45,8 @@ public class TopicSubscriptionsManagerTest {
      * We expect to send SubscriptionData immediately when new subscriber is registered.
      *
      * <ul>
-     *   <li>create and register new subscriber with {@link TopicSubscriptionsManager}
-     *   <li>test that {@link TopicSubscriptionsManager} sent proper SubscriptionData
+     *   <li>create and register new subscriber with {@link LocalTopicSubscriptionsManager}
+     *   <li>test that {@link LocalTopicSubscriptionsManager} sent proper SubscriptionData
      * </ul>
      */
     @Test
@@ -67,7 +67,7 @@ public class TopicSubscriptionsManagerTest {
                             channelFactory,
                             TestConstants.TEST_NETWORK_IFACE.getOperatingEntities());
             var manager =
-                    new TopicSubscriptionsManager(
+                    new LocalTopicSubscriptionsManager(
                             TestConstants.TEST_TRACING_TOKEN,
                             TestConstants.TEST_CONFIG_INTERNAL,
                             TestConstants.TEST_NETWORK_IFACE,

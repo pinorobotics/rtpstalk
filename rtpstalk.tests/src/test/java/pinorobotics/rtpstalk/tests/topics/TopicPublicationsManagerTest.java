@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.tests.topics;
 import id.xfunction.PreconditionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
+import pinorobotics.rtpstalk.impl.topics.LocalTopicPublicationsManager;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestRtpsNetworkInterface;
 import pinorobotics.rtpstalk.tests.TestUtils;
@@ -35,7 +35,7 @@ public class TopicPublicationsManagerTest {
     @Test
     public void test_addLocalActor() throws Exception {
         var manager =
-                new TopicPublicationsManager(
+                new LocalTopicPublicationsManager(
                         TestConstants.TEST_TRACING_TOKEN,
                         TestConstants.TEST_CONFIG_INTERNAL,
                         new TestRtpsNetworkInterface(),

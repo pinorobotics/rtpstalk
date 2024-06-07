@@ -38,8 +38,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
-import pinorobotics.rtpstalk.impl.topics.TopicPublicationsManager;
-import pinorobotics.rtpstalk.impl.topics.TopicSubscriptionsManager;
+import pinorobotics.rtpstalk.impl.topics.LocalTopicPublicationsManager;
+import pinorobotics.rtpstalk.impl.topics.LocalTopicSubscriptionsManager;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
@@ -58,8 +58,8 @@ public class RtpsServiceManager implements AutoCloseable {
     private List<MetatrafficMulticastService> spdpServices = new ArrayList<>();
     private MetatrafficUnicastService sedpService;
     private UserDataService userService;
-    private TopicSubscriptionsManager subscriptionsManager;
-    private TopicPublicationsManager publicationsManager;
+    private LocalTopicSubscriptionsManager subscriptionsManager;
+    private LocalTopicPublicationsManager publicationsManager;
     private XLogger logger;
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
@@ -115,7 +115,7 @@ public class RtpsServiceManager implements AutoCloseable {
             userService.start(tracingToken, rtpsIface);
 
             subscriptionsManager =
-                    new TopicSubscriptionsManager(
+                    new LocalTopicSubscriptionsManager(
                             tracingToken,
                             config,
                             rtpsIface,
@@ -124,7 +124,7 @@ public class RtpsServiceManager implements AutoCloseable {
             sedpService.getPublicationsReader().subscribe(subscriptionsManager);
 
             publicationsManager =
-                    new TopicPublicationsManager(
+                    new LocalTopicPublicationsManager(
                             tracingToken,
                             config,
                             rtpsIface,

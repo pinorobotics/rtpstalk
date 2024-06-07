@@ -51,7 +51,7 @@ import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
  *
  * @author lambdaprime intid@protonmail.com
  */
-public class TopicPublicationsManager extends AbstractTopicManager<PublisherDetails> {
+public class LocalTopicPublicationsManager extends AbstractTopicManager<PublisherDetails> {
 
     private XLogger logger;
     private SedpDataFactory dataFactory;
@@ -62,7 +62,7 @@ public class TopicPublicationsManager extends AbstractTopicManager<PublisherDeta
     private Map<TopicId, Long> announcementSeqNums = new HashMap<>();
     private RtpsTalkConfigurationInternal config;
 
-    public TopicPublicationsManager(
+    public LocalTopicPublicationsManager(
             TracingToken tracingToken,
             RtpsTalkConfigurationInternal config,
             RtpsNetworkInterface networkIface,
