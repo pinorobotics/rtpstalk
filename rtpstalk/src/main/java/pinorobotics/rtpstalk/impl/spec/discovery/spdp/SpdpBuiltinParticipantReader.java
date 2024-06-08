@@ -22,10 +22,9 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
-import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatelessRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
-import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -36,12 +35,13 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
  *
  * <h2>Thread safe</h2>
  *
- * Since we run one SPDP reader per each network interface and they all bind to same multicast
+ * <p>Since we run one SPDP reader per each network interface and they all bind to same multicast
  * address it means they may receive same data and run concurrently.
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterListMessage> {
+public class SpdpBuiltinParticipantReader
+        extends StatelessRtpsReader<RtpsTalkParameterListMessage> {
     private ParticipantsRegistry participantsRegistry;
 
     public SpdpBuiltinParticipantReader(
@@ -57,8 +57,7 @@ public class SpdpBuiltinParticipantReader extends RtpsReader<RtpsTalkParameterLi
                 publisherExecutor,
                 new Guid(
                         guidPrefix,
-                        EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()),
-                ReliabilityQosPolicy.Kind.BEST_EFFORT);
+                        EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));
         this.participantsRegistry = participantsRegistry;
     }
 

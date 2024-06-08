@@ -58,8 +58,7 @@ import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
- * Stateless RTPS endpoint reader (best-effort reliability) which can be subscribed to {@link
- * RtpsMessageReceiver} to receive RTPS messages and process them.
+ * Base RTPS Reader implementation.
  *
  * <p>Each reader can be subscribed to only one {@link RtpsMessageReceiver}. And to one {@link
  * RtpsMessageReceiver} can be subscribed multiple different readers (many endpoints to one
