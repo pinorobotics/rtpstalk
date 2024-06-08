@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2024 rtpstalk project
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
@@ -15,21 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration;
+package pinorobotics.rtpstalk.tests.integration.thirdparty;
 
-/**
- * @author aeon_flux aeon_flux@eclipso.ch
- */
-public enum HelloWorldExampleVariable {
-    RunPublisher,
-    RunSubscriber,
-    NumberOfMesages,
-    TopicName,
-    ReliabilityQosPolicyKind,
-    DurabilityQosPolicyKind,
-    SleepBetweenMessagesInMillis;
+import java.util.Map;
+import java.util.Objects;
 
-    public String getVariableName() {
-        return "RTPS_" + toString();
+public record HelloWorldConfig(Map<HelloWorldExampleVariable, String> parameters) {
+    public HelloWorldConfig() {
+        this(Map.of());
+    }
+
+    public boolean isPublisher() {
+        return Objects.equals(
+                parameters.getOrDefault(HelloWorldExampleVariable.RunPublisher, "false"), "true");
+    }
+
+    public boolean isSubscriber() {
+        return Objects.equals(
+                parameters.getOrDefault(HelloWorldExampleVariable.RunSubscriber, "false"), "true");
     }
 }

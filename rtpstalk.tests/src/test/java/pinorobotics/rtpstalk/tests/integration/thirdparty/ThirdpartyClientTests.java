@@ -41,7 +41,6 @@ import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestEvents;
-import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldExample;
 
 /**

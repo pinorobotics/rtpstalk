@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
-import pinorobotics.rtpstalk.tests.integration.HelloWorldExample;
-import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExampleVariable;
 
 /**
  * @author lambdaprime intid@protonmail.com

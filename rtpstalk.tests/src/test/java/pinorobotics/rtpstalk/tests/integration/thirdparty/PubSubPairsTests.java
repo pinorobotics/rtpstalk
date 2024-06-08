@@ -51,17 +51,22 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.topics.ActorDetails;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
-import pinorobotics.rtpstalk.tests.integration.HelloWorldExample;
-import pinorobotics.rtpstalk.tests.integration.HelloWorldExampleVariable;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldExample;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldExample;
 
 /**
+ * Tests for {@link ReliabilityType#RELIABLE}.
+ *
+ * <p>For publishers we test that they deliver all messages
+ *
+ * <p>For subscribers we test that they do not drop any messages
+ *
  * @author lambdaprime intid@protonmail.com
  * @author aeon_flux aeon_flux@eclipso.ch
  */
@@ -70,11 +75,6 @@ public class PubSubPairsTests {
 
     private HelloWorldExample helloWorldExample;
     private RtpsTalkClient client;
-
-    private enum TestCondition {
-        LOCAL_SUBSCRIBER,
-        LOCAL_PUBLISHER,
-    }
 
     private record TestCase(
             HelloWorldExample helloWorldExample,
@@ -85,8 +85,7 @@ public class PubSubPairsTests {
             List<String> logTemplates,
             Map<TestCondition, List<String>> conditionalLogTemplates,
             List<Runnable> validators,
-            Map<TestCondition, Map<HelloWorldExampleVariable, String>>
-                    remoteParticipantParameters) {
+            HelloWorldConfig thirdpartyConfig) {
         TestCase(
                 HelloWorldExample helloWorldExample,
                 int numberOfPubSubPairs,
@@ -105,7 +104,7 @@ public class PubSubPairsTests {
                     templates,
                     conditionalTemplates,
                     validators,
-                    Map.of());
+                    new HelloWorldConfig());
         }
     }
 
@@ -131,7 +130,7 @@ public class PubSubPairsTests {
                                             "service_startup_ports_8080_8081.template",
                                             "ParticipantsRegistry.template"),
                                     Map.of(
-                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            TestCondition.THIRDPARTY_PUBLISHER,
                                             List.of(
                                                     "topic_subscriptions_manager_future_topic.template")),
                                     List.of(
@@ -155,7 +154,7 @@ public class PubSubPairsTests {
                                     false,
                                     List.of("service_startup_ports_8080_8081.template"),
                                     Map.of(
-                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            TestCondition.THIRDPARTY_PUBLISHER,
                                             List.of("topic_subscriptions_manager.template")),
                                     List.of(
                                             () ->
@@ -179,7 +178,7 @@ public class PubSubPairsTests {
                                     false,
                                     List.of("service_startup_loopback_iface.template"),
                                     Map.of(
-                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            TestCondition.THIRDPARTY_PUBLISHER,
                                             List.of("topic_subscriptions_manager.template")),
                                     List.of(
                                             PubSubPairsTests::validateSedpClose,
@@ -205,9 +204,10 @@ public class PubSubPairsTests {
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
                                             PubSubPairsTests::validateSedpClose),
-                                    Map.of(
-                                            TestCondition.LOCAL_PUBLISHER,
+                                    new HelloWorldConfig(
                                             Map.of(
+                                                    HelloWorldExampleVariable.RunSubscriber,
+                                                    "true",
                                                     HelloWorldExampleVariable
                                                             .DurabilityQosPolicyKind,
                                                     "TRANSIENT_LOCAL_DURABILITY_QOS"))),
@@ -220,7 +220,7 @@ public class PubSubPairsTests {
                                     false,
                                     List.of("service_startup_ports_default.template"),
                                     Map.of(
-                                            TestCondition.LOCAL_SUBSCRIBER,
+                                            TestCondition.THIRDPARTY_PUBLISHER,
                                             List.of("topic_subscriptions_manager.template")),
                                     List.of(
                                             () ->
@@ -230,9 +230,10 @@ public class PubSubPairsTests {
                                                     validateAcrossNetworkInterfaces(
                                                             "spdp_close.template"),
                                             PubSubPairsTests::validateSedpClose),
-                                    Map.of(
-                                            TestCondition.LOCAL_PUBLISHER,
+                                    new HelloWorldConfig(
                                             Map.of(
+                                                    HelloWorldExampleVariable.RunSubscriber,
+                                                    "true",
                                                     HelloWorldExampleVariable
                                                             .DurabilityQosPolicyKind,
                                                     "VOLATILE_DURABILITY_QOS"))))
@@ -259,7 +260,7 @@ public class PubSubPairsTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_local_subscriber_remote_publisher_pairs(TestCase testCase) throws Exception {
+    public void test_thirdparty_publisher(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkClient(testCase.config);
 
@@ -277,11 +278,15 @@ public class PubSubPairsTests {
                     for (var topic : topics) {
                         var vars =
                                 new HashMap<>(
-                                        testCase.remoteParticipantParameters()
-                                                .getOrDefault(
-                                                        TestCondition.LOCAL_SUBSCRIBER, Map.of()));
+                                        Optional.of(testCase.thirdpartyConfig())
+                                                .filter(HelloWorldConfig::isPublisher)
+                                                .map(HelloWorldConfig::parameters)
+                                                .orElse(
+                                                        Map.of(
+                                                                HelloWorldExampleVariable
+                                                                        .RunPublisher,
+                                                                "true")));
                         vars.put(HelloWorldExampleVariable.TopicName, topic);
-                        vars.put(HelloWorldExampleVariable.RunPublisher, "true");
                         vars.put(
                                 HelloWorldExampleVariable.NumberOfMesages,
                                 "" + testCase.numberOfMessages);
@@ -352,7 +357,8 @@ public class PubSubPairsTests {
         }
 
         assertLogWithTemplates(testCase.logTemplates);
-        Optional.ofNullable(testCase.conditionalLogTemplates().get(TestCondition.LOCAL_SUBSCRIBER))
+        Optional.ofNullable(
+                        testCase.conditionalLogTemplates().get(TestCondition.THIRDPARTY_PUBLISHER))
                 .ifPresent(this::assertLogWithTemplates);
         assertValidators(testCase.validators);
 
@@ -366,7 +372,7 @@ public class PubSubPairsTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_local_publisher_remote_subscriber_pairs(TestCase testCase) throws Exception {
+    public void test_thirdpaarty_subscriber(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkClient(testCase.config);
 
@@ -378,11 +384,15 @@ public class PubSubPairsTests {
                     for (var topic : topics) {
                         var vars =
                                 new HashMap<>(
-                                        testCase.remoteParticipantParameters()
-                                                .getOrDefault(
-                                                        TestCondition.LOCAL_PUBLISHER, Map.of()));
+                                        Optional.of(testCase.thirdpartyConfig())
+                                                .filter(HelloWorldConfig::isSubscriber)
+                                                .map(HelloWorldConfig::parameters)
+                                                .orElse(
+                                                        Map.of(
+                                                                HelloWorldExampleVariable
+                                                                        .RunSubscriber,
+                                                                "true")));
                         vars.put(HelloWorldExampleVariable.TopicName, topic);
-                        vars.put(HelloWorldExampleVariable.RunSubscriber, "true");
                         vars.put(
                                 HelloWorldExampleVariable.NumberOfMesages,
                                 "" + testCase.numberOfMessages);
