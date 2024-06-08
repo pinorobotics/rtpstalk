@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds;
+package pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -29,37 +29,33 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExampleVariable;
 
 /**
- * @author aeon_flux aeon_flux@eclipso.ch
+ * @author lambdaprime intid@protonmail.com
  */
-public class CycloneDdsHelloWorldExample implements HelloWorldExample {
+public class FastRtpsHelloWorldClient implements HelloWorldClient {
 
-    private static final String PUBLISHER_PATH =
-            Paths.get("").toAbsolutePath().resolve("bld/cyclonedds/HelloworldPublisher").toString();
-    private static final String SUBSCRIBER_PATH =
-            Paths.get("")
-                    .toAbsolutePath()
-                    .resolve("bld/cyclonedds/HelloworldSubscriber")
-                    .toString();
+    private static final String HELLOWORLDEXAMPLE_PATH =
+            Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
     @Override
     public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
         var argsList = new ArrayList<String>();
+        argsList.add(HELLOWORLDEXAMPLE_PATH);
         if (env.containsKey(HelloWorldExampleVariable.RunPublisher)) {
-            argsList.add(PUBLISHER_PATH);
+            argsList.add("publisher");
         } else if (env.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
-            argsList.add(SUBSCRIBER_PATH);
+            argsList.add("subscriber");
         } else {
             throw new UnsupportedOperationException();
         }
-        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages)) {
+        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages))
             argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
-        }
-        System.out.println("Running command: " + argsList);
+        if (env.containsKey(HelloWorldExampleVariable.SleepBetweenMessagesInMillis))
+            argsList.add(env.get(HelloWorldExampleVariable.SleepBetweenMessagesInMillis));
         var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
@@ -80,22 +76,19 @@ public class CycloneDdsHelloWorldExample implements HelloWorldExample {
     public String generateExpectedPublisherStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
-                """
-                Num of samples: %s
-                Topic name: %s
-                === [Publisher]  Waiting for a reader to be discovered ...
-                """
-                        .formatted(count, topicName));
+                String.format(
+                        """
+                Starting\s
+                Publisher running %s samples.
+                Publisher matched
+                """,
+                        count));
         IntStream.rangeClosed(1, count)
                 .forEach(
                         i ->
                                 stdout.append(
-                                        """
-                                        === [Publisher]  Writing :$
-                                        Message (%s, HelloWorld)
-                                        """
-                                                .replace("$", " ")
-                                                .formatted(i)));
+                                        String.format(
+                                                "Message: HelloWorld with index: %s SENT\n", i)));
         return stdout.toString().trim();
     }
 
@@ -103,20 +96,16 @@ public class CycloneDdsHelloWorldExample implements HelloWorldExample {
     public String generateExpectedSubscriberStdout(int count, String topicName) {
         var stdout = new StringBuilder();
         stdout.append(
-                """
-                Num of samples: %s
-
-                === [Subscriber] Waiting for a sample ...
-                """
-                        .formatted(count));
+                String.format(
+                        """
+                Starting\s
+                Using topic %s
+                Subscriber running until %ssamples have been received
+                Subscriber matched
+                """,
+                        topicName, count));
         IntStream.rangeClosed(1, count)
-                .forEach(
-                        i ->
-                                stdout.append(
-                                        """
-                                === [Subscriber] Received : Message (%s, HelloWorld)
-                                """
-                                                .formatted(i)));
+                .forEach(i -> stdout.append(String.format("Message HelloWorld %s RECEIVED\n", i)));
         return stdout.toString().trim();
     }
 
@@ -129,6 +118,7 @@ public class CycloneDdsHelloWorldExample implements HelloWorldExample {
                     ByteBuffer.allocate(
                             // unsigned long index
                             Integer.BYTES
+
                                     // string message;
                                     + Integer.BYTES // length
                                     + text.length()
@@ -151,6 +141,6 @@ public class CycloneDdsHelloWorldExample implements HelloWorldExample {
 
     @Override
     public String toString() {
-        return "CycloneDdsHelloWorldExample";
+        return "FastRtpsHelloWorldExample";
     }
 }

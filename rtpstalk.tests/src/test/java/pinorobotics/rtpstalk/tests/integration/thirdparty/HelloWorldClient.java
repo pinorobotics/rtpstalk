@@ -25,7 +25,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public interface HelloWorldExample extends AutoCloseable {
+public interface HelloWorldClient extends AutoCloseable {
 
     Collection<RtpsTalkDataMessage> generateMessages(int numberOfMessages);
 

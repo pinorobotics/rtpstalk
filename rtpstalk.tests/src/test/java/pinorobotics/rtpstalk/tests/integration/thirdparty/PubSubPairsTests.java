@@ -57,8 +57,8 @@ import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldExample;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldExample;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
 
 /**
  * Tests for {@link ReliabilityType#RELIABLE}.
@@ -73,11 +73,11 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloW
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class PubSubPairsTests {
 
-    private HelloWorldExample helloWorldExample;
+    private HelloWorldClient helloWorldExample;
     private RtpsTalkClient client;
 
     private record TestCase(
-            HelloWorldExample helloWorldExample,
+            HelloWorldClient helloWorldExample,
             int numberOfPubSubPairs,
             int numberOfMessages,
             RtpsTalkConfiguration config,
@@ -87,7 +87,7 @@ public class PubSubPairsTests {
             List<Runnable> validators,
             HelloWorldConfig thirdpartyConfig) {
         TestCase(
-                HelloWorldExample helloWorldExample,
+                HelloWorldClient helloWorldExample,
                 int numberOfPubSubPairs,
                 int numberOfMessages,
                 RtpsTalkConfiguration config,
@@ -110,9 +110,9 @@ public class PubSubPairsTests {
 
     static Stream<TestCase> dataProvider() {
         var testCases = new ArrayList<TestCase>();
-        var examples = new ArrayList<HelloWorldExample>();
-        if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldExample());
-        examples.add(new FastRtpsHelloWorldExample());
+        var examples = new ArrayList<HelloWorldClient>();
+        if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldClient());
+        examples.add(new FastRtpsHelloWorldClient());
         for (var helloWorldExample : examples) {
             Stream.of(
                             // Test case 1
@@ -372,7 +372,7 @@ public class PubSubPairsTests {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void test_thirdpaarty_subscriber(TestCase testCase) throws Exception {
+    public void test_thirdparty_subscriber(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkClient(testCase.config);
 
