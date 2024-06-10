@@ -68,8 +68,8 @@ public class ThirdpartyClientTests {
     @Test
     public void test_subscriber_when_topic_publisher_is_changed() throws Exception {
         try (var client = new RtpsTalkClient()) {
-            var topicName = "HelloWorldTopic";
-            var topicType = "HelloWorld";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
+            var topicType = HelloWorldConfig.DEFAULT_TOPIC_TYPE;
             // register a new subscriber
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 30) {
@@ -94,8 +94,8 @@ public class ThirdpartyClientTests {
     @Test
     public void test_concurrent_close() throws Exception {
         try (var client = new RtpsTalkClient()) {
-            var topicName = "HelloWorldTopic";
-            var topicType = "HelloWorld";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
+            var topicType = HelloWorldConfig.DEFAULT_TOPIC_TYPE;
             var count = 10;
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), count) {
@@ -128,11 +128,11 @@ public class ThirdpartyClientTests {
                         new RtpsTalkConfiguration.Builder()
                                 .historyCacheMaxSize(maxHistoryCacheSize)
                                 .build())) {
-            var topicName = "HelloWorldTopic";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
             var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
             client.publish(
                     topicName,
-                    "HelloWorld",
+                    HelloWorldConfig.DEFAULT_TOPIC_TYPE,
                     new PublisherQosPolicy(
                             ReliabilityType.RELIABLE,
                             DurabilityType.TRANSIENT_LOCAL_DURABILITY_QOS),

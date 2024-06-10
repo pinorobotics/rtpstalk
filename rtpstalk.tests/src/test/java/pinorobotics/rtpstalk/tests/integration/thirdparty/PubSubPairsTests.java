@@ -299,7 +299,8 @@ public class PubSubPairsTests {
             client.start();
             publisherGuid =
                     TestEvents.waitForDiscoveredActor(
-                                    "HelloWorldTopic0", ActorDetails.Type.Publisher)
+                                    HelloWorldConfig.DEFAULT_TOPIC_NAME + "0",
+                                    ActorDetails.Type.Publisher)
                             .endpointGuid();
         }
         var subscribers =
@@ -315,7 +316,12 @@ public class PubSubPairsTests {
         // subscribe all
         var entityIds =
                 IntStream.range(0, testCase.numberOfPubSubPairs)
-                        .map(i -> client.subscribe(topics.get(i), "HelloWorld", subscribers.get(i)))
+                        .map(
+                                i ->
+                                        client.subscribe(
+                                                topics.get(i),
+                                                HelloWorldConfig.DEFAULT_TOPIC_TYPE,
+                                                subscribers.get(i)))
                         .toArray();
 
         if (!testCase.isSubscribeToFutureTopic) {
@@ -328,7 +334,8 @@ public class PubSubPairsTests {
             publishersRunner.run();
             publisherGuid =
                     TestEvents.waitForDiscoveredActor(
-                                    "HelloWorldTopic0", ActorDetails.Type.Publisher)
+                                    HelloWorldConfig.DEFAULT_TOPIC_NAME + "0",
+                                    ActorDetails.Type.Publisher)
                             .endpointGuid();
         }
 
@@ -408,7 +415,8 @@ public class PubSubPairsTests {
             client.start();
             readerGuid =
                     TestEvents.waitForDiscoveredActor(
-                                    "HelloWorldTopic0", ActorDetails.Type.Subscriber)
+                                    HelloWorldConfig.DEFAULT_TOPIC_NAME + "0",
+                                    ActorDetails.Type.Subscriber)
                             .endpointGuid();
         }
 
@@ -417,7 +425,10 @@ public class PubSubPairsTests {
                         .mapToObj(
                                 i -> {
                                     var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
-                                    client.publish(topics.get(i), "HelloWorld", publisher);
+                                    client.publish(
+                                            topics.get(i),
+                                            HelloWorldConfig.DEFAULT_TOPIC_TYPE,
+                                            publisher);
                                     return publisher;
                                 })
                         .toList();
@@ -426,7 +437,8 @@ public class PubSubPairsTests {
             subscribersRunner.run();
             readerGuid =
                     TestEvents.waitForDiscoveredActor(
-                                    "HelloWorldTopic0", ActorDetails.Type.Subscriber)
+                                    HelloWorldConfig.DEFAULT_TOPIC_NAME + "0",
+                                    ActorDetails.Type.Subscriber)
                             .endpointGuid();
         }
 
@@ -467,7 +479,9 @@ public class PubSubPairsTests {
     }
 
     private List<String> generateTopicNames(int count) {
-        return IntStream.range(0, count).mapToObj(i -> "HelloWorldTopic" + i).toList();
+        return IntStream.range(0, count)
+                .mapToObj(i -> HelloWorldConfig.DEFAULT_TOPIC_NAME + i)
+                .toList();
     }
 
     private static void validateAcrossNetworkInterfaces(String templateResourceName) {

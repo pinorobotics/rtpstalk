@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public record HelloWorldConfig(Map<HelloWorldExampleVariable, String> parameters) {
+    public static final String DEFAULT_TOPIC_NAME = "HelloWorldTopic";
+    public static final String DEFAULT_TOPIC_TYPE = "HelloWorld";
+
     public HelloWorldConfig() {
         this(Map.of());
     }

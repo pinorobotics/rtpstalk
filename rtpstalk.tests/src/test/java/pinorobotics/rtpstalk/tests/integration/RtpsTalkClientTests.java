@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
 import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.TestEvents;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldConfig;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -60,8 +61,8 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     public void test_publish_single_message() throws Exception {
         try (var subscriberClient = new RtpsTalkClient();
                 var publisherClient = new RtpsTalkClient(); ) {
-            var topicName = "HelloWorldTopic";
-            var topicType = "HelloWorld";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
+            var topicType = HelloWorldConfig.DEFAULT_TOPIC_TYPE;
             var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
             var data = new RtpsTalkDataMessage("1234");
             publisherClient.publish(
@@ -88,8 +89,8 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     public void test_inlineQos() throws Exception {
         try (var subscriberClient = new RtpsTalkClient();
                 var publisherClient = new RtpsTalkClient()) {
-            var topicName = "HelloWorldTopic";
-            var topicType = "HelloWorld";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
+            var topicType = HelloWorldConfig.DEFAULT_TOPIC_TYPE;
             // register a new subscriber
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 3) {
@@ -116,8 +117,8 @@ public class RtpsTalkClientTests extends PubSubClientTests {
     @Test
     public void test_subscriber_notifies_publisher_when_it_closes() throws Exception {
         try (var publisherClient = new RtpsTalkClient()) {
-            var topicName = "HelloWorldTopic";
-            var topicType = "HelloWorld";
+            var topicName = HelloWorldConfig.DEFAULT_TOPIC_NAME;
+            var topicType = HelloWorldConfig.DEFAULT_TOPIC_TYPE;
             var subscriberClient = new RtpsTalkClient();
             var collector =
                     new FixedCollectorSubscriber<>(new ArrayList<RtpsTalkDataMessage>(), 1) {

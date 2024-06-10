@@ -41,6 +41,7 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
             Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
+    /** By default 10 messages are published */
     @Override
     public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
         var argsList = new ArrayList<String>();
