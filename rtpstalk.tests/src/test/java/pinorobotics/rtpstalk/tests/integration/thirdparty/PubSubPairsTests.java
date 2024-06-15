@@ -43,7 +43,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.InternalUtils;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -74,7 +73,7 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloW
 public class PubSubPairsTests {
 
     private HelloWorldClient helloWorldExample;
-    private RtpsTalkClient client;
+    private RtpsTalkHelloWorldClient client;
 
     private record TestCase(
             HelloWorldClient helloWorldExample,
@@ -245,7 +244,7 @@ public class PubSubPairsTests {
     @BeforeEach
     public void setup() throws IOException {
         client =
-                new RtpsTalkClient(
+                new RtpsTalkHelloWorldClient(
                         new RtpsTalkConfiguration.Builder()
                                 .builtinEnpointsPort(8080)
                                 .userEndpointsPort(8081)
@@ -262,7 +261,7 @@ public class PubSubPairsTests {
     @MethodSource("dataProvider")
     public void test_thirdparty_publisher(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
-        client = new RtpsTalkClient(testCase.config);
+        client = new RtpsTalkHelloWorldClient(testCase.config);
 
         List<String> topics = generateTopicNames(testCase.numberOfPubSubPairs);
         var expectedData =
@@ -316,12 +315,7 @@ public class PubSubPairsTests {
         // subscribe all
         var entityIds =
                 IntStream.range(0, testCase.numberOfPubSubPairs)
-                        .map(
-                                i ->
-                                        client.subscribe(
-                                                topics.get(i),
-                                                HelloWorldConfig.DEFAULT_TOPIC_TYPE,
-                                                subscribers.get(i)))
+                        .map(i -> client.subscribeToHelloWorld(topics.get(i), subscribers.get(i)))
                         .toArray();
 
         if (!testCase.isSubscribeToFutureTopic) {
@@ -381,7 +375,7 @@ public class PubSubPairsTests {
     @MethodSource("dataProvider")
     public void test_thirdparty_subscriber(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
-        client = new RtpsTalkClient(testCase.config);
+        client = new RtpsTalkHelloWorldClient(testCase.config);
 
         int numberOfPubSubPairs = testCase.numberOfPubSubPairs;
         List<String> topics = generateTopicNames(numberOfPubSubPairs);
@@ -425,10 +419,7 @@ public class PubSubPairsTests {
                         .mapToObj(
                                 i -> {
                                     var publisher = new SubmissionPublisher<RtpsTalkDataMessage>();
-                                    client.publish(
-                                            topics.get(i),
-                                            HelloWorldConfig.DEFAULT_TOPIC_TYPE,
-                                            publisher);
+                                    client.publishToHelloWorld(topics.get(i), publisher);
                                     return publisher;
                                 })
                         .toList();

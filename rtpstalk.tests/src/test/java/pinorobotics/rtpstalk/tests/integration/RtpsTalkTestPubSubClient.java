@@ -18,6 +18,9 @@
 package pinorobotics.rtpstalk.tests.integration;
 
 import id.pubsubtests.TestPubSubClient;
+import id.pubsubtests.data.ByteMessageFactory;
+import id.pubsubtests.data.Message;
+import id.pubsubtests.data.MessageFactory;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.TransformPublisher;
 import id.xfunction.concurrent.flow.TransformSubscriber;
@@ -42,6 +45,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
 
     public static final int QUEUE_SIZE = 10;
     private static final short LENGTH_KEY = 0xbe;
+    private static final MessageFactory MESSAGE_FACTORY = new ByteMessageFactory();
     private RtpsTalkClient client =
             new RtpsTalkClient(
                     new RtpsTalkConfiguration.Builder()
@@ -75,19 +79,20 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     }
 
     @Override
-    public void subscribe(String topic, Subscriber<byte[]> subscriber) {
+    public void subscribe(String topic, Subscriber<Message> subscriber) {
         var transformer = new TransformSubscriber<>(subscriber, this::extractUserdata);
         client.subscribe(topic, asType(topic), transformer);
     }
 
-    private Optional<byte[]> extractUserdata(RtpsTalkDataMessage message) {
+    private Optional<Message> extractUserdata(RtpsTalkDataMessage message) {
         var length =
                 XByte.toInt(message.userInlineQos().orElseThrow().getParameters().get(LENGTH_KEY));
         var userData = Arrays.copyOf(message.data().orElseThrow(), length);
-        return Optional.of(userData);
+        return Optional.of(MESSAGE_FACTORY.create(userData));
     }
 
-    private Optional<RtpsTalkDataMessage> packUserdata(byte[] data) {
+    private Optional<RtpsTalkDataMessage> packUserdata(Message msg) {
+        var data = msg.getBody();
         return Optional.of(
                 new RtpsTalkDataMessage(
                         new Parameters(Map.of(LENGTH_KEY, XByte.copyToByteArray(data.length))),
@@ -99,7 +104,7 @@ public class RtpsTalkTestPubSubClient implements TestPubSubClient {
     }
 
     @Override
-    public void publish(String topic, Publisher<byte[]> publisher) {
+    public void publish(String topic, Publisher<Message> publisher) {
         var transformer = new TransformPublisher<>(publisher, this::packUserdata);
         client.publish(topic, asType(topic), publisherQosPolicy, writerSettings, transformer);
     }
