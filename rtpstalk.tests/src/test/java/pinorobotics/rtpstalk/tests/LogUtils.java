@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests;
 import id.xfunction.function.Unchecked;
 import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
+import id.xfunction.text.Ellipsizer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +35,7 @@ public class LogUtils {
             XFiles.TEMP_FOLDER.map(p -> p.resolve("rtpstalk-test.log")).orElseThrow();
     private static final Path LOG_ARCHIVE_FOLDER =
             Unchecked.get(() -> Files.createTempDirectory("rtpstalk-tests"));
+    private static final Ellipsizer ELLIPSIZER = new Ellipsizer(60);
 
     public static void setupLog() {
         XLogger.reset();
@@ -60,5 +62,9 @@ public class LogUtils {
         var log = LogUtils.readLogFile();
         Assertions.assertFalse(log.contains("Exception"), "Exceptions found in the log");
         Assertions.assertFalse(log.contains("ERROR"));
+    }
+
+    public static String ellipsize(String str) {
+        return ELLIPSIZER.ellipsizeMiddle(str);
     }
 }

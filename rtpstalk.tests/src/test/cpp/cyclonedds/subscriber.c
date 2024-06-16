@@ -10,14 +10,14 @@ int main (int argc, char ** argv)
   dds_entity_t topic;
   dds_entity_t reader;
   HelloWorld *msg;
-  void **samples;
+  void **samplesBuf;
   dds_sample_info_t *infos;
   dds_return_t rc;
   dds_qos_t *qos;
   (void)argc;
   (void)argv;
   int numOfSamples = 1;
-  if (argc >= 1)
+  if (argc > 1)
     numOfSamples = atoi(argv[1]);
   printf("Num of samples: %d\n", numOfSamples);
 
@@ -47,56 +47,33 @@ int main (int argc, char ** argv)
   printf ("\n=== [Subscriber] Waiting for a sample ...\n");
   fflush (stdout);
 
-  samples = malloc(numOfSamples * sizeof(void*));
+  int bufSize = 10;
+  samplesBuf = malloc(bufSize * sizeof(void*));
   /* Initialize sample buffer, by pointing the void pointer within
    * the buffer array to a valid sample memory location. */
-  for (int i = 0; i < numOfSamples; i++) {
-    samples[i] = HelloWorld__alloc ();
+  for (int i = 0; i < bufSize; i++) {
+    samplesBuf[i] = HelloWorld__alloc ();
   }
 
-  infos = malloc(numOfSamples * sizeof(dds_sample_info_t));
+  infos = malloc(bufSize * sizeof(dds_sample_info_t));
   
   /* Poll until data has been read. */
-  while (true)
+  while (numOfSamples > 0)
   {
-    rc = dds_read (reader, samples, infos, numOfSamples, numOfSamples);
+    rc = dds_take (reader, samplesBuf, infos, bufSize, bufSize);
     for (int i = 0; i < rc; i++) {
       if (! infos[i].valid_data) continue;
-      msg = (HelloWorld*) samples[i];
+      msg = (HelloWorld*) samplesBuf[i];
       printf ("=== [Subscriber] Received : ");
       printf ("Message (%"PRId32", %s)\n", msg->index, msg->message);
       fflush (stdout);
     }
-    if (rc > 0) break;
+    numOfSamples -= rc;
     dds_sleepfor (DDS_MSECS (20));
-    continue;
-    /* Do the actual read.
-     * The return value contains the number of read samples. */
-    rc = dds_read (reader, samples, infos, numOfSamples, numOfSamples);
-    if (rc < 0)
-      DDS_FATAL("dds_read: %s\n", dds_strretcode(-rc));
-
-    /* Check if we read some data and it is valid. */
-    if ((rc > 0) && (infos[0].valid_data))
-    {
-      for (int i = 0; i < numOfSamples; i++) {
-        /* Print Message. */
-        msg = (HelloWorld*) samples[i];
-        printf ("=== [Subscriber] Received : ");
-        printf ("Message (%"PRId32", %s)\n", msg->index, msg->message);
-        fflush (stdout);
-      }
-      break;
-    }
-    else
-    {
-      /* Polling sleep. */
-      dds_sleepfor (DDS_MSECS (20));
-    }
   }
 
   /* Free the data location. */
-  HelloWorld_free (samples[0], DDS_FREE_ALL);
+  HelloWorld_free (samplesBuf[0], DDS_FREE_ALL);
 
   /* Explicitly deleting subscriber for test purposes */
   rc = dds_delete (reader);

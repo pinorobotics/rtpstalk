@@ -19,23 +19,31 @@ package pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds;
 
 import static java.util.stream.Collectors.toMap;
 
+import id.pubsubtests.TestPubSubClient;
+import id.pubsubtests.data.Message;
+import id.xfunction.XByte;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Flow.Publisher;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExampleVariable;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class CycloneDdsHelloWorldClient implements HelloWorldClient {
+public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubClient {
 
     private static final String PUBLISHER_PATH =
             Paths.get("").toAbsolutePath().resolve("bld/cyclonedds/HelloworldPublisher").toString();
@@ -69,6 +77,10 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient {
     private Map<String, String> toStringKeys(Map<HelloWorldExampleVariable, String> env) {
         return env.entrySet().stream()
                 .collect(toMap(e -> e.getKey().getVariableName(), Entry::getValue));
+    }
+
+    public void waitAll() {
+        procs.forEach(proc -> proc.await());
     }
 
     @Override
@@ -152,5 +164,45 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient {
     @Override
     public String toString() {
         return "CycloneDdsHelloWorldExample";
+    }
+
+    @Override
+    public void publish(String topic, Publisher<Message> publisher) {
+        var env =
+                Map.of(
+                        HelloWorldExampleVariable.RunPublisher,
+                        "true",
+                        HelloWorldExampleVariable.TopicName,
+                        topic,
+                        HelloWorldExampleVariable.NumberOfMesages,
+                        "-1");
+        var proc = runHelloWorldExample(env);
+        publisher.subscribe(
+                new SimpleSubscriber<>() {
+                    int c;
+
+                    public void onNext(Message msg) {
+                        var body = msg.getBody();
+                        System.out.format(
+                                "Submitting item %d to cyclonedds HelloWorldClient: %s\n",
+                                c++, LogUtils.ellipsize(XByte.toHexPairs(body)));
+                        try {
+                            var subscription = getSubscription().get();
+                            var out = proc.process().getOutputStream();
+                            out.write(body);
+                            out.write(System.lineSeparator().getBytes());
+                            out.flush();
+                            subscription.request(1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            subscription.cancel();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void subscribe(String topic, Subscriber<Message> subscriber) {
+        throw new UnsupportedOperationException();
     }
 }

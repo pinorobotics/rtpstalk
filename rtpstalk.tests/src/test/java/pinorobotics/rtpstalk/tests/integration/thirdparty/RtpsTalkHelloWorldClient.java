@@ -17,17 +17,26 @@
  */
 package pinorobotics.rtpstalk.tests.integration.thirdparty;
 
+import id.pubsubtests.TestPubSubClient;
+import id.pubsubtests.data.ByteMessageFactory;
+import id.pubsubtests.data.Message;
+import id.pubsubtests.data.MessageFactory;
+import id.xfunction.XByte;
+import id.xfunction.concurrent.flow.TransformSubscriber;
+import java.util.Arrays;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.tests.LogUtils;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class RtpsTalkHelloWorldClient {
+public class RtpsTalkHelloWorldClient implements TestPubSubClient {
 
+    private MessageFactory messageFactory = new ByteMessageFactory();
     private RtpsTalkClient client;
 
     public RtpsTalkHelloWorldClient() {
@@ -38,12 +47,42 @@ public class RtpsTalkHelloWorldClient {
         client = new RtpsTalkClient(config);
     }
 
+    public RtpsTalkHelloWorldClient(StringMessageFactory messageFactory) {
+        this();
+        this.messageFactory = messageFactory;
+    }
+
     public void start() {
         client.start();
     }
 
+    @Override
     public void close() {
         client.close();
+    }
+
+    @Override
+    public void publish(String topic, Publisher<Message> var2) {}
+
+    @Override
+    public void subscribe(String topic, Subscriber<Message> subscriber) {
+        subscribeToHelloWorld(
+                topic,
+                new TransformSubscriber<RtpsTalkDataMessage, Message>(
+                        subscriber,
+                        data -> {
+                            return data.data()
+                                    .map(
+                                            d -> {
+                                                d = Arrays.copyOfRange(d, 8, d.length);
+                                                System.out.format(
+                                                        "RtpsTalkHelloWorldClient subscriber"
+                                                                + " received: len=%d [%s]\n",
+                                                        d.length,
+                                                        LogUtils.ellipsize(XByte.toHexPairs(d)));
+                                                return messageFactory.create(d);
+                                            });
+                        }));
     }
 
     public void publishToHelloWorld(String topic, Publisher<RtpsTalkDataMessage> publisher) {

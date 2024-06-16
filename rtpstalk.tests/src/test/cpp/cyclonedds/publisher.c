@@ -2,6 +2,21 @@
 #include "HelloWorldData.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+void publish(dds_entity_t writer, int id, const char* data) {
+  HelloWorld msg;
+  /* Create a message to write. */
+  msg.index = id;
+  msg.message = data;
+
+  printf ("=== [Publisher]  Writing : \n");
+  printf ("Message (%"PRId32", %s)\n", msg.index, msg.message);
+  fflush (stdout);
+  int rc = dds_write (writer, &msg);
+  if (rc != DDS_RETCODE_OK)
+    DDS_FATAL("dds_write: %s\n", dds_strretcode(-rc));
+}
 
 int main (int argc, char ** argv)
 {
@@ -9,7 +24,6 @@ int main (int argc, char ** argv)
   dds_entity_t topic;
   dds_entity_t writer;
   dds_return_t rc;
-  HelloWorld msg;
   uint32_t status = 0;
   (void)argc;
   (void)argv;
@@ -19,7 +33,7 @@ int main (int argc, char ** argv)
   if (participant < 0)
     DDS_FATAL("dds_create_participant: %s\n", dds_strretcode(-participant));
   int numOfSamples = 1;
-  if (argc >= 1)
+  if (argc > 1)
     numOfSamples = atoi(argv[1]);
   printf("Num of samples: %d\n", numOfSamples);
 
@@ -61,17 +75,19 @@ int main (int argc, char ** argv)
     dds_sleepfor (DDS_MSECS (20));
   }
 
-  for (uint32_t i = 0; i < numOfSamples; ++i) {
-    /* Create a message to write. */
-    msg.index = i + 1;
-    msg.message = "HelloWorld";
-
-    printf ("=== [Publisher]  Writing : \n");
-    printf ("Message (%"PRId32", %s)\n", msg.index, msg.message);
-    fflush (stdout);
-    rc = dds_write (writer, &msg);
-    if (rc != DDS_RETCODE_OK)
-      DDS_FATAL("dds_write: %s\n", dds_strretcode(-rc));
+  if (numOfSamples == -1) {
+    int i = 0;
+    char*line = NULL;
+    int len = 0;
+    while ((len = getline(&line, &len, stdin)) != -1) {
+      line[len - 1] = 0;
+      publish(writer, i++, line);
+      free(line);
+      line = NULL;
+      len = 0;
+    }
+  } else {
+    for (uint32_t i = 0; i < numOfSamples; ++i) publish(writer, i + 1, "HelloWorld");
   }
   
   /* Deleting the participant will delete all its children recursively as well. */
