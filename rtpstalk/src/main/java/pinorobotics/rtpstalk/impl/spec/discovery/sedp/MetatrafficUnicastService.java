@@ -138,7 +138,6 @@ public class MetatrafficUnicastService implements AutoCloseable {
                         config.publicConfig(),
                         new TracingToken(tracingToken, "sedp"),
                         publisherExecutor,
-                        config.publicConfig().guidPrefix(),
                         iface.getParticipantsRegistry());
         metatrafficUnicastReceiver.subscribe(spdpReader);
     }

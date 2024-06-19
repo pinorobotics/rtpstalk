@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatelessRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.KeyHash;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
@@ -48,16 +49,14 @@ public class SpdpBuiltinParticipantReader
             RtpsTalkConfiguration config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            byte[] guidPrefix,
             ParticipantsRegistry participantsRegistry) {
         super(
                 config,
                 tracingToken,
                 RtpsTalkParameterListMessage.class,
                 publisherExecutor,
-                new Guid(
-                        guidPrefix,
-                        EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue()));
+                EntityId.Predefined.ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR.getValue(),
+                ReliabilityQosPolicy.Kind.BEST_EFFORT);
         this.participantsRegistry = participantsRegistry;
     }
 

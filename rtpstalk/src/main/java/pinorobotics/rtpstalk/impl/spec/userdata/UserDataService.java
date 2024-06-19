@@ -31,12 +31,15 @@ import pinorobotics.rtpstalk.impl.RtpsNetworkInterface;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiverFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -47,7 +50,7 @@ public class UserDataService implements AutoCloseable {
     private RtpsTalkConfigurationInternal config;
     private RtpsMessageReceiver receiver;
     private DataChannelFactory channelFactory;
-    private Map<EntityId, DataReader> readers = new HashMap<>();
+    private Map<EntityId, RtpsReader<RtpsTalkDataMessage>> readers = new HashMap<>();
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
     private LocalOperatingEntities operatingEntities;
@@ -76,18 +79,26 @@ public class UserDataService implements AutoCloseable {
             SubscriberDetails subscriberDetails) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         var userSubscriber = subscriberDetails.subscriber();
-        var reader =
-                readers.computeIfAbsent(
-                        readerEntityId,
-                        eid ->
-                                dataObjectsFactory.newDataReader(
-                                        config,
-                                        tracingToken,
-                                        publisherExecutor,
-                                        operatingEntities,
-                                        eid,
-                                        subscriberDetails.qosPolicy()));
-        reader.matchedWriterAdd(remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
+        var reader = readers.get(readerEntityId);
+        if (reader == null) {
+            reader =
+                    dataObjectsFactory.newDataReader(
+                            config,
+                            tracingToken,
+                            publisherExecutor,
+                            operatingEntities,
+                            readerEntityId,
+                            subscriberDetails.qosPolicy());
+            readers.put(readerEntityId, reader);
+        }
+        Preconditions.equals(
+                reader.getReliabilityKind(),
+                subscriberDetails.qosPolicy().reliabilityKind(),
+                "Subscriber already exists with reliabilityKind %s. Subscribers of different"
+                        + " QoS are not allowed.");
+        if (reader instanceof StatefullReliableRtpsReader<?> realiableReader)
+            realiableReader.matchedWriterAdd(
+                    remoteWriterEndpointGuid, remoteWriterDefaultUnicastLocators);
         if (reader.isSubscribed(userSubscriber)) {
             // this happens when there are several publishers for same topic
             // since subscriber already subscribed to DataReader we don't
@@ -143,7 +154,7 @@ public class UserDataService implements AutoCloseable {
         closeDataWriters();
         receiver.close();
         // close DataReader only after all pending changes in DataWriter were sent
-        readers.values().forEach(DataReader::close);
+        readers.values().forEach(RtpsReader::close);
     }
 
     public void closeDataWriters() {

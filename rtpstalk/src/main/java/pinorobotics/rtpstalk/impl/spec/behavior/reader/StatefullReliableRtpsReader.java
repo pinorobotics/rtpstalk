@@ -105,7 +105,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 messageType,
                 publisherExecutor,
                 new Guid(config.publicConfig().guidPrefix(), entityId),
-                ReliabilityQosPolicy.Kind.RELIABLE);
+                qosPolicy.reliabilityKind());
         this.dataChannelFactory = dataChannelFactory;
         Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.qosPolicy = qosPolicy;

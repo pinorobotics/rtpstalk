@@ -22,13 +22,20 @@ import static pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder.DEFAULT_HEARTB
 
 import id.opentelemetry.exporters.extensions.ElasticsearchMetricsExtension;
 import id.pubsubtests.CompositePubSubClient;
+import id.pubsubtests.MessageOrder;
 import id.pubsubtests.PubSubClientThroughputTestCase;
 import id.pubsubtests.PubSubClientThroughputTests;
 import id.pubsubtests.TestPubSubClient;
 import java.time.Duration;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.qos.DurabilityType;
+import pinorobotics.rtpstalk.qos.PublisherQosPolicy;
+import pinorobotics.rtpstalk.qos.ReliabilityType;
+import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
 
@@ -38,13 +45,24 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsH
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class ThirdpartyClientThroughputTests extends PubSubClientThroughputTests {
 
+    private static Supplier<TestPubSubClient> clientFactory(
+            RtpsTalkConfiguration config,
+            PublisherQosPolicy publisherQos,
+            SubscriberQosPolicy subscriberQos,
+            StringMessageFactory messageFactory) {
+        return () ->
+                new CompositePubSubClient(
+                        new RtpsTalkHelloWorldClient(config, subscriberQos, messageFactory),
+                        new CycloneDdsHelloWorldClient(
+                                Map.of(
+                                        HelloWorldExampleVariable.ReliabilityQosPolicyKind,
+                                        publisherQos.reliabilityType() == ReliabilityType.RELIABLE
+                                                ? "RELIABLE_RELIABILITY"
+                                                : "BEST_EFFORT_RELIABILITY")));
+    }
+
     static Stream<PubSubClientThroughputTestCase> dataProvider() {
         var messageFactory = new StringMessageFactory();
-        Supplier<TestPubSubClient> clientFactory =
-                () ->
-                        new CompositePubSubClient(
-                                new RtpsTalkHelloWorldClient(messageFactory),
-                                new CycloneDdsHelloWorldClient());
         return Stream.of(
                 /**
                  * Send 880 packages where each package size is 111 bytes and default. Expected time
@@ -52,13 +70,38 @@ public class ThirdpartyClientThroughputTests extends PubSubClientThroughputTests
                  */
                 new PubSubClientThroughputTestCase(
                         "test_publish_default",
-                        clientFactory,
+                        clientFactory(
+                                new RtpsTalkConfiguration.Builder().build(),
+                                new PublisherQosPolicy(),
+                                new SubscriberQosPolicy(),
+                                messageFactory),
                         messageFactory,
                         111,
                         DEFAULT_DISCOVERY_PERIOD.plus(DEFAULT_HEARTBEAT_PERIOD).plusSeconds(2),
                         880,
                         Duration.ZERO,
                         true,
+                        MessageOrder.STRICT_ASCENDING,
+                        880),
+                /** Test BEST_EFFORT subscriber */
+                new PubSubClientThroughputTestCase(
+                        "test_publish_best_effort_subscriber",
+                        clientFactory(
+                                new RtpsTalkConfiguration.Builder().build(),
+                                new PublisherQosPolicy(
+                                        ReliabilityType.BEST_EFFORT,
+                                        DurabilityType.VOLATILE_DURABILITY_QOS),
+                                new SubscriberQosPolicy(
+                                        ReliabilityType.BEST_EFFORT,
+                                        DurabilityType.VOLATILE_DURABILITY_QOS),
+                                messageFactory),
+                        messageFactory,
+                        111,
+                        DEFAULT_DISCOVERY_PERIOD.plus(DEFAULT_HEARTBEAT_PERIOD).plusSeconds(2),
+                        880,
+                        Duration.ZERO,
+                        true,
+                        MessageOrder.ASCENDING,
                         880));
     }
 }

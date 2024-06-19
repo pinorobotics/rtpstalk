@@ -27,9 +27,10 @@ import java.util.concurrent.ForkJoinPool;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
-import pinorobotics.rtpstalk.impl.spec.userdata.DataReader;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -56,7 +57,7 @@ public class TestDataObjectsFactory extends DataObjectsFactory {
     }
 
     @Override
-    public DataReader newDataReader(
+    public RtpsReader<RtpsTalkDataMessage> newDataReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,

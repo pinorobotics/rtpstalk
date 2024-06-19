@@ -24,28 +24,43 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class DataObjectsFactory {
 
-    public DataReader newDataReader(
+    public RtpsReader<RtpsTalkDataMessage> newDataReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
-            EntityId eid,
+            EntityId readerEntityId,
             ReaderQosPolicySet subscriberQosPolicy) {
-        return new DataReader(
-                config,
-                tracingToken,
-                publisherExecutor,
-                operatingEntities,
-                eid,
-                subscriberQosPolicy);
+        var reliabilityKind = subscriberQosPolicy.reliabilityKind();
+        return switch (reliabilityKind) {
+            case RELIABLE ->
+                    new ReliableDataReader(
+                            config,
+                            tracingToken,
+                            publisherExecutor,
+                            operatingEntities,
+                            readerEntityId,
+                            subscriberQosPolicy);
+            case BEST_EFFORT ->
+                    new BestEffortDataReader(
+                            config,
+                            tracingToken,
+                            publisherExecutor,
+                            readerEntityId,
+                            subscriberQosPolicy);
+            default ->
+                    throw new UnsupportedOperationException("Reliability kind " + reliabilityKind);
+        };
     }
 
     public DataWriter newDataWriter(

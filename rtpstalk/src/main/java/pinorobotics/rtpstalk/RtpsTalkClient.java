@@ -83,7 +83,7 @@ public class RtpsTalkClient implements AutoCloseable {
         if (!isStarted) {
             start();
         }
-        logger.fine("Subscribing to topic {0} with type {1}", topic, type);
+        logger.fine("Subscribing to topic {0} with type {1}, QoS {2}", topic, type, policy);
         var entityId = serviceManager.subscribe(topic, type, policy, subscriber);
         return entityId.value;
     }

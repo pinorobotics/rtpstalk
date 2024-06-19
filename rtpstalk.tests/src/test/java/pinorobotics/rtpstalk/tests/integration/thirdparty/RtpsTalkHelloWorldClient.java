@@ -29,6 +29,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.tests.LogUtils;
 
 /**
@@ -38,6 +39,7 @@ public class RtpsTalkHelloWorldClient implements TestPubSubClient {
 
     private MessageFactory messageFactory = new ByteMessageFactory();
     private RtpsTalkClient client;
+    private SubscriberQosPolicy subscriberQos = new SubscriberQosPolicy();
 
     public RtpsTalkHelloWorldClient() {
         this(new RtpsTalkConfiguration.Builder().build());
@@ -47,8 +49,12 @@ public class RtpsTalkHelloWorldClient implements TestPubSubClient {
         client = new RtpsTalkClient(config);
     }
 
-    public RtpsTalkHelloWorldClient(StringMessageFactory messageFactory) {
-        this();
+    public RtpsTalkHelloWorldClient(
+            RtpsTalkConfiguration config,
+            SubscriberQosPolicy subscriberQos,
+            StringMessageFactory messageFactory) {
+        this(config);
+        this.subscriberQos = subscriberQos;
         this.messageFactory = messageFactory;
     }
 
@@ -90,6 +96,7 @@ public class RtpsTalkHelloWorldClient implements TestPubSubClient {
     }
 
     public int subscribeToHelloWorld(String topic, Subscriber<RtpsTalkDataMessage> subscriber) {
-        return client.subscribe(topic, HelloWorldConfig.DEFAULT_TOPIC_TYPE, subscriber);
+        return client.subscribe(
+                topic, HelloWorldConfig.DEFAULT_TOPIC_TYPE, subscriberQos, subscriber);
     }
 }

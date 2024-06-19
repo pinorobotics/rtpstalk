@@ -15,48 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.tests.spec.userdata;
+package pinorobotics.rtpstalk.impl.spec.userdata;
 
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
-import pinorobotics.rtpstalk.impl.spec.userdata.ReliableDataReader;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class TestDataReader extends ReliableDataReader {
+public class ReliableDataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage> {
 
-    private int subscribeCount;
-
-    public TestDataReader(
+    protected ReliableDataReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
+            Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
             EntityId entityId,
-            Executor executor,
-            int maxBufferCapacity) {
+            ReaderQosPolicySet readerQosPolicy) {
         super(
                 config,
                 tracingToken,
-                executor,
+                RtpsTalkDataMessage.class,
+                publisherExecutor,
                 operatingEntities,
                 entityId,
-                new ReaderQosPolicySet());
-    }
-
-    @Override
-    public void subscribe(Subscriber<? super RtpsTalkDataMessage> subscriber) {
-        super.subscribe(subscriber);
-        subscribeCount++;
-    }
-
-    public int getSubscribeCount() {
-        return subscribeCount;
+                readerQosPolicy);
     }
 }

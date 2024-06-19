@@ -20,8 +20,13 @@ package pinorobotics.rtpstalk.tests.integration.thirdparty;
 import id.pubsubtests.data.Message;
 import id.pubsubtests.data.MessageFactory;
 import id.pubsubtests.data.RandomMessageGenerator;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
 
 /**
+ * Thirdparty HelloWorld clients ({@link CycloneDdsHelloWorldClient}, {@link
+ * FastRtpsHelloWorldClient}) support only String messages
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 class StringMessageFactory implements MessageFactory {

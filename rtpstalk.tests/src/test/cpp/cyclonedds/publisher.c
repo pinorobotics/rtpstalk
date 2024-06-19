@@ -38,9 +38,17 @@ int main (int argc, char ** argv)
   printf("Num of samples: %d\n", numOfSamples);
 
   dds_qos_t *qos = dds_create_qos ();
-  dds_qset_reliability (qos, DDS_RELIABILITY_RELIABLE, DDS_SECS(10));
+  char* cstr = getenv("RTPS_ReliabilityQosPolicyKind");
+  if (cstr != NULL) {
+    if (strcmp(cstr, "BEST_EFFORT_RELIABILITY") == 0) 
+      dds_qset_reliability (qos, DDS_RELIABILITY_BEST_EFFORT, DDS_SECS(10));
+    else
+      dds_qset_reliability (qos, DDS_RELIABILITY_RELIABLE, DDS_SECS(10));
+  } else {
+    dds_qset_reliability (qos, DDS_RELIABILITY_RELIABLE, DDS_SECS(10));
+  }
   dds_qset_durability(qos, DDS_DURABILITY_TRANSIENT_LOCAL);
-  char* cstr = getenv("RTPS_TopicName");
+  cstr = getenv("RTPS_TopicName");
 
   /* Create a Topic. */
   char* topicName = cstr != NULL? cstr: "HelloWorldTopic";

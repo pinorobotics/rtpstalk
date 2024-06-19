@@ -117,11 +117,11 @@ public class ThirdpartyClientTests {
     }
 
     /**
-     * Test that we replay changes in the history cache for BEST_EFFORT Subscribers. For RELIABLE
-     * Subscribers it is not required as they suppose to request them through ACKNACKs
+     * Test that publisher replays changes in the history cache for BEST_EFFORT Subscribers. For
+     * RELIABLE Subscribers it is not required as they suppose to request them through ACKNACKs
      */
     @Test
-    public void test_best_effort_subscriber() throws Exception {
+    public void test_publisher_with_best_effort_subscriber() throws Exception {
         var maxHistoryCacheSize = 200;
         try (var client =
                 new RtpsTalkClient(

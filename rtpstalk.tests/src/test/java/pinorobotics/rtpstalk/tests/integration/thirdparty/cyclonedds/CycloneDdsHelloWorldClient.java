@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,6 +54,15 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
                     .resolve("bld/cyclonedds/HelloworldSubscriber")
                     .toString();
     private List<XProcess> procs = new ArrayList<>();
+    private Map<HelloWorldExampleVariable, String> env = Map.of();
+
+    public CycloneDdsHelloWorldClient() {
+        this(Map.of());
+    }
+
+    public CycloneDdsHelloWorldClient(Map<HelloWorldExampleVariable, String> env) {
+        this.env = env;
+    }
 
     @Override
     public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
@@ -168,14 +178,16 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
 
     @Override
     public void publish(String topic, Publisher<Message> publisher) {
-        var env =
+        var env = new HashMap<HelloWorldExampleVariable, String>();
+        env.putAll(this.env);
+        env.putAll(
                 Map.of(
                         HelloWorldExampleVariable.RunPublisher,
                         "true",
                         HelloWorldExampleVariable.TopicName,
                         topic,
                         HelloWorldExampleVariable.NumberOfMesages,
-                        "-1");
+                        "-1"));
         var proc = runHelloWorldExample(env);
         publisher.subscribe(
                 new SimpleSubscriber<>() {

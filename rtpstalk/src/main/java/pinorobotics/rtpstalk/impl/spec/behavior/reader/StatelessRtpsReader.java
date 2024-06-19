@@ -17,11 +17,13 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.reader;
 
+import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
@@ -38,13 +40,15 @@ public class StatelessRtpsReader<D extends RtpsTalkMessage> extends RtpsReader<D
             TracingToken token,
             Class<D> messageType,
             Executor publisherExecutor,
-            Guid readerGuid) {
+            EntityId entityId,
+            ReliabilityQosPolicy.Kind reliabilityKind) {
         super(
                 config,
                 token,
                 messageType,
                 publisherExecutor,
-                readerGuid,
-                ReliabilityQosPolicy.Kind.BEST_EFFORT);
+                new Guid(config.guidPrefix(), entityId),
+                reliabilityKind);
+        Preconditions.equals(reliabilityKind, ReliabilityQosPolicy.Kind.BEST_EFFORT);
     }
 }

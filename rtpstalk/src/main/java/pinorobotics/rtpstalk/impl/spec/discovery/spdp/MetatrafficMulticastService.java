@@ -97,7 +97,6 @@ public class MetatrafficMulticastService implements AutoCloseable {
                         config.publicConfig(),
                         tracingToken,
                         publisherExecutor,
-                        config.publicConfig().guidPrefix(),
                         iface.getParticipantsRegistry());
         reader.subscribe(participantsSubscriber);
         Locator metatrafficMulticastLocator =

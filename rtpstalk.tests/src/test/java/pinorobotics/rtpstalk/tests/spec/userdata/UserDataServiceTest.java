@@ -30,7 +30,9 @@ import java.util.concurrent.Flow.Subscription;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.SubscriberDetails;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
+import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
@@ -78,13 +80,14 @@ public class UserDataServiceTest {
                 }
             }
             service.start(new TracingToken("test"), new TestRtpsNetworkInterface());
+            var qos = new ReaderQosPolicySet(Kind.RELIABLE, null);
             service.subscribeToRemoteWriter(
                     TestConstants.TEST_READER_ENTITY_ID,
                     List.of(),
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
-                    new SubscriberDetails(null, null, new MySubscriber()));
+                    new SubscriberDetails(null, qos, new MySubscriber()));
             var subscriber = new MySubscriber();
             service.subscribeToRemoteWriter(
                     TestConstants.TEST_READER_ENTITY_ID,
@@ -92,7 +95,7 @@ public class UserDataServiceTest {
                     new Guid(
                             TestConstants.TEST_REMOTE_GUID_PREFIX,
                             EntityId.Predefined.ENTITYID_PARTICIPANT),
-                    new SubscriberDetails(null, null, new MySubscriber()));
+                    new SubscriberDetails(null, qos, new MySubscriber()));
             assertEquals(2, counters[0]);
             assertEquals(0, counters[1]);
             assertEquals(2, dataFactory.getReaders().get(0).getSubscribeCount());

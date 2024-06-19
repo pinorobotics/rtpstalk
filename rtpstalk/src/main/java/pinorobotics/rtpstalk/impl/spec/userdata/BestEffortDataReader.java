@@ -21,30 +21,27 @@ import id.xfunction.logging.TracingToken;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
-import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
-import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatelessRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class DataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage> {
+public class BestEffortDataReader extends StatelessRtpsReader<RtpsTalkDataMessage> {
 
-    protected DataReader(
+    protected BestEffortDataReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            LocalOperatingEntities operatingEntities,
             EntityId entityId,
             ReaderQosPolicySet readerQosPolicy) {
         super(
-                config,
+                config.publicConfig(),
                 tracingToken,
                 RtpsTalkDataMessage.class,
                 publisherExecutor,
-                operatingEntities,
                 entityId,
-                readerQosPolicy);
+                readerQosPolicy.reliabilityKind());
     }
 }
