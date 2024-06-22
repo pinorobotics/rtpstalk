@@ -3,7 +3,7 @@ Tests for `rtpstalk` library.
 # Prereqs
 
 - Following network interfaces available in the system: lo, eth0
-- Fast-DDS v2.6.7
+- Fast-DDS v2.14.0
 - compiled `rtpstalk` version of HelloWorldExample
 - export ELASTIC_URL="https://LOGIN:PASSWD@ELASTICSEARCH_HOST_NAME:9200"
 
@@ -16,9 +16,9 @@ Tests for `rtpstalk` library.
 ```bash
 git clone https://github.com/eProsima/Fast-DDS.git
 cd Fast-DDS/
-git checkout v2.6.7
-mkdir build_v2.6.7
-cd build_v2.6.7
+git checkout v2.14.0
+mkdir build_v2.14.0
+cd build_v2.14.0
 cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DSECURITY=ON ..
 make -j17
 DESTDIR=$(pwd)/install make install
