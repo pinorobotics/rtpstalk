@@ -20,6 +20,7 @@ package pinorobotics.rtpstalk.tests.spec.transport.io;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import id.xfunction.PreconditionException;
+import id.xfunction.ResourceUtils;
 import java.nio.ByteBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,11 +33,12 @@ import pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders.TestCase;
  * @author lambdaprime intid@protonmail.com
  */
 public class RtpsMessageReaderTest {
+    private static final ResourceUtils resourceUtils = new ResourceUtils();
 
     @ParameterizedTest
     @MethodSource(
             "pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders#rtpsMessageConversion")
-    public void testRead(TestCase testData) throws Exception {
+    public void test(TestCase testData) throws Exception {
         var buf = ByteBuffer.wrap(testData.serializedMessage());
         var expected = testData.message();
         var actual = new RtpsMessageReader().readRtpsMessage(buf).get();
@@ -45,9 +47,17 @@ public class RtpsMessageReaderTest {
     }
 
     @Test
-    public void testRead_validate() throws Exception {
+    public void test_validate() throws Exception {
         var buf = ByteBuffer.wrap(DataProviders.readAllBytes("test_data_invalid_zero_writerSN"));
         Assertions.assertThrows(
                 PreconditionException.class, () -> new RtpsMessageReader().readRtpsMessage(buf));
+    }
+
+    @Test
+    public void test_skip_unknown_submessages() throws Exception {
+        var buf = ByteBuffer.wrap(DataProviders.readAllBytes("test_unknown_submessage_raw"));
+        var out = new RtpsMessageReader().readRtpsMessage(buf);
+        assertEquals(
+                resourceUtils.readResource(getClass(), "test_unknown_submessage"), out.toString());
     }
 }

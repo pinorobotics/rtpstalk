@@ -71,6 +71,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketExce
 class RtpsInputKineticStream implements InputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
+    private static final int SUBMESSAGE_HEADER_LENGTH =
+            LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
     private ByteBuffer buf;
     private KineticStreamReader reader;
 
@@ -265,9 +267,7 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private <T extends DataSubmessage> T readData(Class<T> dataType) throws Exception {
         LOGGER.entering("readData");
-        var dataSubmessageStart =
-                buf.position()
-                        + LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
+        var dataSubmessageStart = buf.position() + SUBMESSAGE_HEADER_LENGTH;
         var data = reader.read(dataType);
         if (data.isInlineQos()) {
             LOGGER.fine("Reading InlineQos");
@@ -353,7 +353,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             if (messageClassOpt.isEmpty()) {
                 LOGGER.warning(
                         "Submessage kind {0} is not supported", submessageHeader.submessageKind);
-                skip(submessageLen);
+                skip(submessageLen + SUBMESSAGE_HEADER_LENGTH);
             } else {
                 // knowing submessage type now we can read it fully
                 var submessage = readSubmessage(messageClassOpt.get());
