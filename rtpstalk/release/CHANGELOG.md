@@ -1,3 +1,20 @@
+# Version 9
+
+- Fixing tests for Windows
+- Updating tests to Fast-DDS v2.14.0
+- Fixing PreconditionException when read submessage of unknown type
+- Issue lambdaprime/jros2client#12 Allow users to subscribe to topics with BEST_EFFORT reliability
+- Adding third-party throughput tests
+- Updating to new changes in pubsubtests
+- Extract default topic name and type in tests
+- Renaming HelloWorldExample iface
+- Multiple changes:
+- Adding StatelessRtpsReader
+- Moving thirdparty tests to separate package
+- Renaming TopicSubscriptionsManager and TopicPublicationsManager
+
+[rtpstalk-v9.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v9.0.zip)
+
 # Version 8
 
 - Updating dependencies
