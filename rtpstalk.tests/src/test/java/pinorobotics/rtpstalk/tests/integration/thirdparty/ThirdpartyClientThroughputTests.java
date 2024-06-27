@@ -30,6 +30,8 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.qos.DurabilityType;
@@ -42,6 +44,8 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsH
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+// These tests relies on CycloneDdsHelloWorldClient which currently is not available for Windows
+@DisabledOnOs({OS.WINDOWS})
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class ThirdpartyClientThroughputTests extends PubSubClientThroughputTests {
 

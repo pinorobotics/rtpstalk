@@ -351,7 +351,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             int submessageLen = submessageHeader.submessageLength.getUnsigned();
             var messageClassOpt = submessageHeader.submessageKind.getSubmessageClass();
             if (messageClassOpt.isEmpty()) {
-                LOGGER.warning(
+                LOGGER.fine(
                         "Submessage kind {0} is not supported", submessageHeader.submessageKind);
                 skip(submessageLen + SUBMESSAGE_HEADER_LENGTH);
             } else {
