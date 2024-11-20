@@ -42,7 +42,7 @@ subprojects {
         googleJavaFormat().aosp().reflowLongStrings()
 
         licenseHeader '''/*
- * Copyright $YEAR %s project
+ * Copyright $YEAR %s
  * 
  * Website: https://github.com/%s/%s
  * 

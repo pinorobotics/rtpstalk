@@ -77,4 +77,4 @@ jacocoTestCoverageVerification {
 }
 
 // run spotless and format code before the build
-testClasses.dependsOn spotlessApply
+classes.dependsOn spotlessApply

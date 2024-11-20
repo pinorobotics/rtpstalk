@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 rtpstalk project
+ * Copyright 2022 pinorobotics
  * 
  * Website: https://github.com/pinorobotics/rtpstalk
  * 
