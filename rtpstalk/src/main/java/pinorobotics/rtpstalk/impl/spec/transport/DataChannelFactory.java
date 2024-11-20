@@ -47,6 +47,8 @@ public class DataChannelFactory {
     private static final XLogger LOGGER = XLogger.getLogger(DataChannelFactory.class);
     private static final EnumSet<LocatorKind> SUPPORTED_LOCATORS =
             EnumSet.of(LocatorKind.LOCATOR_KIND_UDPv4, LocatorKind.LOCATOR_KIND_UDPv6);
+    private static boolean muteReceiveBufferWarning;
+    private static boolean muteSendBufferWarning;
     private RtpsTalkConfiguration config;
 
     public DataChannelFactory(RtpsTalkConfiguration config) {
@@ -171,7 +173,8 @@ public class DataChannelFactory {
 
     private void configure(DatagramSocket socket) throws IOException {
         socket.setReceiveBufferSize(config.receiveBufferSize());
-        if (socket.getReceiveBufferSize() != config.receiveBufferSize()) {
+        if (!muteReceiveBufferWarning
+                && socket.getReceiveBufferSize() != config.receiveBufferSize()) {
             // logger formats long numbers, so we convert them to strings
             LOGGER.warning(
                     """
@@ -183,10 +186,11 @@ public class DataChannelFactory {
             sudo sysctl -w net.ipv4.udp_mem={1}
             """,
                     "" + socket.getReceiveBufferSize(), "" + config.receiveBufferSize());
+            muteReceiveBufferWarning = true;
         }
 
         socket.setSendBufferSize(config.sendBufferSize());
-        if (socket.getSendBufferSize() != config.sendBufferSize()) {
+        if (!muteSendBufferWarning && socket.getSendBufferSize() != config.sendBufferSize()) {
             // logger formats long numbers, so we convert them to strings
             LOGGER.warning(
                     """
@@ -198,6 +202,7 @@ public class DataChannelFactory {
             sudo sysctl -w net.ipv4.udp_mem={1}
             """,
                     "" + socket.getSendBufferSize(), "" + config.sendBufferSize());
+            muteSendBufferWarning = true;
         }
     }
 }
