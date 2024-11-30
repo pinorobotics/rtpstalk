@@ -23,6 +23,7 @@ import id.xfunction.logging.XLogger;
 import id.xfunction.text.Ellipsizer;
 import id.xfunction.util.ImmutableMultiMap;
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.nio.ByteBuffer;
@@ -58,10 +59,10 @@ public class DataFragmentJoiner {
                     .setDescription(RtpsTalkMetrics.JOIN_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
-    private final LongHistogram FRAGMENTS_JOIN_COMPLETE_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_METRIC)
-                    .setDescription(RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_METRIC_DESCRIPTION)
-                    .ofLongs()
+    private final LongCounter FRAGMENTS_JOIN_COMPLETE_METER =
+            METER.counterBuilder(RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_COUNT_METRIC)
+                    .setDescription(
+                            RtpsTalkMetrics.FRAGMENTED_MESSAGES_READ_COUNT_METRIC_DESCRIPTION)
                     .build();
 
     private final XLogger logger;
@@ -250,7 +251,7 @@ public class DataFragmentJoiner {
             JOIN_TIME_METER.record(Duration.between(startAt.get(), Instant.now()).toMillis());
             startAt = Optional.empty();
         }
-        FRAGMENTS_JOIN_COMPLETE_METER.record(1);
+        FRAGMENTS_JOIN_COMPLETE_METER.add(1);
         completeDataMessage =
                 Optional.of(
                         new RtpsTalkDataMessage(

@@ -27,8 +27,8 @@ public interface RtpsTalkMetrics {
     String PROCESS_TIME_METRIC = "process_time_ms";
     String PROCESS_TIME_METRIC_DESCRIPTION = "RTPS Reader message processing time in millis";
 
-    String DATA_METRIC = "data_messages_received";
-    String DATA_METRIC_DESCRIPTION = "Number of data messages received";
+    String DATA_COUNT_METRIC = "data_messages_received_total";
+    String DATA_COUNT_METRIC_DESCRIPTION = "Number of data messages received";
 
     String JOIN_TIME_METRIC = "join_time_ms";
     String JOIN_TIME_METRIC_DESCRIPTION = "DATAFRAG join time in millis";
@@ -42,18 +42,18 @@ public interface RtpsTalkMetrics {
     String IRRELEVANT_CHANGES_COUNT_METRIC_DESCRIPTION =
             "Total number of messages which remote writer marked as irrelevant";
 
-    String SUBMITTED_CHANGES_METRIC = "submitted_changes";
-    String SUBMITTED_CHANGES_METRIC_DESCRIPTION =
+    String SUBMITTED_CHANGES_COUNT_METRIC = "submitted_changes_total";
+    String SUBMITTED_CHANGES_COUNT_METRIC_DESCRIPTION =
             "Number of changes submitted to the writer by local publishers";
 
-    String HEARTBEATS_METRIC = "heartbeat";
-    String HEARTBEATS_METRIC_DESCRIPTION = "RTPS Writer heartbeat";
+    String HEARTBEATS_COUNT_METRIC = "heartbeat_total";
+    String HEARTBEATS_COUNT_METRIC_DESCRIPTION = "RTPS Writer heartbeat";
 
     String PARTICIPANTS_COUNT_METRIC = "participants_total";
     String PARTICIPANTS_COUNT_METRIC_DESCRIPTION = "Total number of discovered participants";
 
-    String ANNOUNCEMENTS_METRIC = "announcements";
-    String ANNOUNCEMENTS_METRIC_DESCRIPTION = "Number of SPDP announcements";
+    String ANNOUNCEMENTS_COUNT_METRIC = "announcements_total";
+    String ANNOUNCEMENTS_COUNT_METRIC_DESCRIPTION = "Number of SPDP announcements";
 
     String SEND_TIME_METRIC = "send_time_ms";
     String SEND_TIME_METRIC_DESCRIPTION = "RTPS message send time in millis";
@@ -67,10 +67,10 @@ public interface RtpsTalkMetrics {
     String DESERIALIZATION_TIME_METRIC = "deserialization_time_ms";
     String WRITE_TIME_METRIC_DESCRIPTION = "RTPS message deserialization time in millis";
 
-    String RTPS_READER_COUNT_METRIC = "rtps_reader_count";
+    String RTPS_READER_COUNT_METRIC = "rtps_reader_total";
     String RTPS_READER_COUNT_METRIC_DESCRIPTION = "Total number of local RTPS readers";
 
-    String FRAGMENTED_MESSAGES_READ_METRIC = "fragmented_messages_read";
-    String FRAGMENTED_MESSAGES_READ_METRIC_DESCRIPTION =
+    String FRAGMENTED_MESSAGES_READ_COUNT_METRIC = "fragmented_messages_read_total";
+    String FRAGMENTED_MESSAGES_READ_COUNT_METRIC_DESCRIPTION =
             "Number of fragmented data messages which were joined back to original data message";
 }

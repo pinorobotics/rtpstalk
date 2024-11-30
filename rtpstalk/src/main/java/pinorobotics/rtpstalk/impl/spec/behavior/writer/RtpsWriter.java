@@ -21,7 +21,7 @@ import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -63,10 +63,9 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         extends SubmissionPublisher<RtpsMessageSender.MessageBuilder>
         implements Subscriber<D>, RtpsEntity, AutoCloseable {
     private final Meter METER = GlobalOpenTelemetry.getMeter(RtpsWriter.class.getSimpleName());
-    private final LongHistogram SUBMITTED_CHANGES_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.SUBMITTED_CHANGES_METRIC)
-                    .setDescription(RtpsTalkMetrics.SUBMITTED_CHANGES_METRIC_DESCRIPTION)
-                    .ofLongs()
+    private final LongCounter SUBMITTED_CHANGES_METER =
+            METER.counterBuilder(RtpsTalkMetrics.SUBMITTED_CHANGES_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.SUBMITTED_CHANGES_COUNT_METRIC_DESCRIPTION)
                     .build();
     protected final XLogger logger;
     private RtpsTalkConfigurationInternal config;
@@ -118,7 +117,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
 
     public long newChange(D data) {
         logger.entering("newChange");
-        SUBMITTED_CHANGES_METER.record(1);
+        SUBMITTED_CHANGES_METER.add(1);
         lastChangeNumber++;
         lastMessage = new RtpsDataMessageBuilder(config, tracingToken, writerGuid.guidPrefix);
         lastMessage.add(lastChangeNumber, data);

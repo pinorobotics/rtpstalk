@@ -21,7 +21,7 @@ import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.net.NetworkInterface;
@@ -49,10 +49,9 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
         implements Runnable, AutoCloseable {
     private final Meter METER =
             GlobalOpenTelemetry.getMeter(SpdpBuiltinParticipantWriter.class.getSimpleName());
-    private final LongHistogram ANNOUNCEMENTS_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.ANNOUNCEMENTS_METRIC)
-                    .setDescription(RtpsTalkMetrics.ANNOUNCEMENTS_METRIC_DESCRIPTION)
-                    .ofLongs()
+    private final LongCounter ANNOUNCEMENTS_METER =
+            METER.counterBuilder(RtpsTalkMetrics.ANNOUNCEMENTS_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.ANNOUNCEMENTS_COUNT_METRIC_DESCRIPTION)
                     .build();
     private static final XLogger LOGGER = XLogger.getLogger(SpdpBuiltinParticipantWriter.class);
     private ScheduledExecutorService executor =
@@ -122,7 +121,7 @@ public class SpdpBuiltinParticipantWriter extends StatelessRtpsWriter<RtpsTalkPa
             default:
                 throw new RuntimeException("Unexpected last change value " + getLastChangeNumber());
         }
-        ANNOUNCEMENTS_METER.record(1);
+        ANNOUNCEMENTS_METER.add(1);
         LOGGER.fine("Sent SpdpDiscoveredParticipantData");
     }
 

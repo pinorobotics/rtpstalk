@@ -85,10 +85,9 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                     .setDescription(RtpsTalkMetrics.PROCESS_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
-    private final LongHistogram DATA_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.DATA_METRIC)
-                    .setDescription(RtpsTalkMetrics.DATA_METRIC_DESCRIPTION)
-                    .ofLongs()
+    private final LongCounter DATA_METER =
+            METER.counterBuilder(RtpsTalkMetrics.DATA_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.DATA_COUNT_METRIC_DESCRIPTION)
                     .build();
     private final LongCounter RTPS_READER_COUNT_METER =
             METER.counterBuilder(RtpsTalkMetrics.RTPS_READER_COUNT_METRIC)
@@ -143,7 +142,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     @Override
     public Result onData(GuidPrefix guidPrefix, Data d) {
-        DATA_METER.record(1);
+        DATA_METER.add(1);
         logger.fine("Received data {0}", d);
         var writerGuid = new Guid(guidPrefix, d.writerId);
         try {
@@ -170,7 +169,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
 
     @Override
     public Result onDataFrag(GuidPrefix guidPrefix, DataFrag dataFrag) {
-        DATA_METER.record(1);
+        DATA_METER.add(1);
         var writerGuid = new Guid(guidPrefix, dataFrag.writerId);
         processor
                 .addDataFrag(writerGuid, dataFrag)

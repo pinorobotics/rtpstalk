@@ -22,7 +22,7 @@ import id.xfunction.concurrent.NamedThreadFactory;
 import id.xfunction.lang.XThread;
 import id.xfunction.logging.TracingToken;
 import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.time.Duration;
@@ -70,10 +70,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
 
     private final Meter METER =
             GlobalOpenTelemetry.getMeter(StatefullReliableRtpsWriter.class.getSimpleName());
-    private final LongHistogram HEARTBEATS_METER =
-            METER.histogramBuilder(RtpsTalkMetrics.HEARTBEATS_METRIC)
-                    .setDescription(RtpsTalkMetrics.HEARTBEATS_METRIC_DESCRIPTION)
-                    .ofLongs()
+    private final LongCounter HEARTBEATS_METER =
+            METER.counterBuilder(RtpsTalkMetrics.HEARTBEATS_COUNT_METRIC)
+                    .setDescription(RtpsTalkMetrics.HEARTBEATS_COUNT_METRIC_DESCRIPTION)
                     .build();
 
     private ScheduledExecutorService executor =
@@ -401,7 +400,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                 .forEach(this::submit);
         logger.fine("Heartbeat {0} submitted to {1} readers", heartbeatCount, readers.size());
         heartbeatCount++;
-        HEARTBEATS_METER.record(1);
+        HEARTBEATS_METER.add(1);
     }
 
     private void sendRequested() {
