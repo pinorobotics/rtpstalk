@@ -1,3 +1,12 @@
+# Version 10
+
+- Changing metric types
+- Updating dependencies
+- Updating copyright
+- Print warnings about buffer sizes only once
+
+[rtpstalk-v10.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v10.0.zip)
+
 # Version 9
 
 - Fixing tests for Windows
