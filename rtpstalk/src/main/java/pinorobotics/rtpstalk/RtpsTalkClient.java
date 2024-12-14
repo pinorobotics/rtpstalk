@@ -17,9 +17,9 @@
  */
 package pinorobotics.rtpstalk;
 
-import id.xfunction.Preconditions;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
+import id.xfunction.util.IdempotentService;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.RtpsServiceManager;
@@ -36,15 +36,13 @@ import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
  * @author aeon_flux aeon_flux@eclipso.ch
  * @author lambdaprime intid@protonmail.com
  */
-public class RtpsTalkClient implements AutoCloseable {
+public class RtpsTalkClient extends IdempotentService {
 
     private final XLogger logger;
     private final RtpsTalkConfigurationInternal config;
     private final DataChannelFactory channelFactory;
     private final RtpsServiceManager serviceManager;
     private final TracingToken tracingToken;
-    private boolean isStarted;
-    private boolean isClosed;
 
     /** Create client with default {@link RtpsTalkConfiguration} */
     public RtpsTalkClient() {
@@ -82,9 +80,7 @@ public class RtpsTalkClient implements AutoCloseable {
             String type,
             SubscriberQosPolicy policy,
             Subscriber<RtpsTalkDataMessage> subscriber) {
-        if (!isStarted) {
-            start();
-        }
+        start();
         logger.fine("Subscribing to topic {0} with type {1}, QoS {2}", topic, type, policy);
         var entityId = serviceManager.subscribe(topic, type, policy, subscriber);
         return entityId.value;
@@ -128,16 +124,17 @@ public class RtpsTalkClient implements AutoCloseable {
             PublisherQosPolicy policy,
             WriterSettings writerSettings,
             Publisher<RtpsTalkDataMessage> publisher) {
-        if (!isStarted) {
-            start();
-        }
+        start();
         logger.fine("Publishing to topic {0} with type {1}", topic, type);
         serviceManager.publish(topic, type, policy, writerSettings, publisher);
     }
 
     /**
-     * Starts all RTPS services which are required for communication with other RTPS participants.
-     * Among them:
+     * {@inheritDoc}
+     *
+     * <p>Start all RTPS services which are required for communication with other RTPS participants.
+     *
+     * <p>Among them:
      *
      * <ul>
      *   <li>Simple Participant Discovery Protocol (SPDP)
@@ -152,23 +149,34 @@ public class RtpsTalkClient implements AutoCloseable {
      * <p>Using this method users can start all RTPS services in advance. It may be useful when you
      * need to assign resources (for example ports) early during application startup.
      */
+    @Override
     public void start() {
-        Preconditions.isTrue(!isStarted, "Already started");
+        super.start();
+    }
+
+    @Override
+    protected void onStart() {
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         serviceManager.startAll(tracingToken);
-        isStarted = true;
         logger.exiting("start");
     }
 
-    /** Stop all subscribers, publishers, RTPS services assigned to this client. */
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Stop all subscribers, publishers, RTPS services assigned to this client.
+     */
     @Override
     public void close() {
+        super.close();
+    }
+
+    @Override
+    protected void onClose() {
         // User owned Publishers are represented by Flow.Publisher interface and it has no close
         // method
         // It means we are not closing user owned publishers
-        if (!isStarted) return;
-        if (isClosed) return;
         serviceManager.close();
         logger.fine("Closed");
     }
