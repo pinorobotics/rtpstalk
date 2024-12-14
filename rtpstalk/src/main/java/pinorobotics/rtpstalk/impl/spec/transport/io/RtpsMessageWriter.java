@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
+import id.kineticstreamer.KineticStreamController;
 import id.kineticstreamer.KineticStreamWriter;
 import id.kineticstreamer.PublicStreamedFieldsProvider;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -30,6 +31,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
+ * Thread-safe
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageWriter {
@@ -40,23 +43,31 @@ public class RtpsMessageWriter {
                     .setDescription(RtpsTalkMetrics.WRITE_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
+    private KineticStreamController controller =
+            new RtpsKineticStreamController()
+                    .withFieldsProvider(
+                            new PublicStreamedFieldsProvider(
+                                    FieldsOrderedByNameProvider::readOrderedFieldNames));
 
-    public void writeRtpsMessage(RtpsMessage data, ByteBuffer buf) throws Exception {
-        var out = new RtpsOutputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
-        var ksw =
-                new KineticStreamWriter(out)
-                        .withController(
-                                new RtpsKineticStreamController()
-                                        .withFieldsProvider(
-                                                new PublicStreamedFieldsProvider(
-                                                        FieldsOrderedByNameProvider
-                                                                ::readOrderedFieldNames)));
-        out.setWriter(ksw);
+    /** Write RTPS message to stream of bytes to be sent over the network. */
+    public void writeRtpsMessage(RtpsMessage message, ByteBuffer buf) throws Exception {
         var startAt = Instant.now();
         try {
-            ksw.write(data);
+            write(message, buf.order(RtpsTalkConfiguration.getByteOrder()));
         } finally {
             WRITE_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
         }
+    }
+
+    /**
+     * Write RTPS message to stream of bytes.
+     *
+     * @param message can be full RTPS message or particular part of it
+     */
+    public <T> void write(T message, ByteBuffer buf) throws Exception {
+        var out = new RtpsOutputKineticStream(buf);
+        var ksw = new KineticStreamWriter(out).withController(controller);
+        out.setWriter(ksw);
+        ksw.write(message);
     }
 }

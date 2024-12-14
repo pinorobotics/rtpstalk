@@ -96,7 +96,7 @@ public class LengthCalculator {
         if (clazz == EntityId.class) return EntityId.SIZE;
         if (clazz == UnsignedInt.class) return Integer.BYTES;
         if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
-        if (clazz == SequenceNumber.class) return Integer.BYTES * 2;
+        if (clazz == SequenceNumber.class) return SequenceNumber.SIZE;
         if (clazz == Timestamp.class) return Integer.BYTES * 2;
         if (clazz == ParameterId.class) return Short.BYTES;
         if (clazz == DurationT.class) return Integer.BYTES * 2;

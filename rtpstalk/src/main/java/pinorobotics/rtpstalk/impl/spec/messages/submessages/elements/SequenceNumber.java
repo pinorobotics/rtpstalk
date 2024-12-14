@@ -25,6 +25,7 @@ import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class SequenceNumber implements Comparable<SequenceNumber>, HasStreamedFields {
+    public static final int SIZE = Integer.BYTES * 2;
     public static final SequenceNumber MIN = new SequenceNumber(0);
     public static final SequenceNumber MAX = new SequenceNumber(Long.MAX_VALUE);
     public static final SequenceNumber SEQUENCENUMBER_UNKNOWN =

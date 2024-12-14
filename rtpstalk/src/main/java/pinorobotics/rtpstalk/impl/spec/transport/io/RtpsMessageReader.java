@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.transport.io;
 
+import id.kineticstreamer.KineticStreamController;
 import id.kineticstreamer.KineticStreamReader;
 import id.kineticstreamer.PublicStreamedFieldsProvider;
 import id.xfunction.logging.XLogger;
@@ -34,6 +35,8 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.UnsupportedProtoc
 import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
+ * Thread-safe
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageReader {
@@ -46,22 +49,25 @@ public class RtpsMessageReader {
                     .setDescription(RtpsTalkMetrics.READ_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
+    private KineticStreamController controller =
+            new RtpsKineticStreamController()
+                    .withFieldsProvider(
+                            new PublicStreamedFieldsProvider(
+                                    FieldsOrderedByNameProvider::readOrderedFieldNames));
 
-    /** Returns empty when there is no RTPS message in the buffer or in case it is invalid. */
+    /**
+     * Read RTPS message from network stream of bytes.
+     *
+     * <p>Returns empty when there is no RTPS message in the buffer or in case it is invalid (and
+     * should be ignored).
+     *
+     * @throws Exception when message cannot be read
+     */
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
-        var in = new RtpsInputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
-        var ksr =
-                new KineticStreamReader(in)
-                        .withController(
-                                new RtpsKineticStreamController()
-                                        .withFieldsProvider(
-                                                new PublicStreamedFieldsProvider(
-                                                        FieldsOrderedByNameProvider
-                                                                ::readOrderedFieldNames)));
-        in.setKineticStreamReader(ksr);
         var startAt = Instant.now();
         try {
-            return Optional.of(ksr.read(RtpsMessage.class));
+            return Optional.of(
+                    read(buf.order(RtpsTalkConfiguration.getByteOrder()), RtpsMessage.class));
         } catch (NotRtpsPacketException e) {
             LOGGER.fine("Not RTPS packet, ignoring...");
             return Optional.empty();
@@ -71,5 +77,17 @@ public class RtpsMessageReader {
         } finally {
             READ_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
         }
+    }
+
+    /**
+     * Read RTPS message from stream of bytes.
+     *
+     * @param type allows users to choose if they want to read full message or particular part of it
+     */
+    public <T> T read(ByteBuffer buf, Class<T> type) throws Exception {
+        var in = new RtpsInputKineticStream(buf);
+        var ksr = new KineticStreamReader(in).withController(controller);
+        in.setKineticStreamReader(ksr);
+        return ksr.read(type);
     }
 }

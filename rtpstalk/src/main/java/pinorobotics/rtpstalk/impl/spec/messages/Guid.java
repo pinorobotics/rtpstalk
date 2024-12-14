@@ -17,9 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
-import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
@@ -65,14 +63,6 @@ public class Guid implements HasStreamedFields {
         this(guidPrefix, entityidParticipant.getValue());
     }
 
-    public static Guid newGuid(byte[] guid) {
-        Preconditions.isTrue(guid.length == SIZE);
-        var buf = ByteBuffer.wrap(guid);
-        var gp = new byte[GuidPrefix.SIZE];
-        buf.get(gp);
-        return new Guid(gp, new EntityId((buf.getInt())));
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(entityId, guidPrefix);
@@ -94,12 +84,5 @@ public class Guid implements HasStreamedFields {
         builder.append("guidPrefix", guidPrefix);
         builder.append("entityId", entityId);
         return builder.toString();
-    }
-
-    public byte[] toArray() {
-        var buf = ByteBuffer.allocate(Guid.SIZE);
-        buf.put(guidPrefix.value);
-        buf.putInt(entityId.value);
-        return buf.array();
     }
 }

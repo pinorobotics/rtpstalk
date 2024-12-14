@@ -468,9 +468,7 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     public EntityId readEntityId() throws Exception {
         var val = Integer.reverseBytes(buf.getInt());
-        int entityKey = val >> 8;
-        var entityKind = (byte) (val & 0x000000ff);
-        return new EntityId(entityKey, entityKind);
+        return new EntityId(val);
     }
 
     public StatusInfo readStatusInfo() {

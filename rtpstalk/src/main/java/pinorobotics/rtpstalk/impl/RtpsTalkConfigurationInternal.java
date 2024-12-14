@@ -19,10 +19,13 @@ package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
 import id.xfunction.XJsonStringBuilder;
+import id.xfunction.function.Unchecked;
+import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
+import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 
 /**
  * Provides additional internal parameters on top of {@link RtpsTalkConfiguration}. These are
@@ -32,9 +35,17 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  */
 public record RtpsTalkConfigurationInternal(
         RtpsTalkConfiguration publicConfig, int maxSubmessageSize, Guid localParticipantGuid) {
+    private static final RtpsMessageReader MESSAGE_READER = new RtpsMessageReader();
 
     public RtpsTalkConfigurationInternal(RtpsTalkConfiguration config) {
-        this(config, calcMaxSubmessageSize(config), Guid.newGuid(config.localParticipantGuid()));
+        this(
+                config,
+                calcMaxSubmessageSize(config),
+                Unchecked.get(
+                        () ->
+                                MESSAGE_READER.read(
+                                        ByteBuffer.wrap(config.localParticipantGuid()),
+                                        Guid.class)));
     }
 
     public RtpsTalkConfigurationInternal {
