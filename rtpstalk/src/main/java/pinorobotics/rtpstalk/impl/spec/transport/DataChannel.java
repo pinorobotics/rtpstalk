@@ -32,12 +32,12 @@ import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import java.time.Duration;
 import java.time.Instant;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

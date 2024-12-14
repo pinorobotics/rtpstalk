@@ -28,7 +28,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.behavior.writer.RtpsDataMessageBuilder;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
@@ -40,6 +39,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * Abstract implementation of the Writer.

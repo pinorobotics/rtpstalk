@@ -31,7 +31,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.logging.Level;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
@@ -40,6 +39,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterLi
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * User data is split on multiple fragments. These fragments are packaged in {@link DataFrag}

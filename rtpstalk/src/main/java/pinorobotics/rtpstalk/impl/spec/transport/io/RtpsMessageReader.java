@@ -28,10 +28,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.NotRtpsPacketException;
 import pinorobotics.rtpstalk.impl.spec.transport.io.exceptions.UnsupportedProtocolVersion;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

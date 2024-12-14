@@ -26,7 +26,6 @@ import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 import java.util.List;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
@@ -44,6 +43,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch

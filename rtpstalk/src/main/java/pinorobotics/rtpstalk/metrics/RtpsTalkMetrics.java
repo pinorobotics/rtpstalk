@@ -15,10 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk;
+package pinorobotics.rtpstalk.metrics;
 
 /**
  * Complete list of metrics emitted by <b>rtpstalk</b>
+ *
+ * <p><b>rtpstalk</b> metrics are integrated with <a
+ * href="https://opentelemetry.io/">OpenTelemetry</a>.
+ *
+ * <p>To receive OpenTelemetry metrics users suppose to configure OpenTelemetry exporter. List of
+ * Java exporters can be found in <a
+ * href="https://opentelemetry.io/ecosystem/registry/?language=java&component=exporter">OpenTelemetry
+ * registry</a> or in <a
+ * href="https://github.com/lambdaprime/opentelemetry-exporters-pack">opentelemetry-exporters-pack</a>
+ *
+ * <p>Example of Elasticsearch dashboard (with exporter from opentelemetry-exporters-pack):
+ *
+ * <p><img alt="" src="doc-files/elasticsearch.png"/>
  *
  * @author lambdaprime intid@protonmail.com
  */

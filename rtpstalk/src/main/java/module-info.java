@@ -37,6 +37,7 @@ module rtpstalk {
     exports pinorobotics.rtpstalk.messages;
     exports pinorobotics.rtpstalk.qos;
     exports pinorobotics.rtpstalk.exceptions;
+    exports pinorobotics.rtpstalk.metrics;
     exports pinorobotics.rtpstalk.impl to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.topics to

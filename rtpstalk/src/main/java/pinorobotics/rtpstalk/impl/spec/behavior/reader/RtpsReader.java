@@ -33,7 +33,6 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
-import pinorobotics.rtpstalk.RtpsTalkMetrics;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.RtpsDataPackager.MessageTypeMismatchException;
 import pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentReaderProcessor;
@@ -56,6 +55,7 @@ import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
+import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
 /**
  * Base RTPS Reader implementation.
