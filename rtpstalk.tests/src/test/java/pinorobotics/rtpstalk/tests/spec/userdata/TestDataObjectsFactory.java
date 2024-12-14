@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.impl.spec.userdata.DataObjectsFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
@@ -63,7 +64,8 @@ public class TestDataObjectsFactory extends DataObjectsFactory {
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
             EntityId eid,
-            ReaderQosPolicySet subscriberQosPolicy) {
+            ReaderQosPolicySet subscriberQosPolicy,
+            DataChannelFactory channelFactory) {
         var reader =
                 new TestDataReader(
                         config, tracingToken, operatingEntities, eid, executor, maxBufferCapacity);

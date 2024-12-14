@@ -38,13 +38,13 @@ import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
  */
 public class RtpsTalkClient implements AutoCloseable {
 
-    private XLogger logger;
-    private RtpsTalkConfigurationInternal config;
-    private DataChannelFactory channelFactory;
-    private RtpsServiceManager serviceManager;
+    private final XLogger logger;
+    private final RtpsTalkConfigurationInternal config;
+    private final DataChannelFactory channelFactory;
+    private final RtpsServiceManager serviceManager;
+    private final TracingToken tracingToken;
     private boolean isStarted;
     private boolean isClosed;
-    private TracingToken tracingToken;
 
     /** Create client with default {@link RtpsTalkConfiguration} */
     public RtpsTalkClient() {
@@ -52,8 +52,10 @@ public class RtpsTalkClient implements AutoCloseable {
     }
 
     public RtpsTalkClient(RtpsTalkConfiguration config) {
+        tracingToken = new TracingToken("" + hashCode());
+        logger = XLogger.getLogger(getClass(), tracingToken);
         this.config = new RtpsTalkConfigurationInternal(config);
-        channelFactory = new DataChannelFactory(config);
+        channelFactory = new DataChannelFactory(tracingToken, config);
         serviceManager =
                 new RtpsServiceManager(
                         this.config, channelFactory, new RtpsMessageReceiverFactory());
@@ -152,10 +154,6 @@ public class RtpsTalkClient implements AutoCloseable {
      */
     public void start() {
         Preconditions.isTrue(!isStarted, "Already started");
-        if (tracingToken == null) {
-            tracingToken = new TracingToken("" + hashCode());
-        }
-        logger = XLogger.getLogger(getClass(), tracingToken);
         logger.entering("start");
         logger.fine("Using following configuration: {0}", config);
         serviceManager.startAll(tracingToken);

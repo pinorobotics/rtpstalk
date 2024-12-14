@@ -43,7 +43,7 @@ public class TestDataChannelFactory extends DataChannelFactory {
     }
 
     public TestDataChannelFactory(RtpsTalkConfiguration config) {
-        super(config);
+        super(TestConstants.TEST_TRACING_TOKEN, config);
         this.config = config;
     }
 

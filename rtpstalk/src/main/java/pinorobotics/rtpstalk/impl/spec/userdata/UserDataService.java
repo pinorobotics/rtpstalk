@@ -88,7 +88,8 @@ public class UserDataService implements AutoCloseable {
                             publisherExecutor,
                             operatingEntities,
                             readerEntityId,
-                            subscriberDetails.qosPolicy());
+                            subscriberDetails.qosPolicy(),
+                            channelFactory);
             readers.put(readerEntityId, reader);
         }
         Preconditions.equals(

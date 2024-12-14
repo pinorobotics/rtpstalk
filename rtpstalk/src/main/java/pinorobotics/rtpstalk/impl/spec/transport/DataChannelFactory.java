@@ -44,15 +44,16 @@ import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
  */
 public class DataChannelFactory {
 
-    private static final XLogger LOGGER = XLogger.getLogger(DataChannelFactory.class);
     private static final EnumSet<LocatorKind> SUPPORTED_LOCATORS =
             EnumSet.of(LocatorKind.LOCATOR_KIND_UDPv4, LocatorKind.LOCATOR_KIND_UDPv6);
-    private static boolean muteReceiveBufferWarning;
-    private static boolean muteSendBufferWarning;
-    private RtpsTalkConfiguration config;
+    private final XLogger logger;
+    private final RtpsTalkConfiguration config;
+    private boolean muteReceiveBufferWarning;
+    private boolean muteSendBufferWarning;
 
-    public DataChannelFactory(RtpsTalkConfiguration config) {
+    public DataChannelFactory(TracingToken tracingToken, RtpsTalkConfiguration config) {
         this.config = config;
+        logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
     /** Channel bind to local port */
@@ -95,9 +96,9 @@ public class DataChannelFactory {
             TracingToken tracingToken, Optional<InetAddress> address, Optional<Integer> port)
             throws IOException {
         DatagramChannel dataChannel = null;
-        LOGGER.fine("Binding to address {0}, port {1}", address, port);
+        logger.fine("Binding to address {0}, port {1}", address, port);
         if (port.isEmpty()) {
-            LOGGER.fine(
+            logger.fine(
                     "Port is not provided, trying to find any open port starting from {0}",
                     config.startPort());
             var portIterator = new FreeUdpPortIterator(config.startPort());
@@ -144,7 +145,7 @@ public class DataChannelFactory {
                                                         + locators));
         Preconditions.isTrue(
                 !locator.address().isMulticastAddress(), "Non multicast address expected");
-        LOGGER.fine("Using locator {0}", locator);
+        logger.fine("Using locator {0}", locator);
         var dataChannel =
                 DatagramChannel.open(StandardProtocolFamily.INET)
                         .connect(locator.getSocketAddress());
@@ -157,14 +158,14 @@ public class DataChannelFactory {
                 config.packetBufferSize());
     }
 
-    public static Optional<Locator> findLocator(List<Locator> locators) {
+    public Optional<Locator> findLocator(List<Locator> locators) {
         var locator =
                 locators.stream()
                         .filter(l -> SUPPORTED_LOCATORS.contains(l.kind()))
                         .sorted(Comparator.comparing(Locator::kind))
                         .findFirst();
         if (locator.isEmpty()) {
-            LOGGER.fine(
+            logger.fine(
                     "Could not find any of supported locators {0} from input locators: {1}",
                     SUPPORTED_LOCATORS, locators);
         }
@@ -176,7 +177,7 @@ public class DataChannelFactory {
         if (!muteReceiveBufferWarning
                 && socket.getReceiveBufferSize() != config.receiveBufferSize()) {
             // logger formats long numbers, so we convert them to strings
-            LOGGER.warning(
+            logger.warning(
                     """
             Could not set size of receive buffer, current size {0}, recommended {1}. This may affect message throughput.
 
@@ -192,7 +193,7 @@ public class DataChannelFactory {
         socket.setSendBufferSize(config.sendBufferSize());
         if (!muteSendBufferWarning && socket.getSendBufferSize() != config.sendBufferSize()) {
             // logger formats long numbers, so we convert them to strings
-            LOGGER.warning(
+            logger.warning(
                     """
             Could not set size of send buffer, current size {0}, recommended {1}. This may affect message throughput.
 

@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -75,8 +76,8 @@ public interface TestConstants {
                     ProtocolVersion.Predefined.Version_2_3.getValue(),
                     VendorId.Predefined.RTPSTALK.getValue(),
                     TEST_GUID_PREFIX);
-    Guid TEST_GUID_READER =
-            new Guid(TestConstants.TEST_GUID_PREFIX, TestConstants.TEST_READER_ENTITY_ID);
-    Guid TEST_GUID_WRITER =
-            new Guid(TestConstants.TEST_GUID_PREFIX, TestConstants.TEST_WRITER_ENTITY_ID);
+    Guid TEST_GUID_READER = new Guid(TEST_GUID_PREFIX, TEST_READER_ENTITY_ID);
+    Guid TEST_GUID_WRITER = new Guid(TEST_GUID_PREFIX, TEST_WRITER_ENTITY_ID);
+    DataChannelFactory TEST_DATA_CHANNEL_FACTORY =
+            new DataChannelFactory(TEST_TRACING_TOKEN, TEST_CONFIG_INTERNAL.publicConfig());
 }

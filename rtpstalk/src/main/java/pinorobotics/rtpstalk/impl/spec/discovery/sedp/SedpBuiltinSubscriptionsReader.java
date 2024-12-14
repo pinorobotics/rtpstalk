@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -60,7 +61,8 @@ public class SedpBuiltinSubscriptionsReader
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            LocalOperatingEntities operatingEntities) {
+            LocalOperatingEntities operatingEntities,
+            DataChannelFactory dataChannelFactory) {
         super(
                 config,
                 tracingToken,
@@ -68,7 +70,8 @@ public class SedpBuiltinSubscriptionsReader
                 publisherExecutor,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_DETECTOR.getValue(),
-                DEFAULT_POLICY);
+                DEFAULT_POLICY,
+                dataChannelFactory);
         this.operatingEntities = operatingEntities;
     }
 

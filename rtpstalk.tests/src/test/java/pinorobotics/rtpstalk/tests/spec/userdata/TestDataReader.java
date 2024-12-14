@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.ReliableDataReader;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -47,7 +48,8 @@ public class TestDataReader extends ReliableDataReader {
                 executor,
                 operatingEntities,
                 entityId,
-                new ReaderQosPolicySet());
+                new ReaderQosPolicySet(),
+                TestConstants.TEST_DATA_CHANNEL_FACTORY);
     }
 
     @Override

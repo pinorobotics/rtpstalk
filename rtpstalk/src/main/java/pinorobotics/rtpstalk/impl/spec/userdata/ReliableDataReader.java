@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
@@ -37,7 +38,8 @@ public class ReliableDataReader extends StatefullReliableRtpsReader<RtpsTalkData
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
             EntityId entityId,
-            ReaderQosPolicySet readerQosPolicy) {
+            ReaderQosPolicySet readerQosPolicy,
+            DataChannelFactory dataChannelFactory) {
         super(
                 config,
                 tracingToken,
@@ -45,6 +47,7 @@ public class ReliableDataReader extends StatefullReliableRtpsReader<RtpsTalkData
                 publisherExecutor,
                 operatingEntities,
                 entityId,
-                readerQosPolicy);
+                readerQosPolicy,
+                dataChannelFactory);
     }
 }

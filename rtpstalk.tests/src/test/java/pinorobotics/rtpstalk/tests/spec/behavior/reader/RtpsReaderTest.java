@@ -103,7 +103,8 @@ public class RtpsReaderTest {
                                 TestConstants.TEST_READER_ENTITY_ID,
                                 new ReaderQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
-                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                                TestConstants.TEST_DATA_CHANNEL_FACTORY),
                         List.of(
                                 // different reader message is ignored
                                 new RtpsMessage(
@@ -133,7 +134,8 @@ public class RtpsReaderTest {
                                 TestConstants.TEST_READER_ENTITY_ID,
                                 new ReaderQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
-                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                                TestConstants.TEST_DATA_CHANNEL_FACTORY),
                         List.of(
                                 newRtpsMessage(1, "aaaaa"),
                                 newRtpsMessage(2, "bbbb"),
@@ -156,7 +158,8 @@ public class RtpsReaderTest {
                                 TestConstants.TEST_READER_ENTITY_ID,
                                 new ReaderQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
-                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS)),
+                                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                                TestConstants.TEST_DATA_CHANNEL_FACTORY),
                         List.of(newRtpsMessage(15, "aaaaa"), newRtpsMessage(16, "bbbb")),
                         "test_empty_list"),
 
@@ -173,7 +176,8 @@ public class RtpsReaderTest {
                                 TestConstants.TEST_READER_ENTITY_ID,
                                 new ReaderQosPolicySet(
                                         ReliabilityQosPolicy.Kind.RELIABLE,
-                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS)),
+                                        DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS),
+                                TestConstants.TEST_DATA_CHANNEL_FACTORY),
                         List.of(
                                 newRtpsMessage(15, "aaaaa"),
                                 newRtpsMessage(18, "d"),

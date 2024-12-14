@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.spec.messages.Locator;
 import pinorobotics.rtpstalk.impl.spec.messages.LocatorKind;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
+import pinorobotics.rtpstalk.tests.TestConstants;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -35,10 +36,11 @@ public class DataChannelFactoryTest {
     public void test() throws UnknownHostException {
         var addr = InetAddress.getByAddress(XByte.copyAsByteLiterals(0x1, 0x1, 0x1, 0x1));
         var locator =
-                DataChannelFactory.findLocator(
-                        List.of(
-                                new Locator(LocatorKind.LOCATOR_KIND_INVALID, 0, addr),
-                                new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 1230, addr)));
+                new DataChannelFactory(TestConstants.TEST_TRACING_TOKEN, null)
+                        .findLocator(
+                                List.of(
+                                        new Locator(LocatorKind.LOCATOR_KIND_INVALID, 0, addr),
+                                        new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 1230, addr)));
 
         Assertions.assertEquals(
                 """

@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
  * Reliable liveliness reader
@@ -50,7 +51,8 @@ public class BuiltinParticipantMessageReader
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
             Executor publisherExecutor,
-            LocalOperatingEntities operatingEntities) {
+            LocalOperatingEntities operatingEntities,
+            DataChannelFactory dataChannelFactory) {
         super(
                 config,
                 tracingToken,
@@ -58,7 +60,8 @@ public class BuiltinParticipantMessageReader
                 publisherExecutor,
                 operatingEntities,
                 EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue(),
-                DEFAULT_POLICY);
+                DEFAULT_POLICY,
+                dataChannelFactory);
         Preconditions.isTrue(
                 config.publicConfig().builtinEndpointQos()
                         != EndpointQos.BEST_EFFORT_PARTICIPANT_MESSAGE_DATA_READER,

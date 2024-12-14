@@ -40,7 +40,8 @@ public class DataObjectsFactory {
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
             EntityId readerEntityId,
-            ReaderQosPolicySet subscriberQosPolicy) {
+            ReaderQosPolicySet subscriberQosPolicy,
+            DataChannelFactory dataChannelFactory) {
         var reliabilityKind = subscriberQosPolicy.reliabilityKind();
         return switch (reliabilityKind) {
             case RELIABLE ->
@@ -50,7 +51,8 @@ public class DataObjectsFactory {
                             publisherExecutor,
                             operatingEntities,
                             readerEntityId,
-                            subscriberQosPolicy);
+                            subscriberQosPolicy,
+                            dataChannelFactory);
             case BEST_EFFORT ->
                     new BestEffortDataReader(
                             config,

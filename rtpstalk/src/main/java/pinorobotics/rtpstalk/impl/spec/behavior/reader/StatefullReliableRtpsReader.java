@@ -78,25 +78,6 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
             EntityId entityId,
-            ReaderQosPolicySet qosPolicy) {
-        this(
-                config,
-                tracingToken,
-                messageType,
-                publisherExecutor,
-                operatingEntities,
-                entityId,
-                qosPolicy,
-                new DataChannelFactory(config.publicConfig()));
-    }
-
-    public StatefullReliableRtpsReader(
-            RtpsTalkConfigurationInternal config,
-            TracingToken tracingToken,
-            Class<D> messageType,
-            Executor publisherExecutor,
-            LocalOperatingEntities operatingEntities,
-            EntityId entityId,
             ReaderQosPolicySet qosPolicy,
             DataChannelFactory dataChannelFactory) {
         super(

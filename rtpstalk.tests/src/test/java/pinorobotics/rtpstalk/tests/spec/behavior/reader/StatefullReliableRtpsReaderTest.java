@@ -56,7 +56,8 @@ public class StatefullReliableRtpsReaderTest {
                         TestConstants.TEST_READER_ENTITY_ID,
                         new ReaderQosPolicySet(
                                 ReliabilityQosPolicy.Kind.RELIABLE,
-                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS));
+                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                        TestConstants.TEST_DATA_CHANNEL_FACTORY);
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
         try (var publisher = new SynchronousPublisher<RtpsMessage>()) {

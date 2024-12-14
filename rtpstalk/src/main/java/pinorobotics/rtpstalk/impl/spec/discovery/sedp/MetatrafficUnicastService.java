@@ -110,17 +110,29 @@ public class MetatrafficUnicastService implements AutoCloseable {
         metatrafficUnicastReceiver.subscribe(publicationsWriter.getWriterReader());
         subscriptionsReader =
                 new SedpBuiltinSubscriptionsReader(
-                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        iface.getOperatingEntities(),
+                        channelFactory);
         metatrafficUnicastReceiver.subscribe(subscriptionsReader);
         publicationsReader =
                 new SedpBuiltinPublicationsReader(
-                        config, tracingToken, publisherExecutor, iface.getOperatingEntities());
+                        config,
+                        tracingToken,
+                        publisherExecutor,
+                        iface.getOperatingEntities(),
+                        channelFactory);
         metatrafficUnicastReceiver.subscribe(publicationsReader);
         registerSpdpReader();
         if (config.publicConfig().builtinEndpointQos() == EndpointQos.NONE)
             metatrafficUnicastReceiver.subscribe(
                     new BuiltinParticipantMessageReader(
-                            config, tracingToken, publisherExecutor, iface.getOperatingEntities()));
+                            config,
+                            tracingToken,
+                            publisherExecutor,
+                            iface.getOperatingEntities(),
+                            channelFactory));
         metatrafficUnicastReceiver.start(iface.getMetatrafficUnicastChannel());
         isStarted = true;
         spdpReader.subscribe(newSedpConfigurator());
