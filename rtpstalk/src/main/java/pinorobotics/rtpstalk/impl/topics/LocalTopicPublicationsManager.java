@@ -190,15 +190,16 @@ public class LocalTopicPublicationsManager extends AbstractTopicManager<Publishe
             @Override
             public void run() {
                 var hb = config.publicConfig().heartbeatPeriod();
-                var retries = config.publicConfig().readerAckTopicDuration().dividedBy(hb);
+                var maxRetries = config.publicConfig().readerAckTopicDuration().dividedBy(hb);
+                var retriesLeft = maxRetries;
                 while (sedpPublicationsDetectorProxy.getHighestAckedSeqNum() < announcementSeqNum) {
                     logger.fine(
                             "Waiting for topic {0} to be annouced to the reader {1}, current retry"
                                     + " {2}",
-                            topic, remoteReaderGuid, retries);
+                            topic, remoteReaderGuid, retriesLeft);
                     XThread.sleep(hb.toMillis());
-                    retries--;
-                    if (retries < 0) {
+                    retriesLeft--;
+                    if (retriesLeft < 0) {
                         future.completeExceptionally(
                                 new RuntimeException(
                                         "Topic "
@@ -209,6 +210,9 @@ public class LocalTopicPublicationsManager extends AbstractTopicManager<Publishe
                         break;
                     }
                 }
+                logger.fine(
+                        "Topic {0} acked by the reader {1} with retry {2}",
+                        topic, remoteReaderGuid, maxRetries - retriesLeft);
                 future.complete(null);
             }
         }.start();

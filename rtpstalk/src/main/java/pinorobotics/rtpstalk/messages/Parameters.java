@@ -39,6 +39,7 @@ public class Parameters {
      * @param params parameters to add
      */
     public Parameters(Map<Short, byte[]> params) {
+        // we need to preserve ordering of the original map, for that reason we use LinkedHashMap
         this.params = new LinkedHashMap<>(params);
     }
 
