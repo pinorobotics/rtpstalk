@@ -21,11 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import id.xfunction.PreconditionException;
 import id.xfunction.ResourceUtils;
+import id.xfunction.XByte;
 import java.nio.ByteBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders.TestCase;
 
@@ -59,5 +61,14 @@ public class RtpsMessageReaderTest {
         var out = new RtpsMessageReader().readRtpsMessage(buf);
         assertEquals(
                 resourceUtils.readResource(getClass(), "test_unknown_submessage"), out.toString());
+    }
+
+    @Test
+    public void test_read_sequenceNumber() throws Exception {
+        var buf = ByteBuffer.wrap(XByte.copyToByteArray(-1, 0));
+        var sq = new RtpsMessageReader().read(buf, SequenceNumber.class);
+        System.out.println(sq);
+        System.out.println(SequenceNumber.SEQUENCENUMBER_UNKNOWN);
+        assertEquals(SequenceNumber.SEQUENCENUMBER_UNKNOWN, sq);
     }
 }

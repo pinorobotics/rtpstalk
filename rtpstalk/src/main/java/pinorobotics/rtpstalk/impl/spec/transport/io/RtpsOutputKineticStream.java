@@ -274,7 +274,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     public void writeSequenceNumber(SequenceNumber num) throws Exception {
         LOGGER.entering("writeSequenceNumber");
-        writeInt((int) (num.value >> 31));
+        writeInt((int) (num.value >> 32));
         writeInt((int) ((-1L >> 31) & num.value));
         LOGGER.exiting("writeSequenceNumber");
     }

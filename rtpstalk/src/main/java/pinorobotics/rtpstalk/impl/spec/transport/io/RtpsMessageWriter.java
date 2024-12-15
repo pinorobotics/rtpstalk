@@ -49,11 +49,11 @@ public class RtpsMessageWriter {
                             new PublicStreamedFieldsProvider(
                                     FieldsOrderedByNameProvider::readOrderedFieldNames));
 
-    /** Write RTPS message to stream of bytes to be sent over the network. */
+    /** Write full RTPS message to stream of bytes */
     public void writeRtpsMessage(RtpsMessage message, ByteBuffer buf) throws Exception {
         var startAt = Instant.now();
         try {
-            write(message, buf.order(RtpsTalkConfiguration.getByteOrder()));
+            write(message, buf);
         } finally {
             WRITE_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
         }
@@ -65,7 +65,9 @@ public class RtpsMessageWriter {
      * @param message can be full RTPS message or particular part of it
      */
     public <T> void write(T message, ByteBuffer buf) throws Exception {
-        var out = new RtpsOutputKineticStream(buf);
+        var out = new RtpsOutputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
+        var res = controller.onNextObject(out, message);
+        if (res.skip()) return;
         var ksw = new KineticStreamWriter(out).withController(controller);
         out.setWriter(ksw);
         ksw.write(message);

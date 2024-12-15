@@ -17,12 +17,15 @@
  */
 package pinorobotics.rtpstalk.tests.spec.transport.io;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import id.xfunction.XByte;
 import java.nio.ByteBuffer;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders.TestCase;
@@ -44,5 +47,12 @@ public class RtpsMessageWriterTest {
         buf.get(actual);
         System.out.println(XByte.toHexPairs(actual));
         assertEquals(XByte.toHexPairs(testData.serializedMessage()), XByte.toHexPairs(actual));
+    }
+
+    @Test
+    public void test_write_sequenceNumber() throws Exception {
+        var buf = ByteBuffer.allocate(SequenceNumber.SIZE);
+        new RtpsMessageWriter().write(SequenceNumber.SEQUENCENUMBER_UNKNOWN, buf);
+        assertArrayEquals(XByte.copyToByteArray(-1, 0), buf.array());
     }
 }

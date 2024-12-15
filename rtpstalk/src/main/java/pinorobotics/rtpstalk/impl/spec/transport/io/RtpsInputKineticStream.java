@@ -449,9 +449,9 @@ class RtpsInputKineticStream implements InputKineticStream {
     }
 
     public SequenceNumber readSequenceNumber() throws Exception {
-        int high = readInt();
-        int low = readInt();
-        return new SequenceNumber((high << 31) | low);
+        long high = readInt();
+        long low = readInt();
+        return new SequenceNumber((high << 32L) | low);
     }
 
     public SequenceNumberSet readSequenceNumberSet() throws Exception {

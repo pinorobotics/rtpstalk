@@ -56,7 +56,7 @@ public class RtpsMessageReader {
                                     FieldsOrderedByNameProvider::readOrderedFieldNames));
 
     /**
-     * Read RTPS message from network stream of bytes.
+     * Read full RTPS message from stream of bytes.
      *
      * <p>Returns empty when there is no RTPS message in the buffer or in case it is invalid (and
      * should be ignored).
@@ -66,8 +66,7 @@ public class RtpsMessageReader {
     public Optional<RtpsMessage> readRtpsMessage(ByteBuffer buf) throws Exception {
         var startAt = Instant.now();
         try {
-            return Optional.of(
-                    read(buf.order(RtpsTalkConfiguration.getByteOrder()), RtpsMessage.class));
+            return Optional.of(read(buf, RtpsMessage.class));
         } catch (NotRtpsPacketException e) {
             LOGGER.fine("Not RTPS packet, ignoring...");
             return Optional.empty();
@@ -85,7 +84,9 @@ public class RtpsMessageReader {
      * @param type allows users to choose if they want to read full message or particular part of it
      */
     public <T> T read(ByteBuffer buf, Class<T> type) throws Exception {
-        var in = new RtpsInputKineticStream(buf);
+        var in = new RtpsInputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
+        var res = controller.onNextObject(in, null, type);
+        if (res.object().isPresent()) return (T) res.object().get();
         var ksr = new KineticStreamReader(in).withController(controller);
         in.setKineticStreamReader(ksr);
         return ksr.read(type);
