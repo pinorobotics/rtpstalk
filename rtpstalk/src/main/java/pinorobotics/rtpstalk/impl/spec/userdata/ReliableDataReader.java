@@ -23,7 +23,10 @@ import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
@@ -31,6 +34,8 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class ReliableDataReader extends StatefullReliableRtpsReader<RtpsTalkDataMessage> {
+
+    private static final SampleIdentityProcessor IDENTITY_PROC = new SampleIdentityProcessor();
 
     protected ReliableDataReader(
             RtpsTalkConfigurationInternal config,
@@ -49,5 +54,16 @@ public class ReliableDataReader extends StatefullReliableRtpsReader<RtpsTalkData
                 entityId,
                 readerQosPolicy,
                 dataChannelFactory);
+    }
+
+    @Override
+    protected void processInlineQos(
+            Guid writer,
+            SequenceNumber seqNum,
+            RtpsTalkDataMessage message,
+            ParameterList inlineQos) {
+        super.processInlineQos(writer, seqNum, message, inlineQos);
+        message.userInlineQos()
+                .ifPresent(params -> IDENTITY_PROC.updateSampleIdentity(params, seqNum));
     }
 }

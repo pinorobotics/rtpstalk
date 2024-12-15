@@ -35,6 +35,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
@@ -77,7 +78,10 @@ public class SedpBuiltinSubscriptionsReader
 
     @Override
     protected void processInlineQos(
-            Guid writer, RtpsTalkParameterListMessage message, ParameterList inlineQos) {
+            Guid writer,
+            SequenceNumber seqNum,
+            RtpsTalkParameterListMessage message,
+            ParameterList inlineQos) {
         var inlineQosParams = inlineQos.getProtocolParameters();
         if (inlineQosParams.isEmpty()) return;
         logger.fine("Processing inlineQos");

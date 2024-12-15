@@ -23,10 +23,15 @@ import id.xfunction.PreconditionException;
 import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.HexFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.spec.messages.SampleIdentity;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.tests.spec.transport.io.DataProviders.TestCase;
@@ -70,5 +75,19 @@ public class RtpsMessageReaderTest {
         System.out.println(sq);
         System.out.println(SequenceNumber.SEQUENCENUMBER_UNKNOWN);
         assertEquals(SequenceNumber.SEQUENCENUMBER_UNKNOWN, sq);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "00000000000000000000000000000000ffffffff00000000, ffffffff00000000",
+        "00000000000000000000000000000000ffffffff00000001, ffffffff01000000"
+    })
+    public void test_read_sampleIdentity(String identityInput, String expectedSeqNum)
+            throws Exception {
+        Assertions.assertEquals(ByteOrder.LITTLE_ENDIAN, RtpsTalkConfiguration.getByteOrder());
+        var buf = ByteBuffer.wrap(HexFormat.of().parseHex(identityInput));
+        var identity = new RtpsMessageReader().read(buf, SampleIdentity.class);
+        System.out.println(identity.sequenceNumber);
+        assertEquals(HexFormat.fromHexDigitsToLong(expectedSeqNum), identity.sequenceNumber.value);
     }
 }

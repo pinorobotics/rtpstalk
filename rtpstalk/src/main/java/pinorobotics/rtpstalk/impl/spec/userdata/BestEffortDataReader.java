@@ -22,13 +22,17 @@ import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatelessRtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class BestEffortDataReader extends StatelessRtpsReader<RtpsTalkDataMessage> {
+    private static final SampleIdentityProcessor IDENTITY_PROC = new SampleIdentityProcessor();
 
     protected BestEffortDataReader(
             RtpsTalkConfigurationInternal config,
@@ -43,5 +47,16 @@ public class BestEffortDataReader extends StatelessRtpsReader<RtpsTalkDataMessag
                 publisherExecutor,
                 entityId,
                 readerQosPolicy.reliabilityKind());
+    }
+
+    @Override
+    protected void processInlineQos(
+            Guid writer,
+            SequenceNumber seqNum,
+            RtpsTalkDataMessage message,
+            ParameterList inlineQos) {
+        super.processInlineQos(writer, seqNum, message, inlineQos);
+        message.userInlineQos()
+                .ifPresent(params -> IDENTITY_PROC.updateSampleIdentity(params, seqNum));
     }
 }

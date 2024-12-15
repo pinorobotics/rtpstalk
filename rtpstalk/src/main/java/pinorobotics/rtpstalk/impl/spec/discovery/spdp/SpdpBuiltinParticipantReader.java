@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
 
 /**
@@ -77,7 +78,10 @@ public class SpdpBuiltinParticipantReader
 
     @Override
     protected void processInlineQos(
-            Guid writer, RtpsTalkParameterListMessage message, ParameterList inlineQos) {
+            Guid writer,
+            SequenceNumber seqNum,
+            RtpsTalkParameterListMessage message,
+            ParameterList inlineQos) {
         var inlineQosParams = inlineQos.getProtocolParameters();
         if (inlineQosParams.isEmpty()) return;
         logger.fine("Processing inlineQos");

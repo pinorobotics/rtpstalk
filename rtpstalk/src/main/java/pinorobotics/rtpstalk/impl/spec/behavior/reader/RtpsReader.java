@@ -47,6 +47,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessageVisitor;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.RtpsSubmessagesWalker;
@@ -151,7 +152,11 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
                             message -> {
                                 d.inlineQos.ifPresent(
                                         inlineQos ->
-                                                processInlineQos(writerGuid, message, inlineQos));
+                                                processInlineQos(
+                                                        writerGuid,
+                                                        d.writerSN,
+                                                        message,
+                                                        inlineQos));
                                 addChange(new CacheChange<>(writerGuid, d.writerSN.value, message));
                             });
         } catch (MessageTypeMismatchException e) {
@@ -256,7 +261,8 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     @Override
     public void onComplete() {}
 
-    protected void processInlineQos(Guid writer, D message, ParameterList inlineQos) {
+    protected void processInlineQos(
+            Guid writer, SequenceNumber seqNum, D message, ParameterList inlineQos) {
         logger.fine("Ignoring inlineQos");
     }
 
