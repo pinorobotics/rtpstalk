@@ -60,7 +60,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                     + " because";
 
     /** Used to maintain state on the remote Writers matched up with the Reader. */
-    private Map<Guid, WriterProxy> matchedWriters = new ConcurrentHashMap<>();
+    private final Map<Guid, WriterProxy> matchedWriters = new ConcurrentHashMap<>();
 
     /** Not need to be thread-safe since {@link RtpsReader} requests one message at a time */
     private Map<Guid, Long> lastSubmittedSeqNums = new HashMap<>();

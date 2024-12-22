@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
@@ -52,14 +53,12 @@ public interface ReaderProxy extends AutoCloseable {
      */
     List<Long> requestedChanges();
 
-    void requestedChangesClear();
-
     /**
      * This operation modifies the ChangeForReader status of a set of changes for the RTPS Reader
      * represented by this {@link ReaderProxy}. The change with given sequence number has its status
      * changed to REQUESTED.
      */
-    void requestChange(long seqNum);
+    void requestedChanges(Collection<Long> requested);
 
     /**
      * All sequence numbers up to the one prior to given sequence number are confirmed as received

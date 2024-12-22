@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
+import java.util.Collection;
 import java.util.List;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -60,10 +61,7 @@ public class BestEffortReaderProxy implements ReaderProxy {
     }
 
     @Override
-    public void requestedChangesClear() {}
-
-    @Override
-    public void requestChange(long seqNum) {}
+    public void requestedChanges(Collection<Long> seqNum) {}
 
     @Override
     public long ackedChanges(long seqNum) {

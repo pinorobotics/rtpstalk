@@ -33,6 +33,12 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
+@RtpsSpecReference(
+        paragraph = "8.2.2",
+        protocolVersion = Predefined.Version_2_3,
+        text =
+                "The HistoryCache is part of the interface between DDS and RTPS and plays different"
+                        + " roles on the reader and the writer side")
 public class HistoryCache<D extends RtpsTalkMessage> {
 
     /**
@@ -77,7 +83,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
         long seqNum = change.getSequenceNumber();
         if (writerChanges == null) {
             writerChanges = new WriterChanges<>(tracingToken);
-            changes.put(change.getWriterGuid(), writerChanges);
+            changes.put(writerGuid, writerChanges);
         } else if (writerChanges.containsChange(seqNum)) {
             logger.fine(
                     "Change with sequence number {0} from writer {1} already present in the cache,"

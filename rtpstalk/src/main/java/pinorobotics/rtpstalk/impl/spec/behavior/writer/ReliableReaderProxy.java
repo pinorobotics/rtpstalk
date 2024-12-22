@@ -17,9 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.behavior.writer;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -28,15 +28,21 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 
 /**
+ * Must be Thread-safe because it is shared between Writer background scheduler thread as well as
+ * Executor which delivers messages from the remote Readers ({@link WriterRtpsReader}). In
+ * particular, when {@link WriterRtpsReader} processes Ack requests and executes {@link
+ * #requestedChanges(Collection)} the Writer may be in the middle of sending {@link
+ * #requestedChanges()}
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class ReliableReaderProxy implements ReaderProxy {
 
-    private Guid remoteReaderGuid;
-    private List<Locator> unicastLocatorList;
-    private Set<Long> requestedchangesForReader = ConcurrentHashMap.newKeySet();
-    private RtpsMessageSender sender;
-    private ReaderQosPolicySet qosPolicy;
+    private final Guid remoteReaderGuid;
+    private final List<Locator> unicastLocatorList;
+    private final RtpsMessageSender sender;
+    private final ReaderQosPolicySet qosPolicy;
+    private volatile List<Long> immutableListOfRequestedChanges = List.of();
 
     @RtpsSpecReference(
             paragraph = "8.4.15.1",
@@ -44,7 +50,7 @@ public class ReliableReaderProxy implements ReaderProxy {
             text =
                     "The highestSeqNumSent would record the highest value of the\n"
                             + "sequence number of any CacheChange sent to the ReaderProxy.")
-    private long highestSeqNumSent;
+    private AtomicLong highestSeqNumSent = new AtomicLong();
 
     public ReliableReaderProxy(
             Guid remoteReaderGuid,
@@ -69,32 +75,27 @@ public class ReliableReaderProxy implements ReaderProxy {
 
     @Override
     public List<Long> requestedChanges() {
-        return requestedchangesForReader.stream().sorted().toList();
+        return immutableListOfRequestedChanges;
     }
 
     @Override
-    public void requestedChangesClear() {
-        requestedchangesForReader.clear();
-    }
-
-    @Override
-    public void requestChange(long seqNum) {
-        requestedchangesForReader.add(seqNum);
+    public void requestedChanges(Collection<Long> requested) {
+        immutableListOfRequestedChanges = requested.stream().sorted().distinct().toList();
     }
 
     @Override
     public long ackedChanges(long seqNum) {
-        var diff = seqNum - highestSeqNumSent;
-        if (diff > 0) {
-            highestSeqNumSent = seqNum;
-            return diff;
-        }
-        return 0;
+        var diff =
+                seqNum - highestSeqNumSent.getAndUpdate(highSeqNum -> Math.max(seqNum, highSeqNum));
+        if (diff <= 0) return 0;
+        immutableListOfRequestedChanges =
+                immutableListOfRequestedChanges.stream().filter(sn -> sn >= seqNum).toList();
+        return diff;
     }
 
     @Override
     public long getHighestAckedSeqNum() {
-        return highestSeqNumSent;
+        return highestSeqNumSent.get();
     }
 
     @Override

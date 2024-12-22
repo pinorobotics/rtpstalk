@@ -21,6 +21,7 @@ import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
 import id.xfunction.util.IntBitSet;
+import java.util.ArrayList;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
@@ -50,26 +51,25 @@ public class WriterRtpsReader<D extends RtpsTalkMessage> extends SimpleSubscribe
     @Override
     public Result onAckNack(GuidPrefix guidPrefix, AckNack ackNack) {
         var readerGuid = new Guid(guidPrefix, ackNack.readerId);
-        var readerProxyOpt = writer.matchedReaderLookup(readerGuid);
-        if (readerProxyOpt.isEmpty()) {
+        var readerProxy = writer.matchedReaderLookup(readerGuid).orElse(null);
+        if (readerProxy == null) {
             logger.fine(
                     "No matched reader {0} for writer {1}, ignoring it...",
                     readerGuid, ackNack.writerId);
-        } else {
-            logger.fine(
-                    "Processing acknack for writer {0} received from reader {1}",
-                    ackNack.writerId, readerGuid);
-            var readerProxy = readerProxyOpt.get();
-            var set = ackNack.readerSNState;
-            var base = set.bitmapBase.value;
-            var bitset = new IntBitSet(set.bitmap);
-            if (readerProxy.ackedChanges(set.bitmapBase.value - 1) > 0)
-                writer.cleanupCacheAndRequest();
-            readerProxy.requestedChangesClear();
-            for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
-                readerProxy.requestChange(base + i);
-            }
+            return Result.CONTINUE;
         }
+        logger.fine(
+                "Processing acknack for writer {0} received from reader {1}",
+                ackNack.writerId, readerGuid);
+        var set = ackNack.readerSNState;
+        var base = set.bitmapBase.value;
+        var bitset = new IntBitSet(set.bitmap);
+        if (readerProxy.ackedChanges(set.bitmapBase.value - 1) > 0) writer.cleanupCacheAndRequest();
+        var requested = new ArrayList<Long>();
+        for (int i = bitset.nextSetBit(0); i >= 0; i = bitset.nextSetBit(i + 1)) {
+            requested.add(base + i);
+        }
+        readerProxy.requestedChanges(requested);
         return Result.CONTINUE;
     }
 
