@@ -90,13 +90,9 @@ public class LocalTopicPublicationsManager extends AbstractTopicManager<Publishe
                 "Only one local writer per topic %s is allowed",
                 topicId);
         var topic = createTopic(topicId);
-        EntityId readerEntityId =
-                operatingEntities
-                        .getLocalReaders()
-                        .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
         // until user publisher is registered it may discard any submitted messages
         // to avoid losing them we register publisher here and not during match event
-        userService.publish(topic.getLocalTopicEntityId(), readerEntityId, actor);
+        userService.publish(topic.getLocalTopicEntityId(), actor);
         var writerEntityId = super.addLocalActor(actor);
         Preconditions.equals(
                 writerEntityId,
@@ -143,14 +139,7 @@ public class LocalTopicPublicationsManager extends AbstractTopicManager<Publishe
                 .findEntity(topicId)
                 .or(
                         () -> {
-                            EntityId readerEntityId =
-                                    operatingEntities
-                                            .getLocalReaders()
-                                            .assignNewEntityId(topicId, EntityKind.READER_NO_KEY);
-                            userService.publish(
-                                    topic.getLocalTopicEntityId(),
-                                    readerEntityId,
-                                    publisherDetails);
+                            userService.publish(topic.getLocalTopicEntityId(), publisherDetails);
                             return operatingEntities.getLocalWriters().findEntity(topicId);
                         })
                 .orElseThrow(

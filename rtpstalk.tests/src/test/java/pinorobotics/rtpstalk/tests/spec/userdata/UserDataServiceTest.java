@@ -118,17 +118,11 @@ public class UserDataServiceTest {
             var details1 = TestUtils.newPublisherDetails();
             var details2 = TestUtils.newPublisherDetails();
             var details3 = TestUtils.newPublisherDetails();
-            service.publish(
-                    new EntityId(1, EntityKind.WRITER_NO_KEY),
-                    TestConstants.TEST_READER_ENTITY_ID,
-                    details1);
+            service.publish(new EntityId(1, EntityKind.WRITER_NO_KEY), details1);
             var writerEntityId = new EntityId(2, EntityKind.WRITER_NO_KEY);
-            service.publish(writerEntityId, TestConstants.TEST_READER_ENTITY_ID, details2);
+            service.publish(writerEntityId, details2);
             assertThrows(
-                    PreconditionException.class,
-                    () ->
-                            service.publish(
-                                    writerEntityId, TestConstants.TEST_READER_ENTITY_ID, details3));
+                    PreconditionException.class, () -> service.publish(writerEntityId, details3));
             assertEquals(2, receiverFactory.getReceivers().get(0).getSubscribeCount());
         }
     }

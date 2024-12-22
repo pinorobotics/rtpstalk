@@ -117,7 +117,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
             ReliabilityQosPolicy.Kind reliabilityKind) {
         super(publisherExecutor, config.publisherMaxBufferSize());
         this.messageType = messageType;
-        this.tracingToken = new TracingToken(token, readerGuid.entityId.toString());
+        this.tracingToken = new TracingToken(token, "r", readerGuid.entityId.toString());
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
         this.cache = new HistoryCache<>(tracingToken);

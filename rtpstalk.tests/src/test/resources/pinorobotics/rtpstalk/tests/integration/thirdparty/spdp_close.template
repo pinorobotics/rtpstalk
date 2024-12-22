@@ -1,6 +1,6 @@
 *.MetatrafficMulticastReceiver#*-${IFACE} - Closed
-*.SpdpBuiltinParticipantWriter#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
+*.SpdpBuiltinParticipantWriter#*-${IFACE}-w-ENTITYID_SPDP_BUILTIN_PARTICIPANT_ANNOUNCER - Closed
 *.SpdpBuiltinParticipantWriter - Closed
-*.SpdpBuiltinParticipantReader#*-${IFACE}-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed
+*.SpdpBuiltinParticipantReader#*-${IFACE}-r-ENTITYID_SPDP_BUILTIN_PARTICIPANT_DETECTOR - Closed
 *.MetatrafficMulticastService#*-${IFACE} - Closed
 *

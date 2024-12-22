@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl.spec.userdata;
 
 import id.xfunction.logging.TracingToken;
+import id.xfunction.logging.XLogger;
 import java.util.concurrent.Executor;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -33,6 +34,7 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class DataObjectsFactory {
+    private static final XLogger LOGGER = XLogger.getLogger(DataObjectsFactory.class);
 
     public RtpsReader<RtpsTalkDataMessage> newDataReader(
             RtpsTalkConfigurationInternal config,
@@ -43,6 +45,7 @@ public class DataObjectsFactory {
             ReaderQosPolicySet subscriberQosPolicy,
             DataChannelFactory dataChannelFactory) {
         var reliabilityKind = subscriberQosPolicy.reliabilityKind();
+        LOGGER.fine("Create new user data reader {0}", readerEntityId);
         return switch (reliabilityKind) {
             case RELIABLE ->
                     new ReliableDataReader(
@@ -74,6 +77,7 @@ public class DataObjectsFactory {
             EntityId writerEntityId,
             WriterQosPolicySet publisherQosPolicy,
             WriterSettings writerSettings) {
+        LOGGER.fine("Create new user data writer {0}", writerEntityId);
         return new DataWriter(
                 config,
                 tracingToken,

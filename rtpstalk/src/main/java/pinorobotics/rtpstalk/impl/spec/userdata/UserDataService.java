@@ -110,8 +110,7 @@ public class UserDataService implements AutoCloseable {
         if (!receiver.isSubscribed(reader)) receiver.subscribe(reader);
     }
 
-    public void publish(
-            EntityId writerEntityId, EntityId readerEntityId, PublisherDetails publisherDetails) {
+    public void publish(EntityId writerEntityId, PublisherDetails publisherDetails) {
         Preconditions.isTrue(isStarted, "User data service is not started");
         Preconditions.isTrue(
                 !writers.containsKey(writerEntityId),

@@ -40,6 +40,5 @@ public class TestUserDataService extends UserDataService {
     }
 
     @Override
-    public void publish(
-            EntityId writerEntityId, EntityId readerEntityId, PublisherDetails publisherDetails) {}
+    public void publish(EntityId writerEntityId, PublisherDetails publisherDetails) {}
 }

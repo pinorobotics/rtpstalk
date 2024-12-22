@@ -200,7 +200,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             return false;
         } else {
             reader.close();
-            cleanupCache();
+            cleanupCacheAndRequest();
             logger.fine("Matched reader {0} is removed", remoteGuid);
             return true;
         }
@@ -239,7 +239,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             sendRequested();
             sendHeartbeats();
             cleanupReaders();
-            cleanupCache();
+            cleanupCacheAndRequest();
         } catch (Exception e) {
             logger.severe("Writer heartbeat error", e);
         }
@@ -255,7 +255,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         }
     }
 
-    protected void cleanupCache() {
+    /**
+     * Publisher sends changes only when the Reader requests them. Once cache is full the Reader
+     * stops requesting new changes. Each time we clean up the cache we need to request publisher
+     * for a new changes, otherwise we may end up waiting for changes forever.
+     */
+    protected void cleanupCacheAndRequest() {
         if (qosPolicy.durabilityKind() == DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS) {
             if (!isClosed) return;
             // On close we are not going to accept new Readers therefore

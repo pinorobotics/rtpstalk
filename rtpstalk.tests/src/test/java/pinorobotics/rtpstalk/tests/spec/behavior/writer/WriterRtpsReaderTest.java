@@ -58,7 +58,7 @@ public class WriterRtpsReaderTest {
                                 DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS),
                         new WriterSettings()) {
                     @Override
-                    protected void cleanupCache() {
+                    protected void cleanupCacheAndRequest() {
                         counter.incrementAndGet();
                     }
                 };

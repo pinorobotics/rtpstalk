@@ -92,7 +92,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
             EntityId writerEntityId) {
         super(publisherExecutor, config.publicConfig().publisherMaxBufferSize());
         this.config = config;
-        this.tracingToken = new TracingToken(token, writerEntityId.toString());
+        this.tracingToken = new TracingToken(token, "w", writerEntityId.toString());
         this.writerGuid = new Guid(config.publicConfig().guidPrefix(), writerEntityId);
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
