@@ -23,12 +23,12 @@ import java.util.Objects;
 import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.SampleIdentity;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+import pinorobotics.rtpstalk.messages.UserParameterId;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -73,7 +73,7 @@ public class SampleIdentityProcessor {
     private record SampleIdentityInfo(SampleIdentity identity, byte[] buffer) {}
 
     private Optional<SampleIdentityInfo> findSampleIdentity(Parameters params) {
-        var buf = params.getParameters().get(ParameterId.NonRtps.PID_FASTDDS_SAMPLE_IDENTITY);
+        var buf = params.getParameters().get(UserParameterId.PID_FASTDDS_SAMPLE_IDENTITY);
         if (buf == null || buf.length != SampleIdentity.SIZE) return Optional.empty();
         try {
             var identityBuf = ByteBuffer.wrap(buf);
