@@ -43,20 +43,19 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 public class WriterChanges<D extends RtpsTalkMessage> {
 
     private final SortedMap<Long, CacheChange<D>> sortedChanges = new ConcurrentSkipListMap<>();
-
-    private XLogger logger;
-
-    public WriterChanges(TracingToken tracingToken) {
-        logger = XLogger.getLogger(getClass(), tracingToken);
-    }
+    private final XLogger logger;
 
     /**
      * TreeMap does not guarantee constant time for {@link TreeMap#firstEntry()}, {@link
      * TreeMap#lastEntry()} (looking at Linux OpenJDK it is O(logN)) so we keep track of these
      * values manually to guarantee constant time for them
      */
-    private AtomicLong seqNumMin = new AtomicLong(SequenceNumber.MIN.value),
+    private final AtomicLong seqNumMin = new AtomicLong(SequenceNumber.MIN.value),
             seqNumMax = new AtomicLong(SequenceNumber.MIN.value);
+
+    public WriterChanges(TracingToken tracingToken) {
+        logger = XLogger.getLogger(getClass(), tracingToken);
+    }
 
     private void updateSeqNums(long seqNum, boolean firstChange) {
         if (firstChange) {
@@ -83,7 +82,7 @@ public class WriterChanges<D extends RtpsTalkMessage> {
         return seqNumMax.get();
     }
 
-    public void removeAllBelow(long seqNum) {
+    public synchronized void removeAllBelow(long seqNum) {
         if (seqNum < seqNumMin.get()) {
             return;
         }
@@ -91,6 +90,7 @@ public class WriterChanges<D extends RtpsTalkMessage> {
             seqNumMin.set(seqNum);
             seqNumMax.set(seqNum);
             sortedChanges.clear();
+            logger.fine("All writer changes are removed");
             return;
         }
         var iter = sortedChanges.entrySet().iterator();
@@ -100,18 +100,19 @@ public class WriterChanges<D extends RtpsTalkMessage> {
             iter.remove();
         }
         seqNumMin.set(seqNum);
+        logger.fine("Number of writer changes left is {0}", sortedChanges.size());
+    }
+
+    public synchronized void addChange(CacheChange<D> change) {
+        boolean firstChange = sortedChanges.isEmpty();
+        sortedChanges.put(change.getSequenceNumber(), change);
+        updateSeqNums(change.getSequenceNumber(), firstChange);
     }
 
     public boolean containsChange(long sequenceNumber) {
         if (sequenceNumber < seqNumMin.get()) return false;
         if (sequenceNumber > seqNumMax.get()) return false;
         return sortedChanges.containsKey(sequenceNumber);
-    }
-
-    public void addChange(CacheChange<D> change) {
-        boolean firstChange = sortedChanges.isEmpty();
-        sortedChanges.put(change.getSequenceNumber(), change);
-        updateSeqNums(change.getSequenceNumber(), firstChange);
     }
 
     public Stream<CacheChange<D>> findAll(List<Long> seqNums) {
