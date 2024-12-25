@@ -19,11 +19,14 @@ package pinorobotics.rtpstalk.impl.spec.messages.submessages;
 
 import id.xfunction.Preconditions;
 import java.util.List;
+import java.util.Optional;
+import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
+import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
 /**
  * This Submessage is sent from an RTPS Writer to an RTPS Reader and indicates to the RTPS Reader
@@ -58,7 +61,7 @@ public class Gap extends Submessage {
      * Present only if the GroupInfoFlag is set in the header. Identifies the group sequence number
      * corresponding to the sample identified by gapStart.
      */
-    public transient SequenceNumber gapStartGSN;
+    public transient Optional<SequenceNumber> gapStartGSN = Optional.empty();
 
     /**
      * Present only if the GroupInfoFlag is set in the header. Identifies the end of a continuous
@@ -66,7 +69,7 @@ public class Gap extends Submessage {
      * greater than or equal to the group sequence number corresponding to the sample identified by
      * gapList.bitmapBase
      */
-    public transient SequenceNumber gapEndGSN;
+    public transient Optional<SequenceNumber> gapEndGSN = Optional.empty();
 
     public Gap() {}
 
@@ -79,6 +82,11 @@ public class Gap extends Submessage {
         this.writerId = writerId;
         this.gapStart = gapStart;
         this.gapList = gapList;
+        submessageHeader =
+                new SubmessageHeader(
+                        SubmessageKind.Predefined.GAP.getValue(),
+                        RtpsTalkConfiguration.ENDIANESS_BIT,
+                        LengthCalculator.getInstance().calculateLength(this));
         validate();
     }
 

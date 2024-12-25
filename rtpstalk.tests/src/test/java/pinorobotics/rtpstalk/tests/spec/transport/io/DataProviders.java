@@ -29,6 +29,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.StatusInfo.Flags;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
@@ -251,6 +252,17 @@ public class DataProviders {
                                         2345678,
                                         Optional.empty(),
                                         new SerializedPayload(
-                                                new RawData("a".repeat(36).getBytes()), false)))));
+                                                new RawData("a".repeat(36).getBytes()), false)))),
+                // Test Case 10: Gap
+                new TestCase(
+                        "test_gap",
+                        new RtpsMessage(
+                                TestConstants.TEST_HEADER,
+                                new InfoDestination(TestConstants.TEST_REMOTE_GUID_PREFIX),
+                                new Gap(
+                                        new EntityId(123),
+                                        new EntityId(321),
+                                        new SequenceNumber(113),
+                                        new SequenceNumberSet(113, 0)))));
     }
 }

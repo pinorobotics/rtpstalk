@@ -52,6 +52,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.UserDataQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.AckNack;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Data;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.DataFrag;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
@@ -173,6 +174,12 @@ public class LengthCalculator {
                     + calculateLength(ackNack.readerSNState)
                     + getFixedLength(Count.class);
         }
+        if (obj instanceof Gap gap)
+            return getFixedLength(EntityId.class) * 2
+                    + getFixedLength(SequenceNumber.class)
+                    + calculateLength(gap.gapList)
+                    + calculateLength(gap.gapStartGSN)
+                    + calculateLength(gap.gapEndGSN);
         if (obj instanceof SequenceNumberSet set)
             return getFixedLength(SequenceNumber.class)
                     + Integer.BYTES
