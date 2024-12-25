@@ -20,12 +20,15 @@ package pinorobotics.rtpstalk.impl.spec.userdata;
 import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.Optional;
 import pinorobotics.rtpstalk.impl.spec.messages.SampleIdentity;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 import pinorobotics.rtpstalk.messages.Parameters;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author lambdaprime intid@protonmail.com
@@ -36,18 +39,50 @@ public class SampleIdentityProcessor {
     private static final RtpsMessageWriter MESSAGE_WRITER = new RtpsMessageWriter();
 
     public void updateSampleIdentity(Parameters params, SequenceNumber seqNum) {
-        var buf = params.getParameters().get(ParameterId.NonRtps.PID_FASTDDS_SAMPLE_IDENTITY);
+        var identityInfo = findSampleIdentity(params).orElse(null);
+        if (identityInfo == null) return;
+        var identity = identityInfo.identity;
+        if (!Objects.equals(identity.sequenceNumber, SequenceNumber.SEQUENCENUMBER_UNKNOWN)) return;
         try {
-            var identityBuf = ByteBuffer.wrap(buf);
-            var identity = MESSAGE_READER.read(identityBuf, SampleIdentity.class);
-            if (!Objects.equals(identity.sequenceNumber, SequenceNumber.SEQUENCENUMBER_UNKNOWN))
-                return;
             LOGGER.fine("Update sample identity");
             identity.sequenceNumber = seqNum;
-            identityBuf.rewind();
+            var identityBuf = ByteBuffer.wrap(identityInfo.buffer);
             MESSAGE_WRITER.write(identity, identityBuf);
         } catch (Exception e) {
+            LOGGER.severe("Failed to update sample identity: {0}", e.getMessage());
+        }
+    }
+
+    /**
+     * Send DATA to the Reader only when Reader's guid matches with sample identity assigned to the
+     * DATA, otherwise send GAP
+     */
+    public boolean shouldReplaceWithGap(
+            RtpsTalkDataMessage message, GuidPrefix readerGuidPrefix, GuidPrefix writerGuidPrefix) {
+        var identity =
+                findSampleIdentity(message.userInlineQos().orElse(Parameters.EMPTY))
+                        .map(SampleIdentityInfo::identity)
+                        .orElse(null);
+        if (identity == null) return false;
+        var identityWriterGuidPrefix = identity.getWriterGuid().guidPrefix;
+        if (Objects.equals(identityWriterGuidPrefix, writerGuidPrefix)) return false;
+        if (Objects.equals(identityWriterGuidPrefix, readerGuidPrefix)) return false;
+        return true;
+    }
+
+    private record SampleIdentityInfo(SampleIdentity identity, byte[] buffer) {}
+
+    private Optional<SampleIdentityInfo> findSampleIdentity(Parameters params) {
+        var buf = params.getParameters().get(ParameterId.NonRtps.PID_FASTDDS_SAMPLE_IDENTITY);
+        if (buf == null || buf.length != SampleIdentity.SIZE) return Optional.empty();
+        try {
+            var identityBuf = ByteBuffer.wrap(buf);
+            return Optional.of(
+                    new SampleIdentityInfo(
+                            MESSAGE_READER.read(identityBuf, SampleIdentity.class), buf));
+        } catch (Exception e) {
             // non FastDDS sample identity, ignoring
+            return Optional.empty();
         }
     }
 }

@@ -29,30 +29,39 @@ import pinorobotics.rtpstalk.impl.RtpsDataPackager;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.messages.RtpsMessageAggregator;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoDestination;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.InfoTimestamp;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.impl.spec.userdata.SampleIdentityProcessor;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
 /**
+ * Build sequence of {@link RtpsMessage}, which is ready to be send, from different kinds of {@link
+ * RtpsTalkMessage}
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
     private XLogger logger;
     private Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
+    private GuidPrefix writerGuidPrefix;
     private Optional<GuidPrefix> readerGuidPrefix;
     private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
+    private SampleIdentityProcessor identityProc = new SampleIdentityProcessor();
     private long lastSeqNum;
     private int maxSubmessageSize;
     private TracingToken tracingToken;
-    private GuidPrefix writerGuidPrefix;
 
     public RtpsDataMessageBuilder(
             RtpsTalkConfigurationInternal config,
@@ -93,8 +102,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
             var seqNum = e.getKey();
             var message = e.getValue();
             if (!needsFragmentation(message)) {
-                var submessage =
-                        packager.packMessage(readerEntiyId, writerEntityId, seqNum, message);
+                var submessage = createSubmessage(readerEntiyId, writerEntityId, seqNum, message);
                 if (messageBuilder.add(submessage)) continue;
                 // the message builder is already full so we reset it
                 messageBuilder.build().ifPresent(messages::add);
@@ -151,6 +159,25 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         return messages;
     }
 
+    private Submessage createSubmessage(
+            EntityId readerEntiyId, EntityId writerEntityId, Long seqNum, RtpsTalkMessage message) {
+        if (message instanceof RtpsTalkDataMessage data) {
+            if (readerGuidPrefix
+                    .map(
+                            prefix ->
+                                    identityProc.shouldReplaceWithGap(
+                                            data, prefix, writerGuidPrefix))
+                    .orElse(false)) {
+                return new Gap(
+                        readerEntiyId,
+                        writerEntityId,
+                        new SequenceNumber(seqNum),
+                        new SequenceNumberSet(seqNum + 1));
+            }
+        }
+        return packager.packMessage(readerEntiyId, writerEntityId, seqNum, message);
+    }
+
     private boolean needsFragmentation(RtpsTalkMessage message) {
         if (message instanceof RtpsTalkDataMessage dataMessage) {
             return message.userInlineQos().map(this::calculateSize).orElse(0)
@@ -176,15 +203,13 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
 
         InternalBuilder(GuidPrefix writerGuidPrefix) {
             super(tracingToken, writerGuidPrefix, maxSubmessageSize);
-            if (readerGuidPrefix.isPresent()) {
-                // RTPS specification does not explicitly tell all the cases when INFO_DST should be
-                // included.
-                // To cover situations when there are
-                // multiple participants running on same unicast locator we include it as part of
-                // DATA
-                // See: https://github.com/eclipse-cyclonedds/cyclonedds/issues/1605
-                add(new InfoDestination(readerGuidPrefix.get()));
-            }
+            // RTPS specification does not explicitly tell all the cases when INFO_DST should be
+            // included.
+            // To cover situations when there are
+            // multiple participants running on same unicast locator we include it as part of
+            // DATA
+            // See: https://github.com/eclipse-cyclonedds/cyclonedds/issues/1605
+            readerGuidPrefix.map(InfoDestination::new).ifPresent(this::add);
             // we do not timestamp data changes so we do not include InfoTimestamp per each Data
             // submessage, instead we include InfoTimestamp per entire RtpsMessage message and only
             // once

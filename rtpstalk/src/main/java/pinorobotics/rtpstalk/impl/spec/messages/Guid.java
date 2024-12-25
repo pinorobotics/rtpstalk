@@ -63,6 +63,10 @@ public class Guid implements HasStreamedFields {
         this(guidPrefix, entityidParticipant.getValue());
     }
 
+    public GuidPrefix getGuidPrefix() {
+        return guidPrefix;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(entityId, guidPrefix);

@@ -41,6 +41,10 @@ public class SampleIdentity implements HasStreamedFields {
         this.sequenceNumber = sequenceNumber;
     }
 
+    public Guid getWriterGuid() {
+        return writerGuid;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(writerGuid, sequenceNumber);

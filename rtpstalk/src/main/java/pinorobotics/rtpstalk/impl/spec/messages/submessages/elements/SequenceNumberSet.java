@@ -55,6 +55,10 @@ public class SequenceNumberSet implements HasStreamedFields {
 
     public SequenceNumberSet() {}
 
+    public SequenceNumberSet(long bitmapBase) {
+        this(bitmapBase, 0);
+    }
+
     public SequenceNumberSet(long bitmapBase, int numBits, int... bitmap) {
         this(new SequenceNumber(bitmapBase), numBits, bitmap);
     }
