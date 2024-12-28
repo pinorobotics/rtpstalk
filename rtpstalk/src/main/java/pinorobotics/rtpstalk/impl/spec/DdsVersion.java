@@ -21,5 +21,8 @@ package pinorobotics.rtpstalk.impl.spec;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public enum DdsVersion {
-    DDS_1_4
+    DDS_1_4,
+
+    /** Document "Remote Procedure Call over DDS (DDS-RPC)" */
+    DDS_RPC_1_0
 }

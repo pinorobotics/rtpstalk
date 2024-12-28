@@ -17,20 +17,44 @@
  */
 package pinorobotics.rtpstalk.messages;
 
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 
 /**
  * List of user parameters.
  *
- * <p>These parameters are not part of RTPS specification.
- *
  * <p>These parameters include DDS, or any vendor specific parameters which are supported by
- * <b>rtpstalk</b>.
+ * <b>rtpstalk</b> but they are not part of RTPS specification.
+ *
+ * @author aeon_flux aeon_flux@eclipso.ch
+ * @author lambdaprime intid@protonmail.com
  */
 public interface UserParameterId {
 
     /**
-     * FastDDS legacy implementation of PID_SAMPLE_IDENTITY
+     * <b>rtpstalk</b> provides RTPS level support for {@link #PID_RELATED_SAMPLE_IDENTITY} (see
+     * {@link DdsVersion#DDS_RPC_1_0}) which allows users to implement DDS-RPC.
+     *
+     * <p>The support includes following:
+     *
+     * <ul>
+     *   <li>Replace {@link SequenceNumber#SEQUENCENUMBER_UNKNOWN} inside sample identity with
+     *       actual sequence number of the incoming RTPS message
+     *   <li>Replace any outgoing DATA submessages with GAP submessages, when sample identity inside
+     *       DATA submessages does not match the recipient.
+     * </ul>
+     *
+     * @see <a href="https://github.com/pinorobotics/jros2services">Example of DDS-RPC
+     *     implementation with <b>rtpstalk</b></a>
+     */
+    @DdsSpecReference(
+            paragraph = "7.8.2 Request and Reply Correlation in the Enhanced Service Profile",
+            protocolVersion = DdsVersion.DDS_RPC_1_0)
+    short PID_RELATED_SAMPLE_IDENTITY = (short) 0x0083;
+
+    /**
+     * FastDDS legacy implementation of {@link #PID_RELATED_SAMPLE_IDENTITY}
      *
      * <p>sample_identity is an extension for requester-replier configuration. It contains the
      * DataWriter and the sequence number of the current message, and it is used by the replier to
