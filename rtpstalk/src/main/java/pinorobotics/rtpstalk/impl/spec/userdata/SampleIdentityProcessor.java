@@ -78,21 +78,22 @@ public class SampleIdentityProcessor {
             RtpsTalkDataMessage message, GuidPrefix readerGuidPrefix, GuidPrefix writerGuidPrefix) {
         var parameters = message.userInlineQos().map(Parameters::getParameters).orElse(Map.of());
         if (parameters.isEmpty()) return false;
-        var relatedIdentity =
+        var relatedIdentityResult =
                 verifyIdentity(
                         parameters,
                         PID_RELATED_SAMPLE_IDENTITY,
                         readerGuidPrefix,
                         writerGuidPrefix);
-        if (relatedIdentity == Result.MATCH) return false;
-        var fastDdsIdentity =
+        if (relatedIdentityResult == Result.MATCH) return false;
+        var fastDdsIdentityResult =
                 verifyIdentity(
                         parameters,
                         PID_FASTDDS_SAMPLE_IDENTITY,
                         readerGuidPrefix,
                         writerGuidPrefix);
-        if (fastDdsIdentity == Result.MATCH) return false;
-        return (relatedIdentity == fastDdsIdentity && relatedIdentity == Result.NO_MATCH);
+        if (fastDdsIdentityResult == Result.MATCH) return false;
+        return (relatedIdentityResult == Result.NO_MATCH
+                || fastDdsIdentityResult == Result.NO_MATCH);
     }
 
     private enum Result {
