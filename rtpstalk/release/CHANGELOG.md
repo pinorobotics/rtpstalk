@@ -1,3 +1,23 @@
+# Version 11
+
+- Fix when DATA is sent to participants which guid prefix does not match sample identity
+- Add support for PID_RELATED_SAMPLE_IDENTITY
+- Make NonRtps parameters public and expose them to the users as user parameters
+- Send DATA to the Reader only when Reader's guid matches with sample identity assigned to the DATA, otherwise send GAP
+- Support GAP serialization, add tests
+- Fix race condition in WriterChanges, when newly added change could be instantly removed by removeAllBelow
+- Avoid race condition in ReliableReaderProxy when requested changes were never sent
+- Improve logging, update tracing tokens to separate Reader from Writer
+- Add support for PID_FASTDDS_SAMPLE_IDENTITY
+- Fix (de)serialization issue in SequenceNumber
+- Partial read/write of RTPS messages from/to stream of bytes
+- Switch to IdempotentService
+- Use single instance of DataChannelFactory per each instance of RtpsTalkClient
+- Better logging about when topic is ack by the Reader
+- Move metrics to separate package and add more documentation about them
+
+[rtpstalk-v11.0.zip](https://github.com/pinorobotics/rtpstalk/raw/main/rtpstalk/release/rtpstalk-v11.0.zip)
+
 # Version 10
 
 - Changing metric types

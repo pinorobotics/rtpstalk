@@ -56,11 +56,15 @@ public interface UserParameterId {
     /**
      * FastDDS legacy implementation of {@link #PID_RELATED_SAMPLE_IDENTITY}
      *
-     * <p>sample_identity is an extension for requester-replier configuration. It contains the
-     * DataWriter and the sequence number of the current message, and it is used by the replier to
-     * fill the related_sample_identity when it sends the reply [<a
+     * <p>From <a
      * href="https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/subscriber/sampleInfo/sampleInfo.html#dds-layer-subscriber-sampleinfo-sampleidentity">FastDDS
-     * 3.1.0 documentation</a>
+     * 3.1.0 documentation</a>:
+     *
+     * <pre>
+     * sample_identity is an extension for requester-replier configuration. It contains the
+     * DataWriter and the sequence number of the current message, and it is used by the replier to
+     * fill the related_sample_identity when it sends the reply
+     * </pre>
      *
      * <p>When Reader receives {@link #PID_FASTDDS_SAMPLE_IDENTITY} as part of inlineQos and if
      * identity sequenceNumber is {@link SequenceNumber#SEQUENCENUMBER_UNKNOWN} then Reader will

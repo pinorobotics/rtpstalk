@@ -29,12 +29,22 @@ android {
   }
 }
 
-// it is not possible to exclude module-info through srcDirs:
+// Android has java.logging classes available but not the java.logging module itself.
+// Our module-info requires java.logging to be present as a module, which causes
+// compilation for Android to break.
+// To fix this, we try to exclude module-info from the compilation.
+// Since it is not possible to exclude module-info through srcDirs:
 // https://discuss.gradle.org/t/how-to-exclude-module-info-java-in-gradle-7/42816
-// instead we copy sources except module-info to separate folder
+// we copy all sources, except module-info, to a separate folder
 task copySources(type: Copy) {
   from "../rtpstalk/src/main/java"
   into "src/main/java"
   exclude "**/module-info.java"
 }
 preBuild.dependsOn copySources
+
+task cleanSrc(type: Delete) {
+  delete "src/main/java"
+}
+
+clean.dependsOn cleanSrc
