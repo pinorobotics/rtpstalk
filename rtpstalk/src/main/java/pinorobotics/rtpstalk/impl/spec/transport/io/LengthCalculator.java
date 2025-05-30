@@ -86,6 +86,16 @@ public class LengthCalculator {
         return calculator;
     }
 
+    private int submessageHeaderLength;
+
+    public LengthCalculator() {
+        submessageHeaderLength = getFixedLength(SubmessageHeader.class);
+    }
+
+    public int getSubmessageHeaderLength() {
+        return submessageHeaderLength;
+    }
+
     public int getFixedLength(Class<?> clazz) {
         var len = getFixedLengthInternal(clazz);
         if (len == -1) throw new XRE("Fixed length is unknown for type %s", clazz);
@@ -98,7 +108,7 @@ public class LengthCalculator {
         if (clazz == UnsignedInt.class) return Integer.BYTES;
         if (clazz == BuiltinEndpointSet.class) return Integer.BYTES;
         if (clazz == SequenceNumber.class) return SequenceNumber.SIZE;
-        if (clazz == Timestamp.class) return Integer.BYTES * 2;
+        if (clazz == Timestamp.class) return Timestamp.SIZE;
         if (clazz == ParameterId.class) return Short.BYTES;
         if (clazz == DurationT.class) return Integer.BYTES * 2;
         if (clazz == LocatorKind.class) return Integer.BYTES;

@@ -100,7 +100,7 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
                 new WriterProxy(
                         getTracingToken(),
                         dataChannelFactory,
-                        config.maxSubmessageSize(),
+                        config.maxSubmessagesTotalSize(),
                         getGuid(),
                         remoteGuid,
                         unicast);

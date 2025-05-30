@@ -78,7 +78,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         this.tracingToken = tracingToken;
         this.writerGuidPrefix = writerGuidPrefix;
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
-        this.maxSubmessageSize = config.maxSubmessageSize();
+        this.maxSubmessageSize = config.maxSubmessagesTotalSize();
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 

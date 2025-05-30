@@ -43,7 +43,7 @@ public class WriterHeartbeatProcessorTest {
                 new WriterProxy(
                         TestConstants.TEST_TRACING_TOKEN,
                         dataChannelFactory,
-                        TestConstants.TEST_CONFIG_INTERNAL.maxSubmessageSize(),
+                        TestConstants.TEST_CONFIG_INTERNAL.maxSubmessagesTotalSize(),
                         new Guid(
                                 TestConstants.TEST_GUID_PREFIX,
                                 EntityId.Predefined.ENTITYID_PARTICIPANT.getValue()),

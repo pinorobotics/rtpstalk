@@ -30,6 +30,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.UnsignedInt;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Timestamp implements SubmessageElement {
+    public static final int SIZE = Integer.BYTES * 2;
     static final List<String> STREAMED_FIELDS = List.of("seconds", "fraction");
 
     public static enum Predefined {

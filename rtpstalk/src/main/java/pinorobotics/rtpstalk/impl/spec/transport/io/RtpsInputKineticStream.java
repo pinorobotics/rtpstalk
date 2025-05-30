@@ -72,7 +72,7 @@ class RtpsInputKineticStream implements InputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
     private static final int SUBMESSAGE_HEADER_LENGTH =
-            LengthCalculator.getInstance().getFixedLength(SubmessageHeader.class);
+            LengthCalculator.getInstance().getSubmessageHeaderLength();
     private ByteBuffer buf;
     private KineticStreamReader reader;
 

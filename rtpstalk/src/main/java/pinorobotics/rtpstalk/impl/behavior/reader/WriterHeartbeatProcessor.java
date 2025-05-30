@@ -40,21 +40,21 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVer
         text = "Efficient use of Gap and AckNack Submessages")
 public class WriterHeartbeatProcessor {
 
-    private XLogger logger;
-    private WriterProxy writerProxy;
+    private final XLogger logger;
+    private final TracingToken tracingToken;
+    private final WriterProxy writerProxy;
+    private final int maxSubmessagesTotalSize;
 
     /** Counter of Acks */
     private int count = 1;
 
     private Heartbeat lastHeartbeat;
-    private TracingToken tracingToken;
-    private int maxSubmessageSize;
 
     public WriterHeartbeatProcessor(
-            TracingToken tracingToken, WriterProxy writerProxy, int maxSubmessageSize) {
+            TracingToken tracingToken, WriterProxy writerProxy, int maxSubmessagesTotalSize) {
         this.tracingToken = tracingToken;
         this.writerProxy = writerProxy;
-        this.maxSubmessageSize = maxSubmessageSize;
+        this.maxSubmessagesTotalSize = maxSubmessagesTotalSize;
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -95,7 +95,8 @@ public class WriterHeartbeatProcessor {
         writerProxy.lostChangesUpdate(lastHeartbeat.firstSN.value);
 
         var aggregator =
-                new RtpsMessageAggregator(tracingToken, readerGuid.guidPrefix, maxSubmessageSize);
+                new RtpsMessageAggregator(
+                        tracingToken, readerGuid.guidPrefix, maxSubmessagesTotalSize);
         Preconditions.isTrue(aggregator.add(infoDst), "Not enouch space in RTPS message");
         Preconditions.isTrue(
                 aggregator.add(

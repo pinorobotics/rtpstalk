@@ -74,7 +74,7 @@ public class WriterProxy {
     public WriterProxy(
             TracingToken tracingToken,
             DataChannelFactory dataChannelFactory,
-            int maxSubmessageSize,
+            int maxSubmessagesTotalSize,
             Guid readerGuid,
             Guid remoteWriterGuid,
             List<Locator> unicastLocatorList) {
@@ -84,7 +84,8 @@ public class WriterProxy {
         this.unicastLocatorList = List.copyOf(unicastLocatorList);
         this.tracingToken = tracingToken;
         logger = XLogger.getLogger(getClass(), tracingToken);
-        heartbeatProcessor = new WriterHeartbeatProcessor(tracingToken, this, maxSubmessageSize);
+        heartbeatProcessor =
+                new WriterHeartbeatProcessor(tracingToken, this, maxSubmessagesTotalSize);
     }
 
     public void receivedChangeSet(long seqNum) {

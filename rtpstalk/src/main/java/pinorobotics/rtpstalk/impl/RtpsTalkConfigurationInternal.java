@@ -34,13 +34,15 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
  * @author lambdaprime intid@protonmail.com
  */
 public record RtpsTalkConfigurationInternal(
-        RtpsTalkConfiguration publicConfig, int maxSubmessageSize, Guid localParticipantGuid) {
+        RtpsTalkConfiguration publicConfig,
+        int maxSubmessagesTotalSize,
+        Guid localParticipantGuid) {
     private static final RtpsMessageReader MESSAGE_READER = new RtpsMessageReader();
 
     public RtpsTalkConfigurationInternal(RtpsTalkConfiguration config) {
         this(
                 config,
-                calcMaxSubmessageSize(config),
+                calcMaxSubmessagesTotalSize(config),
                 Unchecked.get(
                         () ->
                                 MESSAGE_READER.read(
@@ -50,15 +52,17 @@ public record RtpsTalkConfigurationInternal(
 
     public RtpsTalkConfigurationInternal {
         Preconditions.isTrue(
-                maxSubmessageSize > 0, "Unexpected maxMessageSize %s", maxSubmessageSize);
+                maxSubmessagesTotalSize > 0,
+                "Unexpected maxSubmessagesTotalSize %s",
+                maxSubmessagesTotalSize);
     }
 
-    private static int calcMaxSubmessageSize(RtpsTalkConfiguration config) {
-        var maxMessageSize =
+    private static int calcMaxSubmessagesTotalSize(RtpsTalkConfiguration config) {
+        var maxSubmessagesTotalSize =
                 config.packetBufferSize()
                         - LengthCalculator.getInstance().getFixedLength(Header.class);
-        LengthCalculator.getInstance().validateSubmessageSize(maxMessageSize);
-        return maxMessageSize;
+        LengthCalculator.getInstance().validateSubmessageSize(maxSubmessagesTotalSize);
+        return maxSubmessagesTotalSize;
     }
 
     @Override
@@ -66,7 +70,7 @@ public record RtpsTalkConfigurationInternal(
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
         builder.append("config", publicConfig);
         builder.append("localParticpantGuid", localParticipantGuid);
-        builder.append("maxSubmessageSize", maxSubmessageSize);
+        builder.append("maxSubmessagesTotalSize", maxSubmessagesTotalSize);
         return builder.toString();
     }
 }
