@@ -22,8 +22,7 @@ dependencies {
 }
 
 jacoco {
-  // Java 21 support
-  toolVersion = "0.8.10"
+  toolVersion = "0.8.12"
 }
 
 test {

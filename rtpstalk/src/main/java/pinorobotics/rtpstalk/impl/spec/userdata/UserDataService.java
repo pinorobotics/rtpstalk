@@ -46,18 +46,18 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  */
 public class UserDataService implements AutoCloseable {
 
+    private final RtpsTalkConfigurationInternal config;
+    private final DataChannelFactory channelFactory;
+    private final DataObjectsFactory dataObjectsFactory;
+    private final Executor publisherExecutor;
     private XLogger logger;
-    private RtpsTalkConfigurationInternal config;
     private RtpsMessageReceiver receiver;
-    private DataChannelFactory channelFactory;
     private Map<EntityId, RtpsReader<RtpsTalkDataMessage>> readers = new HashMap<>();
     private Map<EntityId, DataWriter> writers = new HashMap<>();
     private boolean isStarted;
     private LocalOperatingEntities operatingEntities;
     private TracingToken tracingToken;
-    private DataObjectsFactory dataObjectsFactory;
     private RtpsMessageReceiverFactory receiverFactory;
-    private Executor publisherExecutor;
 
     public UserDataService(
             RtpsTalkConfigurationInternal config,

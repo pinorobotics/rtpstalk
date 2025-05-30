@@ -29,6 +29,8 @@ import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
  */
 public class VendorId implements HasStreamedFields {
 
+    public static final int SIZE = 2;
+
     public static enum Predefined {
         RTPSTALK(new VendorId(0xca, 0xfe)),
         CYCLONEDDS(new VendorId(0x01, 0x10)),
@@ -51,7 +53,7 @@ public class VendorId implements HasStreamedFields {
         }
     }
 
-    public byte[] value = new byte[2];
+    public byte[] value = new byte[SIZE];
 
     public VendorId() {}
 

@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 
@@ -50,10 +51,10 @@ public class RtpsMessageWriter {
                                     FieldsOrderedByNameProvider::readOrderedFieldNames));
 
     /** Write full RTPS message to stream of bytes */
-    public void writeRtpsMessage(RtpsMessage message, ByteBuffer buf) throws Exception {
+    public void writeRtpsMessage(RtpsMessage message, ByteBuffer outputBuf) throws Exception {
         var startAt = Instant.now();
         try {
-            write(message, buf);
+            write(message, outputBuf);
         } finally {
             WRITE_TIME_METER.record(Duration.between(startAt, Instant.now()).toMillis());
         }
@@ -64,12 +65,17 @@ public class RtpsMessageWriter {
      *
      * @param message can be full RTPS message or particular part of it
      */
-    public <T> void write(T message, ByteBuffer buf) throws Exception {
-        var out = new RtpsOutputKineticStream(buf.order(RtpsTalkConfiguration.getByteOrder()));
+    public <T extends HasStreamedFields> void write(T message, ByteBuffer outputBuf)
+            throws Exception {
+        var buf = outputBuf.duplicate();
+        buf.order(RtpsTalkConfiguration.getByteOrder());
+        var out = new RtpsOutputKineticStream(buf);
         var res = controller.onNextObject(out, message);
-        if (res.skip()) return;
-        var ksw = new KineticStreamWriter(out).withController(controller);
-        out.setWriter(ksw);
-        ksw.write(message);
+        if (!res.skip()) {
+            var ksw = new KineticStreamWriter(out).withController(controller);
+            out.setWriter(ksw);
+            ksw.write(message);
+        }
+        outputBuf.position(buf.position());
     }
 }

@@ -56,13 +56,13 @@ public class DataChannel implements AutoCloseable {
                     .setDescription(RtpsTalkMetrics.RECEIVE_TIME_METRIC_DESCRIPTION)
                     .ofLongs()
                     .build();
-    private RtpsMessageReader reader = new RtpsMessageReader();
-    private RtpsMessageWriter writer = new RtpsMessageWriter();
-    private DatagramChannel datagramChannel;
-    private int packetBufferSize;
-    private GuidPrefix guidPrefix;
-    private SocketAddress target;
-    private XLogger logger;
+    private final RtpsMessageReader reader = new RtpsMessageReader();
+    private final RtpsMessageWriter writer = new RtpsMessageWriter();
+    private final DatagramChannel datagramChannel;
+    private final int packetBufferSize;
+    private final GuidPrefix guidPrefix;
+    private final SocketAddress target;
+    private final XLogger logger;
     private boolean isClosed;
 
     protected DataChannel(
@@ -121,8 +121,6 @@ public class DataChannel implements AutoCloseable {
             return;
         }
         var buf = ByteBuffer.allocate(packetBufferSize);
-        buf.rewind();
-        buf.limit(buf.capacity());
         try {
             writer.writeRtpsMessage(message, buf);
             buf.limit(buf.position());

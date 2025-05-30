@@ -36,8 +36,8 @@ public class SubmessageHeader implements HasStreamedFields {
     public byte submessageFlag;
 
     /**
-     * Number of octets from the start of the contents of the currennt Submessage to the start of
-     * the next Submessage header.
+     * Number of octets from the start of the contents of the current Submessage to the start of the
+     * next Submessage header.
      */
     public UnsignedShort submessageLength;
 

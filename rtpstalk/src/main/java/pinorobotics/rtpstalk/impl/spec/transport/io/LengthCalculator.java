@@ -104,7 +104,7 @@ public class LengthCalculator {
         if (clazz == LocatorKind.class) return Integer.BYTES;
         if (clazz == GuidPrefix.class) return GuidPrefix.SIZE;
         if (clazz == ProtocolVersion.class) return 2;
-        if (clazz == VendorId.class) return 2;
+        if (clazz == VendorId.class) return VendorId.SIZE;
         if (clazz == InfoTimestamp.class) return getFixedLength(Timestamp.class);
         if (clazz == InfoDestination.class) return InfoDestination.SIZE;
         if (clazz == RepresentationIdentifier.class) return RepresentationIdentifier.SIZE;
