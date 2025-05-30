@@ -205,10 +205,10 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
             protocolVersion = Predefined.Version_2_3,
             text =
                     """
-                    For a BEST_EFFORT DDS DataReader, changes in its RTPS Reader's HistoryCache are made visible to the user
-                    only if no future changes have already been made visible (i.e., if there are no changes in the RTPS Receiver's
-                    HistoryCache with a higher sequence number).
-                    """)
+For a BEST_EFFORT DDS DataReader, changes in its RTPS Reader's HistoryCache are made visible to the user
+only if no future changes have already been made visible (i.e., if there are no changes in the RTPS Receiver's
+HistoryCache with a higher sequence number).
+""")
     protected boolean addChange(CacheChange<D> cacheChange) {
         logger.entering("addChange");
         var seqNumMax = cache.getSeqNumMax(cacheChange.getWriterGuid());

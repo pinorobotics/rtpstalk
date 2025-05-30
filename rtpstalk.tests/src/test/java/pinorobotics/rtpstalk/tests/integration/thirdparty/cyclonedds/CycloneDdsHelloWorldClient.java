@@ -136,8 +136,8 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
                         i ->
                                 stdout.append(
                                         """
-                                === [Subscriber] Received : Message (%s, HelloWorld)
-                                """
+                                        === [Subscriber] Received : Message (%s, HelloWorld)
+                                        """
                                                 .formatted(i)));
         return stdout.toString().trim();
     }

@@ -3,6 +3,7 @@
 **/.gradle/
 **/.settings/
 **/bld/
+**/bld.*/
 **/.project
 **/.classpath
 /**/release/*-SNAPSHOT.zip

@@ -79,10 +79,10 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
         stdout.append(
                 String.format(
                         """
-                Starting\s
-                Publisher running %s samples.
-                Publisher matched
-                """,
+                        Starting\s
+                        Publisher running %s samples.
+                        Publisher matched
+                        """,
                         count));
         IntStream.rangeClosed(1, count)
                 .forEach(
@@ -99,11 +99,11 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
         stdout.append(
                 String.format(
                         """
-                Starting\s
-                Using topic %s
-                Subscriber running until %ssamples have been received
-                Subscriber matched
-                """,
+                        Starting\s
+                        Using topic %s
+                        Subscriber running until %ssamples have been received
+                        Subscriber matched
+                        """,
                         topicName, count));
         IntStream.rangeClosed(1, count)
                 .forEach(i -> stdout.append(String.format("Message HelloWorld %s RECEIVED\n", i)));

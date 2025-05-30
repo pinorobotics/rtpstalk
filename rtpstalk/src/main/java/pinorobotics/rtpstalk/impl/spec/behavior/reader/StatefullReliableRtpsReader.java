@@ -164,9 +164,9 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             protocolVersion = Predefined.Version_2_3,
             text =
                     """
-                    For a RELIABLE DDS DataReader, changes in its RTPS Reader's HistoryCache are made visible to the user
-                    application only when all previous changes (i.e., changes with smaller sequence numbers) are also visible.
-                    """)
+For a RELIABLE DDS DataReader, changes in its RTPS Reader's HistoryCache are made visible to the user
+application only when all previous changes (i.e., changes with smaller sequence numbers) are also visible.
+""")
     @Override
     protected boolean addChange(CacheChange<D> newCacheChange) {
         logger.entering("addChange");

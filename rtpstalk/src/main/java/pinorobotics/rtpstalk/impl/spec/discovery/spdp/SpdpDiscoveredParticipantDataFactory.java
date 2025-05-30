@@ -41,10 +41,10 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
         paragraph = "9.6.2.2",
         text =
                 """
-            The discovery data is sent using standard Data Submessages. In order to allow for QoS extensibility while preserving
-            interoperability between versions of the protocol, the wire-representation of the SerializedData within the Data
-            Submessage uses a the format of a ParameterList SubmessageElement.
-            """)
+The discovery data is sent using standard Data Submessages. In order to allow for QoS extensibility while preserving
+interoperability between versions of the protocol, the wire-representation of the SerializedData within the Data
+Submessage uses a the format of a ParameterList SubmessageElement.
+""")
 public class SpdpDiscoveredParticipantDataFactory {
 
     public ParameterList createData(
