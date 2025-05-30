@@ -49,6 +49,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 class RtpsOutputKineticStream implements OutputKineticStream {
 
     private static final XLogger LOGGER = XLogger.getLogger(RtpsInputKineticStream.class);
+    private static final int SUBMESSAGE_HEADER_LENGTH =
+            LengthCalculator.getInstance().getSubmessageHeaderLength();
     private ByteBuffer buf;
     private KineticStreamWriter writer;
 
@@ -77,6 +79,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
 
     private void writeSubmessages(Submessage[] a) throws Exception {
         for (int i = 0; i < a.length; i++) {
+            var startPos = buf.position();
             Preconditions.isTrue(buf.position() % 4 == 0, "Invalid submessage alignment");
 
             if (a[i] instanceof DataSubmessage data) writeData(data);
@@ -85,7 +88,14 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             // The PSM aligns each Submessage on a 32-bit boundary with respect
             // to the start of the Message (9.4 Mapping of the RTPS Messages)
             // To satisfy RTPS requirement we may need to add padding
-            align(4);
+            align();
+
+            var len = SUBMESSAGE_HEADER_LENGTH + a[i].getSubmessageLength();
+            Preconditions.equals(
+                    len + InternalUtils.getInstance().padding(len, 4),
+                    buf.position() - startPos,
+                    "mismatch in submessage length: %s",
+                    a[i]);
         }
     }
 
@@ -95,7 +105,7 @@ class RtpsOutputKineticStream implements OutputKineticStream {
             text =
                     "The PSM aligns each Submessage on a 32-bit boundary with respect to the start"
                             + " of the Message")
-    private void align(int blockSize) throws Exception {
+    private void align() throws Exception {
         var pos = buf.position();
         var padding = InternalUtils.getInstance().padding(pos, 4);
         for (int i = 0; i < padding; i++) {
