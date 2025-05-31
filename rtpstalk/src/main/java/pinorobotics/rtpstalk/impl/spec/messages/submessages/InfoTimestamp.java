@@ -34,7 +34,7 @@ public class InfoTimestamp extends Submessage {
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.INFO_TS.getValue(),
-                        LengthCalculator.getInstance().getFixedLength(InfoTimestamp.class));
+                        LengthCalculator.getInstance().getFixedLength(Timestamp.class));
         this.timestamp = timestamp;
     }
 

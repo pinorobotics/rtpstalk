@@ -25,8 +25,6 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
  */
 public class InfoDestination extends Submessage {
 
-    public static final int SIZE = GuidPrefix.SIZE;
-
     /**
      * Provides the GuidPrefix that should be used to reconstruct the GUIDs of all the RTPS Reader
      * entities whose EntityIds appears in the Submessages that follow
@@ -40,7 +38,7 @@ public class InfoDestination extends Submessage {
         submessageHeader =
                 new SubmessageHeader(
                         SubmessageKind.Predefined.INFO_DST.getValue(),
-                        LengthCalculator.getInstance().getFixedLength(InfoDestination.class));
+                        LengthCalculator.getInstance().getFixedLength(GuidPrefix.class));
     }
 
     @Override

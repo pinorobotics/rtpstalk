@@ -60,6 +60,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.RawData;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.RepresentationIdentifier;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayload;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SerializedPayloadHeader;
+import pinorobotics.rtpstalk.impl.spec.messages.submessages.Submessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SubmessageHeader;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.SubmessageKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.Count;
@@ -86,10 +87,16 @@ public class LengthCalculator {
         return calculator;
     }
 
+    private int headerLength;
     private int submessageHeaderLength;
 
     public LengthCalculator() {
+        headerLength = getFixedLength(Header.class);
         submessageHeaderLength = getFixedLength(SubmessageHeader.class);
+    }
+
+    public int getHeaderLength() {
+        return headerLength;
     }
 
     public int getSubmessageHeaderLength() {
@@ -115,11 +122,14 @@ public class LengthCalculator {
         if (clazz == GuidPrefix.class) return GuidPrefix.SIZE;
         if (clazz == ProtocolVersion.class) return 2;
         if (clazz == VendorId.class) return VendorId.SIZE;
-        if (clazz == InfoTimestamp.class) return getFixedLength(Timestamp.class);
-        if (clazz == InfoDestination.class) return InfoDestination.SIZE;
+        if (clazz == InfoTimestamp.class)
+            return getFixedLength(Submessage.class) + getFixedLength(Timestamp.class);
+        if (clazz == InfoDestination.class)
+            return getFixedLength(Submessage.class) + getFixedLength(GuidPrefix.class);
         if (clazz == RepresentationIdentifier.class) return RepresentationIdentifier.SIZE;
         if (clazz == SerializedPayloadHeader.class) return SerializedPayloadHeader.SIZE;
         if (clazz == SubmessageKind.class) return 1;
+        if (clazz == Submessage.class) return getFixedLength(SubmessageHeader.class);
         if (clazz == SubmessageHeader.class)
             return getFixedLength(SubmessageKind.class) + 1 + Short.BYTES;
         if (clazz == Locator.class)

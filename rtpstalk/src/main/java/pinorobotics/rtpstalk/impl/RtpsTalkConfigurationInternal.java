@@ -23,7 +23,6 @@ import id.xfunction.function.Unchecked;
 import java.nio.ByteBuffer;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
-import pinorobotics.rtpstalk.impl.spec.messages.Header;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
 
@@ -31,10 +30,14 @@ import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageReader;
  * Provides additional internal parameters on top of {@link RtpsTalkConfiguration}. These are
  * calculated based on {@link RtpsTalkConfiguration}
  *
+ * @param maxSubmessageContentSize maximum allowed size of the single submessage content, excluding
+ *     its header
+ * @param maxSubmessagesTotalSize this includes submessages headers
  * @author lambdaprime intid@protonmail.com
  */
 public record RtpsTalkConfigurationInternal(
         RtpsTalkConfiguration publicConfig,
+        int maxSubmessageSize,
         int maxSubmessagesTotalSize,
         Guid localParticipantGuid) {
     private static final RtpsMessageReader MESSAGE_READER = new RtpsMessageReader();
@@ -42,6 +45,7 @@ public record RtpsTalkConfigurationInternal(
     public RtpsTalkConfigurationInternal(RtpsTalkConfiguration config) {
         this(
                 config,
+                calcMaxSubmessageSize(config),
                 calcMaxSubmessagesTotalSize(config),
                 Unchecked.get(
                         () ->
@@ -57,10 +61,17 @@ public record RtpsTalkConfigurationInternal(
                 maxSubmessagesTotalSize);
     }
 
+    private static int calcMaxSubmessageSize(RtpsTalkConfiguration config) {
+        var maxSubmessageSize =
+                calcMaxSubmessagesTotalSize(config)
+                        - LengthCalculator.getInstance().getSubmessageHeaderLength();
+        LengthCalculator.getInstance().validateSubmessageSize(maxSubmessageSize);
+        return maxSubmessageSize;
+    }
+
     private static int calcMaxSubmessagesTotalSize(RtpsTalkConfiguration config) {
         var maxSubmessagesTotalSize =
-                config.packetBufferSize()
-                        - LengthCalculator.getInstance().getFixedLength(Header.class);
+                config.packetBufferSize() - LengthCalculator.getInstance().getHeaderLength();
         LengthCalculator.getInstance().validateSubmessageSize(maxSubmessagesTotalSize);
         return maxSubmessagesTotalSize;
     }

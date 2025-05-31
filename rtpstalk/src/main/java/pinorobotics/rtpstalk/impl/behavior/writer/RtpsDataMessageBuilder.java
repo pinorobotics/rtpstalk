@@ -40,6 +40,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNum
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageSender.MessageBuilder;
+import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 import pinorobotics.rtpstalk.impl.spec.userdata.SampleIdentityProcessor;
 import pinorobotics.rtpstalk.messages.Parameters;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -53,15 +54,16 @@ import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
  */
 public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder {
 
-    private XLogger logger;
-    private Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
-    private GuidPrefix writerGuidPrefix;
-    private Optional<GuidPrefix> readerGuidPrefix;
-    private RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
-    private SampleIdentityProcessor identityProc = new SampleIdentityProcessor();
+    private final XLogger logger;
+    private final TracingToken tracingToken;
+    private final Map<Long, RtpsTalkMessage> data = new LinkedHashMap<>();
+    private final GuidPrefix writerGuidPrefix;
+    private final Optional<GuidPrefix> readerGuidPrefix;
+    private final RtpsDataPackager<RtpsTalkMessage> packager = new RtpsDataPackager<>();
+    private final SampleIdentityProcessor identityProc = new SampleIdentityProcessor();
+    private final int maxSubmessageSize;
+    private final int maxSubmessagesTotalSize;
     private long lastSeqNum;
-    private int maxSubmessageSize;
-    private TracingToken tracingToken;
 
     public RtpsDataMessageBuilder(
             RtpsTalkConfigurationInternal config,
@@ -78,7 +80,8 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
         this.tracingToken = tracingToken;
         this.writerGuidPrefix = writerGuidPrefix;
         this.readerGuidPrefix = Optional.ofNullable(readerGuidPrefix);
-        this.maxSubmessageSize = config.maxSubmessagesTotalSize();
+        this.maxSubmessageSize = config.maxSubmessageSize();
+        this.maxSubmessagesTotalSize = config.maxSubmessagesTotalSize();
         logger = XLogger.getLogger(getClass(), tracingToken);
     }
 
@@ -133,7 +136,8 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
                     // InfoDestination
                     // submessage (depending on presence of readerGuidPrefix) we account
                     // fragmentSize for both the cases
-                    fragmentSize -= InfoDestination.SIZE;
+                    fragmentSize -=
+                            LengthCalculator.getInstance().getFixedLength(InfoDestination.class);
                 }
                 for (var fragment :
                         new DataFragmentSplitter(
@@ -202,7 +206,7 @@ public class RtpsDataMessageBuilder implements RtpsMessageSender.MessageBuilder 
     private class InternalBuilder extends RtpsMessageAggregator {
 
         InternalBuilder(GuidPrefix writerGuidPrefix) {
-            super(tracingToken, writerGuidPrefix, maxSubmessageSize);
+            super(tracingToken, writerGuidPrefix, maxSubmessagesTotalSize);
             // RTPS specification does not explicitly tell all the cases when INFO_DST should be
             // included.
             // To cover situations when there are

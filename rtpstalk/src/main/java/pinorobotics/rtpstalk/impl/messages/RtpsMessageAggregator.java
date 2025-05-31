@@ -32,18 +32,19 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
 import pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator;
 
 /**
- * Aggregates submessages into single message until it becomes full
+ * Aggregate submessages into single message until it becomes full
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsMessageAggregator {
-    private static final int headerLen =
-            LengthCalculator.getInstance().getFixedLength(Header.class);
+    private static final int HEADER_LENGTH = LengthCalculator.getInstance().getHeaderLength();
+    private static final int SUBMESSAGE_HEADER_LENGTH =
+            LengthCalculator.getInstance().getSubmessageHeaderLength();
     private final XLogger logger;
     private final List<Submessage> submessages = new ArrayList<Submessage>();
     private final int maxSubmessagesTotalSize;
     private final Header header;
-    private int messageLen = headerLen;
+    private int messageLen = HEADER_LENGTH;
 
     public RtpsMessageAggregator(
             TracingToken tracingToken, GuidPrefix writerGuidPrefix, int maxSubmessagesTotalSize) {
@@ -62,7 +63,9 @@ public class RtpsMessageAggregator {
     }
 
     public boolean add(Submessage submessage) {
-        var submessageLen = submessage.submessageHeader.submessageLength.getUnsigned();
+        var submessageLen =
+                SUBMESSAGE_HEADER_LENGTH
+                        + submessage.submessageHeader.submessageLength.getUnsigned();
         if (messageLen + submessageLen > maxSubmessagesTotalSize) {
             logger.fine(
                     "Not enough space to add new submessage with size {0}. Current size {1},"
