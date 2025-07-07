@@ -37,7 +37,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-public class Topic<A> extends XObservable<TopicMatchEvent<A>> {
+public class Topic<A extends ActorDetails> extends XObservable<TopicMatchEvent<A>> {
 
     private TopicId topicId;
     private List<RemoteActorDetails> remoteActors = new ArrayList<>();
