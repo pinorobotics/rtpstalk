@@ -27,8 +27,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
  */
 public class LocalOperatingEntities {
 
-    private LocalEntityRegistry<StatefullReliableRtpsWriter<?>> writers;
-    private LocalEntityRegistry<StatefullReliableRtpsReader<?>> readers;
+    private final LocalEntityRegistry<StatefullReliableRtpsWriter<?>> writers;
+    private final LocalEntityRegistry<StatefullReliableRtpsReader<?>> readers;
 
     public LocalOperatingEntities(TracingToken tracingToken) {
         writers =

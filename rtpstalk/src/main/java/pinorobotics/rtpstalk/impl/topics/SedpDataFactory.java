@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.util.ImmutableMultiMap;
-import java.util.HashMap;
 import java.util.Map;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.TopicId;
@@ -107,7 +106,6 @@ public class SedpDataFactory {
             EntityId readerEntityId,
             Locator defaultUnicastLocator,
             ReaderQosPolicySet qosPolicy) {
-        var params = new HashMap<ParameterId, Object>();
         var guid = new Guid(config.publicConfig().guidPrefix(), readerEntityId);
         return ParameterList.ofProtocolParameters(
                 new ImmutableMultiMap<>(

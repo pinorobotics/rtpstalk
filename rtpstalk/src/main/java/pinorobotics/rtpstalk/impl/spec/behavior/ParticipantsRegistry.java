@@ -45,7 +45,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  */
 public class ParticipantsRegistry {
 
-    private class Participant {
+    private static class Participant {
 
         private Guid guid;
         private ParameterList pl;

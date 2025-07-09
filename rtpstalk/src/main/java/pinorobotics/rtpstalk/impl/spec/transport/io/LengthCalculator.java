@@ -80,17 +80,17 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
  */
 public class LengthCalculator {
 
-    private static LengthCalculator calculator = new LengthCalculator();
+    private static LengthCalculator INSTANCE = new LengthCalculator();
     public static final int ADDRESS_SIZE = 16;
 
     public static LengthCalculator getInstance() {
-        return calculator;
+        return INSTANCE;
     }
 
     private int headerLength;
     private int submessageHeaderLength;
 
-    public LengthCalculator() {
+    private LengthCalculator() {
         headerLength = getFixedLength(Header.class);
         submessageHeaderLength = getFixedLength(SubmessageHeader.class);
     }

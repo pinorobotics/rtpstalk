@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/4.8.4"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/4.8.4 https://raw.githubusercontent.com/spotbugs/spotbugs/4.8.4/spotbugs/etc/findbugsfilter.xsd">
+
+  <!-- Justification: Allow default encoding -->
+  <Match>
+    <Bug code="Dm"/>
+  </Match>
+
+  <!-- Justification: Records with no "internal representation" -->
+  <Match>
+    <Or>
+      <Class name="pinorobotics.rtpstalk.RtpsTalkConfiguration" />
+      <Class name="pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder" />
+      <Class name="pinorobotics.rtpstalk.impl.topics.RemoteActorDetails" />
+      <Class name="pinorobotics.rtpstalk.messages.Parameters" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.messages.Locator" />
+    </Or>
+    <Bug code="EI,EI2"/>
+  </Match>
+
+  <!-- Justification: not an "internal representation" -->
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.writer.ReliableReaderProxy" />
+    <Or>
+      <Method name="requestedChanges" />
+      <Method name="getUnicastLocatorList" />
+      <Field name="unicastLocatorList"/>
+    </Or>
+    <Bug code="EI,EI2" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.writer.BestEffortReaderProxy" />
+    <Or>
+      <Method name="getUnicastLocatorList" />
+      <Field name="unicastLocatorList"/>
+    </Or>
+    <Bug code="EI,EI2" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader" />
+    <Or>
+      <Method name="getReaderCache" />
+    </Or>
+    <Bug code="EI" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter" />
+    <Or>
+      <Method name="getWriterCache" />
+    </Or>
+    <Bug code="EI" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.RtpsNetworkInterface" />
+    <Or>
+      <Method name="getLocalDefaultUnicastLocator" />
+      <Method name="getLocalMetatrafficUnicastLocator" />
+      <Method name="getParticipantsRegistry" />
+      <Field name="defaultUnicastLocator"/>
+      <Field name="metatrafficUnicastLocator"/>
+    </Or>
+    <Bug code="EI,EI2" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.discovery.sedp.MetatrafficUnicastService" />
+    <Or>
+      <Method name="getSubscriptionsReader" />
+      <Method name="getPublicationsReader" />
+    </Or>
+    <Bug code="EI" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.reader.WriterProxy" />
+    <Or>
+      <Method name="getUnicastLocatorList" />
+      <Method name="getHeartbeatProcessor" />
+    </Or>
+    <Bug code="EI" />
+  </Match>
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities" />
+    <Or>
+      <Method name="getLocalWriters" />
+      <Method name="getLocalReaders" />
+    </Or>
+    <Bug code="EI" />
+  </Match>
+
+  <!-- Justification: not an "internal representation" -->
+  <Match>
+    <Class name="pinorobotics.rtpstalk.impl.behavior.writer.DataFragmentSplitter" />
+    <Or>
+      <Field name="data"/>
+    </Or>
+    <Bug code="EI2" />
+  </Match>
+
+  <!-- Justification: Allow access to message fields -->
+  <Match>
+    <Or>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages"/>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages.submessages"/>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages.submessages.elements"/>
+    </Or>
+    <Bug code="EI,PA"/>
+  </Match>
+
+  <!-- 
+       Bug: The object under construction remains partially initialized and may be vulnerable to Finalizer attacks.
+       Justification: Message classes does not lock any resources so allow message validation in every constructor
+  -->
+  <Match>
+    <Or>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages"/>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages.submessages"/>
+      <Package name="pinorobotics.rtpstalk.impl.spec.messages.submessages.elements"/>
+    </Or>
+    <Bug code="CT"/>
+  </Match>
+
+  <!-- 
+       No resources allocated in the constructor
+  -->
+  <Match>
+    <Or>
+      <Class name="pinorobotics.rtpstalk.impl.behavior.writer.DataFragmentSplitter"/>
+      <Class name="pinorobotics.rtpstalk.impl.behavior.reader.DataFragmentJoiner"/>
+      <Class name="pinorobotics.rtpstalk.impl.spec.transport.DataChannel" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.transport.io.LengthCalculator" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.behavior.reader.StatelessRtpsReader" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter" />
+      <Class name="pinorobotics.rtpstalk.impl.spec.behavior.liveliness.BuiltinParticipantMessageReader" />
+    </Or>
+    <Bug code="CT"/>
+  </Match>
+
+  <!--
+      Bug: Unwritten public or protected field
+      Justification: Future use
+  -->
+  <Match>
+    <Or>
+      <Class name="pinorobotics.rtpstalk.impl.spec.messages.submessages.HeartbeatWithGroupInfo"/>
+      <Or>
+        <Field name="currentGSN" />
+        <Field name="firstGSN" />
+        <Field name="lastGSN" />
+        <Field name="writerSet" />
+      </Or>
+    </Or>
+    <Bug code="UwF"/>
+  </Match>
+
+  <!--
+      Bug: Unused public or protected field
+      Justification: Future use
+  -->
+  <Match>
+    <Or>
+      <Class name="pinorobotics.rtpstalk.impl.spec.messages.GroupDigest"/>
+      <Or>
+        <Field name="value" />
+      </Or>
+    </Or>
+    <Bug code="UuF"/>
+  </Match>
+
+  <!--
+      Bug: May expose internal representation by storing an externally mutable object
+      Justification: Expected
+  -->
+  <Match>
+    <Or>
+      <Class name="pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinEndpointsConfigurator"/>
+      <Or>
+        <Field name="subscriptionsReader" />
+        <Field name="publicationsReader" />
+      </Or>
+      <Class name="pinorobotics.rtpstalk.impl.spec.discovery.spdp.SpdpBuiltinParticipantReader"/>
+      <Or>
+        <Field name="participantsRegistry" />
+      </Or>
+      <Class name="pinorobotics.rtpstalk.RtpsTalkConfiguration$Builder"/>
+      <Or>
+        <Field name="guidPrefix" />
+      </Or>
+    </Or>
+    <Bug code="EI2"/>
+  </Match>
+
+</FindBugsFilter>

@@ -17,8 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages.submessages.elements;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointQos;
 import pinorobotics.rtpstalk.impl.spec.messages.BuiltinEndpointSet;
@@ -100,11 +101,8 @@ In that case, any resources associated to the Participant and its Endpoints can 
     PID_DURABILITY_SERVICE(0x001e, DurabilityServiceQosPolicy.class),
     PID_SENTINEL(0x0001, null);
 
-    public static Map<Short, ParameterId> map = new HashMap<>();
-
-    static {
-        for (var t : ParameterId.values()) map.put(t.getValue(), t);
-    }
+    public static final Map<Short, ParameterId> map =
+            Arrays.stream(values()).collect(Collectors.toMap(k -> k.value, v -> v));
 
     private short value;
     private Class<?> clazz;

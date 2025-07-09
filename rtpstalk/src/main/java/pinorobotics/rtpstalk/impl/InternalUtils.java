@@ -34,6 +34,9 @@ public class InternalUtils {
     private static final XLogger LOGGER = XLogger.getLogger(InternalUtils.class);
     private static final InternalUtils INSTANCE = new InternalUtils();
 
+    /** Singleton */
+    private InternalUtils() {}
+
     public static InternalUtils getInstance() {
         return INSTANCE;
     }

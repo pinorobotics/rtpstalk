@@ -12,6 +12,7 @@ plugins {
   id 'com.diffplug.spotless'
   // only if you build Java library
   id 'java-library'
+  id 'com.github.spotbugs' version '6.0.27'
 }
 
 boolean isReleaseBuild() {
@@ -94,6 +95,10 @@ javadoc {
       include "**/doc-files/*"
     }
   }
+}
+
+spotbugsMain {
+  excludeFilter = file('spotbugs-exclude.xml')
 }
 
 def packageDir = "$buildDir/package/${zzName}"

@@ -25,9 +25,9 @@ import pinorobotics.rtpstalk.impl.spec.messages.TrafficType;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public record PortNumberParameters(
-        int DomainIdGain,
-        int ParticipantIdGain,
-        int PortBase,
+        int domainIdGain,
+        int participantIdGain,
+        int portBase,
         int d0,
         int d1,
         int d2,
@@ -39,8 +39,8 @@ public record PortNumberParameters(
 
     public int getMultiCastPort(int domainId) {
         return switch (trafficType) {
-            case DISCOVERY -> PortBase + DomainIdGain * domainId + d0;
-            case USER -> PortBase + DomainIdGain * domainId + d2;
+            case DISCOVERY -> portBase + domainIdGain * domainId + d0;
+            case USER -> portBase + domainIdGain * domainId + d2;
         };
     }
 }

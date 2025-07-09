@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  */
 public class GuidPrefix implements SubmessageElement {
 
+    private static final Random random = new Random();
     public static final int SIZE = 12;
 
     public static enum Predefined {
@@ -103,7 +104,7 @@ public class GuidPrefix implements SubmessageElement {
 
     public static GuidPrefix generate() {
         var a = new byte[SIZE];
-        new Random().nextBytes(a);
+        random.nextBytes(a);
         var rtpsTalkId = VendorId.Predefined.RTPSTALK.getValue().value;
         a[0] = rtpsTalkId[0];
         a[1] = rtpsTalkId[1];

@@ -27,7 +27,7 @@ public class HeartbeatWithGroupInfo extends Heartbeat {
 
     /**
      * Present only if the GroupInfo flag is set in the header. Identifies the last (highest) group
-     * sequence number written by any DataWriter in the Writer?????????s Group at the time that the
+     * sequence number written by any DataWriter in the Writer's Group at the time that the
      * HeartBeat was sent.
      */
     public SequenceNumber currentGSN;
@@ -46,7 +46,7 @@ public class HeartbeatWithGroupInfo extends Heartbeat {
 
     /**
      * Present only if the GroupInfo flag is set in the header. Identifies the subset of Writers
-     * that belong to the Writer?????????s Group at the time the sample with currentGSN was written.
+     * that belong to the Writer's Group at the time the sample with currentGSN was written.
      * secureWriterSet GroupDigest Present only if the GroupInfoFlag is set in the header. Reserved
      * for use by the DDS-Security Specification.
      */

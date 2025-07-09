@@ -17,8 +17,9 @@
  */
 package pinorobotics.rtpstalk.impl.spec.messages;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
@@ -29,13 +30,10 @@ public enum LocatorKind {
     LOCATOR_KIND_UDPv4(1),
     LOCATOR_KIND_UDPv6(2);
 
-    public int value;
+    public final int value;
 
-    public static Map<Integer, LocatorKind> VALUES = new HashMap<>();
-
-    static {
-        for (var t : values()) VALUES.put(t.value, t);
-    }
+    public static final Map<Integer, LocatorKind> VALUES =
+            Arrays.stream(values()).collect(Collectors.toMap(k -> k.value, v -> v));
 
     LocatorKind(int value) {
         this.value = value;

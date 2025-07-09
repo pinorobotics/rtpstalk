@@ -71,14 +71,14 @@ public class DataChannel implements AutoCloseable {
             SocketAddress target,
             byte[] guidPrefix,
             int packetBufferSize) {
-        this.datagramChannel = datagramChannel;
-        this.target = target;
-        this.guidPrefix = new GuidPrefix(guidPrefix);
-        this.packetBufferSize = packetBufferSize;
         Preconditions.isTrue(
                 datagramChannel.isBlocking(),
                 "By default blocking DatagramChannel expected, see"
                     + " https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/spi/AbstractSelectableChannel.html#isBlocking()");
+        this.datagramChannel = datagramChannel;
+        this.target = target;
+        this.guidPrefix = new GuidPrefix(guidPrefix);
+        this.packetBufferSize = packetBufferSize;
         logger =
                 XLogger.getLogger(
                         getClass(),
