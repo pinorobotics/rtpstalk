@@ -161,8 +161,9 @@ public class StatefullReliableRtpsReaderTest {
             Assertions.assertEquals("[]", items.toString());
             publisher.submit(RtpsReaderTest.newRtpsMessage(5, "bb"));
             Assertions.assertEquals(
-                    """
-[{ "inlineQos": "Optional.empty", "data": "62 62" }, { "inlineQos": "Optional.empty", "data": "63 63 63" }]""",
+"""
+[{ "inlineQos": "Optional.empty", "data": "62 62" }, { "inlineQos": "Optional.empty", "data": "63 63 63" }]\
+""",
                     items.toString());
         }
     }

@@ -71,7 +71,7 @@ public enum ParameterId {
             paragraph = "8.5.3.2 SPDPdiscoveredParticipantData",
             protocolVersion = Predefined.Version_2_3,
             text =
-                    """
+"""
 How long a Participant should be considered alive every time an announcement is received from the Participant.
 If a Participant fails to send another announcement within this time period, the Participant can be considered gone.
 In that case, any resources associated to the Participant and its Endpoints can be freed

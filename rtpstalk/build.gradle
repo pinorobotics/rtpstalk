@@ -4,7 +4,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath "io.github.lambdaprime:id.xfunction:23.0"
+    classpath "io.github.lambdaprime:id.xfunction:27.0"
   }
 }
 
@@ -91,7 +91,7 @@ javadoc {
   doLast {
     copy {
       from "${zzName}/src/main/java"
-      into "$project.docsDir/javadoc/${zzName}"
+      into "$destinationDir/javadoc/${zzName}"
       include "**/doc-files/*"
     }
   }

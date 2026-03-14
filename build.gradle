@@ -10,7 +10,7 @@ gradle publishToMavenLocal \
 
 plugins {
   id 'java'
-  id 'com.diffplug.spotless' version '7.0.2'
+  id 'com.diffplug.spotless' version '8.0.0'
 }
 
 allprojects {
@@ -24,8 +24,10 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'eclipse'
 
-  sourceCompatibility = zzJavaVersion
-  targetCompatibility = zzJavaVersion
+  java {
+    sourceCompatibility = zzJavaVersion
+    targetCompatibility = zzJavaVersion
+  }
   tasks.withType(JavaCompile) {
     options.release = Integer.parseInt(zzJavaVersion)
   }
@@ -40,6 +42,10 @@ subprojects {
 
         // Use Android style which has 4 whitespaces instead 2 by default
         googleJavaFormat().aosp().reflowLongStrings()
+
+        // Do not format code in any of the examples because it becomes
+        // unusable in jshell
+        targetExclude "**/examples/**"
 
         licenseHeader '''/*
  * Copyright $YEAR %s

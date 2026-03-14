@@ -49,7 +49,7 @@ public class TestEvents {
     private static RemoteActorDetails extractRemoteActorDetails(String line) {
         line =
                 line.replaceAll(
-                        """
+"""
 .*"guidPrefix": .* "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
 """
                                 .strip(),
@@ -75,12 +75,12 @@ public class TestEvents {
     @Test
     public void test_extractRemoteActorDetails() {
         var line =
-                """
+"""
 Discovered Publisher for topic test with following details { "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
 """
                         .strip();
         Assertions.assertEquals(
-                """
+"""
 { "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
 """
                         .strip(),

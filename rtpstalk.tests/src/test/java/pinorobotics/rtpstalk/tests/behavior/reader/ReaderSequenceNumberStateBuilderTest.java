@@ -54,7 +54,7 @@ public class ReaderSequenceNumberStateBuilderTest {
                         1,
                         SequenceNumberSet.BITMAP_SIZE,
                         LongStream.range(0, SequenceNumberSet.BITMAP_SIZE + 1).toArray(),
-                        """
+"""
 { "bitmapBase": { "value": 1 }, "numBits": "256", "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
 """
                                 .trim()),
@@ -62,7 +62,7 @@ public class ReaderSequenceNumberStateBuilderTest {
                         11,
                         1234,
                         LongStream.range(0, 1003).toArray(),
-                        """
+"""
 { "bitmapBase": { "value": 11 }, "numBits": "256", "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1] }
 """
                                 .trim()));

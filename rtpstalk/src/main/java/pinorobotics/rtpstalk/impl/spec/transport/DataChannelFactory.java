@@ -178,7 +178,7 @@ public class DataChannelFactory {
                 && socket.getReceiveBufferSize() != config.receiveBufferSize()) {
             // logger formats long numbers, so we convert them to strings
             logger.warning(
-                    """
+"""
 Could not set size of receive buffer, current size {0}, recommended {1}. This may affect message throughput.
 
 If running Linux try to set receive buffer size manually:
@@ -194,7 +194,7 @@ sudo sysctl -w net.ipv4.udp_mem={1}
         if (!muteSendBufferWarning && socket.getSendBufferSize() != config.sendBufferSize()) {
             // logger formats long numbers, so we convert them to strings
             logger.warning(
-                    """
+"""
 Could not set size of send buffer, current size {0}, recommended {1}. This may affect message throughput.
 
 If running Linux try to set send buffer size manually:

@@ -18,11 +18,12 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
   testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
 }
 
 jacoco {
-  toolVersion = "0.8.12"
+  toolVersion = "0.8.14"
 }
 
 test {

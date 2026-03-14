@@ -1,6 +1,6 @@
 # Use UNIX line endings when checkout/push changes.
-# Removing extensions causes git to treat zip files as text as well,
-# which makes them to be corrupted inside the repository after push.
+# We specify extensions explicitly to avoid git to process binary files (for example zip) as text.
+# If binary files processed as text then they be corrupted inside the repository after push.
 #
 *.java text eol=lf
 *.md text eol=lf

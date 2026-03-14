@@ -43,8 +43,9 @@ public class DataChannelFactoryTest {
                                         new Locator(LocatorKind.LOCATOR_KIND_UDPv4, 1230, addr)));
 
         Assertions.assertEquals(
-                """
-Optional[{ "transportType": "LOCATOR_KIND_UDPv4", "port": "1230", "address": "/1.1.1.1" }]""",
+"""
+Optional[{ "transportType": "LOCATOR_KIND_UDPv4", "port": "1230", "address": "/1.1.1.1" }]\
+""",
                 locator.toString());
     }
 }

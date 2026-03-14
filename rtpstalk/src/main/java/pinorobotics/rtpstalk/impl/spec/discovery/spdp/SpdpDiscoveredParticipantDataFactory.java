@@ -40,7 +40,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.VendorId;
         protocolVersion = Predefined.Version_2_3,
         paragraph = "9.6.2.2",
         text =
-                """
+"""
 The discovery data is sent using standard Data Submessages. In order to allow for QoS extensibility while preserving
 interoperability between versions of the protocol, the wire-representation of the SerializedData within the Data
 Submessage uses a the format of a ParameterList SubmessageElement.
