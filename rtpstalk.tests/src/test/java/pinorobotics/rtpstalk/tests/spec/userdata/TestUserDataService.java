@@ -18,7 +18,7 @@
 package pinorobotics.rtpstalk.tests.spec.userdata;
 
 import id.xfunction.concurrent.SameThreadExecutorService;
-import pinorobotics.rtpstalk.impl.PublisherDetails;
+import pinorobotics.rtpstalk.impl.actors.PublisherDetails;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
 import pinorobotics.rtpstalk.tests.TestConstants;

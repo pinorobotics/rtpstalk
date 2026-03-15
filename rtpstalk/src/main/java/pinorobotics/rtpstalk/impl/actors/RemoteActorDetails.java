@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.topics;
+package pinorobotics.rtpstalk.impl.actors;
 
 import id.xfunction.XJsonStringBuilder;
 import java.util.List;

@@ -15,26 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl;
-
-import id.xfunction.XJsonStringBuilder;
-import java.util.concurrent.Flow.Subscriber;
-import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
-import pinorobotics.rtpstalk.impl.topics.ActorDetails;
-import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
+package pinorobotics.rtpstalk.impl.actors;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record SubscriberDetails(
-        TopicId topicId, ReaderQosPolicySet qosPolicy, Subscriber<RtpsTalkDataMessage> subscriber)
-        implements ActorDetails {
+public interface ActorDetails {
 
-    @Override
-    public String toString() {
-        XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("topicId", topicId);
-        builder.append("qosPolicy", qosPolicy);
-        return builder.toString();
+    enum Type {
+        Subscriber,
+        Publisher
     }
+
+    TopicId topicId();
 }

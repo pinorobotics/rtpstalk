@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.Flow.Subscription;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.SubscriberDetails;
+import pinorobotics.rtpstalk.impl.actors.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy.Kind;

@@ -40,6 +40,8 @@ module rtpstalk {
     exports pinorobotics.rtpstalk.metrics;
     exports pinorobotics.rtpstalk.impl to
             rtpstalk.tests;
+    exports pinorobotics.rtpstalk.impl.actors to
+            rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.topics to
             rtpstalk.tests;
     exports pinorobotics.rtpstalk.impl.qos to

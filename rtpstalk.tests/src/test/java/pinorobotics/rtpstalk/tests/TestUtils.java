@@ -19,8 +19,8 @@ package pinorobotics.rtpstalk.tests;
 
 import java.util.concurrent.SubmissionPublisher;
 import pinorobotics.rtpstalk.WriterSettings;
-import pinorobotics.rtpstalk.impl.PublisherDetails;
-import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.actors.PublisherDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsWriter;

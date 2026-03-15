@@ -26,7 +26,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.structure.RtpsEntity;

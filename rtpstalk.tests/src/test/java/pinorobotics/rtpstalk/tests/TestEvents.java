@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pinorobotics.rtpstalk.impl.actors.ActorDetails;
+import pinorobotics.rtpstalk.impl.actors.RemoteActorDetails;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
-import pinorobotics.rtpstalk.impl.topics.ActorDetails;
-import pinorobotics.rtpstalk.impl.topics.RemoteActorDetails;
 
 /**
  * @author lambdaprime intid@protonmail.com

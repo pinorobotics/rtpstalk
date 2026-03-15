@@ -20,7 +20,7 @@ package pinorobotics.rtpstalk.impl.topics;
 import id.xfunction.util.ImmutableMultiMap;
 import java.util.Map;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
-import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;

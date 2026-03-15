@@ -15,19 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl.topics;
+package pinorobotics.rtpstalk.impl.actors;
 
-import pinorobotics.rtpstalk.impl.TopicId;
+import id.xfunction.XJsonStringBuilder;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public interface ActorDetails {
+public record TopicId(String name, String type) {
 
-    enum Type {
-        Subscriber,
-        Publisher
+    @Override
+    public String toString() {
+        XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("name", name);
+        builder.append("type", type);
+        return builder.toString();
     }
-
-    TopicId topicId();
 }

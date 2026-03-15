@@ -14,7 +14,7 @@
     <Or>
       <Class name="pinorobotics.rtpstalk.RtpsTalkConfiguration" />
       <Class name="pinorobotics.rtpstalk.RtpsTalkConfiguration.Builder" />
-      <Class name="pinorobotics.rtpstalk.impl.topics.RemoteActorDetails" />
+      <Class name="pinorobotics.rtpstalk.impl.actors.RemoteActorDetails" />
       <Class name="pinorobotics.rtpstalk.messages.Parameters" />
       <Class name="pinorobotics.rtpstalk.impl.spec.messages.Locator" />
     </Or>

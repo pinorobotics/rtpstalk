@@ -18,7 +18,8 @@
 package pinorobotics.rtpstalk.impl.topics;
 
 import id.xfunction.XJsonStringBuilder;
-import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.actors.RemoteActorDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 
 /**
  * This event is triggered when there is a match between {@link TopicId} one of:

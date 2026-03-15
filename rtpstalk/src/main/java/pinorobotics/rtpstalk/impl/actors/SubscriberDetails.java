@@ -15,20 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pinorobotics.rtpstalk.impl;
+package pinorobotics.rtpstalk.impl.actors;
 
 import id.xfunction.XJsonStringBuilder;
+import java.util.concurrent.Flow.Subscriber;
+import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
+import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public record TopicId(String name, String type) {
+@DdsSpecReference(
+        protocolVersion = DdsVersion.DDS_1_4,
+        paragraph = "2.2.5 Built-in Topics",
+        text = "DCPSSubscription")
+public record SubscriberDetails(
+        TopicId topicId, ReaderQosPolicySet qosPolicy, Subscriber<RtpsTalkDataMessage> subscriber)
+        implements ActorDetails {
 
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
-        builder.append("name", name);
-        builder.append("type", type);
+        builder.append("topicId", topicId);
+        builder.append("qosPolicy", qosPolicy);
         return builder.toString();
     }
 }

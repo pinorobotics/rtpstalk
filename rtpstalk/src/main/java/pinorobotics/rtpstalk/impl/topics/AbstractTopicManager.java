@@ -28,7 +28,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
-import pinorobotics.rtpstalk.impl.TopicId;
+import pinorobotics.rtpstalk.impl.actors.ActorDetails;
+import pinorobotics.rtpstalk.impl.actors.ActorDetails.Type;
+import pinorobotics.rtpstalk.impl.actors.RemoteActorDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter;
@@ -43,7 +46,6 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityKind;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ParameterList;
-import pinorobotics.rtpstalk.impl.topics.ActorDetails.Type;
 
 /**
  * Must be thread safe because it can be used by multiple threads. For example new remote and local
