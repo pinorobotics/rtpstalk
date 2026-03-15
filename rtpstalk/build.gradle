@@ -12,7 +12,7 @@ plugins {
   id 'com.diffplug.spotless'
   // only if you build Java library
   id 'java-library'
-  id 'com.github.spotbugs' version '6.0.27'
+  id 'com.github.spotbugs' version '6.4.8'
 }
 
 boolean isReleaseBuild() {

@@ -63,6 +63,8 @@ import pinorobotics.rtpstalk.metrics.RtpsTalkMetrics;
 /**
  * Statefull RTPS writer with reliable reliability {@link ReliabilityQosPolicy.Kind#RELIABLE}.
  *
+ * <p>Must be thread-safe because it runs internal cleanup thread (see {@link #run()}.
+ *
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends RtpsWriter<D>
@@ -75,28 +77,28 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                     .setDescription(RtpsTalkMetrics.HEARTBEATS_COUNT_METRIC_DESCRIPTION)
                     .build();
 
-    private ScheduledExecutorService executor =
+    private final ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(
                     new NamedThreadFactory("SpdpBuiltinParticipantWriter"));
 
     /** Used to maintain state on the remote Readers matched up with this Writer. */
-    private Map<Guid, ReaderProxy> matchedReaders = new ConcurrentHashMap<>();
+    private final Map<Guid, ReaderProxy> matchedReaders = new ConcurrentHashMap<>();
 
     /**
      * Protocol tuning parameter that allows the RTPS Writer to repeatedly announce the availability
      * of data by sending a Heartbeat Message.
      */
-    private Duration heartbeatPeriod;
+    private final Duration heartbeatPeriod;
 
-    private HistoryCache<D> historyCache;
+    private final HistoryCache<D> historyCache;
+    private final DataChannelFactory channelFactory;
+    private final LocalOperatingEntities operatingEntities;
+    private final int historyCacheMaxSize;
+    private final WriterRtpsReader<D> writerReader;
+    private final WriterQosPolicySet qosPolicy;
+    private final WriterSettings writerSettings;
     private int heartbeatCount = 1;
-    private DataChannelFactory channelFactory;
-    private LocalOperatingEntities operatingEntities;
-    private int historyCacheMaxSize;
-    private WriterRtpsReader<D> writerReader;
-    private WriterQosPolicySet qosPolicy;
-    private WriterSettings writerSettings;
-    private boolean isClosed;
+    private volatile boolean isClosed;
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfigurationInternal config,
