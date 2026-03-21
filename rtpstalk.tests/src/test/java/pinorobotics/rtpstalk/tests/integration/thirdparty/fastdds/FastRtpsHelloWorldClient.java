@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
+import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,12 +32,13 @@ import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExampleVariable;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
 public class FastRtpsHelloWorldClient implements HelloWorldClient {
-
+    private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private static final String HELLOWORLDEXAMPLE_PATH =
             Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
@@ -57,6 +59,7 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
             argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
         if (env.containsKey(HelloWorldExampleVariable.SleepBetweenMessagesInMillis))
             argsList.add(env.get(HelloWorldExampleVariable.SleepBetweenMessagesInMillis));
+        LOGGER.info("Running command: " + argsList);
         var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
@@ -70,7 +73,11 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
 
     @Override
     public void close() {
-        procs.forEach(proc -> proc.destroyAllForcibly());
+        procs.forEach(
+                proc -> {
+                    LOGGER.info("Destroying proc");
+                    proc.destroyAllForcibly();
+                });
     }
 
     @Override

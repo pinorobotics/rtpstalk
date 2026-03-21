@@ -17,6 +17,7 @@
  */
 package pinorobotics.rtpstalk.tests;
 
+import id.xfunction.logging.XLogger;
 import id.xfunction.nio.file.XFiles;
 import java.time.Duration;
 import java.util.List;
@@ -33,7 +34,7 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
  * @author lambdaprime intid@protonmail.com
  */
 public class TestEvents {
-
+    private static final XLogger LOGGER = XLogger.getLogger(TestEvents.class);
     private static final Duration DELAY = Duration.ofMillis(100);
 
     public static RemoteActorDetails waitForDiscoveredActor(
@@ -41,8 +42,9 @@ public class TestEvents {
         var regexp =
                 Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
                         .asMatchPredicate();
+        LOGGER.info("Wait for actor discovery");
         var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp, DELAY).get();
-        System.out.println("Actor discovered");
+        LOGGER.info("Actor discovered");
         return extractRemoteActorDetails(line);
     }
 
@@ -63,11 +65,13 @@ public class TestEvents {
     }
 
     public static void waitForDisposedParticipant(Guid participant) throws Exception {
+        LOGGER.info("Wait for participant to be disposed");
         var str = "Writer marked participant " + participant.toString() + " as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
     }
 
     public static void waitForDisposedSubscriber(Guid reader) throws Exception {
+        LOGGER.info("Wait for subscriber to be disposed");
         var str = "Matched reader " + reader + " marked as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
     }

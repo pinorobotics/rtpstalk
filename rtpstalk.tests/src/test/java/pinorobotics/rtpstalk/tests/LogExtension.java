@@ -17,7 +17,9 @@
  */
 package pinorobotics.rtpstalk.tests;
 
+import id.xfunction.logging.XLogger;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -26,10 +28,17 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * @author lambdaprime intid@protonmail.com
  */
 public class LogExtension implements BeforeEachCallback, AfterEachCallback {
+    private static final XLogger LOGGER = XLogger.getLogger(LogExtension.class);
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        LogUtils.archiveLog(context.getTestMethod().map(Method::getName).orElse("unknown test"));
+        var logFileName =
+                context.getTestMethod().map(Method::getName).orElse("unknown test")
+                        + Optional.ofNullable(context.getDisplayName())
+                                .map(s -> "_" + s.split(" ")[0])
+                                .orElse("");
+        context.getExecutionException().ifPresent(LOGGER::severe);
+        LogUtils.archiveLog(logFileName);
     }
 
     @Override

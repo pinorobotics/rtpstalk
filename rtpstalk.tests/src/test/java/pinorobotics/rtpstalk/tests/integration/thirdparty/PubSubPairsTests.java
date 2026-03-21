@@ -24,6 +24,7 @@ import id.xfunction.ResourceUtils;
 import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.FixedCollectorSubscriber;
 import id.xfunction.lang.XProcess;
+import id.xfunction.logging.XLogger;
 import id.xfunction.text.Substitutor;
 import id.xfunctiontests.XAsserts;
 import java.io.IOException;
@@ -71,7 +72,7 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloW
  */
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class PubSubPairsTests {
-
+    private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private HelloWorldClient helloWorldExample;
     private RtpsTalkHelloWorldClient client;
 
@@ -308,7 +309,8 @@ public class PubSubPairsTests {
                                         new FixedCollectorSubscriber<>(
                                                         new ArrayList<RtpsTalkDataMessage>(),
                                                         testCase.numberOfMessages)
-                                                .withMessageConsumer(System.out::println))
+                                                .withMessageConsumer(
+                                                        m -> LOGGER.info(m.toString())))
                         .limit(testCase.numberOfPubSubPairs)
                         .toList();
 
@@ -364,7 +366,7 @@ public class PubSubPairsTests {
         assertValidators(testCase.validators);
 
         // test that readers entity ids are properly assigned
-        System.out.println("List of Entity ids: " + Arrays.toString(entityIds));
+        LOGGER.info("List of Entity ids: " + Arrays.toString(entityIds));
         for (int i = 0; i < entityIds.length; i++) {
             var entityId = new EntityId(i + 1, EntityKind.READER_NO_KEY);
             Assertions.assertEquals(entityId.value, entityIds[i]);
@@ -445,8 +447,8 @@ public class PubSubPairsTests {
                     helloWorldExample.generateExpectedSubscriberStdout(
                             testCase.numberOfMessages, topic);
             var actual = procs.get(i).stdout();
-            System.out.println("Process for topic " + topic);
-            System.out.println(actual);
+            LOGGER.info("Process for topic " + topic);
+            LOGGER.info(actual);
             Assertions.assertEquals(expectedStdout, actual);
         }
 
@@ -464,7 +466,7 @@ public class PubSubPairsTests {
     }
 
     private void assertLogWithTemplates(List<String> templates) {
-        System.out.println("Asserting templates " + templates);
+        LOGGER.info("Asserting templates " + templates);
         var log = LogUtils.readLogFile();
         templates.forEach(resourceName -> XAsserts.assertMatches(getClass(), resourceName, log));
     }

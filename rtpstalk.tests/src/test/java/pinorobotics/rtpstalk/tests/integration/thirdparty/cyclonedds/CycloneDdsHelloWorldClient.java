@@ -25,6 +25,7 @@ import id.xfunction.XByte;
 import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
+import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
@@ -40,12 +41,13 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldExampleVariable;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubClient {
-
+    private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private static final String PUBLISHER_PATH =
             Paths.get("").toAbsolutePath().resolve("bld/cyclonedds/HelloworldPublisher").toString();
     private static final String SUBSCRIBER_PATH =
@@ -77,7 +79,7 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
         if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages)) {
             argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
         }
-        System.out.println("Running command: " + argsList);
+        LOGGER.info("Running command: " + argsList);
         var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
@@ -95,7 +97,11 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
 
     @Override
     public void close() {
-        procs.forEach(proc -> proc.destroyAllForcibly());
+        procs.forEach(
+                proc -> {
+                    LOGGER.info("Destroying proc");
+                    proc.destroyAllForcibly();
+                });
     }
 
     @Override
@@ -195,8 +201,8 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
 
                     public void onNext(Message msg) {
                         var body = msg.getBody();
-                        System.out.format(
-                                "Submitting item %d to cyclonedds HelloWorldClient: %s\n",
+                        LOGGER.info(
+                                "Submitting item %d to cyclonedds HelloWorldClient: %s",
                                 c++, LogUtils.ellipsize(XByte.toHexPairs(body)));
                         try {
                             var subscription = getSubscription().get();

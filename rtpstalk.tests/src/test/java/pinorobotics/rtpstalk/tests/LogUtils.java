@@ -48,7 +48,9 @@ public class LogUtils {
         // make sure we stop writing to log file before moving it
         XLogger.reset();
         try {
-            Files.move(LOG_FILE, LOG_ARCHIVE_FOLDER.resolve(testName + System.currentTimeMillis()));
+            Files.move(
+                    LOG_FILE,
+                    LOG_ARCHIVE_FOLDER.resolve(testName + "_" + System.currentTimeMillis()));
         } catch (IOException e) {
             e.printStackTrace();
         }

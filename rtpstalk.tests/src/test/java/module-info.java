@@ -29,4 +29,5 @@ open module rtpstalk.tests {
     requires org.junit.jupiter.params;
     requires id.xfunctiontests;
     requires id.opentelemetry.exporters.pack.junit;
+    requires java.logging;
 }
