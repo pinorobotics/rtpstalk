@@ -69,11 +69,7 @@ public class LocalTopicPublicationsManager extends AbstractTopicManager<Publishe
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> publicationWriter,
             UserDataService userService) {
-        super(
-                tracingToken,
-                publicationWriter,
-                networkIface.getParticipantsRegistry(),
-                ActorDetails.Type.Publisher);
+        super(tracingToken, publicationWriter, ActorDetails.Type.Publisher);
         this.tracingToken = tracingToken;
         this.config = config;
         this.dataFactory = new SedpDataFactory(config);

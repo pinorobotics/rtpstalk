@@ -28,14 +28,33 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public record RemoteActorDetails(
+        TopicId topicId,
+        boolean isPublisher,
         Guid endpointGuid,
         List<Locator> writerUnicastLocator,
         ReliabilityQosPolicy.Kind reliabilityKind,
         DurabilityQosPolicy.Kind durabilityKind) {
 
+    public RemoteActorDetails(
+            TopicId topicId,
+            Guid endpointGuid,
+            List<Locator> writerUnicastLocator,
+            ReliabilityQosPolicy.Kind reliabilityKind,
+            DurabilityQosPolicy.Kind durabilityKind) {
+        this(
+                topicId,
+                endpointGuid.entityId.isWriter(),
+                endpointGuid,
+                writerUnicastLocator,
+                reliabilityKind,
+                durabilityKind);
+    }
+
     @Override
     public String toString() {
         XJsonStringBuilder builder = new XJsonStringBuilder(this);
+        builder.append("topicId", topicId);
+        builder.append("isPublisher", isPublisher);
         builder.append("endpointGuid", endpointGuid);
         builder.append("writerUnicastLocator", writerUnicastLocator);
         builder.append("reliabilityKind", reliabilityKind);

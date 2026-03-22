@@ -84,21 +84,23 @@ public class SedpBuiltinSubscriptionsReader
             ParameterList inlineQos) {
         var inlineQosParams = inlineQos.getProtocolParameters();
         if (inlineQosParams.isEmpty()) return;
-        logger.fine("Processing inlineQos");
-        if (!inlineQosParams.hasDisposedObjects()) return;
-        inlineQosParams
-                .getFirstParameter(ParameterId.PID_KEY_HASH, KeyHash.class)
-                .map(KeyHash::asGuid)
-                .or(
-                        () ->
-                                message.parameterList()
-                                        .map(ParameterList::getProtocolParameters)
-                                        .flatMap(
-                                                params ->
-                                                        params.getFirstParameter(
-                                                                ParameterId.PID_ENDPOINT_GUID,
-                                                                Guid.class)))
-                .ifPresent(this::removeMatchedReader);
+        logger.fine("Process inlineQos");
+        if (inlineQosParams.hasDisposedObjects()) {
+            logger.fine("Process disposed objects");
+            inlineQosParams
+                    .getFirstParameter(ParameterId.PID_KEY_HASH, KeyHash.class)
+                    .map(KeyHash::asGuid)
+                    .or(
+                            () ->
+                                    message.parameterList()
+                                            .map(ParameterList::getProtocolParameters)
+                                            .flatMap(
+                                                    params ->
+                                                            params.getFirstParameter(
+                                                                    ParameterId.PID_ENDPOINT_GUID,
+                                                                    Guid.class)))
+                    .ifPresent(this::removeMatchedReader);
+        }
     }
 
     private void removeMatchedReader(Guid readerGuid) {

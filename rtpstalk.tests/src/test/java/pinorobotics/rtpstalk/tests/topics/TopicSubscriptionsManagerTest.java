@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.actors.SubscriberDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicDiscoveryPublisher;
 import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.userdata.UserDataService;
@@ -61,7 +62,8 @@ public class TopicSubscriptionsManagerTest {
                                 new TestDataObjectsFactory(),
                                 new TestRtpsMessageReceiverFactory());
                 var publisher = new SynchronousPublisher<RtpsTalkParameterListMessage>()) {
-            service.start(new TracingToken("test"), TestConstants.TEST_NETWORK_IFACE);
+            var tracingToken = new TracingToken("test");
+            service.start(tracingToken, TestConstants.TEST_NETWORK_IFACE);
             var publicationsWriter =
                     TestUtils.newSedpPublicationsWriter(
                             channelFactory,
@@ -73,7 +75,11 @@ public class TopicSubscriptionsManagerTest {
                             TestConstants.TEST_NETWORK_IFACE,
                             publicationsWriter,
                             service);
-            publisher.subscribe(manager);
+            new TopicDiscoveryPublisher(
+                            tracingToken,
+                            TestConstants.TEST_NETWORK_IFACE.getParticipantsRegistry(),
+                            publisher)
+                    .subscribe(manager);
             var topicId = new TopicId("testTopic", "testType");
             manager.addLocalActor(
                     new SubscriberDetails(

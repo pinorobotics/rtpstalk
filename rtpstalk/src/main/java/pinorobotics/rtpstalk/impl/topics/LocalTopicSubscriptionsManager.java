@@ -64,11 +64,7 @@ public class LocalTopicSubscriptionsManager extends AbstractTopicManager<Subscri
             RtpsNetworkInterface networkIface,
             StatefullReliableRtpsWriter<RtpsTalkParameterListMessage> subscriptionsWriter,
             UserDataService userService) {
-        super(
-                tracingToken,
-                subscriptionsWriter,
-                networkIface.getParticipantsRegistry(),
-                ActorDetails.Type.Subscriber);
+        super(tracingToken, subscriptionsWriter, ActorDetails.Type.Subscriber);
         this.sedpDataFactory = new SedpDataFactory(config);
         dataFactory = new DataFactory();
         localGuidPrefix = config.localParticipantGuid().guidPrefix;

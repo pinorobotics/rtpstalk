@@ -123,6 +123,7 @@ public class MetatrafficMulticastService implements AutoCloseable {
                                 iface.getLocalDefaultUnicastLocator())));
         writer.start();
         isStarted = true;
+        logger.fine("Started metatraffic multicast service on {0}", networkInterface.getName());
     }
 
     @Override

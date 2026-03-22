@@ -31,6 +31,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.actors.PublisherDetails;
 import pinorobotics.rtpstalk.impl.actors.SubscriberDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicDiscoveryPublisher;
 import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
@@ -124,7 +125,11 @@ public class RtpsServiceManager implements AutoCloseable {
                             rtpsIface,
                             sedpService.getSubscriptionsWriter(),
                             userService);
-            sedpService.getPublicationsReader().subscribe(subscriptionsManager);
+            new TopicDiscoveryPublisher(
+                            tracingToken,
+                            rtpsIface.getParticipantsRegistry(),
+                            sedpService.getPublicationsReader())
+                    .subscribe(subscriptionsManager);
 
             publicationsManager =
                     new LocalTopicPublicationsManager(
@@ -133,7 +138,11 @@ public class RtpsServiceManager implements AutoCloseable {
                             rtpsIface,
                             sedpService.getPublicationsWriter(),
                             userService);
-            sedpService.getSubscriptionsReader().subscribe(publicationsManager);
+            new TopicDiscoveryPublisher(
+                            tracingToken,
+                            rtpsIface.getParticipantsRegistry(),
+                            sedpService.getSubscriptionsReader())
+                    .subscribe(publicationsManager);
 
             // announce itself only when SEDP, TopicPublicationsManager and
             // TopicSubscriptionsManager are ready

@@ -130,4 +130,11 @@ public class EntityId implements HasStreamedFields {
     public boolean isBuiltin() {
         return EntityKind.valueOf(entityKind()).isBuiltin();
     }
+
+    public boolean isWriter() {
+        return entityKind() == EntityKind.WRITER.getValue()
+                || entityKind() == EntityKind.WRITER_NO_KEY.getValue()
+                || entityKind() == EntityKind.BUILTIN_WRITER.getValue()
+                || entityKind() == EntityKind.BUILTIN_WRITER_NO_KEY.getValue();
+    }
 }

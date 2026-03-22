@@ -25,7 +25,9 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pinorobotics.rtpstalk.impl.actors.ActorDetails;
+import pinorobotics.rtpstalk.impl.actors.ActorDetails.Type;
 import pinorobotics.rtpstalk.impl.actors.RemoteActorDetails;
+import pinorobotics.rtpstalk.impl.actors.TopicId;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
@@ -40,7 +42,11 @@ public class TestEvents {
     public static RemoteActorDetails waitForDiscoveredActor(
             String topic, ActorDetails.Type actorType) throws Exception {
         var regexp =
-                Pattern.compile(".*Discovered " + actorType + " for topic " + topic + ".*")
+                Pattern.compile(
+                                """
+                                .*Discovered remote actor.*"name": "%s".*"isPublisher": "%s".*\
+                                """
+                                        .formatted(topic, actorType == Type.Publisher))
                         .asMatchPredicate();
         LOGGER.info("Wait for actor discovery");
         var line = XFiles.watchForLineInFile(LogUtils.LOG_FILE, regexp, DELAY).get();
@@ -52,40 +58,44 @@ public class TestEvents {
         line =
                 line.replaceAll(
 """
-.*"guidPrefix": .* "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
+.*"name": "(.*)", "type": "(.*)" .* "isPublisher": "(.*)", .* "guidPrefix": .* "value": "(.*)" ., "entityId": "(\\d+)" .* "reliabilityKind": "(.*)", "durabilityKind": "(.*)".*
 """
                                 .strip(),
-                        "$1 $2 $3 $4");
+                        "$1 $2 $3 $4 $5 $6 $7");
         var a = line.split(" ");
         return new RemoteActorDetails(
-                new Guid(a[0], a[1]),
+                new TopicId(a[0], a[1]),
+                Boolean.valueOf(a[2]),
+                new Guid(a[3], a[4]),
                 List.of(),
-                ReliabilityQosPolicy.Kind.valueOf(a[2]),
-                DurabilityQosPolicy.Kind.valueOf(a[3]));
+                ReliabilityQosPolicy.Kind.valueOf(a[5]),
+                DurabilityQosPolicy.Kind.valueOf(a[6]));
     }
 
     public static void waitForDisposedParticipant(Guid participant) throws Exception {
-        LOGGER.info("Wait for participant to be disposed");
+        LOGGER.info("Wait for participant {0} to be disposed", participant);
         var str = "Writer marked participant " + participant.toString() + " as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
+        LOGGER.info("Participant disposed");
     }
 
     public static void waitForDisposedSubscriber(Guid reader) throws Exception {
-        LOGGER.info("Wait for subscriber to be disposed");
+        LOGGER.info("Wait for subscriber {0} to be disposed", reader);
         var str = "Matched reader " + reader + " marked as disposed";
         XFiles.watchForLineInFile(LogUtils.LOG_FILE, s -> s.contains(str), DELAY).get();
+        LOGGER.info("Subscriber disposed");
     }
 
     @Test
     public void test_extractRemoteActorDetails() {
         var line =
 """
-Discovered Publisher for topic test with following details { "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+Discovered remote actor { "topicId": { "name": "test", "type": "testTopicLatencyType" }, "isPublisher": "true", "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [{ "transportType": "LOCATOR_KIND_UDPv4", "port": "7415", "address": "/172.19.0.11" }], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
 """
                         .strip();
         Assertions.assertEquals(
 """
-{ "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
+{ "topicId": { "name": "test", "type": "testTopicLatencyType" }, "isPublisher": "true", "endpointGuid": { "guidPrefix": { "vendorId": "FASTRTPS", "value": "010f43472b59302f01000000" }, "entityId": "00000103" }, "writerUnicastLocator": [], "reliabilityKind": "RELIABLE", "durabilityKind": "VOLATILE_DURABILITY_QOS" }
 """
                         .strip(),
                 extractRemoteActorDetails(line).toString());
