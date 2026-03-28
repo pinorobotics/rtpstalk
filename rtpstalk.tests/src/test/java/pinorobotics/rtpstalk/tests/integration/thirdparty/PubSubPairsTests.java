@@ -57,6 +57,7 @@ import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests.TestCase.TestAssertions;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
 
@@ -76,35 +77,27 @@ public class PubSubPairsTests {
     private HelloWorldClient helloWorldExample;
     private RtpsTalkHelloWorldClient client;
 
-    private record TestCase(
+    record TestCase(
             HelloWorldClient helloWorldExample,
             int numberOfPubSubPairs,
             int numberOfMessages,
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
-            List<String> logTemplates,
-            Map<TestCondition, List<String>> conditionalLogTemplates,
-            List<Runnable> validators,
+            TestAssertions test_thirdparty_publisher,
+            TestAssertions test_thirdparty_subscriber,
+            TestAssertions allTests,
             HelloWorldConfig thirdpartyConfig) {
-        TestCase(
-                HelloWorldClient helloWorldExample,
-                int numberOfPubSubPairs,
-                int numberOfMessages,
-                RtpsTalkConfiguration config,
-                boolean isSubscribeToFutureTopic,
-                List<String> templates,
-                Map<TestCondition, List<String>> conditionalTemplates,
-                List<Runnable> validators) {
-            this(
-                    helloWorldExample,
-                    numberOfPubSubPairs,
-                    numberOfMessages,
-                    config,
-                    isSubscribeToFutureTopic,
-                    templates,
-                    conditionalTemplates,
-                    validators,
-                    new HelloWorldConfig());
+        /**
+         * Currently {@link PubSubPairsTests} covers only two tests: test_thirdparty_publisher,
+         * test_thirdparty_subscriber. Same {@link TestCase} object is used for both of them with
+         * {@link TestAssertions} containing test specific assertions (for publisher or subscriber)
+         *
+         * @author lambdaprime intid@protonmail.com
+         */
+        public record TestAssertions(List<String> logTemplates, List<Runnable> validators) {
+            public TestAssertions() {
+                this(List.of(), List.of());
+            }
         }
     }
 
@@ -125,23 +118,26 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     true,
-                                    List.of(
-                                            "service_close.template",
-                                            "service_startup_ports_8080_8081.template",
-                                            "ParticipantsRegistry.template"),
-                                    Map.of(
-                                            TestCondition.THIRDPARTY_PUBLISHER,
+                                    new TestAssertions(
                                             List.of(
-                                                    "topic_subscriptions_manager_future_topic.template")),
-                                    List.of(
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "service_startup.template"),
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "spdp_close.template"),
-                                            PubSubPairsTests::validateSedpClose,
-                                            LogUtils::validateNoExceptions)),
+                                                    "topic_subscriptions_manager_future_topic.template"),
+                                            List.of()),
+                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of(
+                                                    "service_close.template",
+                                                    "service_startup_ports_8080_8081.template",
+                                                    "ParticipantsRegistry.template"),
+                                            List.of(
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "service_startup.template"),
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "spdp_close.template"),
+                                                    PubSubPairsTests::validateSedpClose,
+                                                    LogUtils::validateNoExceptions)),
+                                    new HelloWorldConfig()),
                             // Test case 2
                             new TestCase(
                                     helloWorldExample,
@@ -152,19 +148,22 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     false,
-                                    List.of("service_startup_ports_8080_8081.template"),
-                                    Map.of(
-                                            TestCondition.THIRDPARTY_PUBLISHER,
-                                            List.of("topic_subscriptions_manager.template")),
-                                    List.of(
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "service_startup.template"),
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "spdp_close.template"),
-                                            PubSubPairsTests::validateSedpClose,
-                                            LogUtils::validateNoExceptions)),
+                                    new TestAssertions(
+                                            List.of("topic_subscriptions_manager.template"),
+                                            List.of()),
+                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of("service_startup_ports_8080_8081.template"),
+                                            List.of(
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "service_startup.template"),
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "spdp_close.template"),
+                                                    PubSubPairsTests::validateSedpClose,
+                                                    LogUtils::validateNoExceptions)),
+                                    new HelloWorldConfig()),
                             // Test case 3
                             new TestCase(
                                     helloWorldExample,
@@ -176,13 +175,16 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     false,
-                                    List.of("service_startup_loopback_iface.template"),
-                                    Map.of(
-                                            TestCondition.THIRDPARTY_PUBLISHER,
-                                            List.of("topic_subscriptions_manager.template")),
-                                    List.of(
-                                            PubSubPairsTests::validateSedpClose,
-                                            LogUtils::validateNoExceptions)),
+                                    new TestAssertions(
+                                            List.of("topic_subscriptions_manager.template"),
+                                            List.of()),
+                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of("service_startup_loopback_iface.template"),
+                                            List.of(
+                                                    PubSubPairsTests::validateSedpClose,
+                                                    LogUtils::validateNoExceptions)),
+                                    new HelloWorldConfig()),
                             // Test case 4
                             new TestCase(
                                     helloWorldExample,
@@ -194,16 +196,18 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     false,
-                                    List.of("service_startup_ports_8080_8081.template"),
-                                    Map.of(),
-                                    List.of(
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "service_startup.template"),
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "spdp_close.template"),
-                                            PubSubPairsTests::validateSedpClose),
+                                    new TestAssertions(),
+                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of("service_startup_ports_8080_8081.template"),
+                                            List.of(
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "service_startup.template"),
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "spdp_close.template"),
+                                                    PubSubPairsTests::validateSedpClose)),
                                     new HelloWorldConfig(
                                             Map.of(
                                                     HelloWorldExampleVariable.RunSubscriber,
@@ -218,18 +222,20 @@ public class PubSubPairsTests {
                                     1,
                                     new RtpsTalkConfiguration.Builder().build(),
                                     false,
-                                    List.of("service_startup_ports_default.template"),
-                                    Map.of(
-                                            TestCondition.THIRDPARTY_PUBLISHER,
-                                            List.of("topic_subscriptions_manager.template")),
-                                    List.of(
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "service_startup.template"),
-                                            () ->
-                                                    validateAcrossNetworkInterfaces(
-                                                            "spdp_close.template"),
-                                            PubSubPairsTests::validateSedpClose),
+                                    new TestAssertions(
+                                            List.of("topic_subscriptions_manager.template"),
+                                            List.of()),
+                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of("service_startup_ports_default.template"),
+                                            List.of(
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "service_startup.template"),
+                                                    () ->
+                                                            validateAcrossNetworkInterfaces(
+                                                                    "spdp_close.template"),
+                                                    PubSubPairsTests::validateSedpClose)),
                                     new HelloWorldConfig(
                                             Map.of(
                                                     HelloWorldExampleVariable.RunSubscriber,
@@ -359,12 +365,7 @@ public class PubSubPairsTests {
             Assertions.assertEquals(expectedStdout, actual);
         }
 
-        assertLogWithTemplates(testCase.logTemplates);
-        Optional.ofNullable(
-                        testCase.conditionalLogTemplates().get(TestCondition.THIRDPARTY_PUBLISHER))
-                .ifPresent(this::assertLogWithTemplates);
-        assertValidators(testCase.validators);
-
+        validateAssertions(testCase.test_thirdparty_publisher, testCase.allTests);
         // test that readers entity ids are properly assigned
         LOGGER.info("List of Entity ids: " + Arrays.toString(entityIds));
         for (int i = 0; i < entityIds.length; i++) {
@@ -457,8 +458,7 @@ public class PubSubPairsTests {
         // close only after all subscribers received all data
         client.close();
 
-        assertLogWithTemplates(testCase.logTemplates);
-        assertValidators(testCase.validators);
+        validateAssertions(testCase.test_thirdparty_subscriber, testCase.allTests);
     }
 
     private void assertValidators(List<Runnable> validators) {
@@ -491,5 +491,12 @@ public class PubSubPairsTests {
     private static void validateSedpClose() {
         var log = LogUtils.readLogFile();
         XAsserts.assertMatchesAll(PubSubPairsTests.class, "sedp_close.TEMPLATES", log);
+    }
+
+    private void validateAssertions(TestAssertions... testAssertions) {
+        for (TestAssertions ta : testAssertions) {
+            assertLogWithTemplates(ta.logTemplates);
+            assertValidators(ta.validators);
+        }
     }
 }
