@@ -17,6 +17,7 @@
       <Class name="pinorobotics.rtpstalk.impl.actors.RemoteActorDetails" />
       <Class name="pinorobotics.rtpstalk.messages.Parameters" />
       <Class name="pinorobotics.rtpstalk.impl.spec.messages.Locator" />
+      <Class name="pinorobotics.rtpstalk.TopicDiscoveryInfo" />
     </Or>
     <Bug code="EI,EI2"/>
   </Match>

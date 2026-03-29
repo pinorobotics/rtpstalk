@@ -18,7 +18,6 @@
 package pinorobotics.rtpstalk.tests.integration.thirdparty;
 
 import java.util.Map;
-import java.util.Objects;
 
 public record HelloWorldConfig(Map<HelloWorldExampleVariable, String> parameters) {
     public static final String DEFAULT_TOPIC_NAME = "HelloWorldTopic";
@@ -29,12 +28,12 @@ public record HelloWorldConfig(Map<HelloWorldExampleVariable, String> parameters
     }
 
     public boolean isPublisher() {
-        return Objects.equals(
-                parameters.getOrDefault(HelloWorldExampleVariable.RunPublisher, "false"), "true");
+        return Boolean.parseBoolean(
+                parameters.getOrDefault(HelloWorldExampleVariable.RunPublisher, "false"));
     }
 
     public boolean isSubscriber() {
-        return Objects.equals(
-                parameters.getOrDefault(HelloWorldExampleVariable.RunSubscriber, "false"), "true");
+        return Boolean.parseBoolean(
+                parameters.getOrDefault(HelloWorldExampleVariable.RunSubscriber, "false"));
     }
 }

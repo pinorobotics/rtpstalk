@@ -22,7 +22,6 @@ import id.xfunction.XByte;
 import id.xfunction.XJsonStringBuilder;
 import id.xfunction.function.Unchecked;
 import java.net.NetworkInterface;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.Duration;
 import java.util.Optional;
@@ -33,7 +32,6 @@ import java.util.function.Supplier;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
-import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 
 /**
  * Configuration for {@link RtpsTalkClient}.
@@ -115,8 +113,6 @@ public record RtpsTalkConfiguration(
     }
 
     public static class Builder {
-
-        private static final RtpsMessageWriter MESSAGE_WRITER = new RtpsMessageWriter();
 
         /**
          * Default starting port from which port assignment for {@link #builtinEnpointsPort}, {@link
@@ -342,12 +338,6 @@ public record RtpsTalkConfiguration(
         }
 
         public RtpsTalkConfiguration build() {
-            var guid = ByteBuffer.allocate(Guid.SIZE);
-            Unchecked.run(
-                    () ->
-                            MESSAGE_WRITER.write(
-                                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT),
-                                    guid));
             return new RtpsTalkConfiguration(
                     startPort,
                     historyCacheMaxSize,
@@ -357,7 +347,7 @@ public record RtpsTalkConfiguration(
                     packetBufferSize,
                     domainId,
                     guidPrefix,
-                    guid.array(),
+                    new Guid(guidPrefix, EntityId.Predefined.ENTITYID_PARTICIPANT).array(),
                     builtinEndpointQos,
                     leaseDuration,
                     heartbeatPeriod,

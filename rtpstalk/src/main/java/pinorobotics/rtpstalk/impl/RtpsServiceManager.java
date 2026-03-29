@@ -18,6 +18,7 @@
 package pinorobotics.rtpstalk.impl;
 
 import id.xfunction.Preconditions;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.lang.XRE;
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
@@ -28,8 +29,10 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.TimeUnit;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.TopicDiscoveryInfo;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.actors.PublisherDetails;
+import pinorobotics.rtpstalk.impl.actors.RemoteActorDetails;
 import pinorobotics.rtpstalk.impl.actors.SubscriberDetails;
 import pinorobotics.rtpstalk.impl.actors.TopicDiscoveryPublisher;
 import pinorobotics.rtpstalk.impl.actors.TopicId;
@@ -68,6 +71,9 @@ public class RtpsServiceManager implements AutoCloseable {
     private RtpsMessageReceiverFactory receiverFactory;
     private RtpsNetworkInterfaceFactory networkIfaceFactory;
     private ExecutorService publisherExecutor;
+    private TopicDiscoveryPublisher subscriptionsDiscoveryPublisher;
+    private TopicDiscoveryPublisher publicationsDiscoveryPublisher;
+    private DiscoveryInfoPublisher discoveryInfoPublisher;
 
     public RtpsServiceManager(
             RtpsTalkConfigurationInternal config,
@@ -118,6 +124,10 @@ public class RtpsServiceManager implements AutoCloseable {
             sedpService.start(tracingToken, rtpsIface);
             userService.start(tracingToken, rtpsIface);
 
+            discoveryInfoPublisher =
+                    new DiscoveryInfoPublisher(
+                            config.publicConfig(), tracingToken, publisherExecutor);
+
             subscriptionsManager =
                     new LocalTopicSubscriptionsManager(
                             tracingToken,
@@ -125,11 +135,14 @@ public class RtpsServiceManager implements AutoCloseable {
                             rtpsIface,
                             sedpService.getSubscriptionsWriter(),
                             userService);
-            new TopicDiscoveryPublisher(
+            subscriptionsDiscoveryPublisher =
+                    new TopicDiscoveryPublisher(
                             tracingToken,
                             rtpsIface.getParticipantsRegistry(),
-                            sedpService.getPublicationsReader())
-                    .subscribe(subscriptionsManager);
+                            sedpService.getPublicationsReader());
+            subscriptionsDiscoveryPublisher.subscribe(subscriptionsManager);
+            subscriptionsDiscoveryPublisher.subscribe(
+                    newDiscoverySubscriber(discoveryInfoPublisher));
 
             publicationsManager =
                     new LocalTopicPublicationsManager(
@@ -138,11 +151,14 @@ public class RtpsServiceManager implements AutoCloseable {
                             rtpsIface,
                             sedpService.getPublicationsWriter(),
                             userService);
-            new TopicDiscoveryPublisher(
+            publicationsDiscoveryPublisher =
+                    new TopicDiscoveryPublisher(
                             tracingToken,
                             rtpsIface.getParticipantsRegistry(),
-                            sedpService.getSubscriptionsReader())
-                    .subscribe(publicationsManager);
+                            sedpService.getSubscriptionsReader());
+            publicationsDiscoveryPublisher.subscribe(publicationsManager);
+            publicationsDiscoveryPublisher.subscribe(
+                    newDiscoverySubscriber(discoveryInfoPublisher));
 
             // announce itself only when SEDP, TopicPublicationsManager and
             // TopicSubscriptionsManager are ready
@@ -151,6 +167,24 @@ public class RtpsServiceManager implements AutoCloseable {
             logger.severe("Failed to start one of the RTPS services", e);
         }
         isStarted = true;
+    }
+
+    private Subscriber<? super RemoteActorDetails> newDiscoverySubscriber(
+            DiscoveryInfoPublisher discoveryInfoPublisher2) {
+        var subscriber =
+                new SimpleSubscriber<RemoteActorDetails>() {
+                    @Override
+                    public void onNext(RemoteActorDetails item) {
+                        try {
+                            discoveryInfoPublisher.submit(item);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            subscription.request(1);
+                        }
+                    }
+                };
+        return subscriber;
     }
 
     private void startSpdp(TracingToken tracingToken, RtpsNetworkInterface rtpsIface)
@@ -199,10 +233,15 @@ public class RtpsServiceManager implements AutoCloseable {
                         publisher));
     }
 
+    public void subscribe(Subscriber<TopicDiscoveryInfo> subscriber) {
+        discoveryInfoPublisher.subscribe(subscriber);
+    }
+
     @Override
     public void close() {
         if (!isStarted) return;
         logger.fine("Closing");
+        discoveryInfoPublisher.close();
         publicationsManager.close();
         subscriptionsManager.close();
         // closing DataWriters before SEDP so that we could unsubscribe from user publishers

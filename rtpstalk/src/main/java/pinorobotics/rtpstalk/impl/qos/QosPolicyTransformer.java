@@ -41,4 +41,20 @@ public class QosPolicyTransformer {
             case VOLATILE_DURABILITY_QOS -> DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS;
         };
     }
+
+    public ReliabilityType convert(ReliabilityQosPolicy.Kind reliabilityKind) {
+        return switch (reliabilityKind) {
+            case BEST_EFFORT -> ReliabilityType.BEST_EFFORT;
+            case RELIABLE -> ReliabilityType.RELIABLE;
+            default -> throw new IllegalArgumentException(reliabilityKind.toString());
+        };
+    }
+
+    public DurabilityType convert(DurabilityQosPolicy.Kind durabilityKind) {
+        return switch (durabilityKind) {
+            case TRANSIENT_LOCAL_DURABILITY_QOS -> DurabilityType.TRANSIENT_LOCAL_DURABILITY_QOS;
+            case VOLATILE_DURABILITY_QOS -> DurabilityType.VOLATILE_DURABILITY_QOS;
+            default -> throw new IllegalArgumentException(durabilityKind.toString());
+        };
+    }
 }

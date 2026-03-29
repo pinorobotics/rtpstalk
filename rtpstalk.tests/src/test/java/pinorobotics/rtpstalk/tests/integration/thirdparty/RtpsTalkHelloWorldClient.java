@@ -22,12 +22,15 @@ import id.pubsubtests.data.ByteMessageFactory;
 import id.pubsubtests.data.Message;
 import id.pubsubtests.data.MessageFactory;
 import id.xfunction.XByte;
+import id.xfunction.concurrent.flow.SimpleSubscriber;
 import id.xfunction.concurrent.flow.TransformSubscriber;
+import id.xfunction.logging.XLogger;
 import java.util.Arrays;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.RtpsTalkClient;
 import pinorobotics.rtpstalk.RtpsTalkConfiguration;
+import pinorobotics.rtpstalk.TopicDiscoveryInfo;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.qos.SubscriberQosPolicy;
 import pinorobotics.rtpstalk.tests.LogUtils;
@@ -36,7 +39,7 @@ import pinorobotics.rtpstalk.tests.LogUtils;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class RtpsTalkHelloWorldClient implements TestPubSubClient {
-
+    private static final XLogger LOGGER = XLogger.getLogger(RtpsTalkHelloWorldClient.class);
     private MessageFactory messageFactory = new ByteMessageFactory();
     private RtpsTalkClient client;
     private SubscriberQosPolicy subscriberQos = new SubscriberQosPolicy();
@@ -98,5 +101,19 @@ public class RtpsTalkHelloWorldClient implements TestPubSubClient {
     public int subscribeToHelloWorld(String topic, Subscriber<RtpsTalkDataMessage> subscriber) {
         return client.subscribe(
                 topic, HelloWorldConfig.DEFAULT_TOPIC_TYPE, subscriberQos, subscriber);
+    }
+
+    public void enableTopicDiscoveryInfo() {
+        client.subscribe(
+                new SimpleSubscriber<>() {
+                    public void onNext(TopicDiscoveryInfo item) {
+                        try {
+                            LOGGER.info("Discovered topic: {0}", item);
+                            subscription.request(1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 }

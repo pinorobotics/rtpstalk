@@ -18,17 +18,21 @@
 package pinorobotics.rtpstalk.impl.spec.messages;
 
 import id.xfunction.XJsonStringBuilder;
+import id.xfunction.function.Unchecked;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import pinorobotics.rtpstalk.impl.messages.HasStreamedFields;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
+import pinorobotics.rtpstalk.impl.spec.transport.io.RtpsMessageWriter;
 
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public class Guid implements HasStreamedFields {
+    private static final RtpsMessageWriter MESSAGE_WRITER = new RtpsMessageWriter();
     static final List<String> STREAMED_FIELDS = List.of("guidPrefix", "entityId");
     public static final int SIZE = GuidPrefix.SIZE + EntityId.SIZE;
 
@@ -88,5 +92,11 @@ public class Guid implements HasStreamedFields {
         builder.append("guidPrefix", guidPrefix);
         builder.append("entityId", entityId);
         return builder.toString();
+    }
+
+    public byte[] array() {
+        var guid = ByteBuffer.allocate(Guid.SIZE);
+        Unchecked.run(() -> MESSAGE_WRITER.write(this, guid));
+        return guid.array();
     }
 }

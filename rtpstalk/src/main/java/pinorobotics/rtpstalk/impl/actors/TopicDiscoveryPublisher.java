@@ -65,7 +65,8 @@ public class TopicDiscoveryPublisher implements Publisher<RemoteActorDetails> {
 
     @Override
     public void subscribe(Subscriber<? super RemoteActorDetails> subscriber) {
-        targetPublisher.subscribe(new TransformSubscriber<>(subscriber, this::transform));
+        var transformer = new TransformSubscriber<>(subscriber, this::transform);
+        targetPublisher.subscribe(transformer);
     }
 
     public Optional<RemoteActorDetails> transform(RtpsTalkParameterListMessage message) {

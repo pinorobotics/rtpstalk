@@ -1,0 +1,3 @@
+* [INFO   ] pinorobotics.rtpstalk.tests.integration.thirdparty.RtpsTalkHelloWorldClient - Discovered topic: { "topicName": "HelloWorldTopic0", "topicType": "HelloWorld", "isPublisher": "false", "endpointGuid": [*], "reliabilityType": "RELIABLE", "durabilityType": "TRANSIENT_LOCAL_DURABILITY_QOS" }
+* [FINE   ] pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache#*-w-* - New change with sequence number 1 from writer { "guidPrefix": { "vendorId": "*", "value": "*" }, "entityId": "00000*" } added into the cache
+*

@@ -81,9 +81,21 @@ public class RtpsTalkClient extends IdempotentService {
             SubscriberQosPolicy policy,
             Subscriber<RtpsTalkDataMessage> subscriber) {
         start();
-        logger.fine("Subscribing to topic {0} with type {1}, QoS {2}", topic, type, policy);
+        logger.fine("Subscribe to topic {0} with type {1}, QoS {2}", topic, type, policy);
         var entityId = serviceManager.subscribe(topic, type, policy, subscriber);
         return entityId.value;
+    }
+
+    /**
+     * Subscribe to notifications about all remote RTPS publishers and subscribers that have been
+     * discovered by the <b>rtpstalk</b>.
+     *
+     * @param subscriber
+     */
+    public void subscribe(Subscriber<TopicDiscoveryInfo> subscriber) {
+        start();
+        logger.fine("Subscribe to discovery information");
+        serviceManager.subscribe(subscriber);
     }
 
     /**
@@ -125,7 +137,7 @@ public class RtpsTalkClient extends IdempotentService {
             WriterSettings writerSettings,
             Publisher<RtpsTalkDataMessage> publisher) {
         start();
-        logger.fine("Publishing to topic {0} with type {1}", topic, type);
+        logger.fine("Publish to topic {0} with type {1}", topic, type);
         serviceManager.publish(topic, type, policy, writerSettings, publisher);
     }
 
@@ -157,7 +169,7 @@ public class RtpsTalkClient extends IdempotentService {
     @Override
     protected void onStart() {
         logger.entering("start");
-        logger.fine("Using following configuration: {0}", config);
+        logger.fine("Use following configuration: {0}", config);
         serviceManager.startAll(tracingToken);
         logger.exiting("start");
     }

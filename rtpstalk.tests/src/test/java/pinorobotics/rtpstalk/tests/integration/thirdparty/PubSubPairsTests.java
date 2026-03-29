@@ -27,7 +27,6 @@ import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import id.xfunction.text.Substitutor;
 import id.xfunctiontests.XAsserts;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,6 +81,7 @@ public class PubSubPairsTests {
             int numberOfMessages,
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
+            boolean enableTopicDiscoveryInfo,
             TestAssertions test_thirdparty_publisher,
             TestAssertions test_thirdparty_subscriber,
             TestAssertions allTests,
@@ -104,8 +103,8 @@ public class PubSubPairsTests {
     static Stream<TestCase> dataProvider() {
         var testCases = new ArrayList<TestCase>();
         var examples = new ArrayList<HelloWorldClient>();
-        if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldClient());
         examples.add(new FastRtpsHelloWorldClient());
+        if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldClient());
         for (var helloWorldExample : examples) {
             Stream.of(
                             // Test case 1
@@ -118,11 +117,16 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     true,
+                                    true,
                                     new TestAssertions(
                                             List.of(
-                                                    "topic_subscriptions_manager_future_topic.template"),
+                                                    "topic_subscriptions_manager_future_topic.template",
+                                                    "subscribe_to_topic_discovery/single_topic_pub.template"),
                                             List.of()),
-                                    new TestAssertions(),
+                                    new TestAssertions(
+                                            List.of(
+                                                    "subscribe_to_topic_discovery/single_topic_sub.template"),
+                                            List.of()),
                                     new TestAssertions(
                                             List.of(
                                                     "service_close.template",
@@ -147,6 +151,7 @@ public class PubSubPairsTests {
                                             .builtinEnpointsPort(8080)
                                             .userEndpointsPort(8081)
                                             .build(),
+                                    false,
                                     false,
                                     new TestAssertions(
                                             List.of("topic_subscriptions_manager.template"),
@@ -175,6 +180,7 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     false,
+                                    false,
                                     new TestAssertions(
                                             List.of("topic_subscriptions_manager.template"),
                                             List.of()),
@@ -196,11 +202,13 @@ public class PubSubPairsTests {
                                             .userEndpointsPort(8081)
                                             .build(),
                                     false,
+                                    true,
                                     new TestAssertions(),
                                     new TestAssertions(),
                                     new TestAssertions(
                                             List.of("service_startup_ports_8080_8081.template"),
                                             List.of(
+                                                    () -> validateTopicDiscovery(12),
                                                     () ->
                                                             validateAcrossNetworkInterfaces(
                                                                     "service_startup.template"),
@@ -221,6 +229,7 @@ public class PubSubPairsTests {
                                     1,
                                     1,
                                     new RtpsTalkConfiguration.Builder().build(),
+                                    false,
                                     false,
                                     new TestAssertions(
                                             List.of("topic_subscriptions_manager.template"),
@@ -248,16 +257,6 @@ public class PubSubPairsTests {
         return testCases.stream();
     }
 
-    @BeforeEach
-    public void setup() throws IOException {
-        client =
-                new RtpsTalkHelloWorldClient(
-                        new RtpsTalkConfiguration.Builder()
-                                .builtinEnpointsPort(8080)
-                                .userEndpointsPort(8081)
-                                .build());
-    }
-
     @AfterEach
     public void clean(TestInfo testInfo) {
         client.close();
@@ -278,6 +277,7 @@ public class PubSubPairsTests {
                         .map(Optional::get)
                         .map(XByte::toHexPairs)
                         .collect(joining("\n"));
+        if (testCase.enableTopicDiscoveryInfo) client.enableTopicDiscoveryInfo();
         var procs = new ArrayList<XProcess>();
         Runnable publishersRunner =
                 () -> {
@@ -349,6 +349,7 @@ public class PubSubPairsTests {
                             .map(Optional::get)
                             .map(XByte::toHexPairs)
                             .collect(joining("\n"));
+            LOGGER.info("Assert data received from the thirdparty publisher {0}", i);
             Assertions.assertEquals(expectedData, dataReceived);
         }
 
@@ -379,6 +380,8 @@ public class PubSubPairsTests {
     public void test_thirdparty_subscriber(TestCase testCase) throws Exception {
         helloWorldExample = testCase.helloWorldExample();
         client = new RtpsTalkHelloWorldClient(testCase.config);
+
+        if (testCase.enableTopicDiscoveryInfo) client.enableTopicDiscoveryInfo();
 
         int numberOfPubSubPairs = testCase.numberOfPubSubPairs;
         List<String> topics = generateTopicNames(numberOfPubSubPairs);
@@ -491,6 +494,38 @@ public class PubSubPairsTests {
     private static void validateSedpClose() {
         var log = LogUtils.readLogFile();
         XAsserts.assertMatchesAll(PubSubPairsTests.class, "sedp_close.TEMPLATES", log);
+    }
+
+    private static void validateTopicDiscovery(int numOfTopics) {
+        var log = LogUtils.readLogFile();
+        var topics =
+                log.lines()
+                        .filter(l -> l.contains("RtpsTalkHelloWorldClient - Discovered topic:"))
+                        .map(
+                                l ->
+                                        l.replaceAll(
+                                                """
+                                                .*"topicName": "(\\w+)".*\
+                                                """,
+                                                "$1"))
+                        .sorted()
+                        .collect(joining("\n"));
+        Assertions.assertEquals(
+"""
+HelloWorldTopic0
+HelloWorldTopic1
+HelloWorldTopic10
+HelloWorldTopic11
+HelloWorldTopic2
+HelloWorldTopic3
+HelloWorldTopic4
+HelloWorldTopic5
+HelloWorldTopic6
+HelloWorldTopic7
+HelloWorldTopic8
+HelloWorldTopic9\
+""",
+                topics);
     }
 
     private void validateAssertions(TestAssertions... testAssertions) {
