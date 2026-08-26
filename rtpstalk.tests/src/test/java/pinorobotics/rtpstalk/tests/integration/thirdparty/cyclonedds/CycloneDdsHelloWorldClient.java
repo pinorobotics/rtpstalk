@@ -28,7 +28,6 @@ import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +48,9 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests;
 public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubClient {
     private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private static final String PUBLISHER_PATH =
-            Paths.get("").toAbsolutePath().resolve("bld/cyclonedds/HelloworldPublisher").toString();
+            EXECUTABLE_HOME.resolve("cyclonedds/HelloworldPublisher").toString();
     private static final String SUBSCRIBER_PATH =
-            Paths.get("")
-                    .toAbsolutePath()
-                    .resolve("bld/cyclonedds/HelloworldSubscriber")
-                    .toString();
+            EXECUTABLE_HOME.resolve("cyclonedds/HelloworldSubscriber").toString();
     private List<XProcess> procs = new ArrayList<>();
     private Map<HelloWorldExampleVariable, String> env = Map.of();
 

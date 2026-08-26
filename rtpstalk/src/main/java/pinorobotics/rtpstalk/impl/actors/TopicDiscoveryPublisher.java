@@ -29,6 +29,8 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.exceptions.RtpsTalkException;
 import pinorobotics.rtpstalk.impl.RtpsTalkParameterListMessage;
 import pinorobotics.rtpstalk.impl.messages.ProtocolParameterMap;
+import pinorobotics.rtpstalk.impl.spec.DdsSpecReference;
+import pinorobotics.rtpstalk.impl.spec.DdsVersion;
 import pinorobotics.rtpstalk.impl.spec.behavior.ParticipantsRegistry;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
 import pinorobotics.rtpstalk.impl.spec.discovery.sedp.SedpBuiltinPublicationsReader;
@@ -146,25 +148,8 @@ public class TopicDiscoveryPublisher implements Publisher<RemoteActorDetails> {
                 "Guid prefix missmatch for topic %s",
                 pubTopic);
         var reliabilityKind =
-                pm.getReliabilityKind()
-                        .orElseGet(
-                                () -> {
-                                    logger.warning(
-                                            "Received subscription without"
-                                                    + " ReliabilityQosPolicy, assuming BEST_EFFORT"
-                                                    + " by default...");
-                                    return ReliabilityQosPolicy.Kind.BEST_EFFORT;
-                                });
-        var durabilityKind =
-                pm.getDurabilityKind()
-                        .orElseGet(
-                                () -> {
-                                    logger.warning(
-                                            "Received subscription without DurabilityQosPolicy,"
-                                                    + " assuming VOLATILE_DURABILITY_QOS by"
-                                                    + " default...");
-                                    return DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS;
-                                });
+                getReliabilityKind(pubEndpointGuid.entityId.isWriter(), pm.getReliabilityKind());
+        var durabilityKind = getDurabilityKind(pm.getDurabilityKind());
         var remoteActorDetails =
                 new RemoteActorDetails(
                         topicId,
@@ -216,5 +201,49 @@ public class TopicDiscoveryPublisher implements Publisher<RemoteActorDetails> {
         return pl.containsKey(ParameterId.PID_TOPIC_NAME)
                 && pl.containsKey(ParameterId.PID_TYPE_NAME)
                 && pl.containsKey(ParameterId.PID_ENDPOINT_GUID);
+    }
+
+    @DdsSpecReference(
+            paragraph = "2.2.3 Supported QoS",
+            protocolVersion = DdsVersion.DDS_1_4,
+            text =
+                    """
+                    VOLATILE - This is the default kind
+                    """)
+    private DurabilityQosPolicy.Kind getDurabilityKind(
+            Optional<DurabilityQosPolicy.Kind> durabilityKind) {
+        return durabilityKind.orElseGet(
+                () -> {
+                    logger.warning(
+                            "Received subscription without DurabilityQosPolicy,"
+                                    + " assuming VOLATILE_DURABILITY_QOS by"
+                                    + " default...");
+                    return DurabilityQosPolicy.Kind.VOLATILE_DURABILITY_QOS;
+                });
+    }
+
+    @DdsSpecReference(
+            paragraph = "2.2.3 Supported QoS",
+            protocolVersion = DdsVersion.DDS_1_4,
+            text =
+                    """
+                    RELIABLE - This is the default value for DataWriters.
+                    BEST_EFFORT - This is the default value for DataReaders.
+                    """)
+    private ReliabilityQosPolicy.Kind getReliabilityKind(
+            boolean isWriter, Optional<ReliabilityQosPolicy.Kind> reliabilityKind) {
+        return reliabilityKind.orElseGet(
+                () -> {
+                    var kind =
+                            isWriter
+                                    ? ReliabilityQosPolicy.Kind.RELIABLE
+                                    : ReliabilityQosPolicy.Kind.BEST_EFFORT;
+                    logger.warning(
+                            "Received subscription without"
+                                    + " ReliabilityQosPolicy, using {0}"
+                                    + " by default...",
+                            kind);
+                    return kind;
+                });
     }
 }

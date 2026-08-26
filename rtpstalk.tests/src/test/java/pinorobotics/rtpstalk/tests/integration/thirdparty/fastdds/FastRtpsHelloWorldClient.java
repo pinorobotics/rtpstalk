@@ -23,7 +23,6 @@ import id.xfunction.lang.XExec;
 import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests;
 public class FastRtpsHelloWorldClient implements HelloWorldClient {
     private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private static final String HELLOWORLDEXAMPLE_PATH =
-            Paths.get("").toAbsolutePath().resolve("bld/fastdds/HelloWorldExample").toString();
+            EXECUTABLE_HOME.resolve("fastdds/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
     /** By default 10 messages are published */

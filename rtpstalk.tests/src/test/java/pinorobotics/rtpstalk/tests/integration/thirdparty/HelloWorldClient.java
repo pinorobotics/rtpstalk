@@ -17,7 +17,11 @@
  */
 package pinorobotics.rtpstalk.tests.integration.thirdparty;
 
+import id.xfunction.function.Unchecked;
 import id.xfunction.lang.XProcess;
+import java.net.InetAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -26,6 +30,11 @@ import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
  * @author aeon_flux aeon_flux@eclipso.ch
  */
 public interface HelloWorldClient extends AutoCloseable {
+
+    Path EXECUTABLE_HOME =
+            Paths.get("")
+                    .toAbsolutePath()
+                    .resolve("bld." + Unchecked.get(InetAddress::getLocalHost).getHostName());
 
     Collection<RtpsTalkDataMessage> generateMessages(int numberOfMessages);
 
