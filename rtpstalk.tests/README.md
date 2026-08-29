@@ -11,7 +11,9 @@ Tests for `rtpstalk` library.
 
 ## Fast-RTPS
 
-### Build Fast-RTPS
+### Build Fast-DDS
+
+#### Version 2
 
 ```bash
 git clone https://github.com/eProsima/Fast-DDS.git
@@ -39,13 +41,14 @@ common/Types.h
 ...
 ```
 
-### Compiling HelloWorldExample
+### Compiling HelloWorldExampleV2
 
 ``` bash
 cd rtpstalk.tests
-mkdir -p bld/fastdds
-cd bld/fastdds
-cmake -DCMAKE_PREFIX_PATH=<PATH TO Fast-RTPS>/build/install/usr/local/share/fastrtps/cmake ../../src/test/cpp/fastdds
+BLD_DIR=`pwd`/bld/fastdds/v2
+mkdir -p $BLD_DIR
+cd $BLD_DIR
+cmake -DCMAKE_PREFIX_PATH=<PATH TO Fast-RTPS>/build/install/usr/local/share/fastrtps/cmake ../../../src/test/cpp/fastdds/v2
 make
 ```
 

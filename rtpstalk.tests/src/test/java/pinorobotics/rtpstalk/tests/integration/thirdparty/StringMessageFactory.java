@@ -21,11 +21,11 @@ import id.pubsubtests.data.Message;
 import id.pubsubtests.data.MessageFactory;
 import id.pubsubtests.data.RandomMessageGenerator;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClientV2;
 
 /**
  * Thirdparty HelloWorld clients ({@link CycloneDdsHelloWorldClient}, {@link
- * FastRtpsHelloWorldClient}) support only String messages
+ * FastRtpsHelloWorldClientV2}) support only String messages
  *
  * @author aeon_flux aeon_flux@eclipso.ch
  */

@@ -57,7 +57,7 @@ import pinorobotics.rtpstalk.tests.TestEvents;
 import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests.TestCase.TestAssertions;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClientV2;
 
 /**
  * Tests for {@link ReliabilityType#RELIABLE}.
@@ -103,7 +103,7 @@ public class PubSubPairsTests {
     static Stream<TestCase> dataProvider() {
         var testCases = new ArrayList<TestCase>();
         var examples = new ArrayList<HelloWorldClient>();
-        examples.add(new FastRtpsHelloWorldClient());
+        examples.add(new FastRtpsHelloWorldClientV2());
         if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldClient());
         for (var helloWorldExample : examples) {
             Stream.of(

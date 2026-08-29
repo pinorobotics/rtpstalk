@@ -41,18 +41,18 @@ import pinorobotics.rtpstalk.qos.ReliabilityType;
 import pinorobotics.rtpstalk.tests.LogExtension;
 import pinorobotics.rtpstalk.tests.LogUtils;
 import pinorobotics.rtpstalk.tests.TestEvents;
-import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClient;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClientV2;
 
 /**
  * @author lambdaprime intid@protonmail.com
  */
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class ThirdpartyClientTests {
-    private FastRtpsHelloWorldClient tools;
+    private FastRtpsHelloWorldClientV2 tools;
 
     @BeforeEach
     public void setup() throws IOException {
-        tools = new FastRtpsHelloWorldClient();
+        tools = new FastRtpsHelloWorldClientV2();
     }
 
     @AfterEach

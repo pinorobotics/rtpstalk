@@ -36,10 +36,10 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests;
 /**
  * @author lambdaprime intid@protonmail.com
  */
-public class FastRtpsHelloWorldClient implements HelloWorldClient {
+public class FastRtpsHelloWorldClientV2 implements HelloWorldClient {
     private static final XLogger LOGGER = XLogger.getLogger(PubSubPairsTests.class);
     private static final String HELLOWORLDEXAMPLE_PATH =
-            EXECUTABLE_HOME.resolve("fastdds/HelloWorldExample").toString();
+            EXECUTABLE_HOME.resolve("fastdds/v2/HelloWorldExample").toString();
     private List<XProcess> procs = new ArrayList<>();
 
     /** By default 10 messages are published */
@@ -148,6 +148,6 @@ public class FastRtpsHelloWorldClient implements HelloWorldClient {
 
     @Override
     public String toString() {
-        return "FastRtpsHelloWorldExample";
+        return "FastRtpsHelloWorldExampleV2";
     }
 }
