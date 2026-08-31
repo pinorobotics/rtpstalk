@@ -58,6 +58,7 @@ import pinorobotics.rtpstalk.tests.TestUtils;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.PubSubPairsTests.TestCase.TestAssertions;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsHelloWorldClient;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClientV2;
+import pinorobotics.rtpstalk.tests.integration.thirdparty.fastdds.FastRtpsHelloWorldClientV3;
 
 /**
  * Tests for {@link ReliabilityType#RELIABLE}.
@@ -82,9 +83,9 @@ public class PubSubPairsTests {
             RtpsTalkConfiguration config,
             boolean isSubscribeToFutureTopic,
             boolean enableTopicDiscoveryInfo,
-            TestAssertions test_thirdparty_publisher,
-            TestAssertions test_thirdparty_subscriber,
-            TestAssertions allTests,
+            TestAssertions thirdpartyPublisherAssertions,
+            TestAssertions thirdpartySubscriberAssertions,
+            TestAssertions anyAssertions,
             HelloWorldConfig thirdpartyConfig) {
         /**
          * Currently {@link PubSubPairsTests} covers only two tests: test_thirdparty_publisher,
@@ -104,6 +105,7 @@ public class PubSubPairsTests {
         var testCases = new ArrayList<TestCase>();
         var examples = new ArrayList<HelloWorldClient>();
         examples.add(new FastRtpsHelloWorldClientV2());
+        examples.add(new FastRtpsHelloWorldClientV3());
         if (!TestUtils.isWindows()) examples.add(new CycloneDdsHelloWorldClient());
         for (var helloWorldExample : examples) {
             Stream.of(
@@ -366,7 +368,7 @@ public class PubSubPairsTests {
             Assertions.assertEquals(expectedStdout, actual);
         }
 
-        validateAssertions(testCase.test_thirdparty_publisher, testCase.allTests);
+        validateAssertions(testCase.thirdpartyPublisherAssertions, testCase.anyAssertions);
         // test that readers entity ids are properly assigned
         LOGGER.info("List of Entity ids: " + Arrays.toString(entityIds));
         for (int i = 0; i < entityIds.length; i++) {
@@ -461,7 +463,7 @@ public class PubSubPairsTests {
         // close only after all subscribers received all data
         client.close();
 
-        validateAssertions(testCase.test_thirdparty_subscriber, testCase.allTests);
+        validateAssertions(testCase.thirdpartySubscriberAssertions, testCase.anyAssertions);
     }
 
     private void assertValidators(List<Runnable> validators) {

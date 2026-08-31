@@ -8,6 +8,11 @@ Building module locally and making changes to it (this is optional and not inten
 gradle clean build
 ```
 
+Run unit tests only
+```bash
+gradle clean build -PunitTests -xjacocoTestCoverageVerification
+```
+
 ## With Eclipse
 
 - Build Eclipse projects:

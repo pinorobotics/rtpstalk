@@ -1,11 +1,21 @@
 Tests for `rtpstalk` library.
 
+Testing is done against following vendor implementations of RTPS: Fast-DDS and CycloneDDS.
+
+The version of these implementations is taken based on their version which is used in ROS
+
+| ROS package | Version |
+|---|---|
+| ros-lyrical-fastdds | 3.6.1-3resolute.20260603.151311 |
+| ros-jazzy-fastrtps | 2.14.5-2noble.20250801.162203 |
+| ros-jazzy-cyclonedds | 0.10.5 |
+
 # Prereqs
 
 - Following network interfaces available in the system: lo, eth0
-- Fast-DDS v2.14.0
-- compiled `rtpstalk` version of HelloWorldExample
-- export ELASTIC_URL="https://LOGIN:PASSWD@ELASTICSEARCH_HOST_NAME:9200"
+- compiled `rtpstalk` version of `HelloWorldExample`
+  - to compile `HelloWorldExample` it is necessary to compile specific versions of Fast-DDS and CycloneDDS
+- export `ELASTIC_URL="https://LOGIN:PASSWD@ELASTICSEARCH_HOST_NAME:9200"`
 
 # Linux setup
 
@@ -13,18 +23,9 @@ Tests for `rtpstalk` library.
 
 ### Build Fast-DDS
 
-#### Version 2
+Make sure there is no ROS installed in the system to avoid ROS Fast-DDS middleware libraries interfere with the build.
 
-```bash
-git clone https://github.com/eProsima/Fast-DDS.git
-cd Fast-DDS/
-git checkout v2.14.0
-mkdir build_v2.14.0
-cd build_v2.14.0
-cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DSECURITY=ON ..
-make -j17
-DESTDIR=$(pwd)/install make install
-```
+We need to build Fast-DDS and its dependecy Fast-CDR.
 
 Using `-DSECURITY=ON` changes Fast-DDS version of RTPS protocol from 2.2 to 2.3 (which is default one in ROS Humble).
 See code below for more details:
@@ -41,6 +42,35 @@ common/Types.h
 ...
 ```
 
+#### Version 2
+
+```bash
+git clone https://github.com/eProsima/Fast-DDS.git
+cd Fast-DDS/
+git checkout v2.14.0
+git submodule update --recursive
+mkdir build_v2.14.0
+cd build_v2.14.0
+cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DSECURITY=ON -DTINYXML2_FROM_THIRDPARTY=ON ..
+make -j17
+DESTDIR=$(pwd)/install make install
+cp /usr/lib/x86_64-linux-gnu/libfoonathan_memory.so.0.7.3 /home/ubuntu/opt/Fast-DDS/build_v2.14.0/install/usr/local/lib
+```
+
+#### Version 3
+
+```bash
+git clone https://github.com/eProsima/Fast-DDS.git
+cd Fast-DDS/
+git checkout v3.6.1
+git submodule update --recursive
+mkdir build_v3.6.1
+cd build_v3.6.1
+cmake -DTHIRDPARTY=ON -DCOMPILE_EXAMPLES=ON -DSECURITY=ON ..
+make -j17
+DESTDIR=$(pwd)/install make install
+```
+
 ### Compiling HelloWorldExampleV2
 
 ``` bash
@@ -48,7 +78,20 @@ cd rtpstalk.tests
 BLD_DIR=`pwd`/bld/fastdds/v2
 mkdir -p $BLD_DIR
 cd $BLD_DIR
-cmake -DCMAKE_PREFIX_PATH=<PATH TO Fast-RTPS>/build/install/usr/local/share/fastrtps/cmake ../../../src/test/cpp/fastdds/v2
+FASTDDS_BLD=<PATH TO Fast-RTPS>/build
+cmake -DCMAKE_PREFIX_PATH=$FASTDDS_BLD/install/usr/local/share/fastrtps/cmake\;$FASTDDS_BLD/install/usr/local/lib/cmake ../../../src/test/cpp/fastdds/v2
+make
+```
+
+### Compiling HelloWorldExampleV3
+
+``` bash
+cd rtpstalk.tests
+BLD_DIR=`pwd`/bld/fastdds/v3
+mkdir -p $BLD_DIR
+cd $BLD_DIR
+FASTDDS_BLD=<PATH TO Fast-RTPS>/build
+cmake -DCMAKE_PREFIX_PATH=${FASTDDS_BLD}/install/usr/local/share/fastdds/cmake\;${FASTDDS_BLD}/install/usr/local/lib/cmake/fastcdr ../../../src/test/cpp/fastdds/v3
 make
 ```
 
@@ -157,9 +200,3 @@ move Debug\HelloWorldExample.exe HelloWorldExample
 # Metrics
 
 By default metrics are enabled for tests and they are sent to Elasticsearch index `rtpstalk`.
-
-# Run unit tests only
-
-```
-gradle clean build -PunitTests -xjacocoTestCoverageVerification
-```

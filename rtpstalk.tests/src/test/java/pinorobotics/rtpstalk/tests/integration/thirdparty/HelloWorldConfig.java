@@ -23,6 +23,13 @@ public record HelloWorldConfig(Map<HelloWorldExampleVariable, String> parameters
     public static final String DEFAULT_TOPIC_NAME = "HelloWorldTopic";
     public static final String DEFAULT_TOPIC_TYPE = "HelloWorld";
 
+    /** By default 10 messages are published */
+    public static final int DEFAULT_MESSAGE_COUNT = 10;
+
+    public static final String DEFAULT_RELIABILITY = "RELIABLE_RELIABILITY";
+    public static final String DEFAULT_DURABILITY = "TRANSIENT_LOCAL_DURABILITY_QOS";
+    public static final String DEFAULT_MESSAGE = "HelloWorld";
+
     public HelloWorldConfig() {
         this(Map.of());
     }

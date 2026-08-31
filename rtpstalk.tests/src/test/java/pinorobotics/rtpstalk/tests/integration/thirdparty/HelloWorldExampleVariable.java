@@ -25,6 +25,7 @@ public enum HelloWorldExampleVariable {
     RunSubscriber,
     NumberOfMesages,
     TopicName,
+    Message,
     ReliabilityQosPolicyKind,
     DurabilityQosPolicyKind,
     SleepBetweenMessagesInMillis;

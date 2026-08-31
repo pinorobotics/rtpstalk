@@ -44,7 +44,7 @@ import pinorobotics.rtpstalk.tests.integration.thirdparty.cyclonedds.CycloneDdsH
 /**
  * @author aeon_flux aeon_flux@eclipso.ch
  */
-// These tests relies on CycloneDdsHelloWorldClient which currently is not available for Windows
+// These tests rely on CycloneDdsHelloWorldClient which currently is not available for Windows
 @DisabledOnOs({OS.WINDOWS})
 @ExtendWith({ElasticsearchMetricsExtension.class, LogExtension.class})
 public class ThirdpartyClientThroughputTests extends PubSubClientThroughputTests {

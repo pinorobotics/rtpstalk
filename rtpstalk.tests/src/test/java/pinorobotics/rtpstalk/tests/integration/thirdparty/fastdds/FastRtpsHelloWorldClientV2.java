@@ -24,9 +24,11 @@ import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.integration.thirdparty.HelloWorldClient;
@@ -44,22 +46,28 @@ public class FastRtpsHelloWorldClientV2 implements HelloWorldClient {
 
     /** By default 10 messages are published */
     @Override
-    public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
+    public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> config) {
         var argsList = new ArrayList<String>();
         argsList.add(HELLOWORLDEXAMPLE_PATH);
-        if (env.containsKey(HelloWorldExampleVariable.RunPublisher)) {
+        if (config.containsKey(HelloWorldExampleVariable.RunPublisher)) {
             argsList.add("publisher");
-        } else if (env.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
+        } else if (config.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
             argsList.add("subscriber");
         } else {
             throw new UnsupportedOperationException();
         }
-        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages))
-            argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
-        if (env.containsKey(HelloWorldExampleVariable.SleepBetweenMessagesInMillis))
-            argsList.add(env.get(HelloWorldExampleVariable.SleepBetweenMessagesInMillis));
+        if (config.containsKey(HelloWorldExampleVariable.NumberOfMesages))
+            argsList.add(config.get(HelloWorldExampleVariable.NumberOfMesages));
+        if (config.containsKey(HelloWorldExampleVariable.SleepBetweenMessagesInMillis))
+            argsList.add(config.get(HelloWorldExampleVariable.SleepBetweenMessagesInMillis));
         LOGGER.info("Running command: " + argsList);
-        var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
+        Map<String, String> env = new HashMap<>(toStringKeys(config));
+        env.put(
+                "LD_LIBRARY_PATH",
+                Objects.requireNonNull(
+                        System.getenv("FASTDDS_V2_LIBS"),
+                        "FASTDDS_V2_LIBS env variable is missing"));
+        var proc = new XExec(argsList).withEnvironmentVariables(env).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
         return proc;
