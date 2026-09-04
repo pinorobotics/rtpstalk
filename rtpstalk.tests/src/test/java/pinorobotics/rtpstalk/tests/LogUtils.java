@@ -34,7 +34,10 @@ public class LogUtils {
     public static final Path LOG_FILE =
             XFiles.TEMP_FOLDER.map(p -> p.resolve("rtpstalk-test.log")).orElseThrow();
     private static final Path LOG_ARCHIVE_FOLDER =
-            Unchecked.get(() -> Files.createTempDirectory("rtpstalk-tests"));
+            Unchecked.get(
+                    () ->
+                            Files.createTempDirectory(
+                                    "rtpstalk-tests-" + System.currentTimeMillis()));
     private static final Ellipsizer ELLIPSIZER = new Ellipsizer(60);
 
     public static void setupLog() {

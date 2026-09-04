@@ -75,6 +75,7 @@ class RtpsInputKineticStream implements InputKineticStream {
             LengthCalculator.getInstance().getSubmessageHeaderLength();
     private ByteBuffer buf;
     private KineticStreamReader reader;
+    private boolean isMuted;
 
     public RtpsInputKineticStream(ByteBuffer buf) {
         this.buf = buf;
@@ -439,8 +440,15 @@ class RtpsInputKineticStream implements InputKineticStream {
             throw new NotRtpsPacketException();
         }
         if (!ProtocolVersion.isSupported(header.protocolVersion)) {
-            throw new XRuntimeException(
-                    "RTPS protocol version %s not supported", header.protocolVersion);
+            if (ProtocolVersion.isCompatible(header.protocolVersion)) {
+                if (!isMuted) {
+                    LOGGER.warning(
+                            "Version {0} is not officially supported", header.protocolVersion);
+                    isMuted = true;
+                }
+            } else
+                throw new XRuntimeException(
+                        "RTPS protocol version %s not supported", header.protocolVersion);
         }
         // TODO check little endian only
         LOGGER.fine("header: {0}", header);

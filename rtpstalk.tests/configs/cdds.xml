@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Used by rtpstalk.tests
+
+    export CYCLONEDDS_URI="file:///...../cdds.xml"
+-->
+<CycloneDDS
+   xmlns="https://cdds.io/config"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+   <Domain Id="any">
+     <General>
+       <Interfaces>
+        <NetworkInterface name="lo" priority="default" multicast="default" />
+        <NetworkInterface name="eth0" priority="default" multicast="default" />
+      </Interfaces>
+      <AllowMulticast>default</AllowMulticast>
+      <MaxMessageSize>65500B</MaxMessageSize>
+    </General>
+    <Tracing>
+      <Verbosity>finest</Verbosity>
+      <OutputFile>
+        ${HOME}/cdds.log
+      </OutputFile>
+    </Tracing>
+  </Domain>
+</CycloneDDS>

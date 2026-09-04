@@ -28,6 +28,7 @@ import id.xfunction.lang.XProcess;
 import id.xfunction.logging.XLogger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,20 +64,24 @@ public class CycloneDdsHelloWorldClient implements HelloWorldClient, TestPubSubC
     }
 
     @Override
-    public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> env) {
+    public XProcess runHelloWorldExample(Map<HelloWorldExampleVariable, String> config) {
         var argsList = new ArrayList<String>();
-        if (env.containsKey(HelloWorldExampleVariable.RunPublisher)) {
+        if (config.containsKey(HelloWorldExampleVariable.RunPublisher)) {
             argsList.add(PUBLISHER_PATH);
-        } else if (env.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
+        } else if (config.containsKey(HelloWorldExampleVariable.RunSubscriber)) {
             argsList.add(SUBSCRIBER_PATH);
         } else {
             throw new UnsupportedOperationException();
         }
-        if (env.containsKey(HelloWorldExampleVariable.NumberOfMesages)) {
-            argsList.add(env.get(HelloWorldExampleVariable.NumberOfMesages));
+        if (config.containsKey(HelloWorldExampleVariable.NumberOfMesages)) {
+            argsList.add(config.get(HelloWorldExampleVariable.NumberOfMesages));
         }
         LOGGER.info("Running command: " + argsList);
-        var proc = new XExec(argsList).withEnvironmentVariables(toStringKeys(env)).start();
+        Map<String, String> env = new HashMap<>(toStringKeys(config));
+        env.put(
+                "CYCLONEDDS_URI",
+                "file://" + Path.of("configs/cdds.xml").toAbsolutePath().toString());
+        var proc = new XExec(argsList).withEnvironmentVariables(env).start();
         procs.add(proc);
         proc.forwardOutputAsync(false);
         return proc;

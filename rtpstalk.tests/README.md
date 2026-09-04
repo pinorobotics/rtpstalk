@@ -147,8 +147,11 @@ Create /home/ubuntu/cdds.xml:
 
 ``` xml
 <?xml version="1.0" encoding="utf-8"?>
- <!-- export CYCLONEDDS_URI="file:///home/ubuntu/cdds.xml" -->
- <CycloneDDS
+
+<!--
+    export CYCLONEDDS_URI="file:///home/ubuntu/cdds.xml"
+-->
+<CycloneDDS
    xmlns="https://cdds.io/config"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
