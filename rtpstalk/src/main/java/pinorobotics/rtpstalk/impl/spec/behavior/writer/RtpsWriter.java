@@ -73,8 +73,7 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
     private long lastChangeNumber;
     private Guid writerGuid;
     private RtpsDataMessageBuilder lastMessage;
-    private Optional<Subscription> subscriptionOpt = Optional.empty();
-
+    private Optional<Subscription> subscription = Optional.empty();
     private TracingToken tracingToken;
 
     /**
@@ -126,11 +125,12 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
         return lastChangeNumber;
     }
 
-    protected void request() {
-        subscriptionOpt.ifPresent(
+    protected void request(int n) {
+        if (n <= 0) return;
+        subscription.ifPresent(
                 sub -> {
-                    logger.fine("Requesting next message from the local publisher");
-                    sub.request(1);
+                    logger.fine("Request next {0} messages from the local publisher", n);
+                    sub.request(n);
                 });
     }
 
@@ -145,15 +145,15 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
 
     @Override
     public void onSubscribe(Subscription subscription) {
-        Preconditions.isTrue(this.subscriptionOpt.isEmpty(), "Already subscribed");
-        this.subscriptionOpt = Optional.of(subscription);
+        Preconditions.isTrue(this.subscription.isEmpty(), "Already subscribed");
+        this.subscription = Optional.of(subscription);
         subscription.request(1);
     }
 
     @Override
     public void onNext(D item) {
         newChange(item);
-        request();
+        request(1);
     }
 
     @Override
@@ -182,8 +182,8 @@ public abstract class RtpsWriter<D extends RtpsTalkMessage>
      * publisher which emits changes to be sent by the writer.
      */
     protected void cancelSubscription() {
-        subscriptionOpt.ifPresent(Subscription::cancel);
-        subscriptionOpt = Optional.empty();
+        subscription.ifPresent(Subscription::cancel);
+        subscription = Optional.empty();
     }
 
     public TracingToken getTracingToken() {

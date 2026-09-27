@@ -19,10 +19,10 @@ package pinorobotics.rtpstalk.impl.spec.structure.history;
 
 import id.xfunction.logging.TracingToken;
 import id.xfunction.logging.XLogger;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
@@ -54,7 +54,7 @@ public class HistoryCache<D extends RtpsTalkMessage> {
             paragraph = "8.2.2",
             protocolVersion = Predefined.Version_2_3,
             text = "The RTPS HistoryCache")
-    private Map<Guid, WriterChanges<D>> changes = new HashMap<>();
+    private Map<Guid, WriterChanges<D>> changes = new ConcurrentHashMap<>();
 
     private XLogger logger;
 
@@ -138,7 +138,10 @@ public class HistoryCache<D extends RtpsTalkMessage> {
                 .orElse(0);
     }
 
-    public void removeAllBelow(long oldestSeqNum) {
-        changes.values().stream().forEach(changes -> changes.removeAllBelow(oldestSeqNum));
+    public int removeAllBelow(long oldestSeqNum) {
+        return changes.values().stream()
+                .mapToInt(changes -> changes.removeAllBelow(oldestSeqNum))
+                .max()
+                .orElse(0);
     }
 }

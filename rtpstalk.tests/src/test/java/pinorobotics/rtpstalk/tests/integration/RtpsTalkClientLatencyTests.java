@@ -71,6 +71,7 @@ public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
                         DEFAULT_DISCOVERY_PERIOD.plusSeconds(20),
                         60_000,
                         DEFAULT_HEARTBEAT_PERIOD.multipliedBy(4).plusMillis(60),
+                        // expectedMinReceivedMessageCount
                         120),
                 /**
                  * With push mode enabled latency for message M reduces to one heartbeat cycle (to
@@ -93,6 +94,7 @@ public class RtpsTalkClientLatencyTests extends PubSubClientLatencyTests {
                         DEFAULT_DISCOVERY_PERIOD.plusSeconds(20),
                         60_000,
                         DEFAULT_HEARTBEAT_PERIOD.plusMillis(60),
-                        250));
+                        // expectedMinReceivedMessageCount
+                        50_000));
     }
 }

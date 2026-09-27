@@ -32,10 +32,12 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import pinorobotics.rtpstalk.WriterSettings;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
@@ -99,6 +101,7 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     private final WriterSettings writerSettings;
     private int heartbeatCount = 1;
     private volatile boolean isClosed;
+    private AtomicInteger requestedCount = new AtomicInteger();
 
     public StatefullReliableRtpsWriter(
             RtpsTalkConfigurationInternal config,
@@ -258,9 +261,12 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
     }
 
     /**
-     * Publisher sends changes only when the Reader requests them. Once cache is full the Reader
-     * stops requesting new changes. Each time we clean up the cache we need to request publisher
-     * for a new changes, otherwise we may end up waiting for changes forever.
+     * This class acts as a {@link Subscriber} to the {@link RtpsTalkMessage} published by the
+     * {@link Publisher}.
+     *
+     * <p>{@link Publisher} sends changes only when the {@link Subscriber} requests them. Once cache
+     * is full this class stops requesting new changes. When we clean up the cache we request {@link
+     * Publisher} for a new changes again.
      */
     protected void cleanupCacheAndRequest() {
         if (qosPolicy.durabilityKind() == DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS) {
@@ -270,8 +276,9 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
             // Readers receive everything what was published in the cache.
         }
         if (matchedReaders.isEmpty()) {
-            logger.fine("Cleaning up all changes since there is no matched readers available");
-            historyCache.removeAllBelow(getLastChangeNumber());
+            // if there is no readers then the history cache eventually gets full and we stop
+            // requesting new messages from the user publisher (until new reader starts to read
+            // them)
         } else {
             var oldestSeqNum =
                     matchedReaders.values().stream()
@@ -286,9 +293,8 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
                     "Cleaning up all changes up to and including {0} since they are acknowledged by"
                             + " all the readers",
                     oldestSeqNum);
-            historyCache.removeAllBelow(oldestSeqNum + 1);
+            request(historyCache.removeAllBelow(oldestSeqNum + 1));
         }
-        request();
     }
 
     @Override
@@ -336,37 +342,65 @@ public class StatefullReliableRtpsWriter<D extends RtpsTalkMessage> extends Rtps
         writerReader.getSubscription().ifPresent(Subscription::cancel);
     }
 
+    /**
+     * We ignore requested number "n" and instead request as much as possible to fill up the cache.
+     */
     @Override
-    protected void request() {
-        if (historyCache.getNumberOfChanges(getGuid()) < historyCacheMaxSize) super.request();
+    protected void request(int n) {
+        int free = historyCacheMaxSize - historyCache.getNumberOfChanges(getGuid());
+        free -= requestedCount.get();
+        logger.fine("Cache free space is {0}", free);
+        if (free > 0) {
+            requestedCount.addAndGet(free);
+            super.request(free);
+        }
+    }
+
+    @Override
+    public void onNext(D item) {
+        requestedCount.getAndUpdate(i -> Math.max(0, i - 1));
+        super.onNext(item);
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        // we expect super.onSubscribe to request 1 item so we first inc the counter
+        requestedCount.incrementAndGet();
+        super.onSubscribe(subscription);
+        request(historyCacheMaxSize);
     }
 
     @RtpsSpecReference(
             paragraph = "8.4.2.2",
             protocolVersion = Predefined.Version_2_3,
             text = "Writers must not send data out-of-order")
+    /**
+     * In case of reliable Writer and Reader, the Writer sends changes only when Reader notifies
+     * that it lost them (through heartbeat-acknack interaction).
+     *
+     * <p>If we would be sending changes immediately + by request, it can lead to messages being
+     * sent out-of-order:
+     *
+     * <ul>
+     *   <li>Changes in cache [c1, c2, c3] with the corresponding {@link Data#writerSN} - Received
+     *       acknack from Reader saying that it lost [c1, c2, c3]
+     *   <li>New change c4 was published and immediately sent to Reader
+     *   <li>Lost changes [c1, c2, c3] sent to Reader
+     * </ul>
+     *
+     * <p>In this case Reader will receive messages out-of-order [c4, c1, c2, c3] and since c4 will
+     * have greater {@link Data#writerSN} all previous will not be processed.
+     */
     @Override
     protected void sendLastChangeToAllReaders() {
         if (writerSettings.pushMode()) {
             super.sendLastChangeToAllReaders();
+            cleanupCacheAndRequest();
+            // check if cache is actually full (excluding any requested items)
+            if (historyCacheMaxSize - historyCache.getNumberOfChanges(getGuid()) <= 0) {
+                sendHeartbeats();
+            }
         }
-        /**
-         * For reliable Writer we send changes only when Reader notifies that it lost them (through
-         * heartbeat-acknack interaction).
-         *
-         * <p>If we would be sending changes immediately + by request, it can lead to messages being
-         * sent out-of-order:
-         *
-         * <ul>
-         *   <li>Changes in cache [c1, c2, c3] with the corresponding {@link Data#writerSN} -
-         *       Received acknack from Reader saying that it lost [c1, c2, c3]
-         *   <li>New change c4 was published and immediately sent to Reader
-         *   <li>Lost changes [c1, c2, c3] sent to Reader
-         * </ul>
-         *
-         * <p>In this case Reader will receive messages out-of-order [c4, c1, c2, c3] and since c4
-         * will have greater {@link Data#writerSN} all previous will not be processed.
-         */
         matchedReaders.values().stream()
                 .filter(ReaderProxy.IS_BEST_ERRORT_FILTER)
                 .map(

@@ -82,25 +82,31 @@ public class WriterChanges<D extends RtpsTalkMessage> {
         return seqNumMax.get();
     }
 
-    public synchronized void removeAllBelow(long seqNum) {
+    public synchronized int removeAllBelow(long seqNum) {
         if (seqNum < seqNumMin.get()) {
-            return;
+            return 0;
         }
         if (seqNum > seqNumMax.get()) {
             seqNumMin.set(seqNum);
             seqNumMax.set(seqNum);
+            int count = sortedChanges.size();
             sortedChanges.clear();
-            logger.fine("All writer changes are removed");
-            return;
+            logger.fine("Number of removed writer changes is {0}", count);
+            return count;
         }
         var iter = sortedChanges.entrySet().iterator();
+        int count = 0;
         while (iter.hasNext()) {
             var curSeqNum = iter.next().getKey();
             if (curSeqNum >= seqNum) break;
             iter.remove();
+            count++;
         }
         seqNumMin.set(seqNum);
-        logger.fine("Number of writer changes left is {0}", sortedChanges.size());
+        logger.fine(
+                "Number of removed writer changes is {0}, number of changes left is {1}",
+                count, sortedChanges.size());
+        return count;
     }
 
     public synchronized void addChange(CacheChange<D> change) {
