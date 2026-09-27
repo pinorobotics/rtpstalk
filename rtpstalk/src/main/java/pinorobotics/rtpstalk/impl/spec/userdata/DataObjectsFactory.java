@@ -26,6 +26,7 @@ import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.qos.WriterQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -53,7 +54,7 @@ public class DataObjectsFactory {
                             tracingToken,
                             publisherExecutor,
                             operatingEntities,
-                            readerEntityId,
+                            new Guid(config.publicConfig().guidPrefix(), readerEntityId),
                             subscriberQosPolicy,
                             dataChannelFactory);
             case BEST_EFFORT ->

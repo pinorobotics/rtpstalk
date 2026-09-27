@@ -42,10 +42,7 @@
   </Match>
   <Match>
     <Class name="pinorobotics.rtpstalk.impl.spec.behavior.reader.RtpsReader" />
-    <Or>
-      <Method name="getReaderCache" />
-    </Or>
-    <Bug code="EI" />
+    <Bug code="EI2" />
   </Match>
   <Match>
     <Class name="pinorobotics.rtpstalk.impl.spec.behavior.writer.StatefullReliableRtpsWriter" />

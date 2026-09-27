@@ -28,9 +28,11 @@ import pinorobotics.rtpstalk.impl.spec.RtpsSpecReference;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
 import pinorobotics.rtpstalk.impl.spec.behavior.reader.StatefullReliableRtpsReader;
 import pinorobotics.rtpstalk.impl.spec.messages.DurabilityQosPolicy;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 
 /**
@@ -47,6 +49,9 @@ public class BuiltinParticipantMessageReader
                     ReliabilityQosPolicy.Kind.RELIABLE,
                     DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS);
 
+    private static final EntityId ENTITY_ID =
+            EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue();
+
     public BuiltinParticipantMessageReader(
             RtpsTalkConfigurationInternal config,
             TracingToken tracingToken,
@@ -59,8 +64,9 @@ public class BuiltinParticipantMessageReader
                 RtpsTalkParameterListMessage.class,
                 publisherExecutor,
                 operatingEntities,
-                EntityId.Predefined.ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER.getValue(),
+                new Guid(config.publicConfig().guidPrefix(), ENTITY_ID),
                 DEFAULT_POLICY,
+                new HistoryCache<>(readerTracingToken(tracingToken, ENTITY_ID)),
                 dataChannelFactory);
         Preconditions.isTrue(
                 config.publicConfig().builtinEndpointQos()

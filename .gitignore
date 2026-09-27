@@ -12,4 +12,5 @@
 **/logs
 **/log
 **/install
+**/java_*.hprof
 .catkin_workspace

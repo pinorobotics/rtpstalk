@@ -114,13 +114,14 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
             Class<D> messageType,
             Executor publisherExecutor,
             Guid readerGuid,
-            ReliabilityQosPolicy.Kind reliabilityKind) {
+            ReliabilityQosPolicy.Kind reliabilityKind,
+            HistoryCache<D> cache) {
         super(publisherExecutor, config.publisherMaxBufferSize());
         this.messageType = messageType;
-        this.tracingToken = new TracingToken(token, "r", readerGuid.entityId.toString());
+        this.tracingToken = readerTracingToken(token, readerGuid.entityId);
         this.guid = readerGuid;
         this.reliabilityKind = reliabilityKind;
-        this.cache = new HistoryCache<>(tracingToken);
+        this.cache = cache;
         processor = new DataFragmentReaderProcessor(tracingToken);
         filterVisitor = new FilterByEntityIdRtpsSubmessageVisitor(readerGuid.entityId, this);
         logger = XLogger.getLogger(getClass(), tracingToken);
@@ -128,7 +129,7 @@ public class RtpsReader<D extends RtpsTalkMessage> extends SubmissionPublisher<D
     }
 
     /** Contains the history of CacheChange changes for this RTPS Reader. */
-    public HistoryCache<D> getReaderCache() {
+    protected HistoryCache<D> getReaderCache() {
         return cache;
     }
 
@@ -226,6 +227,7 @@ HistoryCache with a higher sequence number).
                         + " subscribers",
                 cacheChange.getSequenceNumber(), cacheChange.getWriterGuid());
         submit(cacheChange.getDataValue());
+        cache.removeAllBelow(cacheChange.getSequenceNumber());
     }
 
     protected void process(RtpsMessage message) {
@@ -280,5 +282,9 @@ HistoryCache with a higher sequence number).
         subscription.ifPresent(Subscription::cancel);
         super.close();
         logger.fine("Closed");
+    }
+
+    protected static TracingToken readerTracingToken(TracingToken tracingToken, EntityId entityId) {
+        return new TracingToken(tracingToken, "r", entityId.toString());
     }
 }

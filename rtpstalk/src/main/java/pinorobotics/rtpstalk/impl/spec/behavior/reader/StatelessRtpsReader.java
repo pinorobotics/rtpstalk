@@ -24,6 +24,7 @@ import pinorobotics.rtpstalk.RtpsTalkConfiguration;
 import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.RtpsMessageReceiver;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
@@ -37,18 +38,19 @@ public class StatelessRtpsReader<D extends RtpsTalkMessage> extends RtpsReader<D
 
     public StatelessRtpsReader(
             RtpsTalkConfiguration config,
-            TracingToken token,
+            TracingToken tracingToken,
             Class<D> messageType,
             Executor publisherExecutor,
             EntityId entityId,
             ReliabilityQosPolicy.Kind reliabilityKind) {
         super(
                 config,
-                token,
+                tracingToken,
                 messageType,
                 publisherExecutor,
                 new Guid(config.guidPrefix(), entityId),
-                reliabilityKind);
+                reliabilityKind,
+                new HistoryCache<>(readerTracingToken(tracingToken, entityId)));
         Preconditions.equals(reliabilityKind, ReliabilityQosPolicy.Kind.BEST_EFFORT);
     }
 }

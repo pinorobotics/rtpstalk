@@ -23,6 +23,7 @@ import java.util.concurrent.Flow.Subscriber;
 import pinorobotics.rtpstalk.impl.RtpsTalkConfigurationInternal;
 import pinorobotics.rtpstalk.impl.qos.ReaderQosPolicySet;
 import pinorobotics.rtpstalk.impl.spec.behavior.LocalOperatingEntities;
+import pinorobotics.rtpstalk.impl.spec.messages.Guid;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.userdata.ReliableDataReader;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
@@ -47,7 +48,7 @@ public class TestDataReader extends ReliableDataReader {
                 tracingToken,
                 executor,
                 operatingEntities,
-                entityId,
+                new Guid(config.publicConfig().guidPrefix(), entityId),
                 new ReaderQosPolicySet(),
                 TestConstants.TEST_DATA_CHANNEL_FACTORY);
     }

@@ -36,11 +36,11 @@ import pinorobotics.rtpstalk.impl.spec.messages.ReliabilityQosPolicy;
 import pinorobotics.rtpstalk.impl.spec.messages.RtpsMessage;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
-import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.EntityId;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.GuidPrefix;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.ProtocolVersion.Predefined;
 import pinorobotics.rtpstalk.impl.spec.messages.walk.Result;
 import pinorobotics.rtpstalk.impl.spec.structure.history.CacheChange;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
 import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkMessage;
 
@@ -77,16 +77,18 @@ public class StatefullReliableRtpsReader<D extends RtpsTalkMessage> extends Rtps
             Class<D> messageType,
             Executor publisherExecutor,
             LocalOperatingEntities operatingEntities,
-            EntityId entityId,
+            Guid readerGuid,
             ReaderQosPolicySet qosPolicy,
+            HistoryCache<D> cache,
             DataChannelFactory dataChannelFactory) {
         super(
                 config.publicConfig(),
                 tracingToken,
                 messageType,
                 publisherExecutor,
-                new Guid(config.publicConfig().guidPrefix(), entityId),
-                qosPolicy.reliabilityKind());
+                readerGuid,
+                qosPolicy.reliabilityKind(),
+                cache);
         Preconditions.equals(qosPolicy.reliabilityKind(), ReliabilityQosPolicy.Kind.RELIABLE);
         this.dataChannelFactory = dataChannelFactory;
         this.qosPolicy = qosPolicy;

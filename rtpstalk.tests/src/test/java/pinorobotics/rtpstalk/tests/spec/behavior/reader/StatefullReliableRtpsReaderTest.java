@@ -35,6 +35,8 @@ import pinorobotics.rtpstalk.impl.spec.messages.submessages.Gap;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.Heartbeat;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumber;
 import pinorobotics.rtpstalk.impl.spec.messages.submessages.elements.SequenceNumberSet;
+import pinorobotics.rtpstalk.impl.spec.structure.history.HistoryCache;
+import pinorobotics.rtpstalk.impl.spec.transport.DataChannelFactory;
 import pinorobotics.rtpstalk.messages.RtpsTalkDataMessage;
 import pinorobotics.rtpstalk.tests.TestConstants;
 import pinorobotics.rtpstalk.tests.spec.discovery.spdp.TestDataChannelFactory;
@@ -46,18 +48,7 @@ public class StatefullReliableRtpsReaderTest {
 
     @Test
     public void test_messages_from_non_matched_writers_are_ignored() {
-        var reader =
-                new StatefullReliableRtpsReader<>(
-                        TestConstants.TEST_CONFIG_INTERNAL,
-                        TestConstants.TEST_TRACING_TOKEN,
-                        RtpsTalkDataMessage.class,
-                        new SameThreadExecutorService(),
-                        new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                        TestConstants.TEST_READER_ENTITY_ID,
-                        new ReaderQosPolicySet(
-                                ReliabilityQosPolicy.Kind.RELIABLE,
-                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
-                        TestConstants.TEST_DATA_CHANNEL_FACTORY);
+        var reader = newStatefullReliableRtpsReader(TestConstants.TEST_DATA_CHANNEL_FACTORY);
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
         try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
@@ -85,18 +76,7 @@ public class StatefullReliableRtpsReaderTest {
     @Test
     public void test_transient_local_marks_previous_missing() {
         var dataChannelFactory = new TestDataChannelFactory();
-        var reader =
-                new StatefullReliableRtpsReader<>(
-                        TestConstants.TEST_CONFIG_INTERNAL,
-                        TestConstants.TEST_TRACING_TOKEN,
-                        RtpsTalkDataMessage.class,
-                        new SameThreadExecutorService(),
-                        new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                        TestConstants.TEST_READER_ENTITY_ID,
-                        new ReaderQosPolicySet(
-                                ReliabilityQosPolicy.Kind.RELIABLE,
-                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
-                        dataChannelFactory);
+        var reader = newStatefullReliableRtpsReader(dataChannelFactory);
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
         try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
@@ -130,18 +110,7 @@ public class StatefullReliableRtpsReaderTest {
     @Test
     public void test_gaps_are_skipped() {
         var dataChannelFactory = new TestDataChannelFactory();
-        var reader =
-                new StatefullReliableRtpsReader<>(
-                        TestConstants.TEST_CONFIG_INTERNAL,
-                        TestConstants.TEST_TRACING_TOKEN,
-                        RtpsTalkDataMessage.class,
-                        new SameThreadExecutorService(),
-                        new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
-                        TestConstants.TEST_READER_ENTITY_ID,
-                        new ReaderQosPolicySet(
-                                ReliabilityQosPolicy.Kind.RELIABLE,
-                                DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
-                        dataChannelFactory);
+        var reader = newStatefullReliableRtpsReader(dataChannelFactory);
         var items = new ArrayList<RtpsTalkDataMessage>();
         reader.subscribe(new CollectorSubscriber<>(items));
         try (var publisher = new SynchronousPublisher<RtpsMessage>()) {
@@ -166,5 +135,21 @@ public class StatefullReliableRtpsReaderTest {
 """,
                     items.toString());
         }
+    }
+
+    private StatefullReliableRtpsReader<RtpsTalkDataMessage> newStatefullReliableRtpsReader(
+            DataChannelFactory dataChannelFactory) {
+        return new StatefullReliableRtpsReader<>(
+                TestConstants.TEST_CONFIG_INTERNAL,
+                TestConstants.TEST_TRACING_TOKEN,
+                RtpsTalkDataMessage.class,
+                new SameThreadExecutorService(),
+                new LocalOperatingEntities(TestConstants.TEST_TRACING_TOKEN),
+                TestConstants.TEST_GUID_READER,
+                new ReaderQosPolicySet(
+                        ReliabilityQosPolicy.Kind.RELIABLE,
+                        DurabilityQosPolicy.Kind.TRANSIENT_LOCAL_DURABILITY_QOS),
+                new HistoryCache<>(TestConstants.TEST_TRACING_TOKEN),
+                dataChannelFactory);
     }
 }
